@@ -14,3 +14,28 @@ model Widget {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 }
 
+model Admin {
+  id       Int    @unique @default(sequence())
+  email    String @unique
+  password String
+}
+
+model CPL {
+  id        Int    @id @default(sequence())
+  deskripsi String
+  BK        BK[]   @relation("cpl_bk")
+}
+
+model BK {
+  id        Int    @id @default(sequence())
+  deskripsi String
+  CBK       CPL[]  @relation("cpl_bk")
+  MK        MK[]   @relation("bk_mk")
+}
+
+model MK {
+  id        Int    @id @default(sequence())
+  deskripsi String
+  BK        BK[]   @relation("bk_mk")
+  bK        Int?
+}
