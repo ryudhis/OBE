@@ -63,7 +63,7 @@ const LoginForm = () => {
         </p>
       </div>
       <div className="text-[25px] font-bold text-[#2392EC] xl:hidden -mb-3">
-        Log In
+        Login
       </div>
       {/* INPUT FIELD */}
       <div className="input input-bordered flex items-center">
@@ -91,9 +91,9 @@ const LoginForm = () => {
       {/* SUBMIT BUTTON */}
       <button
         type="submit"
-        className="btn xl:border-black text-white xl:text-[#2392EC] font-medium xl:font-semibold text-[20px] xl:text-[22px] bg-[#2392EC] xl:bg-white rounded-[26px] w-[175px] self-center normal-case"
+        className="btn p-1 xl:p-2 xl:border-black text-white xl:text-[#2392EC] font-medium xl:font-semibold text-[20px] xl:text-[22px] bg-[#2392EC] xl:bg-white rounded-[26px] w-[175px] self-center normal-case"
       >
-        Log In
+        Login
       </button>
     </form>
   );
