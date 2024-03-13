@@ -20,22 +20,45 @@ model Admin {
   password String
 }
 
-model CPL {
+model PL {
   id        Int    @id @default(sequence())
+  kode      String
   deskripsi String
-  BK        BK[]   @relation("cpl_bk")
+  CPL       CPL[]  @relation("cpl_pl")
+}
+
+model CPL {
+  id         Int    @id @default(sequence())
+  kode       String
+  deskripsi  String
+  keterangan String
+  BK         BK[]   @relation("cpl_bk")
+  PL         PL[]   @relation("cpl_pl")
+  CPMK       CPMK[] @relation("cpmk_cpl")
 }
 
 model BK {
   id        Int    @id @default(sequence())
+  kode      String
   deskripsi String
-  CBK       CPL[]  @relation("cpl_bk")
+  min       Int
+  max       Int
+  CPL       CPL[]  @relation("cpl_bk")
   MK        MK[]   @relation("bk_mk")
 }
 
 model MK {
   id        Int    @id @default(sequence())
+  kode      String
   deskripsi String
   BK        BK[]   @relation("bk_mk")
-  bK        Int?
+  CPMK      CPMK[] @relation("cpmk_mk")
+}
+
+model CPMK {
+  id        Int    @id @default(sequence())
+  kode      String
+  deskripsi String
+  CPL       CPL[]  @relation("cpmk_cpl")
+  MK        MK[]   @relation("cpmk_mk")
 }

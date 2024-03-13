@@ -1,0 +1,9 @@
+baseURL: http://localhost:3000/api
+
+ModelName
+- GET ALL ModelName       : baseURL/ModelName (GET METHOD)
+- CREATE ModelName        : baseURL/ModelName (POST METHOD)
+- GET ModelName BY ID     : baseURL/ModelName/:id (GET METHOD)
+- DELETE ModelName BY ID  : baseURL/ModelName/:id (DELETE METHOD)
+- UPDATE ModelName BY ID  : baseURL/ModelName/:id (PATCH METHOD)
+
