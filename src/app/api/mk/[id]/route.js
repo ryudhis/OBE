@@ -3,7 +3,7 @@ import prisma from "@/utils/prisma";
 export async function GET(req) {
   try {
     const id = parseInt(req.url.split("/mk/")[1]);
-    const mk = await prisma.mk.findUnique({
+    const MK = await prisma.MK.findUnique({
       where: {
         id: id,
       },
@@ -12,7 +12,7 @@ export async function GET(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ambil data!",
-      data: mk,
+      data: MK,
     });
   } catch (error) {
     console.log(error);
@@ -23,7 +23,7 @@ export async function GET(req) {
 export async function DELETE(req) {
   try {
     const id = parseInt(req.url.split("/mk/")[1]);
-    const mk = await prisma.mk.delete({
+    const MK = await prisma.MK.delete({
       where: {
         id: id,
       },
@@ -32,7 +32,7 @@ export async function DELETE(req) {
     return Response.json({
       status: 200,
       message: "Berhasil hapus data!",
-      data: mk,
+      data: MK,
     });
   } catch (error) {
     console.log(error);
@@ -45,7 +45,7 @@ export async function PATCH(req) {
     const id = parseInt(req.url.split("/mk/")[1]);
     const data = await req.json();
 
-    const mk = await prisma.mk.update({
+    const MK = await prisma.MK.update({
       where: {
         id: id,
       },
@@ -55,7 +55,7 @@ export async function PATCH(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: mk,
+      data: MK,
     });
   } catch (error) {
     console.log(error);

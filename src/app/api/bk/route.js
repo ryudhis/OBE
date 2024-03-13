@@ -2,12 +2,12 @@ import prisma from "@/utils/prisma";
 
 export async function GET() {
   try {
-    const bk = await prisma.bk.findMany();
+    const BK = await prisma.BK.findMany();
 
     return Response.json({
       status: 200,
       message: "Berhasil ambil semua data!",
-      data: bk,
+      data: BK,
     });
   } catch (error) {
     console.log(error);
@@ -18,12 +18,12 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const bk = await prisma.bk.create({ data });
+    const BK = await prisma.BK.create({ data });
 
     return Response.json({
       status: 200,
       message: "Berhasil buat data!",
-      data: bk,
+      data: BK,
     });
   } catch (error) {
     console.log(error);

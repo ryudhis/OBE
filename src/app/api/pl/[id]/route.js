@@ -3,7 +3,7 @@ import prisma from "@/utils/prisma";
 export async function GET(req) {
   try {
     const id = parseInt(req.url.split("/pl/")[1]);
-    const pl = await prisma.pl.findUnique({
+    const PL = await prisma.PL.findUnique({
       where: {
         id: id,
       },
@@ -12,7 +12,7 @@ export async function GET(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ambil data!",
-      data: pl,
+      data: PL,
     });
   } catch (error) {
     console.log(error);
@@ -23,7 +23,7 @@ export async function GET(req) {
 export async function DELETE(req) {
   try {
     const id = parseInt(req.url.split("/pl/")[1]);
-    const pl = await prisma.pl.delete({
+    const PL = await prisma.PL.delete({
       where: {
         id: id,
       },
@@ -32,7 +32,7 @@ export async function DELETE(req) {
     return Response.json({
       status: 200,
       message: "Berhasil hapus data!",
-      data: pl,
+      data: PL,
     });
   } catch (error) {
     console.log(error);
@@ -45,7 +45,7 @@ export async function PATCH(req) {
     const id = parseInt(req.url.split("/pl/")[1]);
     const data = await req.json();
 
-    const pl = await prisma.pl.update({
+    const PL = await prisma.PL.update({
       where: {
         id: id,
       },
@@ -55,7 +55,7 @@ export async function PATCH(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: pl,
+      data: PL,
     });
   } catch (error) {
     console.log(error);
