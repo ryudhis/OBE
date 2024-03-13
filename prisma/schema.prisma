@@ -21,15 +21,13 @@ model Admin {
 }
 
 model PL {
-  id        Int    @id @default(sequence())
-  kode      String
+  kode      String @id @unique
   deskripsi String
   CPL       CPL[]  @relation("cpl_pl")
 }
 
 model CPL {
-  id         Int    @id @default(sequence())
-  kode       String
+  kode       String @id @unique
   deskripsi  String
   keterangan String
   BK         BK[]   @relation("cpl_bk")
@@ -38,8 +36,7 @@ model CPL {
 }
 
 model BK {
-  id        Int    @id @default(sequence())
-  kode      String
+  kode      String @id @unique
   deskripsi String
   min       Int
   max       Int
@@ -48,16 +45,14 @@ model BK {
 }
 
 model MK {
-  id        Int    @id @default(sequence())
-  kode      String
+  kode      String @id @unique
   deskripsi String
   BK        BK[]   @relation("bk_mk")
   CPMK      CPMK[] @relation("cpmk_mk")
 }
 
 model CPMK {
-  id        Int    @id @default(sequence())
-  kode      String
+  kode      String @id @unique
   deskripsi String
   CPL       CPL[]  @relation("cpmk_cpl")
   MK        MK[]   @relation("cpmk_mk")
