@@ -1,5 +1,6 @@
 import React from "react";
 import LoginForm from "../components/LoginForm";
+import Image from "next/image";
 
 export const metadata = {
   title: "Login Page",
@@ -11,17 +12,17 @@ const Login = () => {
     <main>
       <div className="h-screen w-screen bg-white flex flex-col xl:flex-row">
         <div className="w-screen h-[80%] xl:h-screen login bg-cover bg-[#2392EC] xl:bg-white rounded-b-[40px] xl:rounded-none flex flex-col xl:hidden justify-center items-center shadow-[0_4px_4px_0px_#B9B9B9]">
-          <img width={135} height={135} src="Logo.png" alt="" />
+          <Image width={135} height={135} src="Logo.png" alt="" />
           <p className="text-[20px] text-white font-semibold tracking-wide">
             Selamat Datang!
           </p>
         </div>
         <div className="hidden xl:flex flex-col w-screen h-screen login bg-cover bg-[#FF5757] xl:bg-white rounded-b-[40px] xl:rounded-none justify-between items-center shadow-[0_4px_4px_0px_#B9B9B9]">
           <div className="flex self-start justify-center items-center ml-3 mt-3">
-            <img width={50} height={50} src="Logo.png" alt="" />
+            <Image width={50} height={50} src="Logo.png" alt="" />
             <h3 className="ml-3 text-base font-semibold text-[#2392EC]">OBE</h3>
           </div>
-          <img width={443} height={443} src="Logo.png" alt="" />
+          <Image width={443} height={443} src="Logo.png" alt="" />
           <div className="ml-20 self-start flex flex-col mb-24 text-[#2392EC]">
             <h1 className="w-[366px] text-[32px] font-semibold">OBE</h1>
             <p className="w-[600px] font-medium">
