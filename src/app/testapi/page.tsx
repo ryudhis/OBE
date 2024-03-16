@@ -51,7 +51,7 @@ const TestApi = () => {
 
   return (
     <Table>
-      <TableCaption className="text-2xl font-bold">DATA CPL</TableCaption>
+      <TableCaption className="text-2xl font-bold ">DATA CPL</TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">Kode</TableHead>

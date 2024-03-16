@@ -2,15 +2,15 @@
 import React, { useState } from "react";
 import axiosConfig from "../../../utils/axios";
 
-export interface pl {
+export interface mk {
   kode: string;
   deskripsi: string;
 }
 
-const initialInputs: pl = { kode: "", deskripsi: "" };
+const initialInputs: mk = { kode: "", deskripsi: "" };
 
-const PLScreen = () => {
-  const [inputs, setInputs] = useState<pl>(initialInputs);
+const MKScreen = () => {
+  const [inputs, setInputs] = useState<mk>(initialInputs);
 
   const handleInput = (e: any) => {
     const name = e.target.name;
@@ -18,19 +18,19 @@ const PLScreen = () => {
     setInputs((values) => ({ ...values, [name]: value }));
   };
 
-  const addPL = (e: any) => {
+  const addMK = (e: any) => {
     e.preventDefault();
 
     const data = {
-      kode: "PL-" + inputs.kode,
+      kode: "MK-" + inputs.kode,
       deskripsi: inputs.deskripsi,
     };
 
     axiosConfig
-      .post("api/pl", data)
+      .post("api/mk", data)
       .then(function (response) {
         if (response.data.status != 400) {
-          alert("Berhasil menambahkan data PL!");
+          alert("Berhasil menambahkan data MK!");
         } else {
           alert(response.data.message);
         }
@@ -51,12 +51,12 @@ const PLScreen = () => {
             <li>
               <a href="">Input Data</a>
             </li>
-            <li>PL</li>
+            <li>MK</li>
           </ul>
         </div>
 
         <form
-          onSubmit={addPL}
+          onSubmit={addMK}
           className="flex flex-col gap-[7px] text-[12px] xl:text-base my-2 xl:mt-6"
         >
           <div className="flex gap-3 xl:gap-4 items-center">
@@ -66,7 +66,7 @@ const PLScreen = () => {
             >
               Kode
               <span className="text-red-500 absolute mt-[-6px]">*</span>
-              &nbsp;PL-
+              &nbsp;MK-
             </label>
             <input
               className="w-[77%] xl:w-[82%] h-9 xl:h-11 border-[1.5px] border-[#D5D8DE] rounded-sm p-2"
@@ -84,7 +84,7 @@ const PLScreen = () => {
               className="w-[23%] xl:w-[18%] text-end font-medium leading-[1.2]"
               htmlFor=""
             >
-              Deskripsi
+              Nama Mata Kuliah
               <span className="text-red-500 absolute mt-[-20px] xl:mt-[-6px]">
                 *
               </span>
@@ -136,4 +136,4 @@ const PLScreen = () => {
   );
 };
 
-export default PLScreen;
+export default MKScreen;
