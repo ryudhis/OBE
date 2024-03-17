@@ -1,138 +1,134 @@
 "use client";
-import React, { useState } from "react";
 import axiosConfig from "../../../utils/axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-export interface cpmk {
-  kode: string;
-  deskripsi: string;
-}
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
-const initialInputs: cpmk = { kode: "", deskripsi: "" };
+const formSchema = z.object({
+  kode: z.string().min(2).max(50),
+  deskripsi: z.string().min(1).max(50),
+});
 
 const CPMKScreen = () => {
-  const [inputs, setInputs] = useState<cpmk>(initialInputs);
+  const { toast } = useToast();
 
-  const handleInput = (e: any) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setInputs((values) => ({ ...values, [name]: value }));
-  };
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      kode: "",
+      deskripsi: "",
+    },
+  });
 
-  const addCPMK = (e: any) => {
+  // AddCPMK
+  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
     const data = {
-      kode: "CPMK-" + inputs.kode,
-      deskripsi: inputs.deskripsi,
+      kode: "CPMK-" + values.kode,
+      deskripsi: values.deskripsi,
     };
+
+    console.log(data.kode);
 
     axiosConfig
       .post("api/cpmk", data)
       .then(function (response) {
         if (response.data.status != 400) {
-          alert("Berhasil menambahkan data CPMK!");
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
         } else {
-          alert(response.data.message);
+          toast({
+            title: "Kode Sudah Ada!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
         }
       })
       .catch(function (error) {
-        alert(error.data.message);
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
         console.log(error);
       });
 
-    window.location.reload();
-  };
+    form.reset();
+  }
 
   return (
-    <main className="flex">
-      <div className="bg-[#F2F1EF] w-full m-[7px] mt-[56px] rounded-[5px] xl:rounded-[20px] p-[7px] xl:w-[80%] xl:mx-auto xl:my-10 xl:px-[57px] xl:mt-[125px] xl:py-[25px]">
-        <div className="text-sm breadcrumbs font-bold p-0">
-          <ul className="text-[12px] xl:text-xl">
-            <li>
-              <a href="">Input Data</a>
-            </li>
-            <li>CPMK</li>
-          </ul>
-        </div>
-
-        <form
-          onSubmit={addCPMK}
-          className="flex flex-col gap-[7px] text-[12px] xl:text-base my-2 xl:mt-6"
-        >
-          <div className="flex gap-3 xl:gap-4 items-center">
-            <label
-              className="w-[23%] xl:w-[18%] text-end font-medium"
-              htmlFor=""
-            >
-              Kode
-              <span className="text-red-500 absolute mt-[-6px]">*</span>
-              &nbsp;CPMK-
-            </label>
-            <input
-              className="w-[77%] xl:w-[82%] h-9 xl:h-11 border-[1.5px] border-[#D5D8DE] rounded-sm p-2"
-              type="text"
-              name="kode"
-              id="kode"
-              value={inputs.kode}
-              onChange={handleInput}
-              required
-            />
-          </div>
-
-          <div className="flex gap-3 xl:gap-4 items-center">
-            <label
-              className="w-[23%] xl:w-[18%] text-end font-medium leading-[1.2]"
-              htmlFor=""
-            >
-              Deskripsi
-              <span className="text-red-500 absolute mt-[-20px] xl:mt-[-6px]">
-                *
-              </span>
-            </label>
-            <input
-              className="w-[77%] xl:w-[82%] h-9 xl:h-11 border-[1.5px] border-[#D5D8DE] rounded-sm p-2"
-              type="text"
-              name="deskripsi"
-              id="deskripsi"
-              value={inputs.deskripsi}
-              onChange={handleInput}
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            name="tambah"
-            id="tambah"
-            className="bg-[#FF5757;] w-[110px] xl:w-[180px] xl:h-[50px] h-[35px] self-end mt-3 rounded-[10px] xl:rounded-[15px] text-white font-semibold text-sans text-[14px] xl:text-xl p-2 xl:p-5 flex items-center gap-1 xl:gap-3"
-          >
-            <svg
-              className="xl:w-[21px] xl:h-[21px]"
-              xmlns="http://www.w3.org/2000/svg"
-              width="30"
-              height="30"
-              viewBox="0 0 18 18"
-              fill="none"
-            >
-              <circle cx="9" cy="9" r="6.75" fill="white" />
-              <path
-                d="M9 11.25L9 6.75"
-                stroke="#222222"
-                stroke-width="1.2"
-                stroke-linecap="square"
+    <section className="flex h-screen mt-[-100px] justify-center items-center">
+      <Card className="w-[1000px]">
+        <CardHeader>
+          <CardTitle>Input CPMK</CardTitle>
+          <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="kode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kode CPMK-</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Kode"
+                        type="number"
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <path
-                d="M11.25 9L6.75 9"
-                stroke="#222222"
-                stroke-width="1.2"
-                stroke-linecap="square"
+
+              <FormField
+                control={form.control}
+                name="deskripsi"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Deskripsi" required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </svg>
-            Tambahkan
-          </button>
-        </form>
-      </div>
-    </main>
+
+              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+                Submit
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </section>
   );
 };
 

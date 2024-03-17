@@ -1,5 +1,4 @@
 "use client";
-import React, { useState } from "react";
 import axiosConfig from "../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -8,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -23,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -31,9 +29,8 @@ const formSchema = z.object({
 });
 
 const PLScreen = () => {
-  const { toast } = useToast()
-  
-  // 1. Define your form.
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,7 +44,7 @@ const PLScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: "PL-"+ values.kode,
+      kode: "PL-" + values.kode,
       deskripsi: values.deskripsi,
     };
 
@@ -60,21 +57,25 @@ const PLScreen = () => {
           toast({
             title: "Berhasil Submit",
             description: String(new Date()),
-          })
+          });
         } else {
-          alert(response.data.data)
+          toast({
+            title: "Kode Sudah Ada!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
         }
       })
       .catch(function (error) {
         toast({
-          title: "Gagal  Submit",
+          title: "Gagal Submit",
           description: String(new Date()),
-          variant:"destructive",
-        })
+          variant: "destructive",
+        });
         console.log(error);
       });
 
-    
+    form.reset();
   }
 
   return (
@@ -94,7 +95,12 @@ const PLScreen = () => {
                   <FormItem>
                     <FormLabel>Kode PL-</FormLabel>
                     <FormControl>
-                      <Input placeholder="Kode" type="number" required {...field} />
+                      <Input
+                        placeholder="Kode"
+                        type="number"
+                        required
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -115,9 +121,9 @@ const PLScreen = () => {
                 )}
               />
 
-              <Button type="submit" onClick={()=>{
-                alert("deprekator");
-              }}>Submit</Button>
+              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+                Submit
+              </Button>
             </form>
           </Form>
         </CardContent>
