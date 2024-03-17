@@ -7,6 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import React, { useState, useEffect } from "react";
 import axiosConfig from "../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -54,34 +61,41 @@ const DataCPL = () => {
   };
 
   return (
-    <>
-      <h2 className="text-2xl font-bold text-center">DATA CPL</h2>
-      {isLoading ? (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Kode</TableHead>
-              <TableHead>Deskripsi</TableHead>
-              <TableHead>Keterangan</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <SkeletonTable rows={5} cols={3} />
-          </TableBody>
-        </Table>
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Kode</TableHead>
-              <TableHead>Deskripsi</TableHead>
-              <TableHead>Keterangan</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>{renderData()}</TableBody>
-        </Table>
-      )}
-    </>
+    <section className="flex justify-center items-center mt-20">
+      <Card className="w-[1000px]">
+        <CardHeader>
+          <CardTitle>Tabel CPL</CardTitle>
+          <CardDescription>Capaian Pembelajaran</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Kode</TableHead>
+                  <TableHead>Deskripsi</TableHead>
+                  <TableHead>Keterangan</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <SkeletonTable rows={5} cols={4} />
+              </TableBody>
+            </Table>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Kode</TableHead>
+                  <TableHead>Deskripsi</TableHead>
+                  <TableHead>Keterangan</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>{renderData()}</TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </section>
   );
 };
 
