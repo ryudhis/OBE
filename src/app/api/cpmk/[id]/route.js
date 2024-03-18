@@ -2,10 +2,10 @@ import prisma from "@/utils/prisma";
 
 export async function GET(req) {
   try {
-    const id = parseInt(req.url.split("/cpmk/")[1]);
+    const kode = req.url.split("/cpmk/")[1];
     const CPMK = await prisma.CPMK.findUnique({
       where: {
-        id: id,
+        kode: kode,
       },
     });
 
@@ -22,10 +22,10 @@ export async function GET(req) {
 
 export async function DELETE(req) {
   try {
-    const id = parseInt(req.url.split("/cpmk/")[1]);
+    const kode = parseInt(req.url.split("/cpmk/")[1]);
     const CPMK = await prisma.CPMK.delete({
       where: {
-        id: id,
+        kode: kode,
       },
     });
 
@@ -42,12 +42,12 @@ export async function DELETE(req) {
 
 export async function PATCH(req) {
   try {
-    const id = parseInt(req.url.split("/cpmk/")[1]);
+    const kode = parseInt(req.url.split("/cpmk/")[1]);
     const data = await req.json();
 
     const CPMK = await prisma.CPMK.update({
       where: {
-        id: id,
+        kode: kode,
       },
       data,
     });
