@@ -15,7 +15,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import React, { useState, useEffect } from 'react';
-import axiosConfig from '../../../utils/axios';
+import axiosConfig from '../../../../utils/axios';
 import SkeletonTable from '@/components/SkeletonTable';
 
 export interface cpl {

@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from "../../../utils/axios";
+import axiosConfig from '../../../../utils/axios';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,10 +26,9 @@ import { useToast } from "@/components/ui/use-toast";
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
-  keterangan: z.string().min(1).max(50),
 });
 
-const CPLScreen = () => {
+const CPMKScreen = () => {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -37,24 +36,22 @@ const CPLScreen = () => {
     defaultValues: {
       kode: "",
       deskripsi: "",
-      keterangan: "",
     },
   });
 
-  // AddCPL
+  // AddCPMK
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
     const data = {
-      kode: "CPL-" + values.kode,
+      kode: "CPMK-" + values.kode,
       deskripsi: values.deskripsi,
-      keterangan: values.keterangan,
     };
 
     console.log(data.kode);
 
     axiosConfig
-      .post("api/cpl", data)
+      .post("api/cpmk", data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -75,19 +72,18 @@ const CPLScreen = () => {
           description: String(new Date()),
           variant: "destructive",
         });
-        
         console.log(error);
       });
 
-      form.reset();
+    form.reset();
   }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Input CPL</CardTitle>
-          <CardDescription>Capaian Pembelajaran</CardDescription>
+          <CardTitle>Input CPMK</CardTitle>
+          <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -97,7 +93,7 @@ const CPLScreen = () => {
                 name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode CPL-</FormLabel>
+                    <FormLabel>Kode CPMK-</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Kode"
@@ -116,23 +112,9 @@ const CPLScreen = () => {
                 name="deskripsi"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deskripsi</FormLabel>
+                    <FormLabel>Nama</FormLabel>
                     <FormControl>
                       <Input placeholder="Deskripsi" required {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="keterangan"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Keterangan</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Keterangan" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -150,4 +132,4 @@ const CPLScreen = () => {
   );
 };
 
-export default CPLScreen;
+export default CPMKScreen;

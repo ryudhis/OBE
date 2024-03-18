@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from "../../../utils/axios";
+import axiosConfig from '../../../../utils/axios';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,11 +26,10 @@ import { useToast } from "@/components/ui/use-toast";
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
-  min: z.string().min(0).max(10),
-  max: z.string().min(0).max(10),
+  keterangan: z.string().min(1).max(50),
 });
 
-const BKScreen = () => {
+const CPLScreen = () => {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -38,26 +37,24 @@ const BKScreen = () => {
     defaultValues: {
       kode: "",
       deskripsi: "",
-      min: "0",
-      max: "0",
+      keterangan: "",
     },
   });
 
-  // AddBK
+  // AddCPL
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
     const data = {
-      kode: "BK-" + values.kode,
+      kode: "CPL-" + values.kode,
       deskripsi: values.deskripsi,
-      min: parseInt(values.min),
-      max: parseInt(values.max),
+      keterangan: values.keterangan,
     };
 
     console.log(data.kode);
 
     axiosConfig
-      .post("api/bk", data)
+      .post("api/cpl", data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -78,18 +75,19 @@ const BKScreen = () => {
           description: String(new Date()),
           variant: "destructive",
         });
+        
         console.log(error);
       });
 
-    form.reset();
+      form.reset();
   }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Input BK</CardTitle>
-          <CardDescription>Bahan Kajian</CardDescription>
+          <CardTitle>Input CPL</CardTitle>
+          <CardDescription>Capaian Pembelajaran</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -99,7 +97,7 @@ const BKScreen = () => {
                 name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode BK-</FormLabel>
+                    <FormLabel>Kode CPL-</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Kode"
@@ -129,40 +127,12 @@ const BKScreen = () => {
 
               <FormField
                 control={form.control}
-                name="min"
+                name="keterangan"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Minimal MK</FormLabel>
+                    <FormLabel>Keterangan</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="min"
-                        type="number"
-                        min={0}
-                        max={10}
-                        required
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="max"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Maksimal MK</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="max"
-                        type="number"
-                        min={0}
-                        max={10}
-                        required
-                        {...field}
-                      />
+                      <Input placeholder="Keterangan" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,4 +150,4 @@ const BKScreen = () => {
   );
 };
 
-export default BKScreen;
+export default CPLScreen;

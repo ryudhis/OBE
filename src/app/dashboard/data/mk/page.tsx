@@ -15,26 +15,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React, { useState, useEffect } from "react";
-import axiosConfig from "../../../utils/axios";
+import axiosConfig from '../../../../utils/axios';
 import SkeletonTable from "@/components/SkeletonTable";
 
-export interface pl {
+export interface mk {
   kode: string;
   deskripsi: string;
 }
 
-const DataPL = () => {
-  const [PL, setPL] = useState<pl[]>([]);
+const DataMK = () => {
+  const [MK, setMK] = useState<mk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const getPL = async () => {
+  const getMK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/pl");
+      const response = await axiosConfig.get("api/mk");
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
       }
-      setPL(response.data.data);
+      setMK(response.data.data);
       console.log(response.data.data);
     } catch (error) {
       console.log(error);
@@ -43,16 +43,16 @@ const DataPL = () => {
     }
   };
   useEffect(() => {
-    getPL();
+    getMK();
   }, []);
   // id, kode, deskripsi
 
   const renderData = () => {
-    return PL.map((pl, index) => {
+    return MK.map((mk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell>{pl.kode}</TableCell>
-          <TableCell>{pl.deskripsi}</TableCell>
+          <TableCell>{mk.kode}</TableCell>
+          <TableCell>{mk.deskripsi}</TableCell>
         </TableRow>
       );
     });
@@ -62,8 +62,8 @@ const DataPL = () => {
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Tabel PL</CardTitle>
-          <CardDescription>Profil Lulusan</CardDescription>
+          <CardTitle>Tabel MK</CardTitle>
+          <CardDescription>Mata Kuliah</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -95,4 +95,4 @@ const DataPL = () => {
   );
 };
 
-export default DataPL;
+export default DataMK;

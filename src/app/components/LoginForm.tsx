@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaUser, FaLock } from 'react-icons/fa6';
 import axiosConfig from '../../utils/axios';
 import Cookies from 'js-cookie';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,7 +59,7 @@ const LoginForm = () => {
 						title: 'Berhasil Login',
 						description: String(new Date()),
 					});
-					router.push('/');
+					router.push('/dashboard');
 				} else {
 					toast({
 						title: response.data.message,

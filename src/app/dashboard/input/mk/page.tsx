@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from "../../../utils/axios";
+import axiosConfig from '../../../../utils/axios';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,7 +28,7 @@ const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
 });
 
-const CPMKScreen = () => {
+const MKScreen = () => {
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,19 +39,19 @@ const CPMKScreen = () => {
     },
   });
 
-  // AddCPMK
+  // AddMK
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
     const data = {
-      kode: "CPMK-" + values.kode,
+      kode: "MK-" + values.kode,
       deskripsi: values.deskripsi,
     };
 
     console.log(data.kode);
 
     axiosConfig
-      .post("api/cpmk", data)
+      .post("api/mk", data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -82,8 +82,8 @@ const CPMKScreen = () => {
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Input CPMK</CardTitle>
-          <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+          <CardTitle>Input MK</CardTitle>
+          <CardDescription>Mata Kuliah</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -93,7 +93,7 @@ const CPMKScreen = () => {
                 name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode CPMK-</FormLabel>
+                    <FormLabel>Kode MK-</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Kode"
@@ -132,4 +132,4 @@ const CPMKScreen = () => {
   );
 };
 
-export default CPMKScreen;
+export default MKScreen;

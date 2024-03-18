@@ -1,22 +1,12 @@
 "use client";
-
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-  const { toast } = useToast();
+  const router=useRouter()
+  router.push("/dashboard");
+  
   return (
-    <Button
-      variant="outline"
-      onClick={() => {
-        toast({
-          description: "There was a problem with your request.",
-        });
-      }}
-    >
-      Show Toast
-    </Button>
+    <p>please wait...</p>
   );
 };
 
