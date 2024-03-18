@@ -1,105 +1,142 @@
-"use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { FaUser, FaLock } from "react-icons/fa6";
-import axiosConfig from "../../utils/axios";
-import Cookies from "js-cookie";
+'use client';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FaUser, FaLock } from 'react-icons/fa6';
+import axiosConfig from '../../utils/axios';
+import Cookies from 'js-cookie';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { useToast } from '@/components/ui/use-toast';
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+
+import { Button } from '@/components/ui/button';
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+
+const formSchema = z.object({
+	email: z.string().min(10).max(50),
+	password: z.string().min(6).max(50),
+});
 
 const LoginForm = () => {
-  const router = useRouter();
-  const [passwordType, setPasswordType] = useState("password");
-  const [inputs, setInputs] = useState({
-    email: "",
-    password: "",
-  });
+	const { toast } = useToast();
+	const router = useRouter();
+	const form = useForm<z.infer<typeof formSchema>>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			email: '',
+			password: '',
+		},
+	});
 
-  const handleInput = (e: any) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setInputs((values) => ({ ...values, [name]: value }));
-  };
+	const signIn = (values: z.infer<typeof formSchema>, e: any) => {
+		e.preventDefault();
 
-  //   const togglePassword = (e: any) => {
-  //     e.preventDefault();
-  //     if (passwordType === "password") {
-  //       setPasswordType("text");
-  //       return;
-  //     }
-  //     setPasswordType("password");
-  //   };
+		const data = {
+			email: values.email,
+			password: values.password,
+		};
 
-  //   // LOGIN
-  const signIn = (e: any) => {
-    e.preventDefault();
+		axiosConfig
+			.post('api/login', data)
+			.then(function (response: any) {
+				if (response.data.status != 400) {
+					Cookies.set('token', response.data.token, { expires: 1 });
+					toast({
+						title: 'Berhasil Login',
+						description: String(new Date()),
+					});
+					router.push('/');
+				} else {
+					toast({
+						title: response.data.message,
+						description: String(new Date()),
+						variant: 'destructive',
+					});
+				}
+			})
+			.catch(function (error: any) {
+				toast({
+					title: 'Gagal Login',
+					description: String(new Date()),
+					variant: 'destructive',
+				});
+			});
+		form.reset();
+	};
 
-    const data = {
-      email: inputs.email,
-      password: inputs.password,
-    };
+	return (
+		// FORM LOGIN
+		<Card className='w-[400px] xl:w-[500px]'>
+			<CardHeader>
+				<CardTitle>Login</CardTitle>
+				<CardDescription>OBE</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(signIn)} className='space-y-8'>
+						<FormField
+							control={form.control}
+							name='email'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Email</FormLabel>
+									<FormControl>
+										<Input
+											placeholder='email@itera.ac.id'
+											type='email'
+											required
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-    axiosConfig
-      .post("api/login", data)
-      .then(function (response: any) {
-        if (response.data.status != 400) {
-          Cookies.set("token", response.data.token, { expires: 1 });
-          router.push("/");
-        } else {
-          alert(response.data.message);
-        }
-      })
-      .catch(function (error: any) {
-        console.log(error);
-        alert(error.data.message);
-      });
-  };
+						<FormField
+							control={form.control}
+							name='password'
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Password</FormLabel>
+									<FormControl>
+										<Input
+											placeholder='&bull;&bull;&bull;&bull;&bull;&bull;'
+											type='password'
+											required
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
 
-  return (
-    // FORM LOGIN
-    <form
-      onSubmit={signIn}
-      className="flex flex-col w-[80%] xl:w-[60%] gap-5 -mt-12"
-    >
-      <div className="hidden text-[25px] font-bold text-white xl:flex xl:flex-col -mb-3">
-        <h1 className="text-[50px] font-semibold">Halo!</h1>
-        <p className="text-[18px] font-normal -mt-2 mb-6">
-          Silahkan masuk ke dalam akun anda.
-        </p>
-      </div>
-      <div className="text-[25px] font-bold text-[#2392EC] xl:hidden -mb-3">
-        Login
-      </div>
-      {/* INPUT FIELD */}
-      <div className="input input-bordered flex items-center">
-        <FaUser className="scale-125 text-[#2392EC] xl:text-white" />
-        <input
-          name="email"
-          value={inputs.email}
-          onChange={handleInput}
-          placeholder="Username"
-          type="text"
-          className="p-2 ml-2 max-w-full w-full rounded-xl bg-[#2392EC] xl:bg-white placeholder:text-slate-100 xl:placeholder:text-slate-500"
-        />
-      </div>
-      <div className="input input-bordered flex items-center">
-        <FaLock className="scale-125 text-[#2392EC] xl:text-white" />
-        <input
-          name="password"
-          value={inputs.password}
-          onChange={handleInput}
-          placeholder="Password"
-          type={passwordType}
-          className="p-2 ml-2 max-w-full w-full rounded-xl bg-[#2392EC] xl:bg-white placeholder:text-slate-100 xl:placeholder:text-slate-500"
-        />
-      </div>
-      {/* SUBMIT BUTTON */}
-      <button
-        type="submit"
-        className="btn p-1 xl:p-2 xl:border-black text-white xl:text-[#2392EC] font-medium xl:font-semibold text-[20px] xl:text-[22px] bg-[#2392EC] xl:bg-white rounded-[26px] w-[175px] self-center normal-case"
-      >
-        Login
-      </button>
-    </form>
-  );
+						<Button
+							className='bg-azure-radiance-600 hover:bg-azure-radiance-500 active:bg-azure-radiance-700 w-full'
+							type='submit'>
+							Login
+						</Button>
+					</form>
+				</Form>
+			</CardContent>
+		</Card>
+	);
 };
 
 export default LoginForm;
