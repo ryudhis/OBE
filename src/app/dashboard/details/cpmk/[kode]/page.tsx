@@ -4,13 +4,10 @@ import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
 
-export interface BKInterface {
+export interface CPMKInterface {
   kode: string;
   deskripsi: string;
-  min: number;
-  max: number;
-  CPL: CPLItem[];
-  MK: MKItem[];
+  CPMK: MKItem[];
 }
 
 export interface MKItem {
@@ -18,14 +15,9 @@ export interface MKItem {
   deskripsi: string;
 }
 
-export interface CPLItem {
-  kode: string;
-  deskripsi: string;
-}
-
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
-  const [bk, setBk] = useState<BKInterface | undefined>();
+  const [cpmk, setCpmk] = useState<CPMKInterface | undefined>();
   const [mk, setMk] = useState<MKItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -36,16 +28,16 @@ export default function Page({ params }: { params: { kode: string } }) {
     mk.kode.toLowerCase().includes(search.toLowerCase())
   );
 
-  const getBK = async () => {
+  const getCPMK = async () => {
     try {
-      const response = await axiosConfig.get(`api/bk/${kode}`);
+      const response = await axiosConfig.get(`api/cpmk/${kode}`);
 
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
       }
 
-      setBk(response.data.data);
+      setCpmk(response.data.data);
       const prevSelected = response.data.data.MK.map(
         (item: MKItem) => item.kode
       );
@@ -81,54 +73,38 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   const updateMK = async () => {
-    if (bk) {
-      if (selected.length < bk.min) {
+    let addedMKId: string[] = [];
+    let removedMKId: string[] = [];
+
+    addedMKId = selected.filter((item) => !prevSelected.includes(item));
+    removedMKId = prevSelected.filter((item) => !selected.includes(item));
+
+    const payload = {
+      kode: cpmk?.kode,
+      deskripsi: cpmk?.deskripsi,
+      addedMKId: addedMKId,
+      removedMKId: removedMKId,
+    };
+
+    console.log(payload);
+
+    try {
+      const response = await axiosConfig.patch(`api/cpmk/${kode}`, payload);
+      setRefresh(!refresh);
+      if (response.data.status == 200 || response.data.status == 201) {
         toast({
-          title: "Jumlah MK yang dipilih kurang dari minimal",
-          variant: "destructive",
+          title: response.data.message,
+          variant: "default",
         });
-      } else if (selected.length > bk.max) {
-        toast({
-          title: "Jumlah MK yang dipilih melebihi maksimal",
-          variant: "destructive",
-        });
+        setRefresh(!refresh);
       } else {
-        let addedMKId: string[] = [];
-        let removedMKId: string[] = [];
-
-        addedMKId = selected.filter((item) => !prevSelected.includes(item));
-        removedMKId = prevSelected.filter((item) => !selected.includes(item));
-
-        const payload = {
-          kode: bk?.kode,
-          deskripsi: bk?.deskripsi,
-          min: bk?.min,
-          max: bk?.max,
-          addedMKId: addedMKId,
-          removedMKId: removedMKId,
-        };
-
-        console.log(payload);
-
-        try {
-          const response = await axiosConfig.patch(`api/bk/${kode}`, payload);
-          setRefresh(!refresh);
-          if (response.data.status == 200 || response.data.status == 201) {
-            toast({
-              title: response.data.message,
-              variant: "default",
-            });
-            setRefresh(!refresh);
-          } else {
-            toast({
-              title: response.data.message,
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          throw error;
-        }
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
       }
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -138,11 +114,11 @@ export default function Page({ params }: { params: { kode: string } }) {
   }, []);
 
   useEffect(() => {
-    getBK();
+    getCPMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
-  if (bk) {
+  if (cpmk) {
     return (
       <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
         {/* HEADER */}
