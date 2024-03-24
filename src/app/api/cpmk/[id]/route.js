@@ -1,4 +1,5 @@
 import prisma from "@/utils/prisma";
+import { disconnect } from "process";
 
 export async function GET(req) {
   try {
@@ -56,27 +57,26 @@ export async function DELETE(req) {
 export async function PATCH(req) {
   try {
     const kode = parseInt(req.url.split("/cpmk/")[1]);
-    const data = await req.json();
+    const body = await req.json();
 
     const CPMK = await prisma.CPMK.update({
       where: {
-        kode: kode,
+        kode,
       },
-      data,
+      data: {
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+        MK: {
+          disconnect: body.removedMKId.map((mkId) => ({ kode: mkId })),
+          connect: body.addedMKId.map((mkId) => ({ kode: mkId })),
+        },
+      },
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: {
-        ...data,
-        CPL: {
-          connect: data.CPL.map((cplId) => ({ kode: cplId })),
-        },
-        MK: {
-          connect: data.MK.map((mkId) => ({ kode: mkId })),
-        },
-      },
+      data: CPMK,
     });
   } catch (error) {
     console.log(error);

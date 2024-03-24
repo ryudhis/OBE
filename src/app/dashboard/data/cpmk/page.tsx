@@ -20,25 +20,24 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-export interface pl {
+export interface cpmk {
   kode: string;
   deskripsi: string;
 }
 
-const DataPL = () => {
+const DataCPMK = () => {
   const router = useRouter();
-  const [PL, setPL] = useState<pl[]>([]);
+  const [CPMK, setCPMK] = useState<cpmk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const getPL = async () => {
+  const getCPMK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/pl");
+      const response = await axiosConfig.get("api/cpmk");
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
       }
-      setPL(response.data.data);
-      console.log(response.data.data);
+      setCPMK(response.data.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -46,19 +45,19 @@ const DataPL = () => {
     }
   };
   useEffect(() => {
-    getPL();
+    getCPMK();
   }, []);
   // id, kode, deskripsi
 
   const renderData = () => {
-    return PL.map((pl, index) => {
+    return CPMK.map((cpmk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell>{pl.kode}</TableCell>
-          <TableCell>{pl.deskripsi}</TableCell>
+          <TableCell>{cpmk.kode}</TableCell>
+          <TableCell>{cpmk.deskripsi}</TableCell>
           <Button
             onClick={() => {
-              router.push(`/dashboard/details/pl/${pl.kode}/`);
+              router.push(`/dashboard/details/cpmk/${cpmk.kode}/`);
             }}
           >
             Details
@@ -72,8 +71,8 @@ const DataPL = () => {
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Tabel PL</CardTitle>
-          <CardDescription>Profil Lulusan</CardDescription>
+          <CardTitle>Tabel CPMK</CardTitle>
+          <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -105,4 +104,4 @@ const DataPL = () => {
   );
 };
 
-export default DataPL;
+export default DataCPMK;
