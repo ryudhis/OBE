@@ -7,6 +7,16 @@ export async function GET(req) {
       where: {
         kode: kode,
       },
+      include: {CPL: {
+        include: {
+          PL: true,
+          CPMK: true,
+        },
+      }, MK: {
+        include: {
+          CPMK: true,
+        }
+      }},
     });
 
     return Response.json({
@@ -55,7 +65,15 @@ export async function PATCH(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: BK,
+      data:{
+        ...data,
+        CPL: {
+          connect: data.CPL.map((cplId) => ({ kode: cplId }))
+        },
+        MK: {
+          connect: data.MK.map((mkId) => ({ kode: mkId }))
+        },
+      },
     });
   } catch (error) {
     console.log(error);

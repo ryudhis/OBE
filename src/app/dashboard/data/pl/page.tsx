@@ -17,6 +17,8 @@ import {
 import React, { useState, useEffect } from "react";
 import axiosConfig from '../../../../utils/axios';
 import SkeletonTable from "@/components/SkeletonTable";
+import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
 
 export interface pl {
   kode: string;
@@ -24,6 +26,7 @@ export interface pl {
 }
 
 const DataPL = () => {
+  const router = useRouter();
   const [PL, setPL] = useState<pl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const getPL = async () => {
@@ -53,6 +56,9 @@ const DataPL = () => {
         <TableRow key={index}>
           <TableCell>{pl.kode}</TableCell>
           <TableCell>{pl.deskripsi}</TableCell>
+          <Button onClick={()=>{
+            router.push(`/dashboard/details/pl/${pl.kode}/`)
+          }}>Details</Button>
         </TableRow>
       );
     });

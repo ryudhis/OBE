@@ -52,8 +52,15 @@ model MK {
 }
 
 model CPMK {
+  kode      String    @id @unique
+  deskripsi String
+  CPL       CPL[]     @relation("cpmk_cpl")
+  MK        MK[]      @relation("cpmk_mk")
+  subCPMK   subCPMK[] @relation("cpmk_subcpmk")
+}
+
+model subCPMK {
   kode      String @id @unique
   deskripsi String
-  CPL       CPL[]  @relation("cpmk_cpl")
-  MK        MK[]   @relation("cpmk_mk")
+  CPMK      CPMK[] @relation("cpmk_subcpmk")
 }

@@ -13,6 +13,17 @@ export async function GET(req) {
       status: 200,
       message: "Berhasil ambil data!",
       data: CPL,
+      include: { PL: true, 
+        BK : {
+          include : {
+            MK : true
+          }
+        }, 
+        CPMK: {
+          include : {
+            MK : true
+          }
+        } },
     });
   } catch (error) {
     console.log(error);
@@ -49,7 +60,18 @@ export async function PATCH(req) {
       where: {
         kode: kode,
       },
-      data,
+      data: {
+        ...data,
+        PL: {
+          connect: data.PL.map((plId) => ({ kode: plId })),
+        },
+        MK: {
+          connect: data.MK.map((mkId) => ({ kode: mkId })),
+        },
+        CPMK: {
+          connect: data.CPMK.map((cpmkId) => ({ kode: cpmkId })),
+        },
+      },
     });
 
     return Response.json({
