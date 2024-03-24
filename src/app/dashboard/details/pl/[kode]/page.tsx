@@ -24,8 +24,6 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
 
-  let itemData: CPLItem;
-
   const filteredCPL = cpl?.filter((cpl) =>
     cpl.kode.toLowerCase().includes(search.toLowerCase())
   );

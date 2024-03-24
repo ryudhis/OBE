@@ -7,12 +7,6 @@ export async function GET(req) {
       where: {
         kode: kode,
       },
-    });
-
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil data!",
-      data: CPL,
       include: { PL: true, 
         BK : {
           include : {
@@ -24,6 +18,12 @@ export async function GET(req) {
             MK : true
           }
         } },
+    });
+
+    return Response.json({
+      status: 200,
+      message: "Berhasil ambil data!",
+      data: CPL,
     });
   } catch (error) {
     console.log(error);
@@ -54,22 +54,22 @@ export async function DELETE(req) {
 export async function PATCH(req) {
   try {
     const kode = req.url.split("/cpl/")[1];
-    const data = await req.json();
+    const body = await req.json();
 
     const CPL = await prisma.CPL.update({
       where: {
-        kode: kode,
+        kode,
       },
       data: {
-        ...data,
-        PL: {
-          connect: data.PL.map((plId) => ({ kode: plId })),
-        },
-        MK: {
-          connect: data.MK.map((mkId) => ({ kode: mkId })),
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+        BK: {
+          disconnect: body.removedBKId.map((bkId) => ({ kode: bkId })),
+          connect: body.addedBKId.map((bkId) => ({ kode: bkId })),
         },
         CPMK: {
-          connect: data.CPMK.map((cpmkId) => ({ kode: cpmkId })),
+          disconnect: body.removedCPMKId.map((cpmkId) => ({ kode: cpmkId })),
+          connect: body.addedCPMKId.map((cpmkId) => ({ kode: cpmkId })),
         },
       },
     });
