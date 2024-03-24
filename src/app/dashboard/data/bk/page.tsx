@@ -15,8 +15,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React, { useState, useEffect } from "react";
-import axiosConfig from '../../../../utils/axios';
+import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export interface bk {
   kode: string;
@@ -26,6 +28,7 @@ export interface bk {
 }
 
 const DataBK = () => {
+  const router = useRouter();
   const [BK, setBK] = useState<bk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const getBK = async () => {
@@ -57,6 +60,13 @@ const DataBK = () => {
           <TableCell>{bk.deskripsi}</TableCell>
           <TableCell>{bk.min}</TableCell>
           <TableCell>{bk.max}</TableCell>
+          <Button
+            onClick={() => {
+              router.push(`/dashboard/details/bk/${bk.kode}/`);
+            }}
+          >
+            Details
+          </Button>
         </TableRow>
       );
     });
