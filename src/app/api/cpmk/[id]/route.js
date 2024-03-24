@@ -65,23 +65,10 @@ export async function PATCH(req) {
       },
       data: {
         kode: body.kode,
-        nama: body.nama,
         deskripsi: body.deskripsi,
-        CPL: {
-          disconnect: body.removedCPLId.map((cplId) => ({ kode: cplId })),
-          connect: body.addedCPLId.map((cplId) => ({ kode: cplId })),
-        },
         MK: {
           disconnect: body.removedMKId.map((mkId) => ({ kode: mkId })),
           connect: body.addedMKId.map((mkId) => ({ kode: mkId })),
-        },
-        subCPMK: {
-          disconnect: body.removedSubCPMKId.map((subcpmkId) => ({
-            kode: subcpmkId,
-          })),
-          connect: body.addedSubCPMKId.map((subcpmkId) => ({
-            kode: subcpmkId,
-          })),
         },
       },
     });
