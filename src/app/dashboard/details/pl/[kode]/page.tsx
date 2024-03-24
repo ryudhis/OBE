@@ -82,12 +82,17 @@ export default function Page({ params }: { params: { kode: string } }) {
     let addedCPLId: string[] = [];
     let removedCPLId: string[] = [];
 
+    // TODO
     // LOGIC BANDINGIN PREV SELECTED SAMA SELECTED
+
+    // DI PREV GAADA DI SELECTED ADA -> BARU
+    // DI PREV ADA DI SELECTED GAADA -> REMOVED
+
     const payload = {
       kode: pl?.kode,
       deskripsi: pl?.deskripsi,
-      addedCPLId: addedCPLId.length > 0 ? addedCPLId : undefined,
-      removedCPLId: removedCPLId.length > 0 ? removedCPLId : undefined,
+      addedCPLId: addedCPLId,
+      removedCPLId: removedCPLId,
     };
 
     try {
