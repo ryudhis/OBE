@@ -2,6 +2,7 @@
 import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { CPLCard } from "@/components/cpl/CPLCard";
+import { toast } from "@/components/ui/use-toast";
 
 export interface PLinterface {
   kode: string;
@@ -37,10 +38,10 @@ export default function Page({ params }: { params: { kode: string } }) {
       }
 
       setPl(response.data.data);
-      // PREV SELECTED CPL
       const prevSelected = response.data.data.CPL.map(
         (item: CPLItem) => item.kode
       );
+
       setSelected(prevSelected);
       setPrevSelected(prevSelected);
     } catch (error: any) {
@@ -57,15 +58,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       }
       setCPL(response.data.data);
     } catch (error: any) {
-      if (error.response && error.response.data) {
-        // If there is a response from the server
-        alert(error.response.data.message);
-        console.log(error.response.data);
-      } else {
-        // If there is no response from the server
-        alert("An error occurred while fetching data");
-        console.error(error);
-      }
+      throw error;
     }
   };
 
@@ -78,15 +71,13 @@ export default function Page({ params }: { params: { kode: string } }) {
       }
     });
   };
+  
   const updateCPL = async () => {
     let addedCPLId: string[] = [];
     let removedCPLId: string[] = [];
 
-    // TODO
-    // LOGIC BANDINGIN PREV SELECTED SAMA SELECTED
-
-    // DI PREV GAADA DI SELECTED ADA -> BARU
-    // DI PREV ADA DI SELECTED GAADA -> REMOVED
+    addedCPLId = selected.filter((item) => !prevSelected.includes(item));
+    removedCPLId = prevSelected.filter((item) => !selected.includes(item));
 
     const payload = {
       kode: pl?.kode,
@@ -97,11 +88,18 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     try {
       const response = await axiosConfig.patch(`api/pl/${kode}`, payload);
-
-      if (response.data.status !== 200 || response.data.status !== 201) {
-        alert(response.data.message);
-      } else {
+      setRefresh(!refresh);
+      if (response.data.status == 200 || response.data.status == 201) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
         setRefresh(!refresh);
+      } else {
+        toast({
+            title: response.data.message,
+            variant: "destructive",
+          });
       }
     } catch (error) {
       throw error;
