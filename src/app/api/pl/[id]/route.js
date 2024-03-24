@@ -51,24 +51,61 @@ export async function DELETE(req) {
 export async function PATCH(req) {
   try {
     const kode = req.url.split("/pl/")[1];
-    const data = await req.json();
+    const body = await req.json();
+
+    // IF ONLY UPDATE GENERAL INFO
+    if (!body?.addedCPLId || !body?.removedCPLId) {
+      data = {
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+      };
+    }
+
+    // IF THERE IS ADDED CPL
+    else if (body?.addedCPLId && !body?.removedCPLId) {
+      data = {
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+        CPL: {
+          connect: body.addedCPLId.map((cplId) => ({ kode: cplId })),
+        },
+      };
+    }
+
+    // IF THERE IS REMOVED CPL
+    else if (!body?.addedCPLId && body?.removedCPLId) {
+      data = {
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+        CPL: {
+          disconnect: body.removedCPLId.map((cplId) => ({ kode: cplId })),
+        },
+      };
+    }
+
+    // IF TEHRE IS ADDED AND REMOVED CPL
+    else if (body?.addedCPLId && body?.removedCPLId) {
+      data = {
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+        CPL: {
+          disconnect: body.removedCPLId.map((cplId) => ({ kode: cplId })),
+          connect: body.addedCPLId.map((cplId) => ({ kode: cplId })),
+        },
+      };
+    }
 
     const PL = await prisma.PL.update({
       where: {
         kode,
       },
-      data: {
-        ...data,
-        CPL: {
-          connect: data.CPL.map((cplId) => ({ kode: cplId })),
-        },
-      },
+      data,
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: PL,
+      // data: PL,
     });
   } catch (error) {
     console.log(error);
