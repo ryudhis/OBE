@@ -1,8 +1,8 @@
 "use client";
 import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
-import { CPLCard } from "@/components/cpl/CPLCard";
 import { toast } from "@/components/ui/use-toast";
+import { DataCard } from "@/components/DataCard";
 
 export interface PLinterface {
   kode: string;
@@ -10,7 +10,7 @@ export interface PLinterface {
   CPL: CPLItem[];
 }
 
-interface CPLItem {
+export interface CPLItem {
   kode: string;
   deskripsi: string;
 }
@@ -23,6 +23,8 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+
+  let itemData: CPLItem;
 
   const filteredCPL = cpl?.filter((cpl) =>
     cpl.kode.toLowerCase().includes(search.toLowerCase())
@@ -71,7 +73,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       }
     });
   };
-  
+
   const updateCPL = async () => {
     let addedCPLId: string[] = [];
     let removedCPLId: string[] = [];
@@ -97,9 +99,9 @@ export default function Page({ params }: { params: { kode: string } }) {
         setRefresh(!refresh);
       } else {
         toast({
-            title: response.data.message,
-            variant: "destructive",
-          });
+          title: response.data.message,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       throw error;
@@ -136,12 +138,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           {filteredCPL && filteredCPL.length > 0 ? (
             filteredCPL?.map((cpl, index) => {
               return (
-                <CPLCard
-                  key={index}
-                  cpl={cpl}
-                  selected={selected}
-                  handleCheck={handleCheck}
-                />
+                <DataCard<CPLItem> key={index} selected={selected} handleCheck={handleCheck} data={cpl} />
               );
             })
           ) : (
