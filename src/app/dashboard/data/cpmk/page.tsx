@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
 import React, { useState, useEffect } from "react";
 import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -44,6 +45,27 @@ const DataCPMK = () => {
       setIsLoading(false);
     }
   };
+
+  const delCPMK = async (kode: string) => {
+    try {
+      const response = await axiosConfig.delete(`api/cpmk/${kode}`);
+      if (response.data.status === 200 || response.data.status === 201) {
+        toast({
+          title: "Berhasil menghapus data CPMK",
+          variant: "default",
+        });
+        getCPMK();
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   useEffect(() => {
     getCPMK();
   }, []);
@@ -53,15 +75,20 @@ const DataCPMK = () => {
     return CPMK.map((cpmk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell>{cpmk.kode}</TableCell>
-          <TableCell>{cpmk.deskripsi}</TableCell>
-          <Button
-            onClick={() => {
-              router.push(`/dashboard/details/cpmk/${cpmk.kode}/`);
-            }}
-          >
-            Details
-          </Button>
+          <TableCell className="w-[20%]">{cpmk.kode}</TableCell>
+          <TableCell className="flex-1">{cpmk.deskripsi}</TableCell>
+          <TableCell className="w-[20%] flex gap-2">
+            <Button variant="destructive" onClick={() => delCPMK(cpmk.kode)}>
+              Hapus
+            </Button>
+            <Button
+              onClick={() => {
+                router.push(`/dashboard/details/cpmk/${cpmk.kode}/`);
+              }}
+            >
+              Details
+            </Button>
+          </TableCell>
         </TableRow>
       );
     });
@@ -79,20 +106,22 @@ const DataCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Kode</TableHead>
-                  <TableHead>Deskripsi</TableHead>
+                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[20%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={4} />
+                <SkeletonTable rows={5} cols={3} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Kode</TableHead>
-                  <TableHead>Deskripsi</TableHead>
+                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[20%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
