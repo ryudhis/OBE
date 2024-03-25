@@ -3,6 +3,13 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
+import { RelationData } from "@/components/RelationData";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
 
 export interface CPLinterface {
   kode: string;
@@ -210,8 +217,29 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   if (cpl) {
     return (
-      <main className="flex flex-col gap-5 w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        
+      <main className="flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <Table className="w-[200px] mb-5">
+          <TableBody>
+            <TableRow>
+              <TableCell><strong>Kode</strong></TableCell>
+              <TableCell>: {cpl.kode} </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell><strong>Deskripsi</strong> </TableCell>
+              <TableCell>: {cpl.deskripsi}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi BK</div>
+          <RelationData data={cpl.BK} jenisData="BK" />
+        </div>
+
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi CPMK</div>
+          <RelationData data={cpl.CPMK} jenisData="CPMK" />
+        </div>
 
         {/* HEADER */}
         <div className="flex flex-row justify-between items-center mb-5">

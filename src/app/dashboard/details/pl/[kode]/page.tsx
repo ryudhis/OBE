@@ -3,6 +3,13 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
+import { RelationData } from "@/components/RelationData";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
 
 export interface PLinterface {
   kode: string;
@@ -119,6 +126,24 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (pl) {
     return (
       <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <Table className="w-[200px] mb-5">
+          <TableBody>
+            <TableRow>
+              <TableCell><strong>Kode</strong></TableCell>
+              <TableCell>: {pl.kode} </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell><strong>Deskripsi</strong> </TableCell>
+              <TableCell>: {pl.deskripsi}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi CPL</div>
+          <RelationData data={pl.CPL} jenisData="CPL" />
+        </div>
+
         {/* HEADER */}
         <div className="flex flex-row justify-between items-center mb-5">
           <div className=" font-bold text-xl">Sambungkan CPL</div>
@@ -136,7 +161,12 @@ export default function Page({ params }: { params: { kode: string } }) {
           {filteredCPL && filteredCPL.length > 0 ? (
             filteredCPL?.map((cpl, index) => {
               return (
-                <DataCard<CPLItem> key={index} selected={selected} handleCheck={handleCheck} data={cpl} />
+                <DataCard<CPLItem>
+                  key={index}
+                  selected={selected}
+                  handleCheck={handleCheck}
+                  data={cpl}
+                />
               );
             })
           ) : (

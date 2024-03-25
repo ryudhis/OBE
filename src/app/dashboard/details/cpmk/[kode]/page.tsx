@@ -3,11 +3,18 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
+import { RelationData } from "@/components/RelationData";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
 
 export interface CPMKInterface {
   kode: string;
   deskripsi: string;
-  CPMK: MKItem[];
+  MK: MKItem[];
 }
 
 export interface MKItem {
@@ -121,6 +128,24 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (cpmk) {
     return (
       <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <Table className="w-[200px] mb-5">
+          <TableBody>
+            <TableRow>
+              <TableCell><strong>Kode</strong></TableCell>
+              <TableCell>: {cpmk.kode} </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell><strong>Deskripsi</strong> </TableCell>
+              <TableCell>: {cpmk.deskripsi}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi MK</div>
+          <RelationData data={cpmk.MK} jenisData="MK" />
+        </div>
+
         {/* HEADER */}
         <div className="flex flex-row justify-between items-center mb-5">
           <div className=" font-bold text-xl">Sambungkan MK</div>
