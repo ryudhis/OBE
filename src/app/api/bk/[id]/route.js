@@ -67,10 +67,6 @@ export async function PATCH(req) {
         deskripsi: body.deskripsi,
         min: body.min,
         max: body.max,
-        CPL: {
-          disconnect: body.removedCPLId.map((cplId) => ({ kode: cplId })),
-          connect: body.addedCPLId.map((cplId) => ({ kode: cplId })),
-        },
         MK: {
           disconnect: body.removedMKId.map((mkId) => ({ kode: mkId })),
           connect: body.addedMKId.map((mkId) => ({ kode: mkId })),

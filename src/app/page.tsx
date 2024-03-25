@@ -1,13 +1,21 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { useEffect } from "react"; 
 
 const Page = () => {
-  const router=useRouter()
-  router.push("/dashboard");
-  
-  return (
-    <p>please wait...</p>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = Cookies.get("token"); 
+    if (token) {
+      router.push("/dashboard");
+    } else {
+      router.push("/login")
+    }
+  }, [router]); 
+
+  return <p>please wait...</p>;
 };
 
 export default Page;
