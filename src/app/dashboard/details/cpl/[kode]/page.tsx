@@ -210,7 +210,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   if (cpl) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+      <main className="flex flex-col gap-5 w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        
+
         {/* HEADER */}
         <div className="flex flex-row justify-between items-center mb-5">
           <div className=" font-bold text-xl">Sambungkan BK</div>

@@ -56,7 +56,7 @@ export async function DELETE(req) {
 
 export async function PATCH(req) {
   try {
-    const kode = parseInt(req.url.split("/cpmk/")[1]);
+    const kode = req.url.split("/cpmk/")[1];
     const body = await req.json();
 
     const CPMK = await prisma.CPMK.update({
