@@ -1,13 +1,5 @@
 "use client";
-"use client";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
   Table,
   TableBody,
   TableCell,
@@ -30,9 +22,6 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export interface cpl {
-  kode: string;
-  deskripsi: string;
-  keterangan: string;
   kode: string;
   deskripsi: string;
   keterangan: string;
