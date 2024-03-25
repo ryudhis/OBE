@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
 import React, { useState, useEffect } from "react";
 import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -46,6 +47,27 @@ const DataCPL = () => {
       setIsLoading(false);
     }
   };
+
+  const delCPL = async (kode: string) => {
+    try {
+      const response = await axiosConfig.delete(`api/cpl/${kode}`);
+      if (response.data.status === 200 || response.data.status === 201) {
+        toast({
+          title: "Berhasil menghapus data CPL",
+          variant: "default",
+        });
+        getCPL();
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   useEffect(() => {
     getCPL();
   }, []);
@@ -55,23 +77,33 @@ const DataCPL = () => {
     return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell>{cpl.kode}</TableCell>
-          <TableCell>{cpl.deskripsi}</TableCell>
-          <TableCell>{cpl.keterangan}</TableCell>
-          <Button
-            onClick={() => {
-              router.push(`/dashboard/details/cpl/${cpl.kode}/`);
-            }}
-          >
-            Details
-          </Button>
+          <TableCell className="w-[15%]">{cpl.kode}</TableCell>
+          <TableCell className="flex-1">{cpl.deskripsi}</TableCell>
+          <TableCell className="w-[15%]">{cpl.keterangan}</TableCell>
+          <TableCell className="w-[15%] flex gap-2">
+            <Button
+              variant="destructive"
+              onClick={() => {
+                delCPL(cpl.kode);
+              }}
+            >
+              Hapus
+            </Button>
+            <Button
+              onClick={() => {
+                router.push(`/dashboard/details/cpl/${cpl.kode}/`);
+              }}
+            >
+              Details
+            </Button>
+          </TableCell>
         </TableRow>
       );
     });
   };
 
   return (
-    <section className="flex justify-center items-center mt-20 ">
+    <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Tabel CPL</CardTitle>
@@ -82,9 +114,10 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Kode</TableHead>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead>Keterangan</TableHead>
+                  <TableHead className="w-[15%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[15%]">Keterangan</TableHead>
+                  <TableHead className="w-[15%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -95,9 +128,10 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Kode</TableHead>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead>Keterangan</TableHead>
+                  <TableHead className="w-[15%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[15%]">Keterangan</TableHead>
+                  <TableHead className="w-[15%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
