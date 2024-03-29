@@ -25,6 +25,21 @@ export interface cpl {
   kode: string;
   deskripsi: string;
   keterangan: string;
+  BK: BKItem[];
+  PL: PLItem[];
+  CPMK: CPMKItem[];
+}
+
+export interface BKItem {
+  kode: string;
+}
+
+export interface PLItem {
+  kode: string;
+}
+
+export interface CPMKItem {
+  kode: string;
 }
 
 const DataCPL = () => {
@@ -77,10 +92,13 @@ const DataCPL = () => {
     return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[15%]">{cpl.kode}</TableCell>
-          <TableCell className="flex-1">{cpl.deskripsi}</TableCell>
-          <TableCell className="w-[15%]">{cpl.keterangan}</TableCell>
-          <TableCell className="w-[15%] flex gap-2">
+          <TableCell className="w-[8%]">{cpl.kode}</TableCell>
+          <TableCell className="flex-1">{cpl.deskripsi.length>16?cpl.deskripsi.slice(0, 14) + "...":cpl.deskripsi}</TableCell>
+          <TableCell className="w-[8%]">{cpl.keterangan}</TableCell>
+          <TableCell className="w-[12%]">{cpl.BK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[12%]">{cpl.PL.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[12%]">{cpl.CPMK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[8%] flex gap-2">
             <Button
               variant="destructive"
               onClick={() => {
@@ -114,24 +132,30 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[15%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[15%]">Keterangan</TableHead>
-                  <TableHead className="w-[15%]">Aksi</TableHead>
+                  <TableHead className="w-[8%]">Keterangan</TableHead>
+                  <TableHead className="w-[12%]">BK</TableHead>
+                  <TableHead className="w-[12%]">PL</TableHead>
+                  <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={4} />
+                <SkeletonTable rows={5} cols={7} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[15%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[15%]">Keterangan</TableHead>
-                  <TableHead className="w-[15%]">Aksi</TableHead>
+                  <TableHead className="w-[8%]">Keterangan</TableHead>
+                  <TableHead className="w-[12%]">BK</TableHead>
+                  <TableHead className="w-[12%]">PL</TableHead>
+                  <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

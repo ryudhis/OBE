@@ -26,6 +26,16 @@ export interface bk {
   deskripsi: string;
   min: number;
   max: number;
+  CPL: CPLItem[];
+  MK: MKItem[];
+}
+
+export interface MKItem {
+  kode: string;
+}
+
+export interface CPLItem {
+  kode: string;
 }
 
 const DataBK = () => {
@@ -75,11 +85,13 @@ const DataBK = () => {
     return BK.map((bk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[10%]">{bk.kode}</TableCell>
-          <TableCell className="flex-1">{bk.deskripsi}</TableCell>
-          <TableCell className="w-[10%]">{bk.min}</TableCell>
-          <TableCell className="w-[10%]">{bk.max}</TableCell>
-          <TableCell className="w-[10%] flex gap-2">
+          <TableCell className="w-[8%]">{bk.kode}</TableCell>
+          <TableCell className="flex-1">{bk.deskripsi.length>20?bk.deskripsi.slice(0, 18) + "...":bk.deskripsi}</TableCell>
+          <TableCell className="w-[4%]">{bk.min}</TableCell>
+          <TableCell className="w-[4%]">{bk.max}</TableCell>
+          <TableCell className="w-[18%]">{bk.CPL.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[18%]">{bk.MK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delBK(bk.kode)}>
               Hapus
             </Button>
@@ -108,26 +120,30 @@ const DataBK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[10%]">Min</TableHead>
-                  <TableHead className="w-[10%]">Max</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className="w-[4%]">Min</TableHead>
+                  <TableHead className="w-[4%]">Max</TableHead>
+                  <TableHead className="w-[18%]">CPL</TableHead>
+                  <TableHead className="w-[18%]">MK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={5} />
+                <SkeletonTable rows={5} cols={7} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[10%]">Min</TableHead>
-                  <TableHead className="w-[10%]">Max</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className="w-[4%]">Min</TableHead>
+                  <TableHead className="w-[4%]">Max</TableHead>
+                  <TableHead className="w-[18%]">CPL</TableHead>
+                  <TableHead className="w-[18%]">MK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

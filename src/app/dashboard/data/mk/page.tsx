@@ -24,6 +24,16 @@ import { Button } from "@/components/ui/button";
 export interface mk {
   kode: string;
   deskripsi: string;
+  BK: BKItem[];
+  CPMK: CPMKItem[];
+}
+
+export interface BKItem {
+  kode: string;
+}
+
+export interface CPMKItem {
+  kode: string;
 }
 
 const DataMK = () => {
@@ -76,9 +86,11 @@ const DataMK = () => {
     return MK.map((mk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[20%]">{mk.kode}</TableCell>
-          <TableCell className="flex-1">{mk.deskripsi}</TableCell>
-          <TableCell className="w-[20%] flex gap-2">
+          <TableCell className="w-[8%]">{mk.kode}</TableCell>
+          <TableCell className="flex-1">{mk.deskripsi.length>20?mk.deskripsi.slice(0,18)+"...":mk.deskripsi}</TableCell>
+          <TableCell className="w-[15%]">{mk.BK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[15%]">{mk.CPMK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>
               Hapus
             </Button>
@@ -107,22 +119,26 @@ const DataMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[20%]">Aksi</TableHead>
+                  <TableHead className="w-[15%]">BK</TableHead>
+                  <TableHead className="w-[15%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={3} />
+                <SkeletonTable rows={5} cols={5} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[20%]">Aksi</TableHead>
+                  <TableHead className="w-[15%]">BK</TableHead>
+                  <TableHead className="w-[15%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

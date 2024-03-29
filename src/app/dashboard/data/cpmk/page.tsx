@@ -24,6 +24,21 @@ import { useRouter } from "next/navigation";
 export interface cpmk {
   kode: string;
   deskripsi: string;
+  CPL: CPLItem[];
+  MK: MKItem[];
+  subCPMK: subCPMKItem[];
+}
+
+export interface CPLItem{
+  kode: string;
+}
+
+export interface MKItem{
+  kode: string;
+}
+
+export interface subCPMKItem{
+  kode: string;
 }
 
 const DataCPMK = () => {
@@ -75,9 +90,12 @@ const DataCPMK = () => {
     return CPMK.map((cpmk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[20%]">{cpmk.kode}</TableCell>
-          <TableCell className="flex-1">{cpmk.deskripsi}</TableCell>
-          <TableCell className="w-[20%] flex gap-2">
+          <TableCell className="w-[8%]">{cpmk.kode}</TableCell>
+          <TableCell className="flex-1">{cpmk.deskripsi.length>20?cpmk.deskripsi.slice(0,18) + "...":cpmk.deskripsi}</TableCell>
+          <TableCell className="w-[12%]">{cpmk.CPL.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[12%]">{cpmk.MK.map((item) => item.kode).join(", ")}</TableCell>
+          {/* <TableCell className="w-[12%]">{cpmk.subCPMK.map((item) => item.kode).join(", ")}</TableCell> */}
+          <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delCPMK(cpmk.kode)}>
               Hapus
             </Button>
@@ -106,22 +124,28 @@ const DataCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[20%]">Aksi</TableHead>
+                  <TableHead className="w-[12%]">CPL</TableHead>
+                  <TableHead className="w-[12%]">MK</TableHead>
+                  {/* <TableHead className="w-[12%]">subCPMK</TableHead> */}
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={3} />
+                <SkeletonTable rows={5} cols={5} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[20%]">Aksi</TableHead>
+                  <TableHead className="w-[12%]">CPL</TableHead>
+                  <TableHead className="w-[12%]">MK</TableHead>
+                  {/* <TableHead className="w-[12%]">subCPMK</TableHead> */}
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
