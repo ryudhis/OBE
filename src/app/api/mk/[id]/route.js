@@ -50,12 +50,6 @@ export async function PATCH(req) {
       where: {
         kode: kode,
       },
-      data,
-    });
-
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
       data: {
         ...data,
         BK: {
@@ -65,6 +59,12 @@ export async function PATCH(req) {
           connect: data.CPMK.map((cpmkId) => ({ kode: cpmkId })),
         },
       },
+    });
+
+    return Response.json({
+      status: 200,
+      message: "Berhasil ubah data!",
+      data: MK,
     });
   } catch (error) {
     console.log(error);

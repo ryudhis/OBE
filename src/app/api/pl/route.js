@@ -2,7 +2,16 @@ import prisma from "@/utils/prisma";
 
 export async function GET() {
   try {
-    const PL = await prisma.PL.findMany();
+    const PL = await prisma.PL.findMany({
+      include: {
+        CPL: {
+          include: {
+            BK: true,
+            CPMK: true,
+          },
+        },
+      },
+    });
 
     return Response.json({
       status: 200,

@@ -2,7 +2,9 @@ import prisma from "@/utils/prisma";
 
 export async function GET() {
   try {
-    const MK = await prisma.MK.findMany();
+    const MK = await prisma.MK.findMany({
+      
+    });
 
     return Response.json({
       status: 200,
