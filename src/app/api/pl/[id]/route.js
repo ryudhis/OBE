@@ -51,20 +51,13 @@ export async function DELETE(req) {
 export async function PATCH(req) {
   try {
     const kode = req.url.split("/pl/")[1];
-    const body = await req.json();
+    const data = await req.json();
 
     const PL = await prisma.PL.update({
       where: {
         kode,
       },
-      data: {
-        kode: body.kode,
-        deskripsi: body.deskripsi,
-        CPL: {
-          disconnect: body.removedCPLId.map((cplId) => ({ kode: cplId })),
-          connect: body.addedCPLId.map((cplId) => ({ kode: cplId })),
-        },
-      },
+      data,
     });
 
     return Response.json({

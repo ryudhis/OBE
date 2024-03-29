@@ -33,7 +33,6 @@ export interface CPLItem {
 }
 
 const formSchema = z.object({
-  kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
 });
 
@@ -49,8 +48,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      kode: "01",
-      deskripsi: "Pucal",
+      deskripsi: "",
     },
   });
 
@@ -58,7 +56,6 @@ export default function Page({ params }: { params: { kode: string } }) {
     e.preventDefault();
 
     const data = {
-      kode: "PL-" + values.kode,
       deskripsi: values.deskripsi,
     };
 
@@ -68,13 +65,14 @@ export default function Page({ params }: { params: { kode: string } }) {
       .patch(`api/pl/${kode}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
+          setRefresh(!refresh);
           toast({
             title: "Berhasil Edit",
             description: String(new Date()),
           });
         } else {
           toast({
-            title: response.data.status,
+            title: response.data.message,
             description: String(new Date()),
             variant: "destructive",
           });
@@ -112,6 +110,11 @@ export default function Page({ params }: { params: { kode: string } }) {
 
       setSelected(prevSelected);
       setPrevSelected(prevSelected);
+
+      form.reset({
+        deskripsi: response.data.data.deskripsi, 
+      });
+
     } catch (error: any) {
       throw error;
     }
@@ -156,7 +159,9 @@ export default function Page({ params }: { params: { kode: string } }) {
     };
 
     try {
-      const response = await axiosConfig.patch(`api/pl/${kode}`, payload);
+      const response = await axiosConfig.patch(`api/pl/relasi/${kode}`, payload);
+      console.log(payload);
+
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {
         toast({
@@ -208,25 +213,15 @@ export default function Page({ params }: { params: { kode: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Profile</Button>
+              <Button variant="outline">Edit Data</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Edit PL</DialogTitle>
-                <DialogDescription>Profil Lulusan</DialogDescription>
+                <DialogDescription>{pl.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="kode" className="text-right">
-                      Kode
-                    </Label>
-                    <Input
-                      id="kode"
-                      {...form.register("kode")} // Register the input with react-hook-form
-                      className="col-span-3"
-                    />
-                  </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="deskripsi" className="text-right">
                       Deskripsi

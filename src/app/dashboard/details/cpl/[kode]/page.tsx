@@ -185,7 +185,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     };
 
     try {
-      const response = await axiosConfig.patch(`api/cpl/${kode}`, payload);
+      const response = await axiosConfig.patch(`api/cpl/relasi/${kode}`, payload);
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {
         toast({
