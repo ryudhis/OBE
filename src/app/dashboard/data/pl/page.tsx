@@ -24,6 +24,11 @@ import { useRouter } from "next/navigation";
 export interface pl {
   kode: string;
   deskripsi: string;
+  CPL: CPLItem[];
+}
+
+export interface CPLItem {
+  kode: string;
 }
 
 const DataPL = () => {
@@ -76,9 +81,10 @@ const DataPL = () => {
     return PL.map((pl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[20%]">{pl.kode}</TableCell>
-          <TableCell className="flex-1">{pl.deskripsi}</TableCell>
-          <TableCell className="w-[20%] flex gap-2">
+          <TableCell className="w-[10%]">{pl.kode}</TableCell>
+          <TableCell className="flex-1">{pl.deskripsi.length>20?pl.deskripsi.slice(0,18)+"...":pl.deskripsi}</TableCell>
+          <TableCell className="w-[20%]">{pl.CPL.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[10%] flex gap-2">
             <Button variant="destructive" onClick={() => delPL(pl.kode)}>
               Hapus
             </Button>
@@ -107,22 +113,24 @@ const DataPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Kode</TableHead>
+                  <TableHead className="w-[10%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[20%]">Aksi</TableHead>
+                  <TableHead className="w-[20%]">CPL</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={3} />
+                <SkeletonTable rows={5} cols={4} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">Kode</TableHead>
+                 <TableHead className="w-[10%]">Kode</TableHead>
                   <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[20%]">Aksi</TableHead>
+                  <TableHead className="w-[20%]">CPL</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
