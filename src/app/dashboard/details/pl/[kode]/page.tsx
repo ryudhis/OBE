@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export interface PLinterface {
   kode: string;
@@ -29,6 +32,11 @@ export interface CPLItem {
   deskripsi: string;
 }
 
+const formSchema = z.object({
+  kode: z.string().min(2).max(50),
+  deskripsi: z.string().min(1).max(50),
+});
+
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [pl, setPl] = useState<PLinterface | undefined>();
@@ -37,6 +45,52 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      kode: "01",
+      deskripsi: "Pucal",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
+    e.preventDefault();
+
+    const data = {
+      kode: "PL-" + values.kode,
+      deskripsi: values.deskripsi,
+    };
+
+    console.log(data);
+
+    axiosConfig
+      .patch(`api/pl/${kode}`, data)
+      .then(function (response) {
+        if (response.data.status != 400) {
+          toast({
+            title: "Berhasil Edit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: response.data.status,
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Edit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      });
+
+    form.reset();
+  }
 
   const filteredCPL = cpl?.filter((cpl) =>
     cpl.kode.toLowerCase().includes(search.toLowerCase())
@@ -62,6 +116,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       throw error;
     }
   };
+
   const getAllCPL = async () => {
     try {
       const response = await axiosConfig.get("api/cpl");
@@ -157,37 +212,36 @@ export default function Page({ params }: { params: { kode: string } }) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Edit profile</DialogTitle>
-                <DialogDescription>
-                  Make changes to your profile here. Click save when you re
-                  done.
-                </DialogDescription>
+                <DialogTitle>Edit PL</DialogTitle>
+                <DialogDescription>Profil Lulusan</DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Name
-                  </Label>
-                  <Input
-                    id="name"
-                    defaultValue="Pedro Duarte"
-                    className="col-span-3"
-                  />
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="kode" className="text-right">
+                      Kode
+                    </Label>
+                    <Input
+                      id="kode"
+                      {...form.register("kode")} // Register the input with react-hook-form
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="deskripsi" className="text-right">
+                      Deskripsi
+                    </Label>
+                    <Input
+                      id="deskripsi"
+                      {...form.register("deskripsi")} // Register the input with react-hook-form
+                      className="col-span-3"
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Username
-                  </Label>
-                  <Input
-                    id="username"
-                    defaultValue="@peduarte"
-                    className="col-span-3"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Save changes</Button>
-              </DialogFooter>
+                <DialogFooter>
+                  <Button type="submit">Save changes</Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
