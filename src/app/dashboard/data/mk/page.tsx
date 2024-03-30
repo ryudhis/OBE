@@ -120,7 +120,7 @@ const DataMK = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="flex-1">Nama Matakuliah</TableHead>
                   <TableHead className="w-[15%]">BK</TableHead>
                   <TableHead className="w-[15%]">CPMK</TableHead>
                   <TableHead className="w-[8%]">Aksi</TableHead>
@@ -135,7 +135,7 @@ const DataMK = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="flex-1">Nama Matakuliah</TableHead>
                   <TableHead className="w-[15%]">BK</TableHead>
                   <TableHead className="w-[15%]">CPMK</TableHead>
                   <TableHead className="w-[8%]">Aksi</TableHead>

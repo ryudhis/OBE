@@ -4,16 +4,27 @@ import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
 import { RelationData } from "@/components/RelationData";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export interface CPLinterface {
   kode: string;
   deskripsi: string;
+  keterangan: string;
   BK: BKItem[];
   CPMK: CPMKItem[];
 }
@@ -30,11 +41,16 @@ export interface BKItem {
   max: number;
 }
 
+const formSchema = z.object({
+  deskripsi: z.string().min(1).max(50),
+  keterangan: z.string().min(1).max(50),
+});
+
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [cpl, setCPl] = useState<CPLinterface | undefined>();
   const [bk, setBK] = useState<BKItem[] | undefined>([]);
-  const [cpmk,setCPMK] = useState<CPMKItem[] | undefined>([]);
+  const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);
   const [prevSelected1, setPrevSelected1] = useState<string[]>([]);
   const [selected1, setSelected1] = useState<string[]>([]);
   const [prevSelected2, setPrevSelected2] = useState<string[]>([]);
@@ -42,6 +58,49 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [searchBK, setSearchBK] = useState<string>("");
   const [searchCPMK, setSearchCPMK] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      deskripsi: "",
+      keterangan: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
+    e.preventDefault();
+
+    const data = {
+      deskripsi: values.deskripsi,
+      keterangan: values.keterangan,
+    };
+
+    axiosConfig
+      .patch(`api/cpl/${kode}`, data)
+      .then(function (response) {
+        if (response.data.status != 400) {
+          setRefresh(!refresh);
+          toast({
+            title: "Berhasil Edit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: response.data.message,
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Edit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      });
+  }
 
   const filteredBK = bk?.filter((bk) =>
     bk.kode.toLowerCase().includes(searchBK.toLowerCase())
@@ -75,6 +134,11 @@ export default function Page({ params }: { params: { kode: string } }) {
 
       setSelected2(prevSelected2);
       setPrevSelected2(prevSelected2);
+
+      form.reset({
+        deskripsi: response.data.data.deskripsi,
+        keterangan: response.data.data.keterangan,
+      });
     } catch (error: any) {
       throw error;
     }
@@ -128,60 +192,24 @@ export default function Page({ params }: { params: { kode: string } }) {
     });
   };
 
-
-  const updateBK = async () => {
+  const updateRelation = async () => {
     let addedBKId: string[] = [];
     let removedBKId: string[] = [];
-
-    addedBKId = selected1.filter((item) => !prevSelected1.includes(item));
-    removedBKId = prevSelected1.filter((item) => !selected1.includes(item));
-
-    const payload = {
-      kode: cpl?.kode,
-      deskripsi: cpl?.deskripsi,
-      addedBKId: addedBKId,
-      removedBKId: removedBKId,
-      addedCPMKId: [],
-      removedCPMKId: []
-    };
-
-    console.log(payload);
-
-    try {
-      const response = await axiosConfig.patch(`api/cpl/${kode}`, payload);
-      setRefresh(!refresh);
-      if (response.data.status == 200 || response.data.status == 201) {
-        toast({
-          title: response.data.message,
-          variant: "default",
-        });
-        setRefresh(!refresh);
-      } else {
-        console.log(response.data)
-        toast({
-          title: response.data.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const updateCPMK = async () => {
     let addedCPMKId: string[] = [];
     let removedCPMKId: string[] = [];
 
+    addedBKId = selected1.filter((item) => !prevSelected1.includes(item));
+    removedBKId = prevSelected1.filter((item) => !selected1.includes(item));
     addedCPMKId = selected2.filter((item) => !prevSelected2.includes(item));
     removedCPMKId = prevSelected2.filter((item) => !selected2.includes(item));
 
     const payload = {
       kode: cpl?.kode,
       deskripsi: cpl?.deskripsi,
+      addedBKId: addedBKId,
+      removedBKId: removedBKId,
       addedCPMKId: addedCPMKId,
       removedCPMKId: removedCPMKId,
-      addedBKId: [],
-      removedBKId: []
     };
 
     try {
@@ -194,6 +222,7 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
         setRefresh(!refresh);
       } else {
+        console.log(response.data);
         toast({
           title: response.data.message,
           variant: "destructive",
@@ -218,18 +247,69 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (cpl) {
     return (
       <main className="flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        <Table className="w-[200px] mb-5">
-          <TableBody>
-            <TableRow>
-              <TableCell><strong>Kode</strong></TableCell>
-              <TableCell>: {cpl.kode} </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell><strong>Deskripsi</strong> </TableCell>
-              <TableCell>: {cpl.deskripsi}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <div className="flex">
+          <Table className="w-[300px] mb-5">
+            <TableBody>
+              <TableRow>
+                <TableCell>
+                  <strong>Kode</strong>
+                </TableCell>
+                <TableCell>: {cpl.kode} </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <strong>Deskripsi</strong>{" "}
+                </TableCell>
+                <TableCell>: {cpl.deskripsi}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <strong>Keterangan</strong>{" "}
+                </TableCell>
+                <TableCell>: {cpl.keterangan}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Edit Data</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Edit CPL</DialogTitle>
+                <DialogDescription>{cpl.kode}</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="deskripsi" className="text-right">
+                      Deskripsi
+                    </Label>
+                    <Input
+                      id="deskripsi"
+                      {...form.register("deskripsi")} // Register the input with react-hook-form
+                      className="col-span-3"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="keterangan" className="text-right">
+                      Keterangan
+                    </Label>
+                    <Input
+                      id="keterangan"
+                      {...form.register("keterangan")} // Register the input with react-hook-form
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Simpan</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <div className="mb-5">
           <div className=" font-bold text-xl">Data Relasi BK</div>
@@ -271,15 +351,6 @@ export default function Page({ params }: { params: { kode: string } }) {
           )}
         </div>
 
-        {/* SAVE */}
-        <button
-          onClick={updateBK}
-          type="button"
-          className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
-        >
-          Simpan
-        </button>
-
         <div className="flex flex-row justify-between items-center mb-5">
           <div className=" font-bold text-xl">Sambungkan CPMK</div>
           <input
@@ -311,7 +382,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
         {/* SAVE */}
         <button
-          onClick={updateCPMK}
+          onClick={updateRelation}
           type="button"
           className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
         >

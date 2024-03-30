@@ -86,8 +86,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
         console.log(error);
       });
-
-    form.reset();
   }
 
   const filteredCPL = cpl?.filter((cpl) =>
@@ -112,9 +110,8 @@ export default function Page({ params }: { params: { kode: string } }) {
       setPrevSelected(prevSelected);
 
       form.reset({
-        deskripsi: response.data.data.deskripsi, 
+        deskripsi: response.data.data.deskripsi,
       });
-
     } catch (error: any) {
       throw error;
     }
@@ -159,7 +156,10 @@ export default function Page({ params }: { params: { kode: string } }) {
     };
 
     try {
-      const response = await axiosConfig.patch(`api/pl/relasi/${kode}`, payload);
+      const response = await axiosConfig.patch(
+        `api/pl/relasi/${kode}`,
+        payload
+      );
       console.log(payload);
 
       setRefresh(!refresh);
@@ -194,7 +194,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     return (
       <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
         <div className="flex">
-          <Table className="w-[200px] mb-5">
+          <Table className="w-[400px] mb-5">
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -234,7 +234,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Save changes</Button>
+                  <Button type="submit">Simpan</Button>
                 </DialogFooter>
               </form>
             </DialogContent>

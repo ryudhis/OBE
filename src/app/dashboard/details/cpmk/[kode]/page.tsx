@@ -10,6 +10,22 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 
 export interface CPMKInterface {
   kode: string;
@@ -22,6 +38,10 @@ export interface MKItem {
   deskripsi: string;
 }
 
+
+const formSchema = z.object({
+  deskripsi: z.string().min(1).max(50),
+});
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [cpmk, setCpmk] = useState<CPMKInterface | undefined>();
@@ -34,6 +54,49 @@ export default function Page({ params }: { params: { kode: string } }) {
   const filteredMK = mk?.filter((mk) =>
     mk.kode.toLowerCase().includes(search.toLowerCase())
   );
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      deskripsi: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
+    e.preventDefault();
+
+    const data = {
+      deskripsi: values.deskripsi,
+    };
+
+    console.log(data);
+
+    axiosConfig
+      .patch(`api/cpmk/${kode}`, data)
+      .then(function (response) {
+        if (response.data.status != 400) {
+          setRefresh(!refresh);
+          toast({
+            title: "Berhasil Edit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: response.data.message,
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Edit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      });
+  }
 
   const getCPMK = async () => {
     try {
@@ -51,6 +114,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
       setSelected(prevSelected);
       setPrevSelected(prevSelected);
+      form.reset({
+        deskripsi: response.data.data.deskripsi,
+      });
     } catch (error: any) {
       throw error;
     }
@@ -96,7 +162,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     console.log(payload);
 
     try {
-      const response = await axiosConfig.patch(`api/cpmk/${kode}`, payload);
+      const response = await axiosConfig.patch(`api/cpmk/relasi/${kode}`, payload);
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {
         toast({
@@ -128,6 +194,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (cpmk) {
     return (
       <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <div className="flex">
         <Table className="w-[200px] mb-5">
           <TableBody>
             <TableRow>
@@ -140,6 +207,37 @@ export default function Page({ params }: { params: { kode: string } }) {
             </TableRow>
           </TableBody>
         </Table>
+
+        <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Edit Data</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Edit PL</DialogTitle>
+                <DialogDescription>{cpmk.kode}</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="deskripsi" className="text-right">
+                      Deskripsi
+                    </Label>
+                    <Input
+                      id="deskripsi"
+                      {...form.register("deskripsi")} // Register the input with react-hook-form
+                      className="col-span-3"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Simpan</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+        
 
         <div className="mb-5">
           <div className=" font-bold text-xl">Data Relasi MK</div>
