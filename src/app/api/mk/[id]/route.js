@@ -48,17 +48,9 @@ export async function PATCH(req) {
 
     const MK = await prisma.MK.update({
       where: {
-        kode: kode,
+        kode,
       },
-      data: {
-        ...data,
-        BK: {
-          connect: data.BK.map((bkId) => ({ kode: bkId })),
-        },
-        CPMK: {
-          connect: data.CPMK.map((cpmkId) => ({ kode: cpmkId })),
-        },
-      },
+      data,
     });
 
     return Response.json({
