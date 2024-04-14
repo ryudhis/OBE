@@ -59,8 +59,6 @@ export default function Page({ params }: { params: { kode: string } }) {
       deskripsi: values.deskripsi,
     };
 
-    console.log(data);
-
     axiosConfig
       .patch(`api/pl/${kode}`, data)
       .then(function (response) {
@@ -160,7 +158,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         `api/pl/relasi/${kode}`,
         payload
       );
-      console.log(payload);
 
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {

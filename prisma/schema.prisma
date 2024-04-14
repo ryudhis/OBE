@@ -66,13 +66,12 @@ model subCPMK {
 }
 
 model penilaianCPMK {
-  kode            String   @id @unique
+  id              Int    @unique @default(sequence())
   CPL             String
   MK              String
   CPMK            String
-  tahapPenilaian  String[]
-  teknikPenilaian String[]
-  instrumen       String[]
-  kriteria        String[]
-  bobot           Float[]
+  tahapPenilaian  String
+  teknikPenilaian String
+  instrumen       String
+  kriteria        Json
 }

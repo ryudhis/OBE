@@ -113,6 +113,25 @@ const Page = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <DropdownMenu>
+        <DropdownMenuTrigger className="outline-none">
+          <div className="px-2 py-1 border-2 border-slate-700 rounded-sm">
+            Penilaian CPMK
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuLabel>Menu</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/input/penilaianCPMK");
+            }}
+          >
+            Input
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <Button
         variant="destructive"
         onClick={() => {
