@@ -3,7 +3,7 @@ import prisma from "@/utils/prisma";
 export async function GET() {
   try {
     const MK = await prisma.MK.findMany({
-      include: { BK: true, CPMK: true },
+      include: { BK: true , CPMK: { include: { CPL: true } } },
     });
 
     return Response.json({
