@@ -1,4 +1,5 @@
 "use client";
+
 import axiosConfig from "../../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,25 +28,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
 
 const formSchema = z.object({
-  MK: z
-    .string({
-      required_error: "Please select MK to display.",
-    })
-    .optional(),
-  CPMK: z
-    .string({
-      required_error: "Please select CPMK to display.",
-    })
-    .optional(),
-  CPL: z
-    .string({
-      required_error: "Please select CPL to display.",
-    })
-    .optional(),
+  MK: z.string({
+    required_error: "Please select MK to display.",
+  }),
+  CPMK: z.string({
+    required_error: "Please select CPMK to display.",
+  }),
+  CPL: z.string({
+    required_error: "Please select CPL to display.",
+  }),
   tahapPenilaian: z
     .array(z.string())
     .refine((value) => value.some((item) => item), {
@@ -61,6 +57,14 @@ const formSchema = z.object({
       required_error: "Please select Instrumen to display.",
     })
     .optional(),
+  kriteria: z.array(
+    z.object({
+      kriteria: z.string({
+        required_error: "Please select Kriteria to display.",
+      }),
+      bobot: z.string(),
+    })
+  ),
 });
 
 export interface MKItem {
@@ -99,31 +103,43 @@ const InputPenilaianCPMK = () => {
 
   const tahapPenilaian = [
     {
-      id: "tahap1",
-      label: "Tahap1",
+      id: "Perkuliahan",
+      label: "Perkuliahan",
     },
     {
-      id: "tahap2",
-      label: "Tahap2",
+      id: "Tengah Semester",
+      label: "Tengah Semester",
     },
     {
-      id: "tahap3",
-      label: "Tahap3",
+      id: "Akhir Semester",
+      label: "Akhir Semester",
     },
   ] as const;
 
   const teknikPenilaian = [
     {
-      id: "teknik1",
-      label: "Teknik1",
+      id: "Observasi (Praktik)",
+      label: "Observasi (Praktik)",
     },
     {
-      id: "teknik2",
-      label: "Teknik2",
+      id: "Unjuk Kerja (Presentasi)",
+      label: "Unjuk Kerja (Presentasi)",
     },
     {
-      id: "teknik3",
-      label: "Teknik3",
+      id: "Tes Lisan (Tugas Kelompok)",
+      label: "Tes Lisan (Tugas Kelompok)",
+    },
+    {
+      id: "Tes Tulis (UTS)",
+      label: "Tes Tulis (UTS)",
+    },
+    {
+      id: "Tes Tulis (UAS)",
+      label: "Tes Tulis (UAS)",
+    },
+    {
+      id: "Partisipasi (Quiz)",
+      label: "Partisipasi (Quiz)",
     },
   ] as const;
 
@@ -133,7 +149,8 @@ const InputPenilaianCPMK = () => {
     CPL: "",
     tahapPenilaian: [],
     teknikPenilaian: [],
-    Instrumen: "",
+    instrumen: "",
+    kriteria: [{ kriteria: "", bobot: "" }],
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -144,41 +161,52 @@ const InputPenilaianCPMK = () => {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.stopPropagation();
 
+    const convertKriteria = values.kriteria.map((item) => ({
+      ...item,
+      bobot: parseFloat(item.bobot),
+    }));
+
+    const concat = (data: string[]) => {
+      return data.join(", ");
+    };
+
     const data = {
       MK: values.MK,
       CPMK: values.CPMK,
       CPL: values.CPL,
-      tahapPenilaian: values.tahapPenilaian,
-      teknikPenilaian: values.teknikPenilaian,
+      tahapPenilaian: concat(values.tahapPenilaian),
+      teknikPenilaian: concat(values.teknikPenilaian),
+      instrumen: values.instrumen,
+      kriteria: convertKriteria,
     };
 
     console.log(data);
 
     form.reset(defaultValues);
-    // axiosConfig
-    //   .post("api/penilaianCPMK", data)
-    //   .then(function (response) {
-    //     if (response.data.status !== 400) {
-    //       toast({
-    //         title: "Berhasil Submit",
-    //         description: String(new Date()),
-    //       });
-    //     } else {
-    //       toast({
-    //         title: "Kode Sudah Ada!",
-    //         description: String(new Date()),
-    //         variant: "destructive",
-    //       });
-    //     }
-    //   })
-    //   .catch(function (error) {
-    //     toast({
-    //       title: "Gagal Submit",
-    //       description: String(new Date()),
-    //       variant: "destructive",
-    //     });
-    //     console.log(error);
-    //   });
+    axiosConfig
+      .post("api/penilaianCPMK", data)
+      .then(function (response) {
+        if (response.data.status !== 400) {
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Kode Sudah Ada!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      });
   }
 
   useEffect(() => {
@@ -186,7 +214,7 @@ const InputPenilaianCPMK = () => {
   }, []);
 
   return (
-    <section className="flex h-screen justify-center items-center">
+    <section className="flex h-screen my-[150px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input </CardTitle>
@@ -426,7 +454,7 @@ const InputPenilaianCPMK = () => {
                 name="instrumen"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instrumen</FormLabel>
+                    <FormLabel className="text-base">Instrumen : </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -449,6 +477,108 @@ const InputPenilaianCPMK = () => {
                         </SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="kriteria"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">Kriteria : </FormLabel>
+                    {field.value.map((_, index) => (
+                      <div key={index} className="flex space-x-4">
+                        <FormField
+                          control={form.control}
+                          name={`kriteria.${index}.kriteria`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Kriteria</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                value={field.value}
+                                required
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-[200px] p-2">
+                                    {field.value ? (
+                                      <SelectValue placeholder="Pilih Kriteria" />
+                                    ) : (
+                                      "Pilih Kriteria"
+                                    )}
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                <SelectItem value="Hasil Praktik">
+                                    Hasil Praktik
+                                  </SelectItem>
+                                  <SelectItem value="Kualitas Presentasi">
+                                    Kualitas Presentasi
+                                  </SelectItem>
+                                  <SelectItem value="Ketepatan Jawaban">
+                                    Ketepatan Jawaban
+                                  </SelectItem>
+                                  <SelectItem value="Ketepatan Jawaban Tes Lisan">
+                                    Ketepatan Jawaban Tes Lisan
+                                  </SelectItem>
+                                  <SelectItem value="Ketepatan Jawaban Quiz">
+                                    Ketepatan Jawaban Quiz
+                                  </SelectItem>
+                                  <SelectItem value="Ketepatan Jawaban UTS">
+                                    Ketepatan Jawaban UTS
+                                  </SelectItem>
+                                  <SelectItem value="Ketepatan Jawaban UAS">
+                                    Ketepatan Jawaban UAS
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`kriteria.${index}.bobot`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Kriteria</FormLabel>
+                              <Input
+                                placeholder="Bobot"
+                                type="number"
+                                required
+                                {...field}
+                              />
+                            </FormItem>
+                          )}
+                        />
+                        {index > 0 && (
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              const kriteriaArray = [...field.value];
+                              kriteriaArray.splice(index, 1);
+                              field.onChange(kriteriaArray);
+                            }}
+                            className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md"
+                          >
+                            Hapus
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const kriteriaArray = [...field.value];
+                        kriteriaArray.push({ bobot: "", kriteria: "" });
+                        field.onChange(kriteriaArray);
+                      }}
+                      className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md"
+                    >
+                      Tambah Kriteria
+                    </Button>
                     <FormMessage />
                   </FormItem>
                 )}
