@@ -117,13 +117,6 @@ const Page = () => {
           >
             MK
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              router.push("/dashboard/data/penilaianCPMK");
-            }}
-          >
-            Penilaian CPMK
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
