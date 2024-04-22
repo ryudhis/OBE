@@ -88,6 +88,20 @@ const InputPenilaianCPMK = () => {
   const [selectedMK, setSelectedMK] = useState<MKItem>();
   const [selectedCPMK, setSelectedCPMK] = useState<CPMKItem>();
   const [searchMK, setSearchMK] = useState<string>("");
+  const [searchCPMK, setSearchCPMK] = useState<string>("");
+  const [searchCPL, setSearchCPL] = useState<string>("");
+
+  const filteredMK = MK.filter((mk) =>
+    mk.kode.toLowerCase().includes(searchMK.toLowerCase())
+  );
+
+  const filteredCPMK = selectedMK?.CPMK.filter((cpmk) =>
+    cpmk.kode.toLowerCase().includes(searchCPMK.toLowerCase())
+  );
+
+  const filteredCPL = selectedCPMK?.CPL.filter((cpl) =>
+    cpl.kode.toLowerCase().includes(searchCPL.toLowerCase())
+  );
 
   const getMK = async () => {
     try {
@@ -183,7 +197,6 @@ const InputPenilaianCPMK = () => {
 
     console.log(data);
 
-    form.reset(defaultValues);
     axiosConfig
       .post("api/penilaianCPMK", data)
       .then(function (response) {
@@ -208,6 +221,10 @@ const InputPenilaianCPMK = () => {
         });
         console.log(error);
       });
+    form.reset(defaultValues);
+    setSearchMK("");
+    setSearchCPMK("");
+    setSearchCPL("");
   }
 
   useEffect(() => {
@@ -252,15 +269,13 @@ const InputPenilaianCPMK = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type="text"
+                          type="number"
                           className="mb-2"
                           value={searchMK}
                           placeholder="Cari..."
                           onChange={(e) => setSearchMK(e.target.value)}
                         />
-                        {MK.filter((mk) =>
-                          mk.kode.toLowerCase().includes(searchMK.toLowerCase())
-                        ).map((mk, index) => {
+                        {filteredMK.map((mk, index) => {
                           return (
                             <SelectItem key={index} value={mk.kode}>
                               {mk.kode}
@@ -303,8 +318,14 @@ const InputPenilaianCPMK = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <p>Dummy Search Here</p>
-                        {selectedMK?.CPMK.map((cpmk, index) => {
+                        <Input
+                          type="number"
+                          className="mb-2"
+                          value={searchCPMK}
+                          placeholder="Cari..."
+                          onChange={(e) => setSearchCPMK(e.target.value)}
+                        />
+                        {filteredCPMK?.map((cpmk, index) => {
                           return (
                             <SelectItem key={index} value={cpmk.kode}>
                               {cpmk.kode}
@@ -341,8 +362,14 @@ const InputPenilaianCPMK = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <p>Dummy Search Here</p>
-                        {selectedCPMK?.CPL.map((cpl, index) => {
+                        <Input
+                          type="number"
+                          className="mb-2"
+                          value={searchCPL}
+                          placeholder="Cari..."
+                          onChange={(e) => setSearchCPL(e.target.value)}
+                        />
+                        {filteredCPL?.map((cpl, index) => {
                           return (
                             <SelectItem key={index} value={cpl.kode}>
                               {cpl.kode}
@@ -498,7 +525,7 @@ const InputPenilaianCPMK = () => {
                   <FormItem>
                     <FormLabel className="text-base">Kriteria : </FormLabel>
                     {field.value.map((_, index) => (
-                      <div key={index} className="flex space-x-4">
+                      <div key={index} className="flex items-center space-x-5">
                         <FormField
                           control={form.control}
                           name={`kriteria.${index}.kriteria`}
@@ -562,12 +589,13 @@ const InputPenilaianCPMK = () => {
                             </FormItem>
                           )}
                         />
-                        {index > 0 && (
+                        {index === field.value.length-1 && index > 0 && (
                           <Button
                             type="button"
                             onClick={() => {
-                              const kriteriaArray = [...field.value];
+                              const kriteriaArray = form.getValues("kriteria");
                               kriteriaArray.splice(index, 1);
+                              console.log(kriteriaArray);
                               field.onChange(kriteriaArray);
                             }}
                             className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md"
@@ -580,9 +608,10 @@ const InputPenilaianCPMK = () => {
                     <Button
                       type="button"
                       onClick={() => {
-                        const kriteriaArray = [...field.value];
+                        const kriteriaArray = form.getValues("kriteria");
                         kriteriaArray.push({ bobot: "", kriteria: "" });
                         field.onChange(kriteriaArray);
+                        console.log(form.getValues("kriteria"));
                       }}
                       className="px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md"
                     >

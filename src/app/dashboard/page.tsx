@@ -129,6 +129,13 @@ const Page = () => {
           >
             Input
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/data/penilaianCPMK");
+            }}
+          >
+            Lihat Data
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
