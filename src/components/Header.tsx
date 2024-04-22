@@ -7,12 +7,12 @@ const Header = () => {
   const router = useRouter();
   return (
     <div>
-      <header className="flex justify-between items-center py-2 px-4 bg-slate-800">
+      <header className="flex justify-between items-center py-4 px-6 bg-slate-800">
         <h1
-          className="text-white cursor-pointer"
+          className="text-white cursor-pointer font-bold text-2xl tracking-widest"
           onClick={() => router.push("/dashboard")}
         >
-          Dashboard
+          OBE
         </h1>
       </header>
     </div>
