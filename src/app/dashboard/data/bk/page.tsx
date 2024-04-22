@@ -86,11 +86,19 @@ const DataBK = () => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{bk.kode}</TableCell>
-          <TableCell className="flex-1">{bk.deskripsi.length>20?bk.deskripsi.slice(0, 18) + "...":bk.deskripsi}</TableCell>
+          <TableCell className="flex-1">
+            {bk.deskripsi.length > 20
+              ? bk.deskripsi.slice(0, 18) + "..."
+              : bk.deskripsi}
+          </TableCell>
           <TableCell className="w-[4%]">{bk.min}</TableCell>
           <TableCell className="w-[4%]">{bk.max}</TableCell>
-          <TableCell className="w-[18%]">{bk.CPL.map((item) => item.kode).join(", ")}</TableCell>
-          <TableCell className="w-[18%]">{bk.MK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[18%]">
+            {bk.CPL.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[18%]">
+            {bk.MK.map((item) => item.kode).join(", ")}
+          </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delBK(bk.kode)}>
               Hapus
@@ -111,9 +119,18 @@ const DataBK = () => {
   return (
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Tabel BK</CardTitle>
-          <CardDescription>Bahan Kajian</CardDescription>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
+            <CardTitle>Tabel BK</CardTitle>
+            <CardDescription>Bahan Kajian</CardDescription>
+          </div>
+          <Button
+            onClick={() => {
+              router.push("/dashboard/input/bk");
+            }}
+          >
+            Tambah
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (

@@ -86,18 +86,27 @@ const DataCPL = () => {
   useEffect(() => {
     getCPL();
   }, []);
-  // id, kode, deskripsi
 
   const renderData = () => {
     return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{cpl.kode}</TableCell>
-          <TableCell className="flex-1">{cpl.deskripsi.length>16?cpl.deskripsi.slice(0, 14) + "...":cpl.deskripsi}</TableCell>
+          <TableCell className="flex-1">
+            {cpl.deskripsi.length > 16
+              ? cpl.deskripsi.slice(0, 14) + "..."
+              : cpl.deskripsi}
+          </TableCell>
           <TableCell className="w-[8%]">{cpl.keterangan}</TableCell>
-          <TableCell className="w-[12%]">{cpl.BK.map((item) => item.kode).join(", ")}</TableCell>
-          <TableCell className="w-[12%]">{cpl.PL.map((item) => item.kode).join(", ")}</TableCell>
-          <TableCell className="w-[12%]">{cpl.CPMK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="w-[12%]">
+            {cpl.BK.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[12%]">
+            {cpl.PL.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[12%]">
+            {cpl.CPMK.map((item) => item.kode).join(", ")}
+          </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button
               variant="destructive"
@@ -123,9 +132,18 @@ const DataCPL = () => {
   return (
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Tabel CPL</CardTitle>
-          <CardDescription>Capaian Pembelajaran</CardDescription>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
+            <CardTitle>Tabel CPL</CardTitle>
+            <CardDescription>Capaian Pembelajaran</CardDescription>
+          </div>
+          <Button
+            onClick={() => {
+              router.push("/dashboard/input/cpl");
+            }}
+          >
+            Tambah
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (
