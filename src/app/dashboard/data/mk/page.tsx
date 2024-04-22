@@ -87,9 +87,17 @@ const DataMK = () => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{mk.kode}</TableCell>
-          <TableCell className="flex-1">{mk.deskripsi.length>20?mk.deskripsi.slice(0,18)+"...":mk.deskripsi}</TableCell>
-          <TableCell className="w-[15%]">{mk.BK.map((item) => item.kode).join(", ")}</TableCell>
-          <TableCell className="w-[15%]">{mk.CPMK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="flex-1">
+            {mk.deskripsi.length > 20
+              ? mk.deskripsi.slice(0, 18) + "..."
+              : mk.deskripsi}
+          </TableCell>
+          <TableCell className="w-[15%]">
+            {mk.BK.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[15%]">
+            {mk.CPMK.map((item) => item.kode).join(", ")}
+          </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>
               Hapus
@@ -110,9 +118,18 @@ const DataMK = () => {
   return (
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Tabel MK</CardTitle>
-          <CardDescription>Mata Kuliah</CardDescription>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
+            <CardTitle>Tabel MK</CardTitle>
+            <CardDescription>Mata Kuliah</CardDescription>
+          </div>
+          <Button
+            onClick={() => {
+              router.push("/dashboard/input/mk");
+            }}
+          >
+            Tambah
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (

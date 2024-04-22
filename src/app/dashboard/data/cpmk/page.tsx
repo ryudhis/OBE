@@ -29,15 +29,15 @@ export interface cpmk {
   subCPMK: subCPMKItem[];
 }
 
-export interface CPLItem{
+export interface CPLItem {
   kode: string;
 }
 
-export interface MKItem{
+export interface MKItem {
   kode: string;
 }
 
-export interface subCPMKItem{
+export interface subCPMKItem {
   kode: string;
 }
 
@@ -91,9 +91,17 @@ const DataCPMK = () => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{cpmk.kode}</TableCell>
-          <TableCell className="flex-1">{cpmk.deskripsi.length>20?cpmk.deskripsi.slice(0,18) + "...":cpmk.deskripsi}</TableCell>
-          <TableCell className="w-[12%]">{cpmk.CPL.map((item) => item.kode).join(", ")}</TableCell>
-          <TableCell className="w-[12%]">{cpmk.MK.map((item) => item.kode).join(", ")}</TableCell>
+          <TableCell className="flex-1">
+            {cpmk.deskripsi.length > 20
+              ? cpmk.deskripsi.slice(0, 18) + "..."
+              : cpmk.deskripsi}
+          </TableCell>
+          <TableCell className="w-[12%]">
+            {cpmk.CPL.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[12%]">
+            {cpmk.MK.map((item) => item.kode).join(", ")}
+          </TableCell>
           {/* <TableCell className="w-[12%]">{cpmk.subCPMK.map((item) => item.kode).join(", ")}</TableCell> */}
           <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delCPMK(cpmk.kode)}>
@@ -115,9 +123,18 @@ const DataCPMK = () => {
   return (
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Tabel CPMK</CardTitle>
-          <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
+            <CardTitle>Tabel CPMK</CardTitle>
+            <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+          </div>
+          <Button
+            onClick={() => {
+              router.push("/dashboard/input/cpmk");
+            }}
+          >
+            Tambah
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (

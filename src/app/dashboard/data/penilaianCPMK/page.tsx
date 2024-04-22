@@ -131,11 +131,20 @@ const DataPenilaianCPMK = () => {
   return (
     <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Tabel Penilaian CPMK</CardTitle>
-          <CardDescription>
-            Penilaian Capaian Pembelajar Mata Kuliah
-          </CardDescription>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
+            <CardTitle>Tabel Penilaian CPMK</CardTitle>
+            <CardDescription>
+              Penilaian Capaian Pembelajaran Mata Kuliah
+            </CardDescription>
+          </div>
+          <Button
+            onClick={() => {
+              router.push("/dashboard/input/penilaianCPMK");
+            }}
+          >
+            Tambah
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (
