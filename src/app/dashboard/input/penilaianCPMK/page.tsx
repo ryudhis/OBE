@@ -87,6 +87,7 @@ const InputPenilaianCPMK = () => {
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem>();
   const [selectedCPMK, setSelectedCPMK] = useState<CPMKItem>();
+  const [searchMK, setSearchMK] = useState<string>("");
 
   const getMK = async () => {
     try {
@@ -250,8 +251,16 @@ const InputPenilaianCPMK = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <p>Dummy Search Here</p>
-                        {MK?.map((mk, index) => {
+                        <Input
+                          type="text"
+                          className="mb-2"
+                          value={searchMK}
+                          placeholder="Cari..."
+                          onChange={(e) => setSearchMK(e.target.value)}
+                        />
+                        {MK.filter((mk) =>
+                          mk.kode.toLowerCase().includes(searchMK.toLowerCase())
+                        ).map((mk, index) => {
                           return (
                             <SelectItem key={index} value={mk.kode}>
                               {mk.kode}
@@ -512,7 +521,7 @@ const InputPenilaianCPMK = () => {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                <SelectItem value="Hasil Praktik">
+                                  <SelectItem value="Hasil Praktik">
                                     Hasil Praktik
                                   </SelectItem>
                                   <SelectItem value="Kualitas Presentasi">
