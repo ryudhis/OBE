@@ -30,5 +30,3 @@ export async function POST(req) {
     return Response.json({ status: 400, message: "Something went wrong!" });
   }
 }
-
-
