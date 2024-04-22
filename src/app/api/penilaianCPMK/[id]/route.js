@@ -35,10 +35,10 @@ export async function GET(req) {
 
 export async function DELETE(req) {
   try {
-    const kode = req.url.split("/penilaianCPMK/")[1];
+    const id = parseInt(req.url.split("/penilaianCPMK/")[1]);
     const penilaianCPMK = await prisma.penilaianCPMK.delete({
       where: {
-        kode: kode,
+        id: id,
       },
     });
 
