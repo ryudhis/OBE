@@ -2,17 +2,17 @@ import prisma from "@/utils/prisma";
 
 export async function GET(req) {
   try {
-    const id = req.url.split("/penilaianCPMK/")[1];
-    const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
+    const nim = req.url.split("/mahasiswa/")[1];
+    const mahasiswa = await prisma.mahasiswa.findUnique({
       where: {
-        id: id,
+        nim,
       },
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil ambil data!",
-      data: penilaianCPMK,
+      data: mahasiswa,
     });
   } catch (error) {
     console.log(error);
@@ -22,17 +22,17 @@ export async function GET(req) {
 
 export async function DELETE(req) {
   try {
-    const id = parseInt(req.url.split("/penilaianCPMK/")[1]);
-    const penilaianCPMK = await prisma.penilaianCPMK.delete({
+    const nim = req.url.split("/mahasiswa/")[1];
+    const mahasiswa = await prisma.mahasiswa.delete({
       where: {
-        id: id,
+        nim,
       },
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil hapus data!",
-      data: penilaianCPMK,
+      data: mahasiswa,
     });
   } catch (error) {
     console.log(error);
@@ -42,12 +42,12 @@ export async function DELETE(req) {
 
 export async function PATCH(req) {
   try {
-    const id = req.url.split("/penilaianCPMK/")[1];
+    const nim = req.url.split("/mahasiswa/")[1];
     const data = await req.json();
 
-    const penilaianCPMK = await prisma.penilaianCPMK.update({
+    const mahasiswa = await prisma.mahasiswa.update({
       where: {
-        id,
+        nim,
       },
       data,
     });
@@ -55,7 +55,7 @@ export async function PATCH(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: penilaianCPMK,
+      data: mahasiswa,
     });
   } catch (error) {
     console.log(error);
