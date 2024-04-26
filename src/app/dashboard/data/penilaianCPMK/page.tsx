@@ -164,7 +164,7 @@ const DataPenilaianCPMK = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={4} />
+                <SkeletonTable rows={5} cols={10} />
               </TableBody>
             </Table>
           ) : (
