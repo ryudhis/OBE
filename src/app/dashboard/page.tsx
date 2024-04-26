@@ -70,6 +70,13 @@ const Page = () => {
           >
             Penilaian CPMK
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/input/mahasiswa");
+            }}
+          >
+            Mahasiswa
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -116,6 +123,20 @@ const Page = () => {
             }}
           >
             MK
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/data/penilaianCPMK");
+            }}
+          >
+            Penilaian CPMK
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/data/mahasiswa");
+            }}
+          >
+            Mahasiswa
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
