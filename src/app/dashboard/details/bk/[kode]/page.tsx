@@ -93,11 +93,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         console.log(error);
       });
   }
-
-  const filteredMK = mk?.filter((mk) =>
-    mk.kode.toLowerCase().includes(search.toLowerCase())
-  );
-
   const getBK = async () => {
     try {
       const response = await axiosConfig.get(`api/bk/${kode}`);
@@ -124,6 +119,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       throw error;
     }
   };
+
   const getAllMK = async () => {
     try {
       const response = await axiosConfig.get("api/mk");
@@ -137,6 +133,10 @@ export default function Page({ params }: { params: { kode: string } }) {
       throw error;
     }
   };
+
+  const filteredMK = mk?.filter((mk) =>
+    mk.kode.toLowerCase().includes(search.toLowerCase())
+  );
 
   const handleCheck = (kode: string) => {
     setSelected((prevSelected) => {

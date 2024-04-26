@@ -2,20 +2,21 @@ import prisma from "@/utils/prisma";
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/mk/")[1];
-    const data = await req.json();
+    const kode = req.url.split("/relasi/")[1];
+    const body = await req.json();
+
+    console.log(body);
 
     const MK = await prisma.MK.update({
       where: {
-        kode: kode,
+        kode,
       },
       data: {
-        ...data,
-        BK: {
-          connect: data.BK.map((bkId) => ({ kode: bkId })),
-        },
-        CPMK: {
-          connect: data.CPMK.map((cpmkId) => ({ kode: cpmkId })),
+        kode: body.kode,
+        deskripsi: body.deskripsi,
+        mahasiswa: {
+          disconnect: body.removedMahasiswaId.map((MahasiswaId) => ({ nim: MahasiswaId })),
+          connect: body.addedMahasiswaId.map((MahasiswaId) => ({ nim: MahasiswaId })),
         },
       },
     });
