@@ -55,7 +55,6 @@ const DataCPL = () => {
         alert(response.data.message);
       }
       setCPL(response.data.data);
-      console.log(response.data.data);
     } catch (error) {
       console.log(error);
     } finally {
