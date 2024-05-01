@@ -2,7 +2,9 @@ import prisma from "@/utils/prisma";
 
 export async function GET() {
   try {
-    const inputNilai = await prisma.inputNilai.findMany();
+    const inputNilai = await prisma.inputNilai.findMany({
+      orderBy: { penilaianCPMKId: 'asc' }
+    });
 
     return Response.json({
       status: 200,
