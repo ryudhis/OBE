@@ -87,6 +87,13 @@ const Header = () => {
               >
                 Mahasiswa
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push("/dashboard/input/nilai");
+                }}
+              >
+                Nilai
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -147,6 +154,13 @@ const Header = () => {
                 }}
               >
                 Mahasiswa
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push("/dashboard/data/nilai");
+                }}
+              >
+                Nilai
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

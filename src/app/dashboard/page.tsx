@@ -77,6 +77,13 @@ const Page = () => {
           >
             Mahasiswa
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/input/nilai");
+            }}
+          >
+            Nilai
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -138,31 +145,12 @@ const Page = () => {
           >
             Mahasiswa
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger className="outline-none">
-          <div className="px-2 py-1 border-2 border-slate-700 rounded-sm">
-            Penilaian CPMK
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>Menu</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
-              router.push("/dashboard/input/penilaianCPMK");
+              router.push("/dashboard/data/nilai");
             }}
           >
-            Input
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              router.push("/dashboard/data/penilaianCPMK");
-            }}
-          >
-            Lihat Data
+            Nilai
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
