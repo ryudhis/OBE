@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export interface penilaianCPMK {
-  id: number;
+  kode: string;
   CPL: string;
   MK: string;
   CPMK: string;
@@ -58,9 +58,9 @@ const DataPenilaianCPMK = () => {
     }
   };
 
-  const delPenilaianCPMK = async (id: number) => {
+  const delPenilaianCPMK = async (kode: string) => {
     try {
-      const response = await axiosConfig.delete(`api/penilaianCPMK/${id}`);
+      const response = await axiosConfig.delete(`api/penilaianCPMK/${kode}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data penilaian CPMK",
@@ -86,8 +86,8 @@ const DataPenilaianCPMK = () => {
   const renderData = () => {
     return penilaianCPMK.map((pCPMK) => {
       return (
-        <TableRow key={pCPMK.id}>
-          <TableCell className="w-[2%]">{pCPMK.id}</TableCell>
+        <TableRow key={pCPMK.kode}>
+          <TableCell className="w-[2%]">{pCPMK.kode}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.MK}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.CPL}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.CPMK}</TableCell>
@@ -111,13 +111,13 @@ const DataPenilaianCPMK = () => {
           <TableCell className="w-[7%] flex gap-2">
             <Button
               variant="destructive"
-              onClick={() => delPenilaianCPMK(pCPMK.id)}
+              onClick={() => delPenilaianCPMK(pCPMK.kode)}
             >
               Hapus
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/pCPMK/${pCPMK.id}/`);
+                router.push(`/dashboard/details/pCPMK/${pCPMK.kode}/`);
               }}
             >
               Details

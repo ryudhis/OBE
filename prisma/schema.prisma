@@ -67,29 +67,32 @@ model subCPMK {
 }
 
 model penilaianCPMK {
-  id              Int    @unique @default(sequence())
+  kode            String       @id @unique
   CPL             String
   MK              String
   CPMK            String
   tahapPenilaian  String
   teknikPenilaian String
   instrumen       String
+  batasNilai      Float
   kriteria        Json
-  inputNilai inputNilai[] 
+  inputNilai      inputNilai[]
 }
 
 model mahasiswa {
-  nim  String @id @unique
-  nama String
-  MK   MK[]   @relation("mk_mahasiswa")
+  nim        String       @id @unique
+  nama       String
+  MK         MK[]         @relation("mk_mahasiswa")
   inputNilai inputNilai[]
 }
 
-model inputNilai {
-  id            Int           @unique @default(sequence())
-  penilaianCPMK penilaianCPMK @relation(fields: [penilaianCPMKId], references: [id])
-  penilaianCPMKId Int
-  mahasiswa     mahasiswa     @relation(fields: [mahasiswaNim], references: [nim])
-  mahasiswaNim  String
-  nilai         Float[]
-}
+  model inputNilai {
+    id              Int           @unique @default(sequence())
+    penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode])
+    penilaianCPMKId String
+    mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim])
+    mahasiswaNim    String
+    nilai           Float[]
+
+    @@unique([penilaianCPMKId, mahasiswaNim], name: "Unique_Nilai_PenilaianCPMKId_MahasiswaNim")
+  }

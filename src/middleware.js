@@ -12,7 +12,7 @@ export default async function middleware(req) {
   if (token) {
     try {
       const verifiedToken = await jose.jwtVerify(token, secret);
-      console.log("Verifikasi berhasil");
+      // console.log("Verifikasi berhasil");
       // console.log("Verified Token:", verifiedToken);
     } catch (error) {
       console.error("Verifikasi gagal:", error);
