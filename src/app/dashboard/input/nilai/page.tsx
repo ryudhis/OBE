@@ -164,7 +164,7 @@ const InputNilai = () => {
   }, []);
 
   return (
-    <section className='flex h-screen my-[-120px] justify-center items-center'>
+    <section className='flex my-[50px] justify-center items-center'>
       <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input </CardTitle>
