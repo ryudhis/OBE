@@ -3,7 +3,7 @@ import prisma from "@/utils/prisma";
 export async function GET() {
   try {
     const inputNilai = await prisma.inputNilai.findMany({
-      orderBy: { penilaianCPMKId: 'asc' } // 'asc' for ascending order, 'desc' for descending
+      orderBy: { penilaianCPMKId: 'asc' }
     });
 
     return Response.json({
