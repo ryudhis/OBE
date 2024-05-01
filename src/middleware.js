@@ -6,7 +6,7 @@ export default async function middleware(req) {
   // GET TOKEN
   const token = req.cookies.get("token")?.value;
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  const url = "http://localhost:3000";
+  const url = process.env.BASE_URL;
 
   // VERIFY TOKEN
   if (token) {
