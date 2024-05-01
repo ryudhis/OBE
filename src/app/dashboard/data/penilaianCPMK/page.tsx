@@ -31,6 +31,7 @@ export interface penilaianCPMK {
   instrumen: string;
   kriteria: kriteriaItem[];
   deskripsi: string;
+  batasNilai: number;
 }
 
 export interface kriteriaItem {
@@ -108,6 +109,9 @@ const DataPenilaianCPMK = () => {
               </TableRow>
             ))}
           </TableCell>
+          <TableCell>
+            {pCPMK.batasNilai}
+          </TableCell>
           <TableCell className="w-[7%] flex gap-2">
             <Button
               variant="destructive"
@@ -160,6 +164,7 @@ const DataPenilaianCPMK = () => {
                   <TableHead className="w-[7%]">Instrumen</TableHead>
                   <TableHead className="flex-1">Kriteria</TableHead>
                   <TableHead className="flex-1">Bobot</TableHead>
+                  <TableHead className="flex-1">Batas Nilai</TableHead>
                   <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -180,6 +185,7 @@ const DataPenilaianCPMK = () => {
                   <TableHead className="w-[7%]">Instrumen</TableHead>
                   <TableHead className="flex-1">Kriteria</TableHead>
                   <TableHead className="flex-1">Bobot</TableHead>
+                  <TableHead className="flex-1">Batas Nilai</TableHead>
                   <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
