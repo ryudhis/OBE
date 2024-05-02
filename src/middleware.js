@@ -6,7 +6,7 @@ export default async function middleware(req) {
   // GET TOKEN
   const token = req.cookies.get("token")?.value;
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  const url = "http://if-obe.vercel.app";
+  const url = "if-obe.vercel.app";
 
   // VERIFY TOKEN
   if (token) {
