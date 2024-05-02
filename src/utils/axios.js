@@ -5,7 +5,7 @@ const instance = axios.create({
   baseURL:
     process.env.NODE_ENV === "production"
       ? null
-      : process.env.NEXT_PUBLIC_API_URL,
+      : process.env.NEXT_PUBLIC_BASE_API_URL,
 });
 
 // Where you would set stuff like your 'Authorization' header, etc ...

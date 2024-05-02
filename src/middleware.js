@@ -6,7 +6,7 @@ export default async function middleware(req) {
   // GET TOKEN
   const token = req.cookies.get("token")?.value;
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-  const url = process.env.NEXT_PUBLIC_API_URL;
+  const url = process.env.NEXT_PUBLIC_BASE_API_URL;
 
   // VERIFY TOKEN
   if (token) {
