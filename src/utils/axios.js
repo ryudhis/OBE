@@ -2,10 +2,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const instance = axios.create({
-  baseURL: "https://if-obe.vercel.app",
-  // process.env.NODE_ENV === "production"
-  //   ? null
-  //   : process.env.NEXT_PUBLIC_BASE_API_URL,
+  baseURL:
+    process.env.NODE_ENV === "production"
+      ? null
+      : process.env.NEXT_PUBLIC_BASE_URL,
 });
 
 // Where you would set stuff like your 'Authorization' header, etc ...
