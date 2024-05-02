@@ -38,7 +38,7 @@ const DataPL = () => {
   const getPL = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/pl");
+      const response = await axiosConfig.get("if-obe.vercel.app/api/pl");
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
