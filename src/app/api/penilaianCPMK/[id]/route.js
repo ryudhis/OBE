@@ -7,6 +7,7 @@ export async function GET(req) {
       where: {
         kode: kode,
       },
+      include: { inputNilai: true },
     });
 
     return Response.json({
