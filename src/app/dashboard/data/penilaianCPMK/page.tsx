@@ -37,7 +37,6 @@ export interface penilaianCPMK {
   teknikPenilaian: string;
   instrumen: string;
   kriteria: kriteriaItem[];
-  deskripsi: string;
   batasNilai: number;
 }
 
@@ -166,7 +165,7 @@ const DataPenilaianCPMK = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/pCPMK/${pCPMK.kode}/`);
+                router.push(`/dashboard/details/penilaianCPMK/${pCPMK.kode}/`);
               }}
             >
               Details
@@ -231,7 +230,7 @@ const DataPenilaianCPMK = () => {
                   <TableHead className='w-[7%]'>Tahap Penilaian</TableHead>
                   <TableHead className='w-[7%]'>Teknik Penilaian</TableHead>
                   <TableHead className='w-[7%]'>Instrumen</TableHead>
-                  <TableHead className='flex-1'>Kriteria</TableHead>
+                  <TableHead className='w-[20%]'>Kriteria</TableHead>
                   <TableHead className='flex-1'>Bobot</TableHead>
                   <TableHead className='flex-1'>Batas Nilai</TableHead>
                   <TableHead className='w-[10%]'>Aksi</TableHead>

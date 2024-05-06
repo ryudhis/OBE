@@ -3,7 +3,8 @@ import prisma from "@/utils/prisma";
 export async function GET() {
   try {
     const inputNilai = await prisma.inputNilai.findMany({
-      orderBy: { penilaianCPMKId: 'asc' }
+      orderBy: { penilaianCPMKId: 'asc' },
+      include: { penilaianCPMK },
     });
 
     return Response.json({
