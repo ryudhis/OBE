@@ -20,12 +20,23 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { penilaianCPMK } from "@prisma/client";
 
 export interface inputNilai {
   id: number;
   penilaianCPMKId: string;
   mahasiswaNim: string;
   nilai: number[];
+  penilaianCPMK: penilaianCPMKItem;
+}
+
+export interface penilaianCPMKItem {
+  kriteria: kriteriaItem[];
+}
+
+export interface kriteriaItem {
+  bobot: number;
+  kriteria: string;
 }
 
 const DataNilai = () => {
@@ -82,7 +93,7 @@ const DataNilai = () => {
           <TableCell>
             {nilai.nilai.map((item, index) => (
               <TableRow key={index} className="flex-1">
-                {item}
+                {item * (nilai.penilaianCPMK.kriteria[index].bobot * 0.01)}
               </TableRow>
             ))}
           </TableCell>
