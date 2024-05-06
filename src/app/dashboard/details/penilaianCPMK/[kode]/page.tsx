@@ -212,8 +212,10 @@ export default function Page({ params }: { params: { kode: string } }) {
         <TableRow key={index}>
           <TableCell className='w-[10%]'>{mahasiswa.mahasiswaNim}</TableCell>
           {mahasiswa.nilai.map((nilai, index) => (
-              <TableCell key={index}>Kriteria ${index + 1}</TableCell>
-            ))}
+            <TableCell className='w-[10%]' key={index}>
+              {nilai}
+            </TableCell>
+          ))}
         </TableRow>
       );
     });
@@ -254,6 +256,14 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </TableCell>
                 <TableCell>: {PCPMK.CPMK}</TableCell>
               </TableRow>
+              {PCPMK.kriteria.map((kriteria, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <strong>Kriteria {index+1}</strong>{" "}
+                  </TableCell>
+                  <TableCell>: {kriteria.kriteria}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
 
@@ -444,7 +454,9 @@ export default function Page({ params }: { params: { kode: string } }) {
             <TableRow>
               <TableHead className='w-[10%]'>NIM</TableHead>
               {PCPMK.inputNilai.map((nilai, index) => (
-                <TableHead key={index}>Kriteria ${index + 1}</TableHead>
+                <TableHead className='w-[10%]' key={index}>
+                  Kriteria {index + 1}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>

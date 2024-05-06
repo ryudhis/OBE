@@ -4,7 +4,7 @@ export async function GET() {
   try {
     const inputNilai = await prisma.inputNilai.findMany({
       orderBy: { penilaianCPMKId: 'asc' },
-      include: { penilaianCPMK },
+      include: { penilaianCPMK: true},
     });
 
     return Response.json({
