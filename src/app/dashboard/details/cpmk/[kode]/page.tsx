@@ -4,12 +4,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
 import { RelationData } from "@/components/RelationData";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { useRouter } from "next/navigation";
 
 export interface CPMKInterface {
   kode: string;
@@ -38,11 +33,11 @@ export interface MKItem {
   deskripsi: string;
 }
 
-
 const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
 });
 export default function Page({ params }: { params: { kode: string } }) {
+  const router = useRouter();
   const { kode } = params;
   const [cpmk, setCpmk] = useState<CPMKInterface | undefined>();
   const [mk, setMk] = useState<MKItem[] | undefined>([]);
@@ -162,7 +157,10 @@ export default function Page({ params }: { params: { kode: string } }) {
     console.log(payload);
 
     try {
-      const response = await axiosConfig.patch(`api/cpmk/relasi/${kode}`, payload);
+      const response = await axiosConfig.patch(
+        `api/cpmk/relasi/${kode}`,
+        payload
+      );
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {
         toast({
@@ -195,20 +193,31 @@ export default function Page({ params }: { params: { kode: string } }) {
     return (
       <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
         <div className="flex">
-        <Table className="w-[200px] mb-5">
-          <TableBody>
-            <TableRow>
-              <TableCell><strong>Kode</strong></TableCell>
-              <TableCell>: {cpmk.kode} </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell><strong>Deskripsi</strong> </TableCell>
-              <TableCell>: {cpmk.deskripsi}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-
-        <Dialog>
+          <Table className="w-[200px] mb-5">
+            <TableBody>
+              <TableRow>
+                <TableCell>
+                  <strong>Kode</strong>
+                </TableCell>
+                <TableCell>: {cpmk.kode} </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <strong>Deskripsi</strong>{" "}
+                </TableCell>
+                <TableCell>: {cpmk.deskripsi}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          <Button
+            className="mx-2"
+            onClick={() => {
+              router.push(`/dashboard/details/penilaianCPMK/${kode}`);
+            }}
+          >
+            Penilaian
+          </Button>
+          <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline">Edit Data</Button>
             </DialogTrigger>
@@ -237,7 +246,6 @@ export default function Page({ params }: { params: { kode: string } }) {
             </DialogContent>
           </Dialog>
         </div>
-        
 
         <div className="mb-5">
           <div className=" font-bold text-xl">Data Relasi MK</div>
