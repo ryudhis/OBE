@@ -453,7 +453,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           <TableHeader>
             <TableRow>
               <TableHead className='w-[10%]'>NIM</TableHead>
-              {PCPMK.inputNilai.map((nilai, index) => (
+              {PCPMK.kriteria.map((nilai, index) => (
                 <TableHead className='w-[10%]' key={index}>
                   Kriteria {index + 1}
                 </TableHead>
