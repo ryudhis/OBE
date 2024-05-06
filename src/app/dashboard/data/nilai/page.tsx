@@ -93,6 +93,13 @@ const DataNilai = () => {
           <TableCell>
             {nilai.nilai.map((item, index) => (
               <TableRow key={index} className="flex-1">
+                {item}
+              </TableRow>
+            ))}
+          </TableCell>
+          <TableCell>
+            {nilai.nilai.map((item, index) => (
+              <TableRow key={index} className="flex-1">
                 {item * (nilai.penilaianCPMK.kriteria[index].bobot * 0.01)}
               </TableRow>
             ))}
@@ -141,7 +148,8 @@ const DataNilai = () => {
                   <TableHead className="w-[10%]">ID</TableHead>
                   <TableHead className="w-[10%]">PCPMK ID</TableHead>
                   <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="w-[10%]">Nilai</TableHead>
+                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
+                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
                   <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -156,7 +164,8 @@ const DataNilai = () => {
                   <TableHead className="w-[10%]">ID</TableHead>
                   <TableHead className="w-[10%]">PCPMK ID</TableHead>
                   <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="w-[10%]">Nilai</TableHead>
+                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
+                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
                   <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
