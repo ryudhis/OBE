@@ -620,7 +620,7 @@ const InputPenilaianCPMK = () => {
                           name={`kriteria.${index}.bobot`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Kriteria</FormLabel>
+                              <FormLabel>Bobot</FormLabel>
                               <Input
                                 placeholder='Bobot'
                                 type='number'
