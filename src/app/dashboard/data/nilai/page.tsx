@@ -87,7 +87,6 @@ const DataNilai = () => {
     return inputNilai.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
-          <TableCell className="w-[10%]">{nilai.id}</TableCell>
           <TableCell className="w-[10%]">{nilai.penilaianCPMKId}</TableCell>
           <TableCell className="flex-1">{nilai.mahasiswaNim}</TableCell>
           <TableCell>
@@ -145,7 +144,6 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">ID</TableHead>
                   <TableHead className="w-[10%]">PCPMK ID</TableHead>
                   <TableHead className="flex-1">NIM</TableHead>
                   <TableHead className="w-[10%]">Nilai Asli</TableHead>
@@ -161,7 +159,6 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">ID</TableHead>
                   <TableHead className="w-[10%]">PCPMK ID</TableHead>
                   <TableHead className="flex-1">NIM</TableHead>
                   <TableHead className="w-[10%]">Nilai Asli</TableHead>
