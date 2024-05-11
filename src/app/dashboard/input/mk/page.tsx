@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from '../../../../utils/axios';
+import axiosConfig from "../../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -26,6 +26,9 @@ import { useToast } from "@/components/ui/use-toast";
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
+  sks: z.string().min(1).max(50),
+  batasLulusMahasiswa: z.string().min(1).max(50),
+  batasLulusMK: z.string().min(1).max(50),
 });
 
 const MKScreen = () => {
@@ -36,6 +39,9 @@ const MKScreen = () => {
     defaultValues: {
       kode: "",
       deskripsi: "",
+      sks: "",
+      batasLulusMahasiswa: "0",
+      batasLulusMK: "0",
     },
   });
 
@@ -46,9 +52,10 @@ const MKScreen = () => {
     const data = {
       kode: "MK-" + values.kode,
       deskripsi: values.deskripsi,
+      sks: values.sks,
+      batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
+      batasLulusMK: parseFloat(values.batasLulusMK),
     };
-
-    console.log(data.kode);
 
     axiosConfig
       .post("api/mk", data)
@@ -79,25 +86,25 @@ const MKScreen = () => {
   }
 
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input MK</CardTitle>
           <CardDescription>Mata Kuliah</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name="kode"
+                name='kode'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kode MK-</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Kode"
-                        type="number"
+                        placeholder='Kode'
+                        type='number'
                         required
                         {...field}
                       />
@@ -109,19 +116,75 @@ const MKScreen = () => {
 
               <FormField
                 control={form.control}
-                name="deskripsi"
+                name='deskripsi'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nama</FormLabel>
                     <FormControl>
-                      <Input placeholder="Deskripsi" required {...field} />
+                      <Input placeholder='Deskripsi' required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              <FormField
+                control={form.control}
+                name='sks'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SKS</FormLabel>
+                    <FormControl>
+                      <Input placeholder='SKS' required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='batasLulusMahasiswa'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Batas Lulus Mahasiswa</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        min={0}
+                        max={100}
+                        placeholder='Batas Lulus Mahasiswa'
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='batasLulusMK'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type='number'
+                        min={0}
+                        max={100}
+                        placeholder='Batas Lulus MK'
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
                 Submit
               </Button>
             </form>

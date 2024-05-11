@@ -45,11 +45,14 @@ model BK {
 }
 
 model MK {
-  kode      String      @id @unique
-  deskripsi String
-  BK        BK[]        @relation("bk_mk")
-  CPMK      CPMK[]      @relation("cpmk_mk")
-  mahasiswa mahasiswa[] @relation("mk_mahasiswa")
+  kode                String      @id @unique
+  deskripsi           String
+  sks                 String
+  batasLulusMahasiswa Float
+  batasLulusMK        Float
+  BK                  BK[]        @relation("bk_mk")
+  CPMK                CPMK[]      @relation("cpmk_mk")
+  mahasiswa           mahasiswa[] @relation("mk_mahasiswa")
 }
 
 model CPMK {
@@ -86,13 +89,11 @@ model mahasiswa {
   inputNilai inputNilai[]
 }
 
-  model inputNilai {
-    id              Int           @unique @default(sequence())
-    penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode])
-    penilaianCPMKId String
-    mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim])
-    mahasiswaNim    String
-    nilai           Float[]
-
-    @@unique([penilaianCPMKId, mahasiswaNim], name: "Unique_Nilai_PenilaianCPMKId_MahasiswaNim")
-  }
+model inputNilai {
+  id              Int           @unique @default(sequence())
+  penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode])
+  penilaianCPMKId String
+  mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim])
+  mahasiswaNim    String
+  nilai           Float[]
+}

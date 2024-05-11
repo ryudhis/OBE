@@ -27,6 +27,3 @@ ALTER TABLE "penilaianCPMK" ADD CONSTRAINT "penilaianCPMK_pkey" PRIMARY KEY ("ko
 
 -- CreateIndex
 CREATE UNIQUE INDEX "penilaianCPMK_kode_key" ON "penilaianCPMK"("kode");
-
--- AddForeignKey
-ALTER TABLE "inputNilai" ADD CONSTRAINT "inputNilai_penilaianCPMKId_fkey" FOREIGN KEY ("penilaianCPMKId") REFERENCES "penilaianCPMK"("kode") ON DELETE RESTRICT ON UPDATE CASCADE;
