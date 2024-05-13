@@ -50,6 +50,7 @@ model MK {
   sks                 String
   batasLulusMahasiswa Float
   batasLulusMK        Float
+  jumlahLulus         Int
   BK                  BK[]        @relation("bk_mk")
   CPMK                CPMK[]      @relation("cpmk_mk")
   mahasiswa           mahasiswa[] @relation("mk_mahasiswa")

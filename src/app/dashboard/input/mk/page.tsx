@@ -55,6 +55,7 @@ const MKScreen = () => {
       sks: values.sks,
       batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
       batasLulusMK: parseFloat(values.batasLulusMK),
+      jumlahLulus: 0,
     };
 
     axiosConfig

@@ -2,7 +2,9 @@ import prisma from "@/utils/prisma";
 
 export async function GET() {
   try {
-    const mahasiswa = await prisma.mahasiswa.findMany();
+    const mahasiswa = await prisma.mahasiswa.findMany({
+      orderBy: { nim: "asc" },
+    });
 
     return Response.json({
       status: 200,

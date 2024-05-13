@@ -3,8 +3,8 @@ import prisma from "@/utils/prisma";
 export async function GET() {
   try {
     const inputNilai = await prisma.inputNilai.findMany({
-      orderBy: { penilaianCPMKId: 'asc' },
-      include: { penilaianCPMK: true},
+      orderBy: { penilaianCPMKId: "asc" },
+      include: { penilaianCPMK: true },
     });
 
     return Response.json({
@@ -34,6 +34,59 @@ export async function POST(req) {
           },
         },
         nilai: data.nilai,
+      },
+    });
+
+    const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
+      where: {
+        kode: data.PCPMKId,
+      },
+    });
+
+    const MK = await prisma.MK.findUnique({
+      where: {
+        kode: penilaianCPMK.MK,
+      },
+      include: {
+        mahasiswa: {
+          include: { inputNilai: { include: { penilaianCPMK: true } } },
+        },
+      },
+    });
+
+    let totalLulusMK = 0;
+
+    MK.mahasiswa.map((mahasiswa) => {
+      const nilai = mahasiswa.inputNilai.filter(
+        (nilai) => nilai.penilaianCPMK.MK === MK.kode
+      );
+      let totalNilai = 0;
+      nilai.forEach((nilaiCPMK) => {
+        nilaiCPMK.nilai.forEach((nilai, index) => {
+          if (
+            nilaiCPMK.penilaianCPMK.kriteria &&
+            nilaiCPMK.penilaianCPMK.kriteria.length > index
+          ) {
+            totalNilai +=
+              nilai * (nilaiCPMK.penilaianCPMK.kriteria[index].bobot / 100);
+          } else {
+            console.log("Invalid kriteria or index out of range");
+          }
+        });
+      });
+      console.log(mahasiswa.nama, "=", totalNilai);
+      if (totalNilai >= MK.batasLulusMahasiswa) {
+        totalLulusMK += 1;
+      }
+    });
+    console.log("totalLulusMK = ", totalLulusMK);
+
+    await prisma.MK.update({
+      where: {
+        kode:MK.kode,
+      },
+      data:{
+        jumlahLulus: totalLulusMK,
       },
     });
 
