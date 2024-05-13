@@ -3,14 +3,15 @@ import { useState, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import axiosConfig from "../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
-interface IData {
+interface mahasiswaItem {
   Nama: string;
   NIM: string;
 }
 
 const App = () => {
-  const [data, setData] = useState<IData[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[]>([]);
   const { toast } = useToast();
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -18,21 +19,30 @@ const App = () => {
       reader.readAsBinaryString(e.target.files[0]);
     }
     reader.onload = (e) => {
-      const data = e.target?.result;
-      const workbook = XLSX.read(data, { type: "binary" });
+      const dataWorkbook = e.target?.result;
+      const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: IData[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: mahasiswaItem[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
         Nama: item.Nama,
         NIM: item.NIM,
       }));
-      setData(parsedData);
+      setMahasiswa(parsedData);
     };
+  };
+
+  function onSubmit(e: any) {
+    e.preventDefault();
+
+    const data = {
+      mahasiswa: mahasiswa,
+    };
+
     axiosConfig
-      .post("api/mahasiswa", data)
+      .post("api/mahasiswa/excel", data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -55,22 +65,22 @@ const App = () => {
         });
         console.log(error);
       });
-  };
+  }
 
   return (
-    <div className="App">
-      <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-      {data.length > 0 && (
-        <table className="table">
+    <div className='App'>
+      <input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
+      {mahasiswa.length > 0 && (
+        <table className='table'>
           <thead>
             <tr>
-              {Object.keys(data[0]).map((key, index) => (
+              {Object.keys(mahasiswa[0]).map((key, index) => (
                 <th key={index}>{key}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {data.map((row, index) => (
+            {mahasiswa.map((row, index) => (
               <tr key={index}>
                 {Object.values(row).map((value, index) => (
                   <td key={index}>{value}</td>
@@ -80,6 +90,7 @@ const App = () => {
           </tbody>
         </table>
       )}
+      <Button onClick={onSubmit}>Submit</Button>
     </div>
   );
 };
