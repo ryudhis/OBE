@@ -26,6 +26,14 @@ export interface mk {
   deskripsi: string;
   BK: BKItem[];
   CPMK: CPMKItem[];
+  jumlahLulus: number;
+  batasLulusMK: number;
+  mahasiswa: MahasiswaItem[];
+}
+
+export interface MahasiswaItem {
+  nim: string;
+  nama: string;
 }
 
 export interface BKItem {
@@ -97,6 +105,17 @@ const DataMK = () => {
           <TableCell className="w-[15%]">
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
+          <TableCell className="w-[8%]">{mk.mahasiswa.length}</TableCell>
+          <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
+          <TableCell className="w-[8%]">
+            {(mk.jumlahLulus / mk.mahasiswa.length) * 100}%
+          </TableCell>
+          <TableCell className="w-[8%]">{mk.batasLulusMK}%</TableCell>
+          <TableCell className="w-[8%]">
+            {(mk.jumlahLulus / mk.mahasiswa.length) * 100 >= mk.batasLulusMK
+              ? "Lulus"
+              : "Tidak Lulus"}
+          </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>
               Hapus
@@ -139,11 +158,16 @@ const DataMK = () => {
                   <TableHead className="flex-1">Nama Matakuliah</TableHead>
                   <TableHead className="w-[15%]">BK</TableHead>
                   <TableHead className="w-[15%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
+                  <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                  <TableHead className="w-[8%]">Persentase Lulus</TableHead>
+                  <TableHead className="w-[8%]">Batas Lulus MK</TableHead>
+                  <TableHead className="w-[8%]">Status MK</TableHead>
                   <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={5} />
+                <SkeletonTable rows={5} cols={10} />
               </TableBody>
             </Table>
           ) : (
@@ -154,6 +178,11 @@ const DataMK = () => {
                   <TableHead className="flex-1">Nama Matakuliah</TableHead>
                   <TableHead className="w-[15%]">BK</TableHead>
                   <TableHead className="w-[15%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
+                  <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                  <TableHead className="w-[8%]">Persentase Lulus</TableHead>
+                  <TableHead className="w-[8%]">Batas Lulus MK</TableHead>
+                  <TableHead className="w-[8%]">Status MK</TableHead>
                   <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>

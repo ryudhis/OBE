@@ -133,7 +133,7 @@ const DataNilai = () => {
           </div>
           <Button
             onClick={() => {
-              router.push("/dashboard/input/inputNilai");
+              router.push("/dashboard/input/nilai");
             }}
           >
             Tambah
