@@ -4,6 +4,15 @@ import * as XLSX from "xlsx";
 import axiosConfig from "../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 interface mahasiswaItem {
   Nama: string;
@@ -11,6 +20,7 @@ interface mahasiswaItem {
 }
 
 const App = () => {
+  const router = useRouter();
   const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[]>([]);
   const { toast } = useToast();
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -68,30 +78,48 @@ const App = () => {
   }
 
   return (
-    <div className='App'>
-      <input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
-      {mahasiswa.length > 0 && (
-        <table className='table'>
-          <thead>
-            <tr>
-              {Object.keys(mahasiswa[0]).map((key, index) => (
-                <th key={index}>{key}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {mahasiswa.map((row, index) => (
-              <tr key={index}>
-                {Object.values(row).map((value, index) => (
-                  <td key={index}>{value}</td>
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
+        <CardHeader>
+          <CardTitle>Input Mahasiswa Excel</CardTitle>
+          <CardDescription>Data Mahasiswa</CardDescription>
+          <Button
+            className='w-[100px] self-end'
+            onClick={() => {
+              router.push(`/dashboard/input/mahasiswa/`);
+            }}
+          >
+            Input Manual
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
+          {mahasiswa.length > 0 && (
+            <table className='table'>
+              <thead>
+                <tr>
+                  {Object.keys(mahasiswa[0]).map((key, index) => (
+                    <th key={index}>{key}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {mahasiswa.map((row, index) => (
+                  <tr key={index}>
+                    {Object.values(row).map((value, index) => (
+                      <td key={index}>{value}</td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      <Button onClick={onSubmit}>Submit</Button>
-    </div>
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button onClick={onSubmit}>Submit</Button>
+        </CardFooter>
+      </Card>
+    </section>
   );
 };
 
