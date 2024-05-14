@@ -53,10 +53,10 @@ const DataMahasiswa = () => {
 
   const delPL = async (kode: string) => {
     try {
-      const response = await axiosConfig.delete(`api/pl/${kode}`);
+      const response = await axiosConfig.delete(`api/mahasiswa/${kode}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
-          title: "Berhasil menghapus data PL",
+          title: "Berhasil menghapus data Mahasiswa",
           variant: "default",
         });
         getMahasiswa();
