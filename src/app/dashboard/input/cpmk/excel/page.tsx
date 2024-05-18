@@ -23,16 +23,14 @@ import {
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
-interface BKItem {
+interface CPMKItem {
   kode: string;
   deskripsi: string;
-  min: string;
-  max: string;
 }
 
-const BKExcel = () => {
+const CPMKExcel = () => {
   const router = useRouter();
-  const [bk, setBk] = useState<BKItem[]>([]);
+  const [cpmk, setCpmk] = useState<CPMKItem[]>([]);
   const { toast } = useToast();
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -44,16 +42,14 @@ const BKExcel = () => {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: BKItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: CPMKItem[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
         kode: item.Kode,
         deskripsi: item.Deskripsi,
-        min: item.Min,
-        max: item.Max,
       }));
-      setBk(parsedData);
+      setCpmk(parsedData);
     };
   };
 
@@ -61,11 +57,11 @@ const BKExcel = () => {
     e.preventDefault();
 
     const data = {
-      BK: bk,
+      CPMK: cpmk,
     };
 
     axiosConfig
-      .post("api/bk/excel", data)
+      .post("api/cpmk/excel", data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -94,12 +90,12 @@ const BKExcel = () => {
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Input BK Excel</CardTitle>
-          <CardDescription>Data Bahan Kajian</CardDescription>
+          <CardTitle>Input CPMK Excel</CardTitle>
+          <CardDescription>Data Capaian Mata Kuliah</CardDescription>
           <Button
             className="w-[100px] self-end"
             onClick={() => {
-              router.push(`/dashboard/input/bk/`);
+              router.push(`/dashboard/input/cpmk/`);
             }}
           >
             Input Manual
@@ -107,17 +103,17 @@ const BKExcel = () => {
         </CardHeader>
         <CardContent>
           <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-          {bk.length > 0 && (
+          {cpmk.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
-                  {Object.keys(bk[0]).map((key, index) => (
+                  {Object.keys(cpmk[0]).map((key, index) => (
                     <TableHead key={index}>{key}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bk.map((row, index) => (
+                {cpmk.map((row, index) => (
                   <TableRow key={index}>
                     {Object.values(row).map((value, index) => (
                       <TableCell key={index}>{value}</TableCell>
@@ -136,4 +132,4 @@ const BKExcel = () => {
   );
 };
 
-export default BKExcel;
+export default CPMKExcel;

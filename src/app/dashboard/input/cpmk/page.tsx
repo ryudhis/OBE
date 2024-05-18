@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from '../../../../utils/axios';
+import axiosConfig from "../../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -30,6 +31,7 @@ const formSchema = z.object({
 
 const CPMKScreen = () => {
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,6 +86,14 @@ const CPMKScreen = () => {
         <CardHeader>
           <CardTitle>Input CPMK</CardTitle>
           <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+          <Button
+            className="w-[100px] self-end"
+            onClick={() => {
+              router.push(`/dashboard/input/cpmk/excel`);
+            }}
+          >
+            Input Excel
+          </Button>
         </CardHeader>
         <CardContent>
           <Form {...form}>

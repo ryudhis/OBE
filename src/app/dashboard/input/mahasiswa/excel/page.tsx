@@ -21,6 +21,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 interface mahasiswaItem {
   Nama: string;
@@ -101,7 +102,7 @@ const MahasiswaExcel = () => {
           </Button>
         </CardHeader>
         <CardContent>
-          <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+          <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
           {mahasiswa.length > 0 && (
             <Table>
               <TableHeader>
