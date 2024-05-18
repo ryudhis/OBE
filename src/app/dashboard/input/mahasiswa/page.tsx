@@ -79,15 +79,15 @@ const MahasiswaScreen = () => {
   }
 
   return (
-    <section className='flex h-screen mt-[-100px] justify-center items-center'>
-      <Card className='w-[1000px]'>
+    <section className="flex h-screen mt-[-100px] justify-center items-center">
+      <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input Mahasiswa</CardTitle>
           <CardDescription>Data Mahasiswa</CardDescription>
           <Button
-            className='w-[100px] self-end'
+            className="w-[100px] self-end"
             onClick={() => {
-              router.push(`/dashboard/input/mahasiswaExcel/`);
+              router.push(`/dashboard/input/mahasiswa/excel`);
             }}
           >
             Input Excel
@@ -95,17 +95,17 @@ const MahasiswaScreen = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name='nim'
+                name="nim"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>NIM</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='NIM'
-                        type='number'
+                        placeholder="NIM"
+                        type="number"
                         required
                         {...field}
                       />
@@ -117,13 +117,13 @@ const MahasiswaScreen = () => {
 
               <FormField
                 control={form.control}
-                name='nama'
+                name="nama"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nama</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='Nama lengkap mahasiswa'
+                        placeholder="Nama lengkap mahasiswa"
                         required
                         {...field}
                       />
@@ -133,7 +133,7 @@ const MahasiswaScreen = () => {
                 )}
               />
 
-              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
+              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
                 Submit
               </Button>
             </form>

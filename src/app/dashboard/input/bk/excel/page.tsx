@@ -1,9 +1,17 @@
 "use client";
 import { useState, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
-import axiosConfig from "../../../../utils/axios";
+import axiosConfig from "../../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
@@ -13,15 +21,18 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
-interface mahasiswaItem {
-  Nama: string;
-  NIM: string;
+interface BKItem {
+  kode: string;
+  deskripsi: string;
+  min: string;
+  max: string;
 }
 
-const App = () => {
+const BKExcel = () => {
   const router = useRouter();
-  const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[]>([]);
+  const [bk, setBk] = useState<BKItem[]>([]);
   const { toast } = useToast();
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -33,14 +44,16 @@ const App = () => {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: mahasiswaItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: BKItem[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
-        Nama: item.Nama,
-        NIM: item.NIM,
+        kode: item.Kode,
+        deskripsi: item.Deskripsi,
+        min: item.Min,
+        max: item.Max,
       }));
-      setMahasiswa(parsedData);
+      setBk(parsedData);
     };
   };
 
@@ -48,11 +61,11 @@ const App = () => {
     e.preventDefault();
 
     const data = {
-      mahasiswa: mahasiswa,
+      bk: bk,
     };
 
     axiosConfig
-      .post("api/mahasiswa/excel", data)
+      .post("api/bk/excel", data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -78,41 +91,41 @@ const App = () => {
   }
 
   return (
-    <section className='flex h-screen mt-[-100px] justify-center items-center'>
-      <Card className='w-[1000px]'>
+    <section className="flex h-screen mt-[-100px] justify-center items-center">
+      <Card className="w-[1000px]">
         <CardHeader>
-          <CardTitle>Input Mahasiswa Excel</CardTitle>
-          <CardDescription>Data Mahasiswa</CardDescription>
+          <CardTitle>Input BK Excel</CardTitle>
+          <CardDescription>Data Bahan Kajian</CardDescription>
           <Button
-            className='w-[100px] self-end'
+            className="w-[100px] self-end"
             onClick={() => {
-              router.push(`/dashboard/input/mahasiswa/`);
+              router.push(`/dashboard/input/bk/`);
             }}
           >
             Input Manual
           </Button>
         </CardHeader>
         <CardContent>
-          <input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
-          {mahasiswa.length > 0 && (
-            <table className='table'>
-              <thead>
-                <tr>
-                  {Object.keys(mahasiswa[0]).map((key, index) => (
-                    <th key={index}>{key}</th>
+          <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+          {bk.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {Object.keys(bk[0]).map((key, index) => (
+                    <TableHead key={index}>{key}</TableHead>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {mahasiswa.map((row, index) => (
-                  <tr key={index}>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {bk.map((row, index) => (
+                  <TableRow key={index}>
                     {Object.values(row).map((value, index) => (
-                      <td key={index}>{value}</td>
+                      <TableCell key={index}>{value}</TableCell>
                     ))}
-                  </tr>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           )}
         </CardContent>
         <CardFooter>
@@ -123,4 +136,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default BKExcel;
