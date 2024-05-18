@@ -45,15 +45,25 @@ model BK {
 }
 
 model MK {
-  kode                String      @id @unique
+  kode                String  @id @unique
   deskripsi           String
   sks                 String
   batasLulusMahasiswa Float
   batasLulusMK        Float
   jumlahLulus         Int
-  BK                  BK[]        @relation("bk_mk")
-  CPMK                CPMK[]      @relation("cpmk_mk")
-  mahasiswa           mahasiswa[] @relation("mk_mahasiswa")
+  kelas               kelas[]
+  BK                  BK[]    @relation("bk_mk")
+  CPMK                CPMK[]  @relation("cpmk_mk")
+}
+
+model kelas {
+  id             Int         @id @unique @default(sequence())
+  nama           String
+  MK             MK          @relation(fields: [MKId], references: [kode])
+  MKId           String
+  mahasiswa      mahasiswa[] @relation("kelas_mahasiswa")
+  jumlahLulus    Int
+  mahasiswaLulus Json?
 }
 
 model CPMK {
@@ -86,7 +96,7 @@ model penilaianCPMK {
 model mahasiswa {
   nim        String       @id @unique
   nama       String
-  MK         MK[]         @relation("mk_mahasiswa")
+  kelas      kelas[]      @relation("kelas_mahasiswa")
   inputNilai inputNilai[]
 }
 

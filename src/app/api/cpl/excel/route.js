@@ -4,10 +4,11 @@ export async function POST(req) {
   try {
     const dataArray = await req.json();
 
-    const createdMahasiswa = await prisma.mahasiswa.createMany({
-      data: dataArray.mahasiswa.map((data) => ({
-        nama: data.Nama,
-        nim: String(data.NIM),
+    const createdCPL = await prisma.CPL.createMany({
+      data: dataArray.CPL.map((data) => ({
+        kode: data.kode,
+        deskripsi: data.deskripsi,
+        keterangan: data.keterangan
       })),
       skipDuplicates: true, 
     });
@@ -15,7 +16,7 @@ export async function POST(req) {
     return new Response(JSON.stringify({
       status: 200,
       message: "Berhasil buat data!",
-      data: createdMahasiswa,
+      data: createdCPL,
     }), { headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     console.log(error);
