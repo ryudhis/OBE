@@ -7,7 +7,7 @@ export async function GET(req) {
       where: {
         kode: kode,
       },
-      include: { BK: { include: { CPL: true } }, CPMK: true, mahasiswa: true },
+      include: { BK: { include: { CPL: true } }, CPMK: true, kelas: true },
     });
 
     console.log(MK);

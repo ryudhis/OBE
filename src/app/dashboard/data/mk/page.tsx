@@ -28,13 +28,13 @@ export interface mk {
   CPMK: CPMKItem[];
   jumlahLulus: number;
   batasLulusMK: number;
-  mahasiswa: MahasiswaItem[];
+  // mahasiswa: MahasiswaItem[];
 }
 
-export interface MahasiswaItem {
-  nim: string;
-  nama: string;
-}
+// export interface MahasiswaItem {
+//   nim: string;
+//   nama: string;
+// }
 
 export interface BKItem {
   kode: string;
@@ -83,7 +83,7 @@ const DataMK = () => {
       throw error;
     }
   };
-
+  
   useEffect(() => {
     getMK();
   }, []);
@@ -105,16 +105,20 @@ const DataMK = () => {
           <TableCell className="w-[15%]">
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[8%]">{mk.mahasiswa.length}</TableCell>
-          <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
           <TableCell className="w-[8%]">
-            {(mk.jumlahLulus / mk.mahasiswa.length) * 100}%
+            {/* {mk.mahasiswa.length} */}
+          </TableCell>
+          <TableCell className="w-[8%]">
+            {/* {mk.jumlahLulus} */}
+            </TableCell>
+          <TableCell className="w-[8%]">
+            {/* {(mk.jumlahLulus / mk.mahasiswa.length) * 100}% */}
           </TableCell>
           <TableCell className="w-[8%]">{mk.batasLulusMK}%</TableCell>
           <TableCell className="w-[8%]">
-            {(mk.jumlahLulus / mk.mahasiswa.length) * 100 >= mk.batasLulusMK
+            {/* {(mk.jumlahLulus / mk.mahasiswa.length) * 100 >= mk.batasLulusMK
               ? "Lulus"
-              : "Tidak Lulus"}
+              : "Tidak Lulus"} */}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>

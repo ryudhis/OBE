@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 import axiosConfig from "../../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Card,
@@ -30,19 +32,12 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect } from "react";
 
 const formSchema = z.object({
   kode: z.string(),
-  MK: z.string({
-    required_error: "Please select MK to display.",
-  }),
-  CPMK: z.string({
-    required_error: "Please select CPMK to display.",
-  }),
-  CPL: z.string({
-    required_error: "Please select CPL to display.",
-  }),
+  MK: z.string({ required_error: "Please select MK to display." }),
+  CPMK: z.string({ required_error: "Please select CPMK to display." }),
+  CPL: z.string({ required_error: "Please select CPL to display." }),
   tahapPenilaian: z
     .array(z.string())
     .refine((value) => value.some((item) => item), {
@@ -54,9 +49,7 @@ const formSchema = z.object({
       message: "You have to select at least one item.",
     }),
   instrumen: z
-    .string({
-      required_error: "Please select Instrumen to display.",
-    })
+    .string({ required_error: "Please select Instrumen to display." })
     .optional(),
   batasNilai: z.string(),
   kriteria: z.array(
@@ -96,11 +89,9 @@ const InputPenilaianCPMK = () => {
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
   );
-
   const filteredCPMK = selectedMK?.CPMK.filter((cpmk) =>
     cpmk.kode.toLowerCase().includes(searchCPMK.toLowerCase())
   );
-
   const filteredCPL = selectedCPMK?.CPL.filter((cpl) =>
     cpl.kode.toLowerCase().includes(searchCPL.toLowerCase())
   );
@@ -109,56 +100,29 @@ const InputPenilaianCPMK = () => {
     try {
       const response = await axiosConfig.get("api/mk");
       if (response.data.status !== 400) {
+        setMK(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setMK(response.data.data);
     } catch (error) {
       console.log(error);
     }
   };
 
   const tahapPenilaian = [
-    {
-      id: "Perkuliahan",
-      label: "Perkuliahan",
-    },
-    {
-      id: "Tengah Semester",
-      label: "Tengah Semester",
-    },
-    {
-      id: "Akhir Semester",
-      label: "Akhir Semester",
-    },
-  ] as const;
+    { id: "Perkuliahan", label: "Perkuliahan" },
+    { id: "Tengah Semester", label: "Tengah Semester" },
+    { id: "Akhir Semester", label: "Akhir Semester" },
+  ];
 
   const teknikPenilaian = [
-    {
-      id: "Observasi (Praktik)",
-      label: "Observasi (Praktik)",
-    },
-    {
-      id: "Unjuk Kerja (Presentasi)",
-      label: "Unjuk Kerja (Presentasi)",
-    },
-    {
-      id: "Tes Lisan (Tugas Kelompok)",
-      label: "Tes Lisan (Tugas Kelompok)",
-    },
-    {
-      id: "Tes Tulis (UTS)",
-      label: "Tes Tulis (UTS)",
-    },
-    {
-      id: "Tes Tulis (UAS)",
-      label: "Tes Tulis (UAS)",
-    },
-    {
-      id: "Partisipasi (Quiz)",
-      label: "Partisipasi (Quiz)",
-    },
-  ] as const;
+    { id: "Observasi (Praktik)", label: "Observasi (Praktik)" },
+    { id: "Unjuk Kerja (Presentasi)", label: "Unjuk Kerja (Presentasi)" },
+    { id: "Tes Lisan (Tugas Kelompok)", label: "Tes Lisan (Tugas Kelompok)" },
+    { id: "Tes Tulis (UTS)", label: "Tes Tulis (UTS)" },
+    { id: "Tes Tulis (UAS)", label: "Tes Tulis (UAS)" },
+    { id: "Partisipasi (Quiz)", label: "Partisipasi (Quiz)" },
+  ];
 
   const defaultValues = {
     kode: "",
@@ -168,7 +132,8 @@ const InputPenilaianCPMK = () => {
     tahapPenilaian: [],
     teknikPenilaian: [],
     instrumen: "",
-    kriteria: [{ kriteria: "", bobot: "" }],
+    batasNilai: "",
+    kriteria: [],
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -176,7 +141,12 @@ const InputPenilaianCPMK = () => {
     defaultValues,
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "kriteria",
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>, e: any) => {
     e.stopPropagation();
 
     const convertKriteria = values.kriteria.map((item) => ({
@@ -184,12 +154,10 @@ const InputPenilaianCPMK = () => {
       bobot: parseFloat(item.bobot),
     }));
 
-    const concat = (data: string[]) => {
-      return data.join(", ");
-    };
+    const concat = (data: string[]) => data.join(", ");
 
     const data = {
-      kode: "PCPMK-"+values.kode,
+      kode: "PCPMK-" + values.kode,
       MK: values.MK,
       CPMK: values.CPMK,
       CPL: values.CPL,
@@ -200,63 +168,65 @@ const InputPenilaianCPMK = () => {
       kriteria: convertKriteria,
     };
 
-    axiosConfig
-      .post("api/penilaianCPMK", data)
-      .then(function (response) {
-        if (response.data.status !== 400) {
-          toast({
-            title: "Berhasil Submit",
-            description: String(new Date()),
-          });
-        } else {
-          toast({
-            title: "Kode Sudah Ada!",
-            description: String(new Date()),
-            variant: "destructive",
-          });
-        }
-      })
-      .catch(function (error) {
+    try {
+      const response = await axiosConfig.post("api/penilaianCPMK", data);
+      if (response.data.status !== 400) {
         toast({
-          title: "Gagal Submit",
+          title: "Berhasil Submit",
+          description: String(new Date()),
+        });
+      } else {
+        toast({
+          title: "Kode Sudah Ada!",
           description: String(new Date()),
           variant: "destructive",
         });
-        console.log(error);
+      }
+      form.reset(defaultValues);
+      setSearchMK("");
+      setSearchCPMK("");
+      setSearchCPL("");
+    } catch (error) {
+      toast({
+        title: "Gagal Submit",
+        description: String(new Date()),
+        variant: "destructive",
       });
-    form.reset(defaultValues);
-    setSearchMK("");
-    setSearchCPMK("");
-    setSearchCPL("");
-  }
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     getMK();
   }, []);
 
+  useEffect(() => {
+    const selectedTeknik = form.watch("teknikPenilaian");
+    const newKriteria = selectedTeknik.map((teknik) => ({
+      kriteria: teknik,
+      bobot: "",
+    }));
+    form.setValue("kriteria", newKriteria);
+  }, [form.watch("teknikPenilaian")]);
+
   return (
     <section className='flex my-[50px] justify-center items-center'>
       <Card className='w-[1000px]'>
         <CardHeader>
-          <CardTitle>Input </CardTitle>
+          <CardTitle>Input</CardTitle>
           <CardDescription>Penilaian CPMK</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-            <FormField
+              <FormField
                 control={form.control}
                 name='kode'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode : </FormLabel>
+                    <FormLabel>Kode :</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder='PCPMK-'
-                        type='number'
-                        required
-                        {...field}
-                      />
+                      <Input placeholder='PCPMK-' type='text' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -276,34 +246,26 @@ const InputPenilaianCPMK = () => {
                         form.resetField("CPL");
                         setSelectedMK(MK.find((mk) => mk.kode === value));
                       }}
-                      defaultValue={field.value}
                       value={field.value}
-                      required
                     >
                       <FormControl>
                         <SelectTrigger>
-                          {field.value ? (
-                            <SelectValue placeholder='Pilih MK' />
-                          ) : (
-                            "Pilih MK"
-                          )}
+                          <SelectValue placeholder='Pilih MK' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='number'
+                          type='text'
                           className='mb-2'
                           value={searchMK}
                           placeholder='Cari...'
                           onChange={(e) => setSearchMK(e.target.value)}
                         />
-                        {filteredMK.map((mk, index) => {
-                          return (
-                            <SelectItem key={index} value={mk.kode}>
-                              {mk.kode}
-                            </SelectItem>
-                          );
-                        })}
+                        {filteredMK.map((item) => (
+                          <SelectItem key={item.kode} value={item.kode}>
+                            {item.kode} - {item.deskripsi}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -325,35 +287,27 @@ const InputPenilaianCPMK = () => {
                           selectedMK?.CPMK.find((cpmk) => cpmk.kode === value)
                         );
                       }}
-                      defaultValue={field.value}
                       value={field.value}
-                      disabled={!form.getValues("MK")}
-                      required
+                      disabled={!selectedMK}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          {field.value ? (
-                            <SelectValue placeholder='Pilih CPMK' />
-                          ) : (
-                            "Pilih CPMK"
-                          )}
+                          <SelectValue placeholder='Pilih CPMK' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='number'
+                          type='text'
                           className='mb-2'
                           value={searchCPMK}
                           placeholder='Cari...'
                           onChange={(e) => setSearchCPMK(e.target.value)}
                         />
-                        {filteredCPMK?.map((cpmk, index) => {
-                          return (
-                            <SelectItem key={index} value={cpmk.kode}>
-                              {cpmk.kode}
-                            </SelectItem>
-                          );
-                        })}
+                        {filteredCPMK?.map((item) => (
+                          <SelectItem key={item.kode} value={item.kode}>
+                            {item.kode}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -369,35 +323,27 @@ const InputPenilaianCPMK = () => {
                     <FormLabel>CPL</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
                       value={field.value}
-                      disabled={!form.getValues("CPMK")}
-                      required
+                      disabled={!selectedCPMK}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          {field.value ? (
-                            <SelectValue placeholder='Pilih CPL' />
-                          ) : (
-                            "Pilih CPL"
-                          )}
+                          <SelectValue placeholder='Pilih CPL' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='number'
+                          type='text'
                           className='mb-2'
                           value={searchCPL}
                           placeholder='Cari...'
                           onChange={(e) => setSearchCPL(e.target.value)}
                         />
-                        {filteredCPL?.map((cpl, index) => {
-                          return (
-                            <SelectItem key={index} value={cpl.kode}>
-                              {cpl.kode}
-                            </SelectItem>
-                          );
-                        })}
+                        {filteredCPL?.map((item) => (
+                          <SelectItem key={item.kode} value={item.kode}>
+                            {item.kode}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -405,107 +351,79 @@ const InputPenilaianCPMK = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name='tahapPenilaian'
-                render={() => (
-                  <FormItem>
-                    <div className='mb-4'>
-                      <FormLabel className='text-base'>
-                        Tahap Penilaian :
-                      </FormLabel>
-                    </div>
-                    {tahapPenilaian.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name='tahapPenilaian'
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className='flex flex-row items-start space-x-3 space-y-0'
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          item.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className='font-normal'>
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className='space-y-2'>
+                <FormLabel>Tahap Penilaian :</FormLabel>
+                {tahapPenilaian.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name='tahapPenilaian'
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className='flex flex-row items-start space-x-3 space-y-0'
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(item.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, item.id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== item.id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className='font-normal'>
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
 
-              <FormField
-                control={form.control}
-                name='teknikPenilaian'
-                render={() => (
-                  <FormItem>
-                    <div className='mb-4'>
-                      <FormLabel className='text-base'>
-                        Teknik Penilaian :
-                      </FormLabel>
-                    </div>
-                    {teknikPenilaian.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name='teknikPenilaian'
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={item.id}
-                              className='flex flex-row items-start space-x-3 space-y-0'
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(item.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          item.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className='font-normal'>
-                                {item.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className='space-y-2'>
+                <FormLabel>Teknik Penilaian :</FormLabel>
+                {teknikPenilaian.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name='teknikPenilaian'
+                    render={({ field }) => {
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className='flex flex-row items-start space-x-3 space-y-0'
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value?.includes(item.id)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? field.onChange([...field.value, item.id])
+                                  : field.onChange(
+                                      field.value?.filter(
+                                        (value) => value !== item.id
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className='font-normal'>
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
 
               <FormField
                 control={form.control}
@@ -545,125 +463,47 @@ const InputPenilaianCPMK = () => {
                 name='batasNilai'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Batas Nilai : </FormLabel>
+                    <FormLabel>Batas Nilai :</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder='Batas Nilai'
-                        type='number'
-                        required
-                        {...field}
-                      />
+                      <Input placeholder='Batas Nilai' type='text' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name='kriteria'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-base'>Kriteria : </FormLabel>
-                    {field.value.map((_, index) => (
-                      <div key={index} className='flex items-center space-x-5'>
-                        <FormField
-                          control={form.control}
-                          name={`kriteria.${index}.kriteria`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Kriteria</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                                value={field.value}
-                                required
-                              >
-                                <FormControl>
-                                  <SelectTrigger className='w-[200px] p-2'>
-                                    {field.value ? (
-                                      <SelectValue placeholder='Pilih Kriteria' />
-                                    ) : (
-                                      "Pilih Kriteria"
-                                    )}
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value='Hasil Praktik'>
-                                    Hasil Praktik
-                                  </SelectItem>
-                                  <SelectItem value='Kualitas Presentasi'>
-                                    Kualitas Presentasi
-                                  </SelectItem>
-                                  <SelectItem value='Ketepatan Jawaban'>
-                                    Ketepatan Jawaban
-                                  </SelectItem>
-                                  <SelectItem value='Ketepatan Jawaban Tes Lisan'>
-                                    Ketepatan Jawaban Tes Lisan
-                                  </SelectItem>
-                                  <SelectItem value='Ketepatan Jawaban Quiz'>
-                                    Ketepatan Jawaban Quiz
-                                  </SelectItem>
-                                  <SelectItem value='Ketepatan Jawaban UTS'>
-                                    Ketepatan Jawaban UTS
-                                  </SelectItem>
-                                  <SelectItem value='Ketepatan Jawaban UAS'>
-                                    Ketepatan Jawaban UAS
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`kriteria.${index}.bobot`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Bobot</FormLabel>
-                              <Input
-                                placeholder='Bobot'
-                                type='number'
-                                required
-                                {...field}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                        {index === field.value.length - 1 && index > 0 && (
-                          <Button
-                            type='button'
-                            onClick={() => {
-                              const kriteriaArray = form.getValues("kriteria");
-                              kriteriaArray.splice(index, 1);
-                              field.onChange(kriteriaArray);
-                            }}
-                            className='px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md'
-                          >
-                            Hapus
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                    <Button
-                      type='button'
-                      onClick={() => {
-                        const kriteriaArray = form.getValues("kriteria");
-                        kriteriaArray.push({ bobot: "", kriteria: "" });
-                        field.onChange(kriteriaArray);
-                      }}
-                      className='px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md'
-                    >
-                      Tambah Kriteria
-                    </Button>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {fields.map((field, index) => (
+                <div className='flex items-center gap-5' key={field.id}>
+                  <FormField
+                    control={form.control}
+                    name={`kriteria.${index}.kriteria`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Kriteria :</FormLabel>
+                        <FormControl>
+                          <Input type='text' readOnly {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`kriteria.${index}.bobot`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bobot :</FormLabel>
+                        <FormControl>
+                          <Input placeholder='Bobot' type='text' {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              ))}
 
-              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
-                Submit
-              </Button>
+              <Button type='submit'>Submit</Button>
             </form>
           </Form>
         </CardContent>
