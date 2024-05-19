@@ -2,7 +2,11 @@ import prisma from "@/utils/prisma";
 
 export async function GET() {
   try {
-    const kelas = await prisma.kelas.findMany();
+    const kelas = await prisma.kelas.findMany({
+      include: {
+        MK: true,
+      },
+    });
 
     return Response.json({
       status: 200,
@@ -19,11 +23,14 @@ export async function POST(req) {
   try {
     const data = await req.json();
 
-    const jumlahKelas = Math.max(1, Math.min(data.jumlahKelas, 4));   
-    const namaBase = 'R';
-    
+    const jumlahKelas = Math.max(1, Math.min(data.jumlahKelas, 4));
+    const namaBase = "R";
+
     for (let i = 0; i < jumlahKelas; i++) {
-      const nama = jumlahKelas === 1 ? namaBase : `${namaBase}${String.fromCharCode(65 + i)}`;
+      const nama =
+        jumlahKelas === 1
+          ? namaBase
+          : `${namaBase}${String.fromCharCode(65 + i)}`;
       await prisma.kelas.create({
         data: {
           nama: nama,
@@ -31,7 +38,7 @@ export async function POST(req) {
           MK: {
             connect: {
               kode: data.MKId,
-            }
+            },
           },
         },
       });

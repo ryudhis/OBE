@@ -7,6 +7,9 @@ export async function GET(req) {
       where: {
         id,
       },
+      include: {
+        MK:true,
+      }
     });
 
     return Response.json({
