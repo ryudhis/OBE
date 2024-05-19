@@ -3,7 +3,6 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { RelationData } from "@/components/RelationData";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,13 +19,36 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DataCard } from "@/components/DataCard";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 export interface MKinterface {
   kode: string;
   deskripsi: string;
   BK: BKItem[];
   CPMK: CPMKItem[];
+  kelas: KelasItem[];
+}
+
+export interface KelasItem {
+  id: number;
+  nama: string;
   mahasiswa: mahasiswaItem[];
+  jumlahLulus: number;
 }
 
 export interface CPMKItem {
@@ -46,7 +68,7 @@ export interface mahasiswaItem {
   nama: string;
 }
 
-export interface transformedData{
+export interface transformedData {
   kode: string;
   deskripsi: string;
 }
@@ -63,6 +85,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -144,9 +167,11 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const transformMahasiswaData = (mahasiswa: mahasiswaItem): transformedData => {
+  const transformMahasiswaData = (
+    mahasiswa: mahasiswaItem
+  ): transformedData => {
     return {
-      kode: mahasiswa.nim, 
+      kode: mahasiswa.nim,
       deskripsi: mahasiswa.nama,
     };
   };
@@ -217,11 +242,52 @@ export default function Page({ params }: { params: { kode: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
+  const renderData = () => {
+    return mk?.kelas.map((kelas) => {
+      return (
+        <TableRow key={kelas.id}>
+          <TableCell className="w-[8%]">{kelas.nama}</TableCell>
+          <TableCell className="w-[8%]">{kelas.mahasiswa.length}</TableCell>
+          {/* <TableCell className="w-[15%]">
+            {mk.BK.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[15%]">
+            {mk.CPMK.map((item) => item.kode).join(", ")}
+          </TableCell> */}
+          <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
+          {/* <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
+          <TableCell className="w-[8%]">
+            {(kelas.jumlahLulus / kelas.mahasiswa.length) * 100}%
+          </TableCell>
+          <TableCell className="w-[8%]">{mk.batasLulusMK}%</TableCell>
+          <TableCell className="w-[8%]">
+            {(kelas.jumlahLulus / kelas.mahasiswa.length) * 100 >=
+            mk.batasLulusMK
+              ? "Lulus"
+              : "Tidak Lulus"}
+          </TableCell> */}
+          <TableCell className="w-[8%] flex gap-2">
+            {/* <Button variant="destructive" onClick={() => delMK(mk.kode)}>
+              Hapus
+            </Button> */}
+            <Button
+              onClick={() => {
+                router.push(`/dashboard/details/mk/kelas${kelas.id}/`);
+              }}
+            >
+              Details
+            </Button>
+          </TableCell>
+        </TableRow>
+      );
+    });
+  };
+
   if (mk) {
     return (
-      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <div className='flex'>
-          <Table className='w-[400px] mb-5'>
+      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <div className="flex">
+          <Table className="w-[400px] mb-5">
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -240,44 +306,44 @@ export default function Page({ params }: { params: { kode: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Edit Data</Button>
+              <Button variant="outline">Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px]'>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Edit MK</DialogTitle>
                 <DialogDescription>{mk.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='deskripsi' className='text-right'>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="deskripsi" className="text-right">
                       Deskripsi
                     </Label>
                     <Input
-                      id='deskripsi'
+                      id="deskripsi"
                       {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className='col-span-3'
+                      className="col-span-3"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type='submit'>Simpan</Button>
+                  <Button type="submit">Simpan</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi BK</div>
-          <RelationData data={mk.BK} jenisData='BK' />
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi BK</div>
+          <RelationData data={mk.BK} jenisData="BK" />
         </div>
 
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi CPMK</div>
-          <RelationData data={mk.CPMK} jenisData='CPMK' />
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi CPMK</div>
+          <RelationData data={mk.CPMK} jenisData="CPMK" />
         </div>
-        
+
         {/* HEADER */}
         <div className="flex flex-row justify-between items-center mb-5">
           <div className=" font-bold text-xl">Sambungkan Mahasiswa</div>
