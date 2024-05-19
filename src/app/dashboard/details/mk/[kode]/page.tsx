@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { RelationData } from "@/components/RelationData";
 import { Button } from "@/components/ui/button";
+import SkeletonTable from "@/components/SkeletonTable";
 import {
   Dialog,
   DialogContent,
@@ -55,6 +56,7 @@ export interface MKinterface {
   kode: string;
   deskripsi: string;
   sks: string;
+  batasLulusMahasiswa: number;
   BK: BKItem[];
   CPMK: CPMKItem[];
   kelas: KelasItem[];
@@ -65,6 +67,7 @@ export interface KelasItem {
   nama: string;
   mahasiswa: mahasiswaItem[];
   jumlahLulus: number;
+  MK: MKinterface;
 }
 
 export interface CPMKItem {
@@ -99,6 +102,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
   // const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[] | undefined>([]);
   // const [prevSelected, setPrevSelected] = useState<string[]>([]);
   // const [selected, setSelected] = useState<string[]>([]);
@@ -149,6 +153,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   }
 
   const getMK = async () => {
+    setIsLoading(true);
     try {
       const response = await axiosConfig.get(`api/mk/${kode}`);
 
@@ -156,7 +161,6 @@ export default function Page({ params }: { params: { kode: string } }) {
       } else {
         alert(response.data.message);
       }
-
       setMK(response.data.data);
       // const prevSelected = response.data.data.mahasiswa.map(
       //   (item: mahasiswaItem) => item.nim
@@ -170,6 +174,8 @@ export default function Page({ params }: { params: { kode: string } }) {
       });
     } catch (error: any) {
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -216,6 +222,33 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     axiosConfig
       .delete("api/kelas", { data })
+      .then(function (response) {
+        if (response.status === 200) {
+          toast({
+            title: "Berhasil hapus data",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Tidak ada data!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      });
+  };
+
+  const delKelas = (id: number) => {
+    axiosConfig
+      .delete(`api/kelas/${id}`)
       .then(function (response) {
         if (response.status === 200) {
           toast({
@@ -332,29 +365,17 @@ export default function Page({ params }: { params: { kode: string } }) {
       return (
         <TableRow key={kelas.id}>
           <TableCell className="w-[8%]">{kelas.nama}</TableCell>
-          <TableCell className="w-[8%]">{kelas.mahasiswa.length}</TableCell>
-          {/* <TableCell className="w-[15%]">
-            {mk.BK.map((item) => item.kode).join(", ")}
+          <TableCell className="w-[8%]">
+            {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
-          <TableCell className="w-[15%]">
-            {mk.CPMK.map((item) => item.kode).join(", ")}
-          </TableCell> */}
           <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
-          {/* <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
           <TableCell className="w-[8%]">
-            {(kelas.jumlahLulus / kelas.mahasiswa.length) * 100}%
+            {kelas.MK.batasLulusMahasiswa}
           </TableCell>
-          <TableCell className="w-[8%]">{mk.batasLulusMK}%</TableCell>
-          <TableCell className="w-[8%]">
-            {(kelas.jumlahLulus / kelas.mahasiswa.length) * 100 >=
-            mk.batasLulusMK
-              ? "Lulus"
-              : "Tidak Lulus"}
-          </TableCell> */}
           <TableCell className="w-[8%] flex gap-2">
-            {/* <Button variant="destructive" onClick={() => delMK(mk.kode)}>
+            <Button variant="destructive" onClick={() => delKelas(kelas.id)}>
               Hapus
-            </Button> */}
+            </Button>
             <Button
               onClick={() => {
                 router.push(`/dashboard/details/mk/kelas${kelas.id}/`);
@@ -476,7 +497,50 @@ export default function Page({ params }: { params: { kode: string } }) {
         </button> */}
 
         {mk.kelas.length != 0 ? (
-          <p>Data sudah ada!</p>
+          <Card className="w-[1000px] mx-auto">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
+                <CardTitle>Tabel Kelas</CardTitle>
+                <CardDescription>Kelas {mk.deskripsi}</CardDescription>
+              </div>
+              <Button
+                onClick={() => {
+                  router.push("/dashboard/input/mk");
+                }}
+              >
+                Tambah
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[8%]">Nama</TableHead>
+                      <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
+                      <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                      <TableHead className="w-[8%]">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <SkeletonTable rows={5} cols={4} />
+                  </TableBody>
+                </Table>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[8%]">Nama</TableHead>
+                      <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
+                      <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                      <TableHead className="w-[8%]">Aksi</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>{renderData()}</TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
         ) : (
           <Form {...form}>
             <form
