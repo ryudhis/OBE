@@ -53,9 +53,12 @@ const updateMK = async (data) => {
         }
       }
 
+      const statusLulus = totalNilai>=MK.batasLulusMahasiswa?"Lulus":"Tidak Lulus";
+
       const mahasiswaData = {
         nim: mahasiswa.nim,
         totalNilai: totalNilai,
+        statusLulus: statusLulus,
       }
 
       mahasiswaLulus.push(mahasiswaData);
@@ -81,7 +84,21 @@ const updateMK = async (data) => {
       },
     });
 
-    let totalLulusMK = 0;    
+    let totalLulusMK = 0;
+    for (const kelas of MK.kelas) {
+      totalLulusMK+=kelas.jumlahLulus;
+    }
+
+    console.log("total lulus MK : ",totalLulusMK);
+
+    await prisma.MK.update({
+      where: {
+        kode: MK.kode,
+      },
+      data: {
+        jumlahLulus: totalLulusMK,
+      },
+    });
     
   } catch (error) {
     console.error("Error updating MK:", error);

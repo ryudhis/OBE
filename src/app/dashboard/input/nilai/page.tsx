@@ -89,6 +89,8 @@ const InputNilai = () => {
     pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
   );
 
+  filteredPCPMK.filter((pcpmk)=>{pcpmk.MK===selectedMK?.kode});
+
   const filteredMahasiswa = selectedKelas?.mahasiswa.filter((mahasiswa) =>
     mahasiswa.nim.toLowerCase().includes(searchMahasiswa.toLowerCase())
   );
@@ -100,6 +102,7 @@ const InputNilai = () => {
       } else {
         alert(response.data.message);
       }
+      
       setPCPMK(response.data.data);
     } catch (error) {
       console.log(error);
@@ -185,8 +188,6 @@ const InputNilai = () => {
   useEffect(() => {
     getMK();
   }, []);
-
-  console.log(selectedMK);
   return (
     <section className='flex my-[50px] justify-center items-center'>
       <Card className='w-[1000px]'>
@@ -330,7 +331,7 @@ const InputNilai = () => {
                           placeholder='Cari...'
                           onChange={(e) => setSearchPCPMK(e.target.value)}
                         />
-                        {filteredPCPMK.map((pcpmk, index) => {
+                        {filteredPCPMK.filter((pcpmk) => pcpmk.MK === selectedMK?.kode).map((pcpmk, index) => {
                           return (
                             <SelectItem key={index} value={pcpmk.kode}>
                               {pcpmk.kode}

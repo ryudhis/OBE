@@ -8,8 +8,9 @@ export async function GET(req) {
         id,
       },
       include: {
-        MK:true,
-      }
+        MK: true,
+        mahasiswa: true,
+      },
     });
 
     return Response.json({
