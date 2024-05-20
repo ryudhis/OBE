@@ -46,6 +46,7 @@ export interface KelasItem {
 export interface mahasiswaLulusItem {
   nim: string;
   totalNilai: number;
+  statusLulus: string;
 }
 
 export interface CPMKItem {
@@ -175,7 +176,9 @@ export default function Page({ params }: { params: { id: string } }) {
           <TableCell className="w-[8%]">
             {dataMahasiswaLulus ? dataMahasiswaLulus.totalNilai : "-"}
           </TableCell>
-          <TableCell className="w-[8%]"></TableCell>
+          <TableCell className="w-[8%]">
+            {dataMahasiswaLulus ? dataMahasiswaLulus.statusLulus : "-"}
+          </TableCell>
         </TableRow>
       );
     });

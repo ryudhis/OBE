@@ -118,13 +118,13 @@ const DataMK = () => {
           <TableCell className="w-[8%]">{jumlahMahasiswa}</TableCell>
           <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
           <TableCell className="w-[8%]">
-            {/* {(mk.jumlahLulus / mk.mahasiswa.length) * 100}% */}
+            {((mk.jumlahLulus / jumlahMahasiswa) * 100).toFixed(2)}%
           </TableCell>
           <TableCell className="w-[8%]">{mk.batasLulusMK}%</TableCell>
           <TableCell className="w-[8%]">
-            {/* {(mk.jumlahLulus / mk.mahasiswa.length) * 100 >= mk.batasLulusMK
+            {(mk.jumlahLulus / jumlahMahasiswa) * 100 >= mk.batasLulusMK
               ? "Lulus"
-              : "Tidak Lulus"} */}
+              : "Tidak Lulus"}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>
