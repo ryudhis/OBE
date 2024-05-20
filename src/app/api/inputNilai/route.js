@@ -1,62 +1,91 @@
 import prisma from "@/utils/prisma";
 
 const updateMK = async (data) => {
-  const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
-    where: {
-      kode: data.PCPMKId,
-    },
-  });
-
-  const MK = await prisma.MK.findUnique({
-    where: {
-      kode: penilaianCPMK.MK,
-    },
-    include: {
-      mahasiswa: {
-        include: { inputNilai: { include: { penilaianCPMK: true } } },
+  try {
+    const MK = await prisma.MK.findUnique({
+      where: {
+        kode: data.MKId,
       },
-    },
-  });
-
-  let totalLulusMK = 0;
-
-  MK.mahasiswa.forEach((mahasiswa) => {
-    const nilai = mahasiswa.inputNilai.filter(
-      (nilai) => nilai.penilaianCPMK.MK === MK.kode
-    );
-    let totalNilai = 0;
-
-    nilai.forEach((nilaiCPMK) => {
-      nilaiCPMK.nilai.forEach((nilai, index) => {
-        if (
-          nilaiCPMK.penilaianCPMK.kriteria &&
-          nilaiCPMK.penilaianCPMK.kriteria.length > index
-        ) {
-          totalNilai +=
-            nilai * (nilaiCPMK.penilaianCPMK.kriteria[index].bobot / 100);
-        } else {
-          console.log("Invalid kriteria or index out of range");
-        }
-      });
+      include: {
+        kelas: {
+          include: {
+            mahasiswa: {
+              include: { inputNilai: { include: { penilaianCPMK: true } } },
+            },
+          },
+        },
+      },
     });
 
-    console.log(mahasiswa.nama, "=", totalNilai);
-
-    if (totalNilai >= MK.batasLulusMahasiswa) {
-      totalLulusMK += 1;
+    if (!MK) {
+      throw new Error("MK not found");
     }
-  });
 
-  console.log("totalLulusMK = ", totalLulusMK);
+    let totalLulusKelas = 0;
 
-  await prisma.MK.update({
-    where: {
-      kode: MK.kode,
-    },
-    data: {
-      jumlahLulus: totalLulusMK,
-    },
-  });
+    const selectedKelas = MK.kelas.find((kelas) => kelas.nama === data.kelasNama);
+
+    if (!selectedKelas) {
+      throw new Error("Selected class not found");
+    }
+
+    let mahasiswaLulus = [];
+
+    for (const mahasiswa of selectedKelas.mahasiswa) {
+      const relevantNilai = mahasiswa.inputNilai.filter(
+        (nilai) => nilai.penilaianCPMK.MK === MK.kode
+      );
+
+      let totalNilai = 0;
+
+      for (const nilaiCPMK of relevantNilai) {
+        for (let i = 0; i < nilaiCPMK.nilai.length; i++) {
+          const kriteria = nilaiCPMK.penilaianCPMK.kriteria;
+
+          if (kriteria && kriteria.length > i) {
+            totalNilai += nilaiCPMK.nilai[i] * (kriteria[i].bobot / 100);
+          } else {
+            console.log(
+              "Invalid kriteria or index out of range for",
+              mahasiswa.nama
+            );
+          }
+        }
+      }
+
+      const mahasiswaData = {
+        nim: mahasiswa.nim,
+        totalNilai: totalNilai,
+      }
+
+      mahasiswaLulus.push(mahasiswaData);
+
+      console.log(mahasiswa.nama, "=", totalNilai);
+
+      if (totalNilai >= MK.batasLulusMahasiswa) {
+        totalLulusKelas += 1;
+      }
+    }
+
+    console.log("totalLulusKelas = ", totalLulusKelas);
+
+    console.log("Mahasiswa Lulus = ", mahasiswaLulus);
+
+    await prisma.kelas.update({
+      where: {
+        id: selectedKelas.id,
+      },
+      data: {
+        jumlahLulus: totalLulusKelas,
+        mahasiswaLulus: mahasiswaLulus,
+      },
+    });
+
+    let totalLulusMK = 0;    
+    
+  } catch (error) {
+    console.error("Error updating MK:", error);
+  }
 };
 
 export async function GET() {
@@ -66,14 +95,20 @@ export async function GET() {
       include: { penilaianCPMK: true },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil semua data!",
-      data: inputNilai,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil semua data!",
+        data: inputNilai,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400 }
+    );
   }
 }
 
@@ -95,16 +130,22 @@ export async function POST(req) {
         nilai: data.nilai,
       },
     });
-    
-    updateMK(data);
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil buat data!",
-      data: inputNilai,
-    });
+    await updateMK(data);
+
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil buat data!",
+        data: inputNilai,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400 }
+    );
   }
 }
