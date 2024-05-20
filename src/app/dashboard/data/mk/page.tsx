@@ -20,6 +20,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { mkdir } from "fs";
 
 export interface mk {
   kode: string;
@@ -27,17 +28,18 @@ export interface mk {
   CPMK: CPMKItem[];
   jumlahLulus: number;
   batasLulusMK: number;
-  kelas: kelas[];
+  kelas: kelasItem[];
   // mahasiswa: MahasiswaItem[];
 }
 
-// export interface MahasiswaItem {
-//   nim: string;
-//   nama: string;
-// }
-
-export interface kelas {
+export interface MahasiswaItem {
+  nim: string;
   nama: string;
+}
+
+export interface kelasItem {
+  nama: string;
+  mahasiswa: MahasiswaItem[];
 }
 
 export interface CPMKItem {
@@ -89,10 +91,15 @@ const DataMK = () => {
   }, []);
   // id, kode, deskripsi
 
+  let jumlahMahasiswa: number = 0;
   const renderData = () => {
-    return MK.map((mk, index) => {
+    return MK.map((mk) => {
+      jumlahMahasiswa = 0;
+      {
+        mk.kelas.map((kelas) => (jumlahMahasiswa += kelas.mahasiswa.length));
+      }
       return (
-        <TableRow key={index}>
+        <TableRow key={mk.kode}>
           <TableCell className="w-[8%]">{mk.kode}</TableCell>
           <TableCell className="flex-1">
             {mk.deskripsi.length > 20
@@ -104,14 +111,12 @@ const DataMK = () => {
           </TableCell>
           {/* <TableCell className="w-[15%]">
             {mk.BK.map((item) => item.kode).join(", ")}
-          </TableCell>
+          </TableCell> */}
           <TableCell className="w-[15%]">
             {mk.CPMK.map((item) => item.kode).join(", ")}
-          </TableCell> */}
-          <TableCell className="w-[8%]">
-            {/* {mk.mahasiswa.length} */}
           </TableCell>
-          <TableCell className="w-[8%]">{/* {mk.jumlahLulus} */}</TableCell>
+          <TableCell className="w-[8%]">{jumlahMahasiswa}</TableCell>
+          <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
           <TableCell className="w-[8%]">
             {/* {(mk.jumlahLulus / mk.mahasiswa.length) * 100}% */}
           </TableCell>
