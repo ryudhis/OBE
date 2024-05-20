@@ -32,6 +32,12 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 
 const formSchema = z.object({
+  MK: z.string({
+    required_error: "Please select MK to display.",
+  }),
+  kelas: z.string({
+    required_error: "Please select kelas to display.",
+  }),
   PCPMK: z.string({
     required_error: "Please select PCPMK to display.",
   }),
@@ -49,6 +55,13 @@ export interface PCPMKItem {
 
 export interface MKItem {
   kode: string;
+  kelas: kelasItem[];
+}
+
+export interface kelasItem {
+  id: number;
+  nama: string;
+  MKId: string;
   mahasiswa: mahasiswaItem[];
 }
 
@@ -61,16 +74,24 @@ const InputNilai = () => {
   const { toast } = useToast();
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
-  const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem>();
   const [selectedMK, setSelectedMK] = useState<MKItem>();
+  const [selectedKelas, setSelectedKelas] = useState<kelasItem>();
+  const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem>();
+  const [searchMK, setSearchMK] = useState<string>("");
   const [searchPCPMK, setSearchPCPMK] = useState<string>("");
   const [searchMahasiswa, setSearchMahasiswa] = useState<string>("");
+
+  const filteredMK = MK.filter((mk) =>
+    mk.kode.toLowerCase().includes(searchMK.toLowerCase())
+  );
 
   const filteredPCPMK = PCPMK.filter((pcpmk) =>
     pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
   );
 
-  const filteredMahasiswa = selectedMK?.mahasiswa.filter((mahasiswa) =>
+  filteredPCPMK.filter((pcpmk)=>{pcpmk.MK===selectedMK?.kode});
+
+  const filteredMahasiswa = selectedKelas?.mahasiswa.filter((mahasiswa) =>
     mahasiswa.nim.toLowerCase().includes(searchMahasiswa.toLowerCase())
   );
 
@@ -81,6 +102,7 @@ const InputNilai = () => {
       } else {
         alert(response.data.message);
       }
+      
       setPCPMK(response.data.data);
     } catch (error) {
       console.log(error);
@@ -101,6 +123,8 @@ const InputNilai = () => {
   };
 
   const defaultValues = {
+    MK: "",
+    kelas: "",
     PCPMK: "",
     mahasiswa: "",
     nilai: [],
@@ -119,6 +143,8 @@ const InputNilai = () => {
     });
 
     const data = {
+      MKId: values.MK,
+      kelasNama: values.kelas,
       PCPMKId: values.PCPMK,
       MahasiswaId: values.mahasiswa,
       nilai: convertNilai,
@@ -162,7 +188,6 @@ const InputNilai = () => {
   useEffect(() => {
     getMK();
   }, []);
-
   return (
     <section className='flex my-[50px] justify-center items-center'>
       <Card className='w-[1000px]'>
@@ -173,6 +198,102 @@ const InputNilai = () => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+              <FormField
+                control={form.control}
+                name='MK'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>MK</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedMK(MK.find((mk) => mk.kode === value));
+                        form.resetField("kelas");
+                        form.resetField("PCPMK");
+                        form.resetField("mahasiswa");
+                        form.resetField("nilai");
+                      }}
+                      defaultValue={field.value}
+                      value={field.value}
+                      required
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          {field.value ? (
+                            <SelectValue placeholder='Pilih MK' />
+                          ) : (
+                            "Pilih MK"
+                          )}
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <Input
+                          type='number'
+                          className='mb-2'
+                          value={searchMK}
+                          placeholder='Cari...'
+                          onChange={(e) => setSearchMK(e.target.value)}
+                        />
+                        {filteredMK.map((mk, index) => {
+                          return (
+                            <SelectItem key={index} value={mk.kode}>
+                              {mk.kode}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='kelas'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kelas</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedKelas(
+                          selectedMK?.kelas.find(
+                            (kelas) => kelas.nama === value
+                          )
+                        );
+                        form.resetField("mahasiswa");
+                        form.resetField("nilai");
+                      }}
+                      disabled={!form.getValues("MK")}
+                      defaultValue={field.value}
+                      value={field.value}
+                      required
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          {field.value ? (
+                            <SelectValue placeholder='Pilih Kelas' />
+                          ) : (
+                            "Pilih Kelas"
+                          )}
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectedMK?.kelas.map((kelas, index) => {
+                          return (
+                            <SelectItem key={index} value={kelas.nama}>
+                              {kelas.nama}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name='PCPMK'
@@ -186,13 +307,9 @@ const InputNilai = () => {
                           (pcpmk) => pcpmk.kode === value
                         );
                         setSelectedPCPMK(selectedPCPMK);
-                        const selectedMK = MK.find(
-                          (mk) => mk.kode === selectedPCPMK?.MK
-                        );
-                        setSelectedMK(selectedMK);
-                        form.resetField("mahasiswa");
                         form.resetField("nilai");
                       }}
+                      disabled={!form.getValues("MK")}
                       defaultValue={field.value}
                       value={field.value}
                       required
@@ -214,7 +331,7 @@ const InputNilai = () => {
                           placeholder='Cari...'
                           onChange={(e) => setSearchPCPMK(e.target.value)}
                         />
-                        {filteredPCPMK.map((pcpmk, index) => {
+                        {filteredPCPMK.filter((pcpmk) => pcpmk.MK === selectedMK?.kode).map((pcpmk, index) => {
                           return (
                             <SelectItem key={index} value={pcpmk.kode}>
                               {pcpmk.kode}
@@ -240,7 +357,7 @@ const InputNilai = () => {
                       }}
                       defaultValue={field.value}
                       value={field.value}
-                      disabled={!form.getValues("PCPMK")}
+                      disabled={!form.getValues("kelas")}
                       required
                     >
                       <FormControl>
