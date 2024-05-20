@@ -24,10 +24,10 @@ import { Button } from "@/components/ui/button";
 export interface mk {
   kode: string;
   deskripsi: string;
-  BK: BKItem[];
   CPMK: CPMKItem[];
   jumlahLulus: number;
   batasLulusMK: number;
+  kelas: kelas[];
   // mahasiswa: MahasiswaItem[];
 }
 
@@ -36,8 +36,8 @@ export interface mk {
 //   nama: string;
 // }
 
-export interface BKItem {
-  kode: string;
+export interface kelas {
+  nama: string;
 }
 
 export interface CPMKItem {
@@ -83,7 +83,7 @@ const DataMK = () => {
       throw error;
     }
   };
-  
+
   useEffect(() => {
     getMK();
   }, []);
@@ -100,17 +100,18 @@ const DataMK = () => {
               : mk.deskripsi}
           </TableCell>
           <TableCell className="w-[15%]">
+            {mk.kelas.map((item) => item.nama).join(", ")}
+          </TableCell>
+          {/* <TableCell className="w-[15%]">
             {mk.BK.map((item) => item.kode).join(", ")}
           </TableCell>
           <TableCell className="w-[15%]">
             {mk.CPMK.map((item) => item.kode).join(", ")}
-          </TableCell>
+          </TableCell> */}
           <TableCell className="w-[8%]">
             {/* {mk.mahasiswa.length} */}
           </TableCell>
-          <TableCell className="w-[8%]">
-            {/* {mk.jumlahLulus} */}
-            </TableCell>
+          <TableCell className="w-[8%]">{/* {mk.jumlahLulus} */}</TableCell>
           <TableCell className="w-[8%]">
             {/* {(mk.jumlahLulus / mk.mahasiswa.length) * 100}% */}
           </TableCell>
@@ -160,7 +161,7 @@ const DataMK = () => {
                 <TableRow>
                   <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Nama Matakuliah</TableHead>
-                  <TableHead className="w-[15%]">BK</TableHead>
+                  <TableHead className="w-[15%]">Kelas</TableHead>
                   <TableHead className="w-[15%]">CPMK</TableHead>
                   <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
                   <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
@@ -180,7 +181,7 @@ const DataMK = () => {
                 <TableRow>
                   <TableHead className="w-[8%]">Kode</TableHead>
                   <TableHead className="flex-1">Nama Matakuliah</TableHead>
-                  <TableHead className="w-[15%]">BK</TableHead>
+                  <TableHead className="w-[15%]">Kelas</TableHead>
                   <TableHead className="w-[15%]">CPMK</TableHead>
                   <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
                   <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
