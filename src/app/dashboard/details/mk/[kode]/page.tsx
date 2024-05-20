@@ -210,9 +210,10 @@ export default function Page({ params }: { params: { kode: string } }) {
           variant: "destructive",
         });
         console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
       });
-
-    setRefresh(!refresh);
   }
 
   const onDeleteAllKelas = () => {
@@ -243,6 +244,9 @@ export default function Page({ params }: { params: { kode: string } }) {
           variant: "destructive",
         });
         console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
       });
   };
 
@@ -504,11 +508,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <CardDescription>Kelas {mk.deskripsi}</CardDescription>
               </div>
               <Button
+                variant="destructive"
                 onClick={() => {
-                  router.push("/dashboard/input/mk");
+                  onDeleteAllKelas();
                 }}
               >
-                Tambah
+                Hapus Semua Kelas
               </Button>
             </CardHeader>
             <CardContent>
@@ -519,11 +524,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
                       <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                      <TableHead className="w-[8%]">Batas Lulus</TableHead>
                       <TableHead className="w-[8%]">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <SkeletonTable rows={5} cols={4} />
+                    <SkeletonTable rows={5} cols={5} />
                   </TableBody>
                 </Table>
               ) : (
@@ -533,6 +539,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
                       <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                      <TableHead className="w-[8%]">Batas Lulus</TableHead>
                       <TableHead className="w-[8%]">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
