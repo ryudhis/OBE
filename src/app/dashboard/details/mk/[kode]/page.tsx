@@ -382,7 +382,9 @@ export default function Page({ params }: { params: { kode: string } }) {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/mk/kelas${kelas.id}/`);
+                router.push(
+                  `/dashboard/details/mk/${kelas.MK.kode}/kelas/${kelas.id}/`
+                );
               }}
             >
               Details

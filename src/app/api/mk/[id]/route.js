@@ -10,7 +10,7 @@ export async function GET(req) {
       include: {
         BK: { include: { CPL: true } },
         CPMK: true,
-        kelas: { include: { MK: true } },
+        kelas: { include: { MK: true, mahasiswa: true } },
       },
     });
 
