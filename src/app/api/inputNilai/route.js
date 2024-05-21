@@ -21,7 +21,7 @@ const updateMK = async (data) => {
       throw new Error("MK not found");
     }
 
-    let totalLulusKelas = 0;
+    let totalLulusKelas = 0;          
 
     const selectedKelas = MK.kelas.find((kelas) => kelas.nama === data.kelasNama);
 
@@ -37,20 +37,29 @@ const updateMK = async (data) => {
       );
 
       let totalNilai = 0;
+      let statusCPMK = [];
 
       for (const nilaiCPMK of relevantNilai) {
+        let totalNilaiCPMK = 0;
+        let totalBobot = 0;
         for (let i = 0; i < nilaiCPMK.nilai.length; i++) {
           const kriteria = nilaiCPMK.penilaianCPMK.kriteria;
-
           if (kriteria && kriteria.length > i) {
+            totalNilaiCPMK += nilaiCPMK.nilai[i] * (kriteria[i].bobot / 100);
+            totalBobot += kriteria[i].bobot;
             totalNilai += nilaiCPMK.nilai[i] * (kriteria[i].bobot / 100);
-          } else {
+          } else {  
             console.log(
               "Invalid kriteria or index out of range for",
               mahasiswa.nama
             );
           }
         }
+        statusCPMK.push({
+          namaCPMK : nilaiCPMK.penilaianCPMK.CPMK,
+          nilaiCPMK : totalNilaiCPMK,
+          statusLulus : totalNilaiCPMK>=(nilaiCPMK.penilaianCPMK.batasNilai * (totalBobot / 100))?"Lulus":"Tidak Lulus",
+        });
       }
 
       const statusLulus = totalNilai>=MK.batasLulusMahasiswa?"Lulus":"Tidak Lulus";
@@ -59,7 +68,10 @@ const updateMK = async (data) => {
         nim: mahasiswa.nim,
         totalNilai: totalNilai,
         statusLulus: statusLulus,
+        statusCPMK: statusCPMK,
       }
+
+      console.log("statusCPMK = ", mahasiswaData.statusCPMK)
 
       mahasiswaLulus.push(mahasiswaData);
 
