@@ -263,7 +263,7 @@ const DataPenilaianCPMK = () => {
         </CardContent>
         {filterMK !== "default" && (
           <p
-            className={`ml-[800px] ${
+            className={`ml-[800px] font-semibold mb-2 ${
               totalBobot !== 100 ? "text-red-500" : "text-green-500"
             }`}
           >

@@ -239,7 +239,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">NIM</TableHead>
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
-                      <TableHead className="w-[8%]">Lulus</TableHead>
+                      <TableHead className="w-[8%]">Lulus MK</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -253,7 +253,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">NIM</TableHead>
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
-                      <TableHead className="w-[8%]">Lulus</TableHead>
+                      <TableHead className="w-[8%]">Lulus MK</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>{renderData()}</TableBody>

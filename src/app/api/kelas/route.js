@@ -35,6 +35,7 @@ export async function POST(req) {
         data: {
           nama: nama,
           jumlahLulus: 0,
+          mahasiswaLulus: [],
           MK: {
             connect: {
               kode: data.MKId,
