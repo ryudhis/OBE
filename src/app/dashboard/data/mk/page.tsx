@@ -109,9 +109,6 @@ const DataMK = () => {
           <TableCell className="w-[15%]">
             {mk.kelas.map((item) => item.nama).join(", ")}
           </TableCell>
-          {/* <TableCell className="w-[15%]">
-            {mk.BK.map((item) => item.kode).join(", ")}
-          </TableCell> */}
           <TableCell className="w-[15%]">
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>

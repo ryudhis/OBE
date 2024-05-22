@@ -47,6 +47,13 @@ export interface mahasiswaLulusItem {
   nim: string;
   totalNilai: number;
   statusLulus: string;
+  statusCPMK: statusCPMKItem[];
+}
+
+export interface statusCPMKItem {
+  namaCPMK: string;
+  nilaiCPMK: number;
+  statusLulus: string;
 }
 
 export interface CPMKItem {
@@ -141,7 +148,6 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         alert(response.data.message);
       }
-      console.log(response.data.data);
       setKelas(response.data.data);
     } catch (error: any) {
       throw error;
@@ -179,6 +185,12 @@ export default function Page({ params }: { params: { id: string } }) {
           <TableCell className="w-[8%]">
             {dataMahasiswaLulus ? dataMahasiswaLulus.statusLulus : "-"}
           </TableCell>
+          {dataMahasiswaLulus?.statusCPMK.map((statusCPMK, index) => (
+            <TableCell key={index} className="flex-1">
+              {statusCPMK.nilaiCPMK ? statusCPMK.nilaiCPMK : `-`} -
+              {statusCPMK.statusLulus ? statusCPMK.statusLulus : `-`}
+            </TableCell>
+          ))}
         </TableRow>
       );
     });
@@ -240,10 +252,17 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
                       <TableHead className="w-[8%]">Lulus MK</TableHead>
+                      {kelas.mahasiswa[0]?.kelas[0]?.mahasiswaLulus[0]?.statusCPMK.map(
+                        (statusCPMK, index) => (
+                          <TableHead key={index} className="flex-1">
+                            {statusCPMK.namaCPMK}
+                          </TableHead>
+                        )
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <SkeletonTable rows={5} cols={4} />
+                    <SkeletonTable rows={5} cols={5} />
                   </TableBody>
                 </Table>
               ) : (
@@ -254,6 +273,13 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
                       <TableHead className="w-[8%]">Lulus MK</TableHead>
+                      {kelas.mahasiswa[0]?.kelas[0]?.mahasiswaLulus[0]?.statusCPMK.map(
+                        (statusCPMK, index) => (
+                          <TableHead key={index} className="flex-1">
+                            {statusCPMK.namaCPMK}
+                          </TableHead>
+                        )
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>{renderData()}</TableBody>
