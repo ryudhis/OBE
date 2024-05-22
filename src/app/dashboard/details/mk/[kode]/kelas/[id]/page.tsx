@@ -67,10 +67,15 @@ export interface mahasiswaItem {
   kelas: KelasItem[];
 }
 
+export interface mahasiswaExcel {
+  nim: string;
+  nama: string;
+}
+
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const [kelas, setKelas] = useState<KelasItem | undefined>();
-  const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<mahasiswaExcel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -83,13 +88,12 @@ export default function Page({ params }: { params: { id: string } }) {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: mahasiswaItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: mahasiswaExcel[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
-        nim: item.Nama,
-        nama: item.NIM,
-        kelas: [],
+        nim: item.nim,
+        nama: item.nama,
       }));
       setMahasiswa(parsedData);
     };
@@ -104,7 +108,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     axiosConfig
-      .post("api/mahasiswa/excel", data)
+      .patch(`api/kelas/relasi/${id}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -141,7 +145,6 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         alert(response.data.message);
       }
-      console.log(response.data.data);
       setKelas(response.data.data);
     } catch (error: any) {
       throw error;
