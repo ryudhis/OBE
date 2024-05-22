@@ -186,8 +186,8 @@ export default function Page({ params }: { params: { id: string } }) {
             {dataMahasiswaLulus ? dataMahasiswaLulus.statusLulus : "-"}
           </TableCell>
           {dataMahasiswaLulus?.statusCPMK.map((statusCPMK, index) => (
-            <TableCell key={index} className="flex-1">
-              {statusCPMK.nilaiCPMK ? statusCPMK.nilaiCPMK : `-`} -
+            <TableCell key={index} className="w-[16%]">
+              {statusCPMK.nilaiCPMK ? statusCPMK.nilaiCPMK : `-`} -{" "}
               {statusCPMK.statusLulus ? statusCPMK.statusLulus : `-`}
             </TableCell>
           ))}
@@ -254,7 +254,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">Lulus MK</TableHead>
                       {kelas.mahasiswa[0]?.kelas[0]?.mahasiswaLulus[0]?.statusCPMK.map(
                         (statusCPMK, index) => (
-                          <TableHead key={index} className="flex-1">
+                          <TableHead key={index} className="w-[16%]">
                             {statusCPMK.namaCPMK}
                           </TableHead>
                         )
@@ -275,7 +275,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">Lulus MK</TableHead>
                       {kelas.mahasiswa[0]?.kelas[0]?.mahasiswaLulus[0]?.statusCPMK.map(
                         (statusCPMK, index) => (
-                          <TableHead key={index} className="flex-1">
+                          <TableHead key={index} className="w-[16%]">
                             {statusCPMK.namaCPMK}
                           </TableHead>
                         )
