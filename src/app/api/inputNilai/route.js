@@ -120,8 +120,11 @@ const updateMK = async (data) => {
 export async function GET() {
   try {
     const inputNilai = await prisma.inputNilai.findMany({
-      orderBy: { penilaianCPMKId: "asc" },
-      include: { penilaianCPMK: true },
+      orderBy: [
+        { penilaianCPMKId: "asc" },
+        { mahasiswaNim: "asc"},
+      ],
+      include: { penilaianCPMK: true, mahasiswa: true },
     });
 
     return new Response(

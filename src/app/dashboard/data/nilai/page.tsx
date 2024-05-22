@@ -14,13 +14,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import React, { useState, useEffect } from "react";
 import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { penilaianCPMK } from "@prisma/client";
 
 export interface inputNilai {
   id: number;
@@ -28,10 +34,16 @@ export interface inputNilai {
   mahasiswaNim: string;
   nilai: number[];
   penilaianCPMK: penilaianCPMKItem;
+  mahasiswa: mahasiswaItem;
+}
+
+export interface mahasiswaItem {
+  nama: string;
 }
 
 export interface penilaianCPMKItem {
   kriteria: kriteriaItem[];
+  MK: String;
 }
 
 export interface kriteriaItem {
@@ -39,10 +51,26 @@ export interface kriteriaItem {
   kriteria: string;
 }
 
+export interface MKItem {
+  kode: string;
+  deskripsi: string;
+}
+
 const DataNilai = () => {
   const router = useRouter();
   const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [MK, setMK] = useState<MKItem[]>([]);
+  const [filterMK, setFilterMK] = useState("default");
+
+  let filteredNilai = inputNilai;
+
+  if (filterMK !== "default") {
+    filteredNilai = inputNilai.filter(
+      (nilai) => nilai.penilaianCPMK.MK === filterMK
+    );
+  }
+
   const getInputNilai = async () => {
     setIsLoading(true);
     try {
@@ -52,6 +80,22 @@ const DataNilai = () => {
         alert(response.data.message);
       }
       setInputNilai(response.data.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getMK = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosConfig.get("api/mk");
+      if (response.data.status !== 400) {
+      } else {
+        alert(response.data.message);
+      }
+      setMK(response.data.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -83,29 +127,37 @@ const DataNilai = () => {
     getInputNilai();
   }, []);
 
+  useEffect(() => {
+    getMK();
+  }, []);
+
   const renderData = () => {
-    return inputNilai.map((nilai) => {
+    return filteredNilai?.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
-          <TableCell className="w-[10%]">{nilai.penilaianCPMKId}</TableCell>
-          <TableCell className="flex-1">{nilai.mahasiswaNim}</TableCell>
+          <TableCell className='w-[10%]'>{nilai.penilaianCPMKId}</TableCell>
+          <TableCell className='flex-1'>{nilai.mahasiswaNim}</TableCell>
+          <TableCell className='flex-1'>{nilai.mahasiswa.nama}</TableCell>
           <TableCell>
             {nilai.nilai.map((item, index) => (
-              <TableRow key={index} className="flex-1">
+              <TableRow key={index} className='flex-1'>
                 {item}
               </TableRow>
             ))}
           </TableCell>
           <TableCell>
             {nilai.nilai.map((item, index) => (
-              <TableRow key={index} className="flex-1">
-                {item * (nilai.penilaianCPMK.kriteria[index].bobot * 0.01)}
+              <TableRow key={index} className='flex-1'>
+                {(
+                  item *
+                  (nilai.penilaianCPMK.kriteria[index].bobot * 0.01)
+                ).toFixed(2)}
               </TableRow>
             ))}
           </TableCell>
-          <TableCell className="w-[10%] flex gap-2">
+          <TableCell className='w-[10%] flex gap-2'>
             <Button
-              variant="destructive"
+              variant='destructive'
               onClick={() => delInputNilai(nilai.id)}
             >
               Hapus
@@ -124,13 +176,37 @@ const DataNilai = () => {
   };
 
   return (
-    <section className="flex justify-center items-center my-20">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center my-20'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel Nilai Mahasiswa</CardTitle>
             <CardDescription>Nilai Mahasiswa</CardDescription>
           </div>
+
+          <Select
+            onValueChange={(value) => {
+              setFilterMK(value);
+            }}
+            defaultValue={filterMK}
+            value={filterMK}
+            required
+          >
+            <SelectTrigger className='w-[30%]'>
+              <SelectValue placeholder='Pilih MK' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value='default'>Pilih MK</SelectItem>
+              {MK.map((mk, index) => {
+                return (
+                  <SelectItem key={index} value={mk.kode}>
+                    {mk.kode}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+
           <Button
             onClick={() => {
               router.push("/dashboard/input/nilai");
@@ -144,11 +220,12 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">PCPMK ID</TableHead>
-                  <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
-                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[10%]'>PCPMK ID</TableHead>
+                  <TableHead className='flex-1'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Asli</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Pembobotan</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -159,11 +236,12 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">PCPMK ID</TableHead>
-                  <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
-                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[10%]'>PCPMK ID</TableHead>
+                  <TableHead className='flex-1'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Asli</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Pembobotan</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
