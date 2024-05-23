@@ -8,7 +8,7 @@ export async function GET(req) {
         id: parseInt(id),
       },
       include: {
-        MK: true,
+        MK: {include : {CPMK: true}},
         mahasiswa: { include: { kelas: true } },
       },
     });

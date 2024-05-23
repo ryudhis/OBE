@@ -277,10 +277,10 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
                       <TableHead className="w-[8%]">Lulus MK</TableHead>
-                      {kelas.mahasiswa[0]?.kelas[0]?.mahasiswaLulus[0]?.statusCPMK.map(
-                        (statusCPMK, index) => (
+                      {kelas.MK.CPMK.map(
+                        (cpmk, index) => (
                           <TableHead key={index} className="w-[16%]">
-                            {statusCPMK.namaCPMK}
+                            {cpmk.kode}
                           </TableHead>
                         )
                       )}
