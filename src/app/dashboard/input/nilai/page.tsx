@@ -139,8 +139,6 @@ const InputNilai: React.FC = () => {
       nilai: item.nilai.map((nilai) => parseFloat(nilai)),
     }));
 
-    console.log(data);
-
     axiosConfig
       .post("api/inputNilai", data)
       .then(function (response) {

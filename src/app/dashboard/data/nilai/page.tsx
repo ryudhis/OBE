@@ -164,7 +164,7 @@ const DataNilai = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/inputNilai/${nilai.id}/`);
+                router.push(`/dashboard/details/nilai/${nilai.id}/`);
               }}
             >
               Details

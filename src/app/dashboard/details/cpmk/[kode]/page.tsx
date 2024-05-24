@@ -209,14 +209,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               </TableRow>
             </TableBody>
           </Table>
-          <Button
-            className="mx-2"
-            onClick={() => {
-              router.push(`/dashboard/details/penilaianCPMK/${kode}`);
-            }}
-          >
-            Penilaian
-          </Button>
+          
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline">Edit Data</Button>

@@ -44,7 +44,7 @@ export async function POST(req) {
         },
         kelas: {
           connect: {
-            id: data.kelasID,
+            id: data.kelasId,
           }
         },
         nilai: data.nilai,
