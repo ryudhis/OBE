@@ -185,14 +185,14 @@ const InputNilai: React.FC = () => {
             <CardTitle>Input Nilai</CardTitle>
             <CardDescription>Nilai PCPMK</CardDescription>
           </div>
-          <Button
+          {/* <Button
             className="w-[100px] self-end"
             onClick={() => {
               router.push(`/dashboard/input/nilai/excel`);
             }}
           >
             Input Excel
-          </Button>
+          </Button> */}
         </CardHeader>
         <CardContent>
           <Form {...form}>
