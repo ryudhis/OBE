@@ -57,11 +57,12 @@ model MK {
 }
 
 model kelas {
-  id             Int         @id @unique @default(sequence())
+  id             Int          @id @unique @default(sequence())
   nama           String
-  MK             MK          @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MK             MK           @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId           String
-  mahasiswa      mahasiswa[] @relation("kelas_mahasiswa")
+  mahasiswa      mahasiswa[]  @relation("kelas_mahasiswa")
+  nilaiMahasiswa inputNilai[]
   jumlahLulus    Int
   mahasiswaLulus Json?
 }
@@ -91,7 +92,7 @@ model penilaianCPMK {
   batasNilai      Float
   kriteria        Json
   inputNilai      inputNilai[]
-} 
+}
 
 model mahasiswa {
   nim        String       @id @unique
@@ -106,5 +107,7 @@ model inputNilai {
   penilaianCPMKId String
   mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim    String
+  kelas           kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  kelasId         Int
   nilai           Float[]
 }

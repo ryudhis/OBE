@@ -144,7 +144,7 @@ const InputNilai = () => {
 
     const data = {
       MKId: values.MK,
-      kelasNama: values.kelas,
+      kelasId: selectedKelas?.id,
       PCPMKId: values.PCPMK,
       MahasiswaId: values.mahasiswa,
       nilai: convertNilai,

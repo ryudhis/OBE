@@ -7,6 +7,9 @@ export async function GET(req) {
       where: {
         id,
       },
+      include: {
+        penilaianCPMK:true, mahasiswa:true,
+      }
     });
 
     return Response.json({
