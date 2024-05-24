@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   MK: z.string({
@@ -41,10 +42,12 @@ const formSchema = z.object({
   PCPMK: z.string({
     required_error: "Please select PCPMK to display.",
   }),
-  mahasiswa: z.string({
-    required_error: "Please select Mahasiswa to display.",
-  }),
-  nilai: z.array(z.string()),
+  nilai: z.array(
+    z.object({
+      mahasiswa: z.string(),
+      nilai: z.array(z.string()),
+    })
+  ),
 });
 
 export interface PCPMKItem {
@@ -70,16 +73,16 @@ export interface mahasiswaItem {
   nama: string;
 }
 
-const InputNilai = () => {
+const InputNilai: React.FC = () => {
+  const router = useRouter();
   const { toast } = useToast();
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
-  const [selectedMK, setSelectedMK] = useState<MKItem>();
-  const [selectedKelas, setSelectedKelas] = useState<kelasItem>();
-  const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem>();
+  const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
+  const [selectedKelas, setSelectedKelas] = useState<kelasItem | undefined>();
+  const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem | undefined>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchPCPMK, setSearchPCPMK] = useState<string>("");
-  const [searchMahasiswa, setSearchMahasiswa] = useState<string>("");
 
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
@@ -89,21 +92,14 @@ const InputNilai = () => {
     pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
   );
 
-  filteredPCPMK.filter((pcpmk)=>{pcpmk.MK===selectedMK?.kode});
-
-  const filteredMahasiswa = selectedKelas?.mahasiswa.filter((mahasiswa) =>
-    mahasiswa.nim.toLowerCase().includes(searchMahasiswa.toLowerCase())
-  );
-
   const getPCPMK = async () => {
     try {
       const response = await axiosConfig.get("api/penilaianCPMK");
       if (response.data.status !== 400) {
+        setPCPMK(response.data.data);
       } else {
         alert(response.data.message);
       }
-      
-      setPCPMK(response.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -113,10 +109,10 @@ const InputNilai = () => {
     try {
       const response = await axiosConfig.get("api/mk");
       if (response.data.status !== 400) {
+        setMK(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setMK(response.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -126,7 +122,6 @@ const InputNilai = () => {
     MK: "",
     kelas: "",
     PCPMK: "",
-    mahasiswa: "",
     nilai: [],
   };
 
@@ -135,20 +130,14 @@ const InputNilai = () => {
     defaultValues,
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
-    e.stopPropagation();
-
-    const convertNilai = values.nilai.map((nilai) => {
-      return parseFloat(nilai);
-    });
-
-    const data = {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    const data = values.nilai.map((item) => ({
       MKId: values.MK,
       kelasId: selectedKelas?.id,
       PCPMKId: values.PCPMK,
-      MahasiswaId: values.mahasiswa,
-      nilai: convertNilai,
-    };
+      MahasiswaId: item.mahasiswa,
+      nilai: item.nilai.map((nilai) => parseFloat(nilai)),
+    }));
 
     axiosConfig
       .post("api/inputNilai", data)
@@ -176,8 +165,7 @@ const InputNilai = () => {
       });
     form.reset(defaultValues);
     setSearchPCPMK("");
-    setSearchMahasiswa("");
-  }
+  };
 
   useEffect(() => {
     getPCPMK();
@@ -186,19 +174,30 @@ const InputNilai = () => {
   useEffect(() => {
     getMK();
   }, []);
+
   return (
-    <section className='flex my-[50px] justify-center items-center'>
-      <Card className='w-[1000px]'>
-        <CardHeader>
-          <CardTitle>Input </CardTitle>
-          <CardDescription>Nilai PCPMK</CardDescription>
+    <section className="flex my-[50px] justify-center items-center">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between">
+          <div>
+            <CardTitle>Input Nilai</CardTitle>
+            <CardDescription>Nilai PCPMK</CardDescription>
+          </div>
+          <Button
+            className="w-[100px] self-end"
+            onClick={() => {
+              router.push(`/dashboard/input/nilai/excel`);
+            }}
+          >
+            Input Excel
+          </Button>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name='MK'
+                name="MK"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>MK</FormLabel>
@@ -208,7 +207,6 @@ const InputNilai = () => {
                         setSelectedMK(MK.find((mk) => mk.kode === value));
                         form.resetField("kelas");
                         form.resetField("PCPMK");
-                        form.resetField("mahasiswa");
                         form.resetField("nilai");
                       }}
                       defaultValue={field.value}
@@ -218,7 +216,7 @@ const InputNilai = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder='Pilih MK' />
+                            <SelectValue placeholder="Pilih MK" />
                           ) : (
                             "Pilih MK"
                           )}
@@ -226,19 +224,17 @@ const InputNilai = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='number'
-                          className='mb-2'
+                          type="text"
+                          className="mb-2"
                           value={searchMK}
-                          placeholder='Cari...'
+                          placeholder="Cari..."
                           onChange={(e) => setSearchMK(e.target.value)}
                         />
-                        {filteredMK.map((mk, index) => {
-                          return (
-                            <SelectItem key={index} value={mk.kode}>
-                              {mk.kode}
-                            </SelectItem>
-                          );
-                        })}
+                        {filteredMK.map((mk, index) => (
+                          <SelectItem key={index} value={mk.kode}>
+                            {mk.kode}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -248,7 +244,7 @@ const InputNilai = () => {
 
               <FormField
                 control={form.control}
-                name='kelas'
+                name="kelas"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kelas</FormLabel>
@@ -260,7 +256,6 @@ const InputNilai = () => {
                             (kelas) => kelas.nama === value
                           )
                         );
-                        form.resetField("mahasiswa");
                         form.resetField("nilai");
                       }}
                       disabled={!form.getValues("MK")}
@@ -271,20 +266,18 @@ const InputNilai = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder='Pilih Kelas' />
+                            <SelectValue placeholder="Pilih Kelas" />
                           ) : (
                             "Pilih Kelas"
                           )}
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {selectedMK?.kelas.map((kelas, index) => {
-                          return (
-                            <SelectItem key={index} value={kelas.nama}>
-                              {kelas.nama}
-                            </SelectItem>
-                          );
-                        })}
+                        {selectedMK?.kelas.map((kelas, index) => (
+                          <SelectItem key={index} value={kelas.nama}>
+                            {kelas.nama}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -294,7 +287,7 @@ const InputNilai = () => {
 
               <FormField
                 control={form.control}
-                name='PCPMK'
+                name="PCPMK"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Penilaian CPMK</FormLabel>
@@ -315,7 +308,7 @@ const InputNilai = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder='Pilih PCPMK' />
+                            <SelectValue placeholder="Pilih PCPMK" />
                           ) : (
                             "Pilih PCPMK"
                           )}
@@ -323,19 +316,19 @@ const InputNilai = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='number'
-                          className='mb-2'
+                          type="text"
+                          className="mb-2"
                           value={searchPCPMK}
-                          placeholder='Cari...'
+                          placeholder="Cari..."
                           onChange={(e) => setSearchPCPMK(e.target.value)}
                         />
-                        {filteredPCPMK.filter((pcpmk) => pcpmk.MK === selectedMK?.kode).map((pcpmk, index) => {
-                          return (
+                        {filteredPCPMK
+                          .filter((pcpmk) => pcpmk.MK === selectedMK?.kode)
+                          .map((pcpmk, index) => (
                             <SelectItem key={index} value={pcpmk.kode}>
                               {pcpmk.kode}
                             </SelectItem>
-                          );
-                        })}
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -343,82 +336,71 @@ const InputNilai = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name='mahasiswa'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mahasiswa</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      defaultValue={field.value}
-                      value={field.value}
-                      disabled={!form.getValues("kelas")}
-                      required
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          {field.value ? (
-                            <SelectValue placeholder='Pilih Mahasiswa' />
-                          ) : (
-                            "Pilih Mahasiswa"
-                          )}
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <Input
-                          type='number'
-                          className='mb-2'
-                          value={searchMahasiswa}
-                          placeholder='Cari...'
-                          onChange={(e) => setSearchMahasiswa(e.target.value)}
-                        />
-                        {filteredMahasiswa?.map((mahasiswa, index) => {
-                          return (
-                            <SelectItem key={index} value={mahasiswa.nim}>
-                              {mahasiswa.nama} - {mahasiswa.nim}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {selectedKelas && selectedPCPMK && (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border">
+                    <thead>
+                      <tr>
+                        <th className="py-2 px-4 border">NIM</th>
+                        <th className="py-2 px-4 border">Nama</th>
+                        {selectedPCPMK.kriteria.map((kriteria, kIndex) => (
+                          <th key={kIndex} className="py-2 px-4 border">
+                            {kriteria.kriteria}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedKelas.mahasiswa.map((mahasiswa, mIndex) => (
+                        <tr key={mIndex} className="border-t">
+                          <td className="py-2 px-4 border">{mahasiswa.nim}</td>
+                          <td className="py-2 px-4 border">{mahasiswa.nama}</td>
+                          {selectedPCPMK.kriteria.map((kriteria, kIndex) => (
+                            <td key={kIndex} className="py-2 px-4 border">
+                              <FormField
+                                control={form.control}
+                                name={
+                                  `nilai.${mIndex}.nilai.${kIndex}` as const
+                                }
+                                render={({ field }) => (
+                                  <FormItem className="m-0">
+                                    <Input
+                                      placeholder="Nilai"
+                                      type="number"
+                                      required
+                                      value={field.value ?? ""}
+                                      onChange={(e) => {
+                                        const updatedNilaiArray = [
+                                          ...(form.getValues(
+                                            `nilai.${mIndex}.nilai`
+                                          ) || []),
+                                        ];
+                                        updatedNilaiArray[kIndex] =
+                                          e.target.value;
+                                        form.setValue(
+                                          `nilai.${mIndex}.nilai`,
+                                          updatedNilaiArray
+                                        );
+                                        form.setValue(
+                                          `nilai.${mIndex}.mahasiswa`,
+                                          mahasiswa.nim
+                                        );
+                                      }}
+                                    />
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-              <FormField
-                control={form.control}
-                name='nilai'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-base'>Nilai : </FormLabel>
-                    {selectedPCPMK?.kriteria.map((kriteria, index) => (
-                      <div key={index} className='flex items-center space-x-5'>
-                        <FormItem>
-                          <FormLabel>{kriteria.kriteria} :</FormLabel>
-                          <Input
-                            placeholder='Nilai'
-                            type='number'
-                            required
-                            value={field.value[index] ?? ""}
-                            onChange={(e) => {
-                              const updatedNilaiArray = [...field.value];
-                              updatedNilaiArray[index] = e.target.value;
-                              field.onChange(updatedNilaiArray);
-                            }}
-                          />
-                        </FormItem>
-                      </div>
-                    ))}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
+              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
                 Submit
               </Button>
             </form>
