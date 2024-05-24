@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient().$extends({
-  name: 'UpdateMKExtension', // Optional name for the extension
+  name: "UpdateMKExtension", // Optional name for the extension
   query: {
     inputNilai: {
       async create({ args, query }) {
@@ -9,29 +9,34 @@ const prisma = new PrismaClient().$extends({
 
         const inputNilai = await prisma.inputNilai.findUnique({
           where: {
-            kode: data.createdInputNilai.id,
+            id: createdInputNilai.id,
           },
           include: {
-            penilaianCPMK: true, mahasiswa: true,
+            penilaianCPMK: true,
           },
         });
 
         // Custom logic to update MK
-        const MKId = inputNilai.penilaianCPMK.kode;
-        const kelasNama = inputNilai.mahasiswa.kelasNama;
+        const MKId = inputNilai.penilaianCPMK.MK;
+        const kelasId = inputNilai.kelasId;
 
-        console.log(MKId, kelasNama);
-        await updateMK({ MKId, kelasNama });
+        await updateMK({ MKId, kelasId });
 
         return createdInputNilai;
       },
       async delete({ args, query }) {
         const deletedInputNilai = await query(args);
 
+        const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
+          where: {
+            kode: deletedInputNilai.penilaianCPMKId,
+          },
+        });
+
         // Custom logic to update MK
-        const MKId = deletedInputNilai.penilaianCPMK.kode;
-        const kelasNama = deletedInputNilai.mahasiswa.kelasNama;
-        await updateMK({ MKId, kelasNama });
+        const MKId = penilaianCPMK.MK;
+        const kelasId = deletedInputNilai.kelasId;
+        await updateMK({ MKId, kelasId });
 
         return deletedInputNilai;
       },
@@ -40,9 +45,9 @@ const prisma = new PrismaClient().$extends({
 
         // Custom logic to update MK for each deleted inputNilai
         for (const inputNilai of deletedInputNilai) {
-          const MKId = inputNilai.penilaianCPMK.kode;
+          const MKId = inputNilai.penilaianCPMK.MK;
           const kelasNama = inputNilai.mahasiswa.kelasNama;
-          await updateMK({ MKId, kelasNama });
+          await updateMK({ MKId, kelasId});
         }
 
         return deletedInputNilai;
@@ -50,10 +55,21 @@ const prisma = new PrismaClient().$extends({
       async update({ args, query }) {
         const updatedInputNilai = await query(args);
 
+        const inputNilai = await prisma.inputNilai.findUnique({
+          where: {
+            id: updatedInputNilai.id,
+          },
+          include: {
+            penilaianCPMK: true,
+            mahasiswa: true,
+            kelas: true,
+          },
+        });
+
         // Custom logic to update MK
-        const MKId = updatedInputNilai.penilaianCPMK.kode;
-        const kelasNama = updatedInputNilai.mahasiswa.kelasNama;
-        await updateMK({ MKId, kelasNama });
+        const MKId = inputNilai.penilaianCPMK.MK;
+        const kelasId = inputNilai.kelasId;
+        await updateMK({ MKId, kelasId });
 
         return updatedInputNilai;
       },
@@ -62,7 +78,7 @@ const prisma = new PrismaClient().$extends({
 
         // Custom logic to update MK for each updated inputNilai
         for (const inputNilai of updatedInputNilai) {
-          const MKId = inputNilai.penilaianCPMK.kode;
+          const MKId = inputNilai.penilaianCPMK.MK;
           const kelasNama = inputNilai.mahasiswa.kelasNama;
           await updateMK({ MKId, kelasNama });
         }
@@ -75,6 +91,8 @@ const prisma = new PrismaClient().$extends({
 
 const updateMK = async (data) => {
   try {
+    console.log(data);
+
     const MK = await prisma.MK.findUnique({
       where: {
         kode: data.MKId,
@@ -96,9 +114,14 @@ const updateMK = async (data) => {
 
     let totalLulusKelas = 0;
 
-    const selectedKelas = MK.kelas.find(
-      (kelas) => kelas.nama === data.kelasNama
-    );
+    const selectedKelas = await prisma.kelas.findUnique({
+      where: {
+        id: data.kelasId,
+      },
+      include: {
+        mahasiswa: true,
+      },
+    });
 
     if (!selectedKelas) {
       throw new Error("Selected class not found");
@@ -112,7 +135,7 @@ const updateMK = async (data) => {
           penilaianCPMK: {
             MK: MK.kode,
           },
-          mahasiswaId: mahasiswa.id,
+          mahasiswaNim: mahasiswa.nim,
         },
         include: { penilaianCPMK: true },
       });

@@ -150,8 +150,6 @@ const InputNilai = () => {
       nilai: convertNilai,
     };
 
-    console.log(data);
-
     axiosConfig
       .post("api/inputNilai", data)
       .then(function (response) {
