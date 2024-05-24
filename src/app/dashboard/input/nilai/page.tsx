@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   MK: z.string({
@@ -73,6 +74,7 @@ export interface mahasiswaItem {
 }
 
 const InputNilai: React.FC = () => {
+  const router = useRouter();
   const { toast } = useToast();
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
@@ -178,9 +180,19 @@ const InputNilai: React.FC = () => {
   return (
     <section className="flex my-[50px] justify-center items-center">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Input </CardTitle>
-          <CardDescription>Nilai PCPMK</CardDescription>
+        <CardHeader className="flex flex-row justify-between">
+          <div>
+            <CardTitle>Input Nilai</CardTitle>
+            <CardDescription>Nilai PCPMK</CardDescription>
+          </div>
+          <Button
+            className="w-[100px] self-end"
+            onClick={() => {
+              router.push(`/dashboard/input/nilai/excel`);
+            }}
+          >
+            Input Excel
+          </Button>
         </CardHeader>
         <CardContent>
           <Form {...form}>
