@@ -74,7 +74,6 @@ export interface mahasiswaItem {
 }
 
 const InputNilai: React.FC = () => {
-  const router = useRouter();
   const { toast } = useToast();
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
@@ -164,6 +163,8 @@ const InputNilai: React.FC = () => {
         console.log(error);
       });
     form.reset(defaultValues);
+    setSelectedKelas(undefined);
+    setSelectedPCPMK(undefined);
     setSearchPCPMK("");
   };
 
@@ -208,6 +209,8 @@ const InputNilai: React.FC = () => {
                         form.resetField("kelas");
                         form.resetField("PCPMK");
                         form.resetField("nilai");
+                        setSelectedKelas(undefined);
+                        setSelectedPCPMK(undefined);
                       }}
                       defaultValue={field.value}
                       value={field.value}
@@ -367,6 +370,8 @@ const InputNilai: React.FC = () => {
                                     <Input
                                       placeholder="Nilai"
                                       type="number"
+                                      min={0}
+                                      max={100}
                                       required
                                       value={field.value ?? ""}
                                       onChange={(e) => {

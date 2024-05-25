@@ -3,10 +3,7 @@ import prisma from "@/utils/prisma";
 export async function GET() {
   try {
     const inputNilai = await prisma.inputNilai.findMany({
-      orderBy: [
-        { penilaianCPMKId: "asc" },
-        { mahasiswaNim: "asc"},
-      ],
+      orderBy: [{ penilaianCPMKId: "asc" }, { mahasiswaNim: "asc" }],
       include: { penilaianCPMK: true, mahasiswa: true },
     });
 
@@ -30,25 +27,18 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const inputNilai = await prisma.inputNilai.create({
-      data: {
-        penilaianCPMK: {
-          connect: {
-            kode: data.PCPMKId,
-          },
-        },
-        mahasiswa: {
-          connect: {
-            nim: data.MahasiswaId,
-          },
-        },
-        kelas: {
-          connect: {
-            id: data.kelasId,
-          }
-        },
-        nilai: data.nilai,
-      },
+
+    const inputNilaiData = data.map((mahasiswa) => ({
+      penilaianCPMKId: mahasiswa.PCPMKId, // Assuming PCPMKId is the ID for penilaianCPMK
+      mahasiswaNim: mahasiswa.MahasiswaId, // Assuming MahasiswaId is the NIM for mahasiswa
+      kelasId: mahasiswa.kelasId, // Assuming kelasId is the ID for kelas
+      nilai: mahasiswa.nilai,
+    }));
+
+    // Use createMany to insert all entries at once
+    const inputNilai = await prisma.inputNilai.createMany({
+      data: inputNilaiData,
+      skipDuplicates: true, // Optional: skips duplicates if any
     });
 
     return new Response(

@@ -8,15 +8,10 @@ const prisma = new PrismaClient().$extends({
         const createdInputNilai = await query(args);
 
         const inputNilai = await prisma.inputNilai.findUnique({
-          where: {
-            id: createdInputNilai.id,
-          },
-          include: {
-            penilaianCPMK: true,
-          },
+          where: { id: createdInputNilai.id },
+          include: { penilaianCPMK: true },
         });
 
-        // Custom logic to update MK
         const MKId = inputNilai.penilaianCPMK.MK;
         const kelasId = inputNilai.kelasId;
 
@@ -24,41 +19,31 @@ const prisma = new PrismaClient().$extends({
 
         return createdInputNilai;
       },
-      async delete({ args, query }) {
-        const deletedInputNilai = await query(args);
+      async createMany({ args, query }) {
+        const createdInputNilaiArray = await query(args);
 
-        const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
-          where: {
-            kode: deletedInputNilai.penilaianCPMKId,
-          },
-        });
+        if (createdInputNilaiArray.count > 0) {
+          const firstInputNilai = await prisma.inputNilai.findFirst({
+            where: {
+              penilaianCPMKId: args.data[0].penilaianCPMKId,
+              mahasiswaNim: args.data[0].mahasiswaNim,
+            },
+            include: { penilaianCPMK: true },
+          });
 
-        // Custom logic to update MK
-        const MKId = penilaianCPMK.MK;
-        const kelasId = deletedInputNilai.kelasId;
-        await updateMK({ MKId, kelasId });
+          const MKId = firstInputNilai.penilaianCPMK.MK;
+          const kelasId = firstInputNilai.kelasId;
 
-        return deletedInputNilai;
-      },
-      async deleteMany({ args, query }) {
-        const deletedInputNilai = await query(args);
-
-        // Custom logic to update MK for each deleted inputNilai
-        for (const inputNilai of deletedInputNilai) {
-          const MKId = inputNilai.penilaianCPMK.MK;
-          const kelasNama = inputNilai.mahasiswa.kelasNama;
-          await updateMK({ MKId, kelasId});
+          await updateMK({ MKId, kelasId });
         }
 
-        return deletedInputNilai;
+        return createdInputNilaiArray;
       },
       async update({ args, query }) {
         const updatedInputNilai = await query(args);
 
         const inputNilai = await prisma.inputNilai.findUnique({
-          where: {
-            id: updatedInputNilai.id,
-          },
+          where: { id: updatedInputNilai.id },
           include: {
             penilaianCPMK: true,
             mahasiswa: true,
@@ -66,24 +51,66 @@ const prisma = new PrismaClient().$extends({
           },
         });
 
-        // Custom logic to update MK
         const MKId = inputNilai.penilaianCPMK.MK;
         const kelasId = inputNilai.kelasId;
+
         await updateMK({ MKId, kelasId });
 
         return updatedInputNilai;
       },
       async updateMany({ args, query }) {
-        const updatedInputNilai = await query(args);
+        const updatedInputNilaiArray = await query(args);
 
-        // Custom logic to update MK for each updated inputNilai
-        for (const inputNilai of updatedInputNilai) {
-          const MKId = inputNilai.penilaianCPMK.MK;
-          const kelasNama = inputNilai.mahasiswa.kelasNama;
-          await updateMK({ MKId, kelasNama });
+        if (updatedInputNilaiArray.count > 0) {
+          const firstInputNilai = await prisma.inputNilai.findFirst({
+            where: {
+              penilaianCPMKId: args.where.penilaianCPMKId,
+              mahasiswaNim: args.where.mahasiswaNim,
+            },
+            include: { penilaianCPMK: true },
+          });
+
+          const MKId = firstInputNilai.penilaianCPMK.MK;
+          const kelasId = firstInputNilai.kelasId;
+
+          await updateMK({ MKId, kelasId });
         }
 
-        return updatedInputNilai;
+        return updatedInputNilaiArray;
+      },
+      async delete({ args, query }) {
+        const deletedInputNilai = await query(args);
+
+        const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
+          where: { kode: deletedInputNilai.penilaianCPMKId },
+        });
+
+        const MKId = penilaianCPMK.MK;
+        const kelasId = deletedInputNilai.kelasId;
+
+        await updateMK({ MKId, kelasId });
+
+        return deletedInputNilai;
+      },
+      async deleteMany({ args, query }) {
+        const deletedInputNilaiArray = await query(args);
+
+        if (deletedInputNilaiArray.count > 0) {
+          const firstInputNilai = await prisma.inputNilai.findFirst({
+            where: {
+              penilaianCPMKId: args.where.penilaianCPMKId,
+              mahasiswaNim: args.where.mahasiswaNim,
+            },
+            include: { penilaianCPMK: true },
+          });
+
+          const MKId = firstInputNilai.penilaianCPMK.MK;
+          const kelasId = firstInputNilai.kelasId;
+
+          await updateMK({ MKId, kelasId });
+        }
+
+        return deletedInputNilaiArray;
       },
     },
   },
@@ -161,7 +188,7 @@ const updateMK = async (data) => {
         }
         statusCPMK.push({
           namaCPMK: nilaiCPMK.penilaianCPMK.CPMK,
-          nilaiCPMK: totalNilaiCPMK,
+          nilaiCPMK: totalNilaiCPMK.toFixed(2),
           statusLulus:
             totalNilaiCPMK >=
             nilaiCPMK.penilaianCPMK.batasNilai * (totalBobot / 100)
@@ -175,7 +202,7 @@ const updateMK = async (data) => {
 
       const mahasiswaData = {
         nim: mahasiswa.nim,
-        totalNilai: totalNilai,
+        totalNilai: totalNilai.toFixed(2),
         statusLulus: statusLulus,
         statusCPMK: statusCPMK,
       };
