@@ -189,12 +189,23 @@ export default function Page({ params }: { params: { id: string } }) {
           <TableCell className="w-[8%]">
             {dataMahasiswaLulus ? dataMahasiswaLulus.statusLulus : "-"}
           </TableCell>
-          {dataMahasiswaLulus?.statusCPMK.map((statusCPMK, index) => (
-            <TableCell key={index} className="w-[16%]">
-              {statusCPMK.nilaiCPMK ? statusCPMK.nilaiCPMK : `-`} -{" "}
-              {statusCPMK.statusLulus ? statusCPMK.statusLulus : `-`}
-            </TableCell>
-          ))}
+          {kelas.MK.CPMK.map((cpmk, index) => {
+            const statusCPMK = dataMahasiswaLulus?.statusCPMK.find(
+              (item) => item.namaCPMK === cpmk.kode
+            );
+            return (
+              <TableCell key={index} className="w-[16%]">
+                {statusCPMK ? (
+                  <>
+                    {statusCPMK.nilaiCPMK ? statusCPMK.nilaiCPMK : "-"} -{" "}
+                    {statusCPMK.statusLulus ? statusCPMK.statusLulus : "-"}
+                  </>
+                ) : (
+                  "-"
+                )}
+              </TableCell>
+            );
+          })}
         </TableRow>
       );
     });
@@ -277,13 +288,11 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
                       <TableHead className="w-[8%]">Lulus MK</TableHead>
-                      {kelas.MK.CPMK.map(
-                        (cpmk, index) => (
-                          <TableHead key={index} className="w-[16%]">
-                            {cpmk.kode}
-                          </TableHead>
-                        )
-                      )}
+                      {kelas.MK.CPMK.map((cpmk, index) => (
+                        <TableHead key={index} className="w-[16%]">
+                          {cpmk.kode}
+                        </TableHead>
+                      ))}
                     </TableRow>
                   </TableHeader>
                   <TableBody>{renderData()}</TableBody>
