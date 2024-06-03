@@ -30,9 +30,9 @@ import { useRouter } from "next/navigation";
 
 export interface penilaianCPMK {
   kode: string;
-  CPL: string;
-  MK: string;
-  CPMK: string;
+  CPLkode: string;
+  MKkode: string;
+  CPMKkode: string;
   tahapPenilaian: string;
   teknikPenilaian: string;
   instrumen: string;
@@ -61,7 +61,7 @@ const DataPenilaianCPMK = () => {
   let totalBobot = 0;
 
   if (filterMK !== "default") {
-    filteredPCPMK = penilaianCPMK.filter((pcpmk) => pcpmk.MK === filterMK);
+    filteredPCPMK = penilaianCPMK.filter((pcpmk) => pcpmk.MKkode === filterMK);
 
     filteredPCPMK.map((pcpmk) => {
       pcpmk.kriteria.map((kriteria) => {
@@ -135,9 +135,9 @@ const DataPenilaianCPMK = () => {
       return (
         <TableRow key={pCPMK.kode}>
           <TableCell className="w-[2%]">{pCPMK.kode}</TableCell>
-          <TableCell className="w-[7%]">{pCPMK.MK}</TableCell>
-          <TableCell className="w-[7%]">{pCPMK.CPL}</TableCell>
-          <TableCell className="w-[7%]">{pCPMK.CPMK}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.MKkode}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.CPLkode}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.CPMKkode}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.tahapPenilaian}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.teknikPenilaian}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.instrumen}</TableCell>

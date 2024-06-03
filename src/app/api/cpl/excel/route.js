@@ -1,6 +1,7 @@
 import prisma from "@/utils/prisma";
 
 export async function POST(req) {
+
   try {
     const dataArray = await req.json();
 

@@ -18,7 +18,24 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const penilaianCPMK = await prisma.penilaianCPMK.create({ data });
+    const penilaianCPMK = await prisma.penilaianCPMK.create({ data:{
+      ...data,
+      MK: {
+        connect: {
+          kode: data.MK,
+        },
+      },
+      CPMK: {
+        connect: {
+          kode: data.CPMK,
+        },
+      },
+      CPL: {
+        connect: {
+          kode: data.CPL,
+        },
+      }
+    } });
 
     return Response.json({
       status: 200,

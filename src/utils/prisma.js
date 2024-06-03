@@ -12,7 +12,7 @@ const prisma = new PrismaClient().$extends({
           include: { penilaianCPMK: true },
         });
 
-        const MKId = inputNilai.penilaianCPMK.MK;
+        const MKId = inputNilai.penilaianCPMK.MKkode;
         const kelasId = inputNilai.kelasId;
 
         await updateMK({ MKId, kelasId });
@@ -31,7 +31,7 @@ const prisma = new PrismaClient().$extends({
             include: { penilaianCPMK: true },
           });
 
-          const MKId = firstInputNilai.penilaianCPMK.MK;
+          const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
           await updateMK({ MKId, kelasId });
@@ -51,7 +51,7 @@ const prisma = new PrismaClient().$extends({
           },
         });
 
-        const MKId = inputNilai.penilaianCPMK.MK;
+        const MKId = inputNilai.penilaianCPMK.MKkode;
         const kelasId = inputNilai.kelasId;
 
         await updateMK({ MKId, kelasId });
@@ -70,7 +70,7 @@ const prisma = new PrismaClient().$extends({
             include: { penilaianCPMK: true },
           });
 
-          const MKId = firstInputNilai.penilaianCPMK.MK;
+          const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
           await updateMK({ MKId, kelasId });
@@ -85,7 +85,7 @@ const prisma = new PrismaClient().$extends({
           where: { kode: deletedInputNilai.penilaianCPMKId },
         });
 
-        const MKId = penilaianCPMK.MK;
+        const MKId = penilaianCPMK.MKkode;
         const kelasId = deletedInputNilai.kelasId;
 
         await updateMK({ MKId, kelasId });
@@ -104,7 +104,7 @@ const prisma = new PrismaClient().$extends({
             include: { penilaianCPMK: true },
           });
 
-          const MKId = firstInputNilai.penilaianCPMK.MK;
+          const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
           await updateMK({ MKId, kelasId });
@@ -155,12 +155,13 @@ const updateMK = async (data) => {
     }
 
     let mahasiswaLulus = [];
+    let dataCPMK = [];
 
     for (const mahasiswa of selectedKelas.mahasiswa) {
       const relevantNilai = await prisma.inputNilai.findMany({
         where: {
           penilaianCPMK: {
-            MK: MK.kode,
+            MKkode: MK.kode,
           },
           mahasiswaNim: mahasiswa.nim,
         },
@@ -187,7 +188,7 @@ const updateMK = async (data) => {
           }
         }
         statusCPMK.push({
-          namaCPMK: nilaiCPMK.penilaianCPMK.CPMK,
+          namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
           nilaiCPMK: totalNilaiCPMK.toFixed(2),
           statusLulus:
             totalNilaiCPMK >=

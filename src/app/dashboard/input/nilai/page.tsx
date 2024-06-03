@@ -52,7 +52,7 @@ const formSchema = z.object({
 
 export interface PCPMKItem {
   kode: string;
-  MK: string;
+  MKkode: string;
   kriteria: { kriteria: string; bobot: number }[];
 }
 
@@ -326,7 +326,7 @@ const InputNilai: React.FC = () => {
                           onChange={(e) => setSearchPCPMK(e.target.value)}
                         />
                         {filteredPCPMK
-                          .filter((pcpmk) => pcpmk.MK === selectedMK?.kode)
+                          .filter((pcpmk) => pcpmk.MKkode === selectedMK?.kode)
                           .map((pcpmk, index) => (
                             <SelectItem key={index} value={pcpmk.kode}>
                               {pcpmk.kode}
