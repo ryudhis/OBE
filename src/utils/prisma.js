@@ -125,6 +125,7 @@ const updateMK = async (data) => {
         kode: data.MKId,
       },
       include: {
+        penilaianCPMK: true,
         kelas: {
           include: {
             mahasiswa: {
@@ -156,6 +157,24 @@ const updateMK = async (data) => {
 
     let mahasiswaLulus = [];
     let dataCPMK = [];
+    let rataCPMK = [];
+
+    for (const pcpmk of MK.penilaianCPMK) {
+      dataCPMK.push({
+        cpmk: pcpmk.CPMKkode,
+        cpl: pcpmk.CPLkode,
+        nilaiMinimal: pcpmk.batasNilai,
+        nilaiMasuk: 0,
+        jumlahLulus: 0,
+        persenLulus: 0,
+        rataNilai: 0,
+      });
+      rataCPMK.push({
+        nilai: 0,
+      });
+    }
+
+    console.log("data CPMK :", dataCPMK);
 
     for (const mahasiswa of selectedKelas.mahasiswa) {
       const relevantNilai = await prisma.inputNilai.findMany({
@@ -172,14 +191,23 @@ const updateMK = async (data) => {
       let statusCPMK = [];
 
       for (const nilaiCPMK of relevantNilai) {
+        const indexCPMK = dataCPMK.findIndex(
+          (data) => data.cpmk === nilaiCPMK.penilaianCPMK.CPMKkode
+        );
+
+        dataCPMK[indexCPMK].nilaiMasuk += 1;
+
         let totalNilaiCPMK = 0;
         let totalBobot = 0;
+        let rataNilai = 0;
+
         for (let i = 0; i < nilaiCPMK.nilai.length; i++) {
           const kriteria = nilaiCPMK.penilaianCPMK.kriteria;
           if (kriteria && kriteria.length > i) {
             totalNilaiCPMK += nilaiCPMK.nilai[i] * (kriteria[i].bobot / 100);
             totalBobot += kriteria[i].bobot;
             totalNilai += nilaiCPMK.nilai[i] * (kriteria[i].bobot / 100);
+            rataNilai += nilaiCPMK.nilai[i];
           } else {
             console.log(
               "Invalid kriteria or index out of range for",
@@ -187,6 +215,17 @@ const updateMK = async (data) => {
             );
           }
         }
+
+        rataCPMK[indexCPMK].nilai += rataNilai / nilaiCPMK.nilai.length;
+
+        // Update total lulus CPMK
+        if (
+          totalNilaiCPMK >=
+          nilaiCPMK.penilaianCPMK.batasNilai * (totalBobot / 100)
+        ) {
+          dataCPMK[indexCPMK].jumlahLulus += 1;
+        }
+
         statusCPMK.push({
           namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
           nilaiCPMK: totalNilaiCPMK.toFixed(2),
@@ -219,6 +258,14 @@ const updateMK = async (data) => {
       }
     }
 
+    for (let i = 0; i < dataCPMK.length; i++) {
+      dataCPMK[i].persenLulus = (
+        dataCPMK[i].jumlahLulus /
+        (selectedKelas.mahasiswa.length / 100)
+      ).toFixed(2);
+      dataCPMK[i].rataNilai = (rataCPMK[i].nilai / dataCPMK[i].nilaiMasuk).toFixed(2);
+    }
+
     console.log("totalLulusKelas = ", totalLulusKelas);
 
     console.log("Mahasiswa Lulus = ", mahasiswaLulus);
@@ -230,6 +277,7 @@ const updateMK = async (data) => {
       data: {
         jumlahLulus: totalLulusKelas,
         mahasiswaLulus: mahasiswaLulus,
+        dataCPMK: dataCPMK,
       },
     });
 
