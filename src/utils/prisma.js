@@ -203,6 +203,7 @@ const updateMK = async (data) => {
         let rataNilai = 0;
         let daftarNilai = {
           namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
+          batasNilai: nilaiCPMK.penilaianCPMK.batasNilai,
           nilai: [],
         };
 
