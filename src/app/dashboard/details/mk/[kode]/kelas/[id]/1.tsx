@@ -280,125 +280,67 @@ export default function Page({ params }: { params: { id: string } }) {
   if (kelas) {
     return (
       <main className="w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12">
-        <Card className="w-[1000px] mx-auto">
+        <Card className="shadow-sm border border-slate-200 rounded-md">
           <CardHeader>
-            <CardTitle>Input Mahasiswa Excel</CardTitle>
-            <CardDescription>Data Mahasiswa</CardDescription>
+            <CardTitle className="text-2xl">Data Mahasiswa</CardTitle>
+            <CardDescription>
+              Masukkan data mahasiswa dengan format file .xlsx
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <Input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleFileUpload}
-            />
-            {mahasiswa.length > 0 && (
+            <form
+              onSubmit={onSubmit}
+              className="w-full flex gap-4 items-center justify-center"
+            >
+              <Input
+                required
+                id="inputFile"
+                type="file"
+                onChange={handleFileUpload}
+                className="border p-2"
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm border border-slate-200 rounded-md">
+          <CardHeader>
+            <CardTitle className="text-2xl">Data Mahasiswa Lulus</CardTitle>
+            <CardDescription>Berikut data mahasiswa yang lulus</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {Object.keys(mahasiswa[0]).map((key, index) => (
-                      <TableHead key={index}>{key}</TableHead>
+                    <TableHead className="w-[8%]">NIM</TableHead>
+                    <TableHead className="w-[8%]">Nama</TableHead>
+                    <TableHead className="w-[8%]">Total Nilai</TableHead>
+                    {kelas.MK.penilaianCPMK.map((CPMK) => (
+                      <React.Fragment key={CPMK.CPMKkode}>
+                        {CPMK.kriteria.map((kriteria, index) => (
+                          <TableHead
+                            className="text-center w-[16%]"
+                            key={index}
+                          >
+                            {kriteria.kriteria}
+                          </TableHead>
+                        ))}
+                        <TableHead
+                          className="text-center w-[16%]"
+                          key={`status-${CPMK.CPMKkode}`}
+                        >
+                          Status CPMK ({CPMK.CPMKkode})
+                        </TableHead>
+                      </React.Fragment>
                     ))}
                   </TableRow>
                 </TableHeader>
-                <TableBody>
-                  {mahasiswa.map((row, index) => (
-                    <TableRow key={index}>
-                      {Object.values(row).map((value, index) => (
-                        <TableCell key={index}>{value}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
+                <TableBody>{renderData()}</TableBody>
               </Table>
-            )}
+            </div>
           </CardContent>
-          <CardFooter>
-            <Button onClick={onSubmit}>Submit</Button>
-          </CardFooter>
         </Card>
-        {kelas.mahasiswa.length != 0 ? (
-          <Card className="w-[1000px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <CardTitle>Tabel Mahasiswa Kelas {kelas.nama}</CardTitle>
-                <CardDescription>Kelas {kelas.MK.deskripsi}</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[8%]">NIM</TableHead>
-                      <TableHead className="w-[8%]">Nama</TableHead>
-                      <TableHead className="w-[8%]">Total Nilai</TableHead>
-                      {kelas.MK.penilaianCPMK.map((CPMK) => (
-                        <TableHead
-                          colSpan={CPMK.kriteria.length}
-                          key={CPMK.CPMKkode}
-                          className="w-[16%]"
-                        >
-                          {CPMK.CPMKkode}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <SkeletonTable rows={5} cols={5} />
-                  </TableBody>
-                </Table>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead rowSpan={2} className="w-[8%] text-center">
-                        NIM
-                      </TableHead>
-                      <TableHead rowSpan={2} className="w-[8%] text-center">
-                        Nama
-                      </TableHead>
-                      <TableHead rowSpan={2} className="w-[8%] text-center">
-                        Total Nilai
-                      </TableHead>
-                      {kelas.MK.penilaianCPMK.map((CPMK) => (
-                        <TableHead
-                          colSpan={CPMK.kriteria.length + 1}
-                          key={CPMK.CPMKkode}
-                          className="w-[16%] text-center border-x-2"
-                        >
-                          {CPMK.CPMKkode}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                    <TableRow>
-                      {kelas.MK.penilaianCPMK.map((CPMK) => (
-                        <React.Fragment key={CPMK.CPMKkode}>
-                          {CPMK.kriteria.map((kriteria, index) => (
-                            <TableHead
-                              className="text-center w-[16%]"
-                              key={index}
-                            >
-                              {kriteria.kriteria}
-                            </TableHead>
-                          ))}
-                          <TableHead
-                            className="text-center w-[16%]"
-                            key={`status-${CPMK.CPMKkode}`}
-                          >
-                            Status
-                          </TableHead>
-                        </React.Fragment>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>{renderData()}</TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <h1>Tidak ada data mahasiswa.</h1>
-        )}
       </main>
     );
   }
