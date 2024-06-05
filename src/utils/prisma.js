@@ -189,6 +189,7 @@ const updateMK = async (data) => {
 
       let totalNilai = 0;
       let statusCPMK = [];
+      let nilaiMahasiswa = [];
 
       for (const nilaiCPMK of relevantNilai) {
         const indexCPMK = dataCPMK.findIndex(
@@ -200,6 +201,10 @@ const updateMK = async (data) => {
         let totalNilaiCPMK = 0;
         let totalBobot = 0;
         let rataNilai = 0;
+        let daftarNilai = {
+          namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
+          nilai: [],
+        };
 
         for (let i = 0; i < nilaiCPMK.nilai.length; i++) {
           const kriteria = nilaiCPMK.penilaianCPMK.kriteria;
@@ -208,6 +213,7 @@ const updateMK = async (data) => {
             totalBobot += kriteria[i].bobot;
             totalNilai += nilaiCPMK.nilai[i] * (kriteria[i].bobot / 100);
             rataNilai += nilaiCPMK.nilai[i];
+            daftarNilai.nilai.push(nilaiCPMK.nilai[i]);
           } else {
             console.log(
               "Invalid kriteria or index out of range for",
@@ -226,6 +232,8 @@ const updateMK = async (data) => {
           dataCPMK[indexCPMK].jumlahLulus += 1;
         }
 
+        nilaiMahasiswa.push(daftarNilai);
+
         statusCPMK.push({
           namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
           nilaiCPMK: totalNilaiCPMK.toFixed(2),
@@ -243,10 +251,12 @@ const updateMK = async (data) => {
       const mahasiswaData = {
         nim: mahasiswa.nim,
         totalNilai: totalNilai.toFixed(2),
+        nilaiMahasiswa: nilaiMahasiswa,
         statusLulus: statusLulus,
         statusCPMK: statusCPMK,
       };
 
+      console.log("daftarNilai = ", mahasiswaData.nilaiMahasiswa);
       console.log("statusCPMK = ", mahasiswaData.statusCPMK);
 
       mahasiswaLulus.push(mahasiswaData);
