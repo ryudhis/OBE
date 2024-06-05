@@ -8,12 +8,22 @@ export async function GET(req) {
         id: parseInt(id),
       },
       include: {
-        MK: {include : {CPMK: true, penilaianCPMK: true}},
-        mahasiswa: { include: { kelas: true, inputNilai: {
+        MK: {
           include: {
-            penilaianCPMK: true,
-          }
-        } } },
+            CPMK: true,
+            penilaianCPMK: { include: { inputNilai: true } },
+          },
+        },
+        mahasiswa: {
+          include: {
+            kelas: true,
+            inputNilai: {
+              include: {
+                penilaianCPMK: true,
+              },
+            },
+          },
+        },
       },
     });
 

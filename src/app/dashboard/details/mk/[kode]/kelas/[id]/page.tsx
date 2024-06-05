@@ -32,6 +32,7 @@ export interface MKinterface {
   BK: BKItem[];
   CPMK: CPMKItem[];
   kelas: KelasItem[];
+  penilaianCPMK: penilaianCPMKItem[];
 }
 
 export interface KelasItem {
@@ -48,6 +49,13 @@ export interface mahasiswaLulusItem {
   totalNilai: number;
   statusLulus: string;
   statusCPMK: statusCPMKItem[];
+  nilaiMahasiswa: nilaiMahasiswaItem[];
+}
+
+export interface nilaiMahasiswaItem {
+  nilai: number[];
+  namaCPMK: string;
+  batasNilai: number;
 }
 
 export interface statusCPMKItem {
@@ -72,6 +80,29 @@ export interface mahasiswaItem {
   nim: string;
   nama: string;
   kelas: KelasItem[];
+  inputNilai: inputNilaiItem[];
+}
+
+export interface inputNilaiItem {
+  id: number;
+  penilaianCPMK: penilaianCPMKItem[];
+  mahasiswaNim: string;
+  nilai: number[];
+  kelasId: number;
+}
+
+export interface penilaianCPMKItem {
+  kode: string;
+  inputNilai: inputNilaiItem[];
+  kriteria: kriteriaItem[];
+  CPMK: CPMKItem;
+  CPMKkode: string;
+  batasNilai: number;
+}
+
+export interface kriteriaItem {
+  kriteria: string;
+  bobot: number;
 }
 
 export interface mahasiswaExcel {
@@ -82,9 +113,13 @@ export interface mahasiswaExcel {
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const [kelas, setKelas] = useState<KelasItem | undefined>();
+  const [dataMahasiswaLulus, setDataMahasiswaLulus] = useState<
+    mahasiswaLulusItem[]
+  >([]);
   const [mahasiswa, setMahasiswa] = useState<mahasiswaExcel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
+
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -149,10 +184,26 @@ export default function Page({ params }: { params: { id: string } }) {
       const response = await axiosConfig.get(`api/kelas/${id}`);
 
       if (response.data.status !== 400) {
-      } else {
-        alert(response.data.message);
+        const kelasData = response.data.data;
+        const mahasiswaLulusData: mahasiswaLulusItem[] = [];
+
+        kelasData.mahasiswa.forEach((mahasiswa: mahasiswaItem) => {
+          mahasiswa.kelas.forEach((kelasMahasiswa: KelasItem) => {
+            if (kelasMahasiswa.id === kelasData.id) {
+              kelasMahasiswa.mahasiswaLulus.forEach(
+                (mahasiswaLulus: mahasiswaLulusItem) => {
+                  if (mahasiswaLulus.nim === mahasiswa.nim) {
+                    mahasiswaLulusData.push(mahasiswaLulus);
+                  }
+                }
+              );
+            }
+          });
+        });
+        console.log(mahasiswaLulusData);
+        setDataMahasiswaLulus(mahasiswaLulusData);
+        setKelas(kelasData);
       }
-      setKelas(response.data.data);
     } catch (error: any) {
       throw error;
     } finally {
@@ -165,55 +216,67 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
-  let dataMahasiswaLulus: mahasiswaLulusItem | undefined;
   const renderData = () => {
-    return kelas?.mahasiswa.map((mahasiswa) => {
-      {
-        mahasiswa.kelas.map((kelasMahasiswa) => {
-          if (kelasMahasiswa.id === kelas.id) {
-            return kelasMahasiswa.mahasiswaLulus.map((mahasiswaLulus) => {
-              if (mahasiswaLulus.nim === mahasiswa.nim) {
-                dataMahasiswaLulus = mahasiswaLulus;
-              }
-            });
-          }
-        });
-      }
-      return (
-        <TableRow key={mahasiswa.nim}>
-          <TableCell className="w-[8%]">{mahasiswa.nim}</TableCell>
-          <TableCell className="w-[8%]">{mahasiswa.nama}</TableCell>
-          <TableCell className="w-[8%]">
-            {dataMahasiswaLulus ? dataMahasiswaLulus.totalNilai : "-"}
-          </TableCell>
-          <TableCell className="w-[8%]">
-            {dataMahasiswaLulus ? dataMahasiswaLulus.statusLulus : "-"}
-          </TableCell>
-          {kelas.MK.CPMK.map((cpmk, index) => {
-            const statusCPMK = dataMahasiswaLulus?.statusCPMK.find(
-              (item) => item.namaCPMK === cpmk.kode
-            );
-            return (
-              <TableCell key={index} className="w-[16%]">
-                {statusCPMK ? (
-                  <>
-                    {statusCPMK.nilaiCPMK ? statusCPMK.nilaiCPMK : "-"} -{" "}
-                    {statusCPMK.statusLulus ? statusCPMK.statusLulus : "-"}
-                  </>
-                ) : (
-                  "-"
-                )}
+    return dataMahasiswaLulus.map((lulusData) => (
+      <TableRow key={lulusData.nim}>
+        <TableCell className="w-[8%]">{lulusData.nim}</TableCell>
+        <TableCell className="w-[8%]">
+          {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
+        </TableCell>
+        <TableCell
+          className={`w-[8%] ${
+            lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-500"
+          }`}
+        >
+          {lulusData.totalNilai}
+        </TableCell>
+        {kelas?.MK.penilaianCPMK.map((CPMK) => {
+          const nilaiMahasiswaItem = lulusData.nilaiMahasiswa.find(
+            (item) => item.namaCPMK === CPMK.CPMKkode
+          );
+          const statusCPMKItem = lulusData.statusCPMK.find(
+            (item) => item.namaCPMK === CPMK.CPMKkode
+          );
+
+          return (
+            <>
+              {nilaiMahasiswaItem
+                ? nilaiMahasiswaItem.nilai.map((nilai, index) => {
+                    const isNilaiValid = nilai >= nilaiMahasiswaItem.batasNilai;
+                    const cellClassName = isNilaiValid
+                      ? "bg-green-300"
+                      : "bg-red-500";
+                    return (
+                      <TableCell
+                        key={index}
+                        className={`w-[16%] text-center ${cellClassName}`}
+                      >
+                        {nilai}
+                      </TableCell>
+                    );
+                  })
+                : Array(CPMK.kriteria.length).fill(
+                    <TableCell className="w-[16%] text-center">-</TableCell>
+                  )}
+              <TableCell
+                className={`w-[16%] text-center ${
+                  statusCPMKItem?.statusLulus === "Lulus"
+                    ? "bg-green-300"
+                    : "bg-red-500"
+                }`}
+              >
+                {statusCPMKItem?.statusLulus || "Tidak Lulus"}
               </TableCell>
-            );
-          })}
-        </TableRow>
-      );
-    });
+            </>
+          );
+        })}
+      </TableRow>
+    ));
   };
 
   if (kelas) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12">
+      <main className="w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12">
         <Card className="w-[1000px] mx-auto">
           <CardHeader>
             <CardTitle>Input Mahasiswa Excel</CardTitle>
@@ -266,14 +329,15 @@ export default function Page({ params }: { params: { id: string } }) {
                       <TableHead className="w-[8%]">NIM</TableHead>
                       <TableHead className="w-[8%]">Nama</TableHead>
                       <TableHead className="w-[8%]">Total Nilai</TableHead>
-                      <TableHead className="w-[8%]">Lulus MK</TableHead>
-                      {kelas.mahasiswa[0]?.kelas[0]?.mahasiswaLulus[0]?.statusCPMK.map(
-                        (statusCPMK, index) => (
-                          <TableHead key={index} className="w-[16%]">
-                            {statusCPMK.namaCPMK}
-                          </TableHead>
-                        )
-                      )}
+                      {kelas.MK.penilaianCPMK.map((CPMK) => (
+                        <TableHead
+                          colSpan={CPMK.kriteria.length}
+                          key={CPMK.CPMKkode}
+                          className="w-[16%]"
+                        >
+                          {CPMK.CPMKkode}
+                        </TableHead>
+                      ))}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -284,14 +348,40 @@ export default function Page({ params }: { params: { id: string } }) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[8%]">NIM</TableHead>
-                      <TableHead className="w-[8%]">Nama</TableHead>
-                      <TableHead className="w-[8%]">Total Nilai</TableHead>
-                      <TableHead className="w-[8%]">Lulus MK</TableHead>
-                      {kelas.MK.CPMK.map((cpmk, index) => (
-                        <TableHead key={index} className="w-[16%]">
-                          {cpmk.kode}
+                      <TableHead rowSpan={2} className="w-[8%] text-center">
+                        NIM
+                      </TableHead>
+                      <TableHead rowSpan={2} className="w-[8%] text-center">
+                        Nama
+                      </TableHead>
+                      <TableHead rowSpan={2} className="w-[8%] text-center">
+                        Total Nilai
+                      </TableHead>
+                      {kelas.MK.penilaianCPMK.map((CPMK) => (
+                        <TableHead
+                          colSpan={CPMK.kriteria.length + 1}
+                          key={CPMK.CPMKkode}
+                          className="w-[16%] text-center border-x-2"
+                        >
+                          {CPMK.CPMKkode}
                         </TableHead>
+                      ))}
+                    </TableRow>
+                    <TableRow>
+                      {kelas.MK.penilaianCPMK.map((PCPMK) => (
+                        <>
+                          {PCPMK.kriteria.map((kriteria) => (
+                            <TableHead
+                              key={kriteria.kriteria}
+                              className="w-[16%] text-center"
+                            >
+                              {kriteria.kriteria} <br /> {kriteria.bobot}
+                            </TableHead>
+                          ))}
+                          <TableHead className="w-[16%] text-center">
+                            Status
+                          </TableHead>
+                        </>
                       ))}
                     </TableRow>
                   </TableHeader>
