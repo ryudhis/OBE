@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Input } from "@/components/ui/input";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -41,7 +41,18 @@ export interface KelasItem {
   mahasiswa: mahasiswaItem[];
   jumlahLulus: number;
   mahasiswaLulus: mahasiswaLulusItem[];
+  dataCPMK: dataCPMKItem[];
   MK: MKinterface;
+}
+
+export interface dataCPMKItem {
+  cpmk: string;
+  cpl: string;
+  nilaiMinimal: number;
+  nilaiMasuk: number;
+  jumlahLulus: number;
+  persenLulus: number;
+  rataNilai: number;
 }
 
 export interface mahasiswaLulusItem {
@@ -216,11 +227,11 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
-  const renderData = () => {
+  const renderDataNilai = () => {
     return dataMahasiswaLulus.map((lulusData) => (
       <TableRow key={lulusData.nim}>
-        <TableCell className="w-[8%]">{lulusData.nim}</TableCell>
-        <TableCell className="w-[8%]">
+        <TableCell className='w-[8%]'>{lulusData.nim}</TableCell>
+        <TableCell className='w-[8%]'>
           {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
         </TableCell>
         <TableCell
@@ -256,7 +267,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     );
                   })
                 : Array.from({ length: CPMK.kriteria.length }, (_, i) => (
-                    <TableCell key={i} className="w-[16%] text-center">
+                    <TableCell key={i} className='w-[16%] text-center'>
                       -
                     </TableCell>
                   ))}
@@ -277,20 +288,41 @@ export default function Page({ params }: { params: { id: string } }) {
     ));
   };
 
+  const renderDataRangkuman = () => {
+    return kelas?.dataCPMK.map((data) => {
+      return (
+        <TableRow key={data.cpmk}>
+          <TableCell className='w-[8%]'>{data.cpmk}</TableCell>
+          <TableCell className='w-[8%]'>{data.cpl}</TableCell>
+          <TableCell className='w-[8%]'>{data.nilaiMinimal}/100</TableCell>
+          <TableCell className='w-[8%]'>
+            {data.nilaiMasuk}/{kelas.mahasiswa.length}
+          </TableCell>
+          <TableCell className='w-[8%]'>
+            {data.nilaiMasuk}/{kelas.mahasiswa.length}
+          </TableCell>
+          <TableCell className='w-[8%]'>{data.persenLulus}%</TableCell>
+          <TableCell className='w-[8%]'>{data.rataNilai}</TableCell>
+        </TableRow>
+      );
+    });
+  };
+
   if (kelas) {
     return (
-      <main className="w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12">
-        <Card className="w-[1000px] mx-auto">
+      <main className='w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12'>
+        <Card className='w-[1000px] mx-auto'>
           <CardHeader>
             <CardTitle>Input Mahasiswa Excel</CardTitle>
             <CardDescription>Data Mahasiswa</CardDescription>
           </CardHeader>
           <CardContent>
             <Input
-              type="file"
-              accept=".xlsx, .xls"
+              type='file'
+              accept='.xlsx, .xls'
               onChange={handleFileUpload}
             />
+
             {mahasiswa.length > 0 && (
               <Table>
                 <TableHeader>
@@ -316,84 +348,115 @@ export default function Page({ params }: { params: { id: string } }) {
             <Button onClick={onSubmit}>Submit</Button>
           </CardFooter>
         </Card>
+
         {kelas.mahasiswa.length != 0 ? (
-          <Card className="w-[1000px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
+          <Card className='w-[1000px] mx-auto'>
+            <CardHeader className='flex flex-row justify-between items-center'>
+              <div className='flex flex-col'>
                 <CardTitle>Tabel Mahasiswa Kelas {kelas.nama}</CardTitle>
                 <CardDescription>Kelas {kelas.MK.deskripsi}</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[8%]">NIM</TableHead>
-                      <TableHead className="w-[8%]">Nama</TableHead>
-                      <TableHead className="w-[8%]">Total Nilai</TableHead>
-                      {kelas.MK.penilaianCPMK.map((CPMK) => (
-                        <TableHead
-                          colSpan={CPMK.kriteria.length}
-                          key={CPMK.CPMKkode}
-                          className="w-[16%]"
-                        >
-                          {CPMK.CPMKkode}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <SkeletonTable rows={5} cols={5} />
-                  </TableBody>
-                </Table>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead rowSpan={2} className="w-[8%] text-center">
-                        NIM
-                      </TableHead>
-                      <TableHead rowSpan={2} className="w-[8%] text-center">
-                        Nama
-                      </TableHead>
-                      <TableHead rowSpan={2} className="w-[8%] text-center">
-                        Total Nilai
-                      </TableHead>
-                      {kelas.MK.penilaianCPMK.map((CPMK) => (
-                        <TableHead
-                          colSpan={CPMK.kriteria.length + 1}
-                          key={CPMK.CPMKkode}
-                          className="w-[16%] text-center border-x-2"
-                        >
-                          {CPMK.CPMKkode}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                    <TableRow>
-                      {kelas.MK.penilaianCPMK.map((CPMK) => (
-                        <React.Fragment key={CPMK.CPMKkode}>
-                          {CPMK.kriteria.map((kriteria, index) => (
+              <Tabs defaultValue='nilai' className='w-full'>
+                <TabsList className='grid w-full grid-cols-2'>
+                  <TabsTrigger value='nilai'>Nilai Mahasiswa</TabsTrigger>
+                  <TabsTrigger value='rangkuman'>
+                    Rangkuman Evaluasi CPMK
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value='nilai'>
+                  {isLoading ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='w-[8%]'>NIM</TableHead>
+                          <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>Total Nilai</TableHead>
+                          {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
-                              className="text-center w-[16%]"
-                              key={index}
+                              colSpan={CPMK.kriteria.length}
+                              key={CPMK.CPMKkode}
+                              className='w-[16%]'
                             >
-                              {kriteria.kriteria}
+                              {CPMK.CPMKkode}
                             </TableHead>
                           ))}
-                          <TableHead
-                            className="text-center w-[16%]"
-                            key={`status-${CPMK.CPMKkode}`}
-                          >
-                            Status
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <SkeletonTable rows={5} cols={5} />
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                            NIM
                           </TableHead>
-                        </React.Fragment>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>{renderData()}</TableBody>
-                </Table>
-              )}
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                            Nama
+                          </TableHead>
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                            Total Nilai
+                          </TableHead>
+                          {kelas.MK.penilaianCPMK.map((CPMK) => (
+                            <TableHead
+                              colSpan={CPMK.kriteria.length + 1}
+                              key={CPMK.CPMKkode}
+                              className='w-[16%] text-center border-x-2'
+                            >
+                              {CPMK.CPMKkode}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                        <TableRow>
+                          {kelas.MK.penilaianCPMK.map((CPMK) => (
+                            <React.Fragment key={CPMK.CPMKkode}>
+                              {CPMK.kriteria.map((kriteria, index) => (
+                                <TableHead
+                                  className='text-center w-[16%]'
+                                  key={index}
+                                >
+                                  {kriteria.kriteria}
+                                </TableHead>
+                              ))}
+                              <TableHead
+                                className='text-center w-[16%]'
+                                key={`status-${CPMK.CPMKkode}`}
+                              >
+                                Status
+                              </TableHead>
+                            </React.Fragment>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>{renderDataNilai()}</TableBody>
+                    </Table>
+                  )}
+                </TabsContent>
+                <TabsContent value='rangkuman'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[8%]'>CPMK </TableHead>
+                        <TableHead className='w-[8%]'>CPL</TableHead>
+                        <TableHead className='w-[8%]'>
+                          Total Nilai Minimal
+                        </TableHead>
+                        <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
+                        <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                        <TableHead className='w-[8%]'>
+                          Persen Mencapai Nilai Minimal
+                        </TableHead>
+                        <TableHead className='w-[8%]'>Rata-Rata</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>{renderDataRangkuman()}</TableBody>
+                  </Table>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         ) : (

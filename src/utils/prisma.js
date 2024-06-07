@@ -249,9 +249,28 @@ const updateMK = async (data) => {
       const statusLulus =
         totalNilai >= MK.batasLulusMahasiswa ? "Lulus" : "Tidak Lulus";
 
+      let indexNilai;
+
+      if (totalNilai <= 40) {
+        indexNilai = "E";
+      } else if (totalNilai <= 50) {
+        indexNilai = "D";
+      } else if (totalNilai <= 60) {
+        indexNilai = "C";
+      } else if (totalNilai <= 65) {
+        indexNilai = "BC";
+      } else if (totalNilai <= 70) {
+        indexNilai = "B";
+      } else if (totalNilai <= 80) {
+        indexNilai = "AB";
+      } else {
+        indexNilai = "A";
+      }
+
       const mahasiswaData = {
         nim: mahasiswa.nim,
         totalNilai: totalNilai.toFixed(2),
+        indexNilai: indexNilai,
         nilaiMahasiswa: nilaiMahasiswa,
         statusLulus: statusLulus,
         statusCPMK: statusCPMK,
@@ -274,7 +293,9 @@ const updateMK = async (data) => {
         dataCPMK[i].jumlahLulus /
         (selectedKelas.mahasiswa.length / 100)
       ).toFixed(2);
-      dataCPMK[i].rataNilai = (rataCPMK[i].nilai / dataCPMK[i].nilaiMasuk).toFixed(2);
+      dataCPMK[i].rataNilai = (
+        rataCPMK[i].nilai / dataCPMK[i].nilaiMasuk
+      ).toFixed(2);
     }
 
     console.log("totalLulusKelas = ", totalLulusKelas);
