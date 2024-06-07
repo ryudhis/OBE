@@ -61,6 +61,7 @@ export interface mahasiswaLulusItem {
   statusLulus: string;
   statusCPMK: statusCPMKItem[];
   nilaiMahasiswa: nilaiMahasiswaItem[];
+  indexNilai: string;
 }
 
 export interface nilaiMahasiswaItem {
@@ -230,8 +231,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const renderDataNilai = () => {
     return dataMahasiswaLulus.map((lulusData) => (
       <TableRow key={lulusData.nim}>
-        <TableCell className='w-[8%]'>{lulusData.nim}</TableCell>
-        <TableCell className='w-[8%]'>
+        <TableCell className="w-[8%]">{lulusData.nim}</TableCell>
+        <TableCell className="w-[8%]">
           {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
         </TableCell>
         <TableCell
@@ -240,6 +241,13 @@ export default function Page({ params }: { params: { id: string } }) {
           }`}
         >
           {lulusData.totalNilai}
+        </TableCell>
+        <TableCell
+          className={`w-[8%] ${
+            lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-500"
+          }`}
+        >
+          {lulusData.indexNilai}
         </TableCell>
         {kelas?.MK.penilaianCPMK.map((CPMK) => {
           const nilaiMahasiswaItem = lulusData.nilaiMahasiswa.find(
@@ -267,7 +275,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     );
                   })
                 : Array.from({ length: CPMK.kriteria.length }, (_, i) => (
-                    <TableCell key={i} className='w-[16%] text-center'>
+                    <TableCell key={i} className="w-[16%] text-center">
                       -
                     </TableCell>
                   ))}
@@ -292,17 +300,17 @@ export default function Page({ params }: { params: { id: string } }) {
     return kelas?.dataCPMK.map((data) => {
       return (
         <TableRow key={data.cpmk}>
-          <TableCell className='w-[8%]'>{data.cpmk}</TableCell>
-          <TableCell className='w-[8%]'>{data.cpl}</TableCell>
-          <TableCell className='w-[8%]'>{data.nilaiMinimal}/100</TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">{data.cpmk}</TableCell>
+          <TableCell className="w-[8%]">{data.cpl}</TableCell>
+          <TableCell className="w-[8%]">{data.nilaiMinimal}/100</TableCell>
+          <TableCell className="w-[8%]">
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%]'>{data.persenLulus}%</TableCell>
-          <TableCell className='w-[8%]'>{data.rataNilai}</TableCell>
+          <TableCell className="w-[8%]">{data.persenLulus}%</TableCell>
+          <TableCell className="w-[8%]">{data.rataNilai}</TableCell>
         </TableRow>
       );
     });
@@ -310,16 +318,16 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (kelas) {
     return (
-      <main className='w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12'>
-        <Card className='w-[1000px] mx-auto'>
+      <main className="w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12">
+        <Card className="w-[1000px] mx-auto">
           <CardHeader>
             <CardTitle>Input Mahasiswa Excel</CardTitle>
             <CardDescription>Data Mahasiswa</CardDescription>
           </CardHeader>
           <CardContent>
             <Input
-              type='file'
-              accept='.xlsx, .xls'
+              type="file"
+              accept=".xlsx, .xls"
               onChange={handleFileUpload}
             />
 
@@ -350,34 +358,34 @@ export default function Page({ params }: { params: { id: string } }) {
         </Card>
 
         {kelas.mahasiswa.length != 0 ? (
-          <Card className='w-[1000px] mx-auto'>
-            <CardHeader className='flex flex-row justify-between items-center'>
-              <div className='flex flex-col'>
+          <Card className="w-[1000px] mx-auto">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
                 <CardTitle>Tabel Mahasiswa Kelas {kelas.nama}</CardTitle>
                 <CardDescription>Kelas {kelas.MK.deskripsi}</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue='nilai' className='w-full'>
-                <TabsList className='grid w-full grid-cols-2'>
-                  <TabsTrigger value='nilai'>Nilai Mahasiswa</TabsTrigger>
-                  <TabsTrigger value='rangkuman'>
+              <Tabs defaultValue="nilai" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="nilai">Nilai Mahasiswa</TabsTrigger>
+                  <TabsTrigger value="rangkuman">
                     Rangkuman Evaluasi CPMK
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value='nilai'>
+                <TabsContent value="nilai">
                   {isLoading ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className='w-[8%]'>NIM</TableHead>
-                          <TableHead className='w-[8%]'>Nama</TableHead>
-                          <TableHead className='w-[8%]'>Total Nilai</TableHead>
+                          <TableHead className="w-[8%]">NIM</TableHead>
+                          <TableHead className="w-[8%]">Nama</TableHead>
+                          <TableHead className="w-[8%]">Total Nilai</TableHead>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
                               colSpan={CPMK.kriteria.length}
                               key={CPMK.CPMKkode}
-                              className='w-[16%]'
+                              className="w-[16%]"
                             >
                               {CPMK.CPMKkode}
                             </TableHead>
@@ -392,20 +400,23 @@ export default function Page({ params }: { params: { id: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className="w-[8%] text-center">
                             NIM
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className="w-[8%] text-center">
                             Nama
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className="w-[8%] text-center">
                             Total Nilai
+                          </TableHead>
+                          <TableHead rowSpan={2} className="w-[8%] text-center">
+                            Indeks Nilai
                           </TableHead>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
                               colSpan={CPMK.kriteria.length + 1}
                               key={CPMK.CPMKkode}
-                              className='w-[16%] text-center border-x-2'
+                              className="w-[16%] text-center border-x-2"
                             >
                               {CPMK.CPMKkode}
                             </TableHead>
@@ -416,14 +427,14 @@ export default function Page({ params }: { params: { id: string } }) {
                             <React.Fragment key={CPMK.CPMKkode}>
                               {CPMK.kriteria.map((kriteria, index) => (
                                 <TableHead
-                                  className='text-center w-[16%]'
+                                  className="text-center w-[16%]"
                                   key={index}
                                 >
                                   {kriteria.kriteria}
                                 </TableHead>
                               ))}
                               <TableHead
-                                className='text-center w-[16%]'
+                                className="text-center w-[16%]"
                                 key={`status-${CPMK.CPMKkode}`}
                               >
                                 Status
@@ -436,21 +447,21 @@ export default function Page({ params }: { params: { id: string } }) {
                     </Table>
                   )}
                 </TabsContent>
-                <TabsContent value='rangkuman'>
+                <TabsContent value="rangkuman">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[8%]'>CPMK </TableHead>
-                        <TableHead className='w-[8%]'>CPL</TableHead>
-                        <TableHead className='w-[8%]'>
+                        <TableHead className="w-[8%]">CPMK </TableHead>
+                        <TableHead className="w-[8%]">CPL</TableHead>
+                        <TableHead className="w-[8%]">
                           Total Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
-                        <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
-                        <TableHead className='w-[8%]'>
+                        <TableHead className="w-[8%]">Nilai Masuk</TableHead>
+                        <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                        <TableHead className="w-[8%]">
                           Persen Mencapai Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%]'>Rata-Rata</TableHead>
+                        <TableHead className="w-[8%]">Rata-Rata</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderDataRangkuman()}</TableBody>
