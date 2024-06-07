@@ -1,6 +1,7 @@
 import prisma from "@/utils/prisma";
 
 export async function GET() {
+  
   try {
     const CPL = await prisma.CPL.findMany({
       include: { PL: true, 

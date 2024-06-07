@@ -43,7 +43,7 @@ export interface mahasiswaItem {
 
 export interface penilaianCPMKItem {
   kriteria: kriteriaItem[];
-  MK: String;
+  MKkode: String;
 }
 
 export interface kriteriaItem {
@@ -67,7 +67,7 @@ const DataNilai = () => {
 
   if (filterMK !== "default") {
     filteredNilai = inputNilai.filter(
-      (nilai) => nilai.penilaianCPMK.MK === filterMK
+      (nilai) => nilai.penilaianCPMK.MKkode === filterMK
     );
   }
 
@@ -164,7 +164,7 @@ const DataNilai = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/inputNilai/${nilai.id}/`);
+                router.push(`/dashboard/details/nilai/${nilai.id}/`);
               }}
             >
               Details

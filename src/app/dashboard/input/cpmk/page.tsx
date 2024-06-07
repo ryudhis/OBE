@@ -83,9 +83,11 @@ const CPMKScreen = () => {
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Input CPMK</CardTitle>
-          <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+        <CardHeader className="flex flex-row justify-between">
+          <div>
+            <CardTitle>Input CPMK</CardTitle>
+            <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
+          </div>
           <Button
             className="w-[100px] self-end"
             onClick={() => {

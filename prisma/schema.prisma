@@ -33,6 +33,7 @@ model CPL {
   BK         BK[]   @relation("cpl_bk")
   PL         PL[]   @relation("cpl_pl")
   CPMK       CPMK[] @relation("cpmk_cpl")
+  penilaianCPMK penilaianCPMK[]
 }
 
 model BK {
@@ -54,16 +55,19 @@ model MK {
   kelas               kelas[]
   BK                  BK[]    @relation("bk_mk")
   CPMK                CPMK[]  @relation("cpmk_mk")
+  penilaianCPMK       penilaianCPMK[]
 }
 
 model kelas {
-  id             Int         @id @unique @default(sequence())
+  id             Int          @id @unique @default(sequence())
   nama           String
-  MK             MK          @relation(fields: [MKId], references: [kode])
+  MK             MK           @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId           String
-  mahasiswa      mahasiswa[] @relation("kelas_mahasiswa")
+  mahasiswa      mahasiswa[]  @relation("kelas_mahasiswa")
+  nilaiMahasiswa inputNilai[]
   jumlahLulus    Int
   mahasiswaLulus Json?
+  dataCPMK       Json?
 }
 
 model CPMK {
@@ -72,6 +76,7 @@ model CPMK {
   CPL       CPL[]     @relation("cpmk_cpl")
   MK        MK[]      @relation("cpmk_mk")
   subCPMK   subCPMK[] @relation("cpmk_subcpmk")
+  penilaianCPMK penilaianCPMK[]
 }
 
 model subCPMK {
@@ -82,9 +87,12 @@ model subCPMK {
 
 model penilaianCPMK {
   kode            String       @id @unique
-  CPL             String
-  MK              String
-  CPMK            String
+  CPL             CPL          @relation(fields: [CPLkode], references: [kode], onDelete: Cascade)
+  CPLkode         String
+  MK              MK           @relation(fields: [MKkode], references: [kode], onDelete: Cascade)
+  MKkode          String
+  CPMK            CPMK         @relation(fields: [CPMKkode], references: [kode], onDelete: Cascade)
+  CPMKkode        String
   tahapPenilaian  String
   teknikPenilaian String
   instrumen       String
@@ -102,9 +110,11 @@ model mahasiswa {
 
 model inputNilai {
   id              Int           @unique @default(sequence())
-  penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode])
+  penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode], onDelete: Cascade)
   penilaianCPMKId String
-  mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim])
+  mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim    String
+  kelas           kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  kelasId         Int
   nilai           Float[]
 }

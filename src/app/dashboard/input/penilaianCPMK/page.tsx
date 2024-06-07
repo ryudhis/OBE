@@ -175,25 +175,25 @@ const InputPenilaianCPMK = () => {
           title: "Berhasil Submit",
           description: String(new Date()),
         });
+        form.reset(defaultValues);
+        setSearchMK("");
+        setSearchCPMK("");
+        setSearchCPL("");
       } else {
         toast({
-          title: "Kode Sudah Ada!",
-          description: String(new Date()),
+          title: "Gagal Submit!",
+          description: response.data.message,
           variant: "destructive",
         });
       }
-      form.reset(defaultValues);
-      setSearchMK("");
-      setSearchCPMK("");
-      setSearchCPL("");
-    } catch (error) {
+    } catch (error:any) {
       toast({
         title: "Gagal Submit",
-        description: String(new Date()),
+        description: error,
         variant: "destructive",
       });
       console.log(error);
-    }
+    }    
   };
 
   useEffect(() => {

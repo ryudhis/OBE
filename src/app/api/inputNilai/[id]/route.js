@@ -5,8 +5,11 @@ export async function GET(req) {
     const id = req.url.split("/inputNilai/")[1];
     const inputNilai = await prisma.inputNilai.findUnique({
       where: {
-        id,
+        id: parseInt(id),
       },
+      include: {
+        penilaianCPMK:true, mahasiswa:true, kelas:true,
+      }
     });
 
     return Response.json({
@@ -47,7 +50,7 @@ export async function PATCH(req) {
 
     const inputNilai = await prisma.inputNilai.update({
       where: {
-        id,
+        id: parseInt(id),
       },
       data,
     });
