@@ -94,6 +94,13 @@ const Header = () => {
               >
                 Nilai
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push("/dashboard/input/akun");
+                }}
+              >
+                Akun
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
