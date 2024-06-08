@@ -14,10 +14,13 @@ model Widget {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 }
 
-model Admin {
-  id       Int    @unique @default(sequence())
+model account {
+  id       Int    @id @unique @default(sequence())
+  nama     String 
   email    String @unique
+  role     String
   password String
+  kelas    kelas[] @relation("kelas_dosen")
 }
 
 model PL {
@@ -27,12 +30,12 @@ model PL {
 }
 
 model CPL {
-  kode       String @id @unique
-  deskripsi  String
-  keterangan String
-  BK         BK[]   @relation("cpl_bk")
-  PL         PL[]   @relation("cpl_pl")
-  CPMK       CPMK[] @relation("cpmk_cpl")
+  kode          String          @id @unique
+  deskripsi     String
+  keterangan    String
+  BK            BK[]            @relation("cpl_bk")
+  PL            PL[]            @relation("cpl_pl")
+  CPMK          CPMK[]          @relation("cpmk_cpl")
   penilaianCPMK penilaianCPMK[]
 }
 
@@ -46,15 +49,15 @@ model BK {
 }
 
 model MK {
-  kode                String  @id @unique
+  kode                String          @id @unique
   deskripsi           String
   sks                 String
   batasLulusMahasiswa Float
   batasLulusMK        Float
   jumlahLulus         Int
   kelas               kelas[]
-  BK                  BK[]    @relation("bk_mk")
-  CPMK                CPMK[]  @relation("cpmk_mk")
+  BK                  BK[]            @relation("bk_mk")
+  CPMK                CPMK[]          @relation("cpmk_mk")
   penilaianCPMK       penilaianCPMK[]
 }
 
@@ -65,17 +68,18 @@ model kelas {
   MKId           String
   mahasiswa      mahasiswa[]  @relation("kelas_mahasiswa")
   nilaiMahasiswa inputNilai[]
+  dosen          account[]  @relation("kelas_dosen")
   jumlahLulus    Int
   mahasiswaLulus Json?
   dataCPMK       Json?
 }
 
 model CPMK {
-  kode      String    @id @unique
-  deskripsi String
-  CPL       CPL[]     @relation("cpmk_cpl")
-  MK        MK[]      @relation("cpmk_mk")
-  subCPMK   subCPMK[] @relation("cpmk_subcpmk")
+  kode          String          @id @unique
+  deskripsi     String
+  CPL           CPL[]           @relation("cpmk_cpl")
+  MK            MK[]            @relation("cpmk_mk")
+  subCPMK       subCPMK[]       @relation("cpmk_subcpmk")
   penilaianCPMK penilaianCPMK[]
 }
 

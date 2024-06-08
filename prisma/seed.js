@@ -2,9 +2,11 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.admin.create({
+  await prisma.account.create({
     data: {
       email : "admin@itera.ac.id",
+      nama : "admin",
+      role : "admin",
       //123456
       password : "$2a$12$rYT6BJWBuJ28u6POeWjnJ.SlnVv/8yswsQye58OFherUlHiN04AmG",
     },
