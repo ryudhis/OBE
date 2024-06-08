@@ -2,14 +2,15 @@ import prisma from "@/utils/prisma";
 import bcrypt from "bcrypt";
 import * as jose from "jose";
 
-const signToken = async (admin) => {
+const signToken = async (account) => {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-  delete admin.password;
-  return await new jose.SignJWT(admin)
+  delete account.password;
+  return await new jose.SignJWT(account)
     .setProtectedHeader({ alg: "HS256" })
     .sign(secret);
 };
+
 const validatePassword = async (password1, password2) => {
   const validate = bcrypt.compareSync(password1, password2);
   return validate;
@@ -20,16 +21,16 @@ export async function POST(req) {
   let token;
 
   try {
-    const admin = await prisma.admin.findUnique({
+    const account = await prisma.account.findUnique({
       where: {
         email,
       },
     });
 
-    if (admin) {
-      const validate = await validatePassword(password, admin.password);
+    if (account) {
+      const validate = await validatePassword(password, account.password);
       if (validate) {
-        token = await signToken(admin);
+        token = await signToken(account);
         return Response.json({
           status: 200,
           token,
@@ -39,7 +40,7 @@ export async function POST(req) {
         return Response.json({ status: 400, message: "Password Salah!" });
       }
     } else {
-      return Response.json({ status: 400, message: "Admin tidak ditemukan!" });
+      return Response.json({ status: 400, message: "account tidak ditemukan!" });
     }
   } catch (error) {
     console.log(error);
