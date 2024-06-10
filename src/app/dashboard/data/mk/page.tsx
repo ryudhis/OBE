@@ -20,7 +20,6 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { mkdir } from "fs";
 
 export interface mk {
   kode: string;
@@ -100,30 +99,36 @@ const DataMK = () => {
       }
       return (
         <TableRow key={mk.kode}>
-          <TableCell className="w-[8%]">{mk.kode}</TableCell>
-          <TableCell className="flex-1">
+          <TableCell className="w-[8%] text-center">{mk.kode}</TableCell>
+          <TableCell className="flex-1 text-center">
             {mk.deskripsi.length > 20
               ? mk.deskripsi.slice(0, 18) + "..."
               : mk.deskripsi}
           </TableCell>
-          <TableCell className="w-[15%]">
+          <TableCell className="w-[15%] text-center">
             {mk.kelas.map((item) => item.nama).join(", ")}
           </TableCell>
-          <TableCell className="w-[15%]">
+          <TableCell className="w-[15%] text-center">
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[8%]">{jumlahMahasiswa}</TableCell>
-          <TableCell className="w-[8%]">{mk.jumlahLulus}</TableCell>
-          <TableCell className="w-[8%]">
-            {((mk.jumlahLulus / jumlahMahasiswa) * 100).toFixed(2)}%
+          <TableCell className="w-[8%] text-center">
+            {jumlahMahasiswa}
           </TableCell>
-          <TableCell className="w-[8%]">{mk.batasLulusMK}%</TableCell>
-          <TableCell className="w-[8%]">
+          <TableCell className="w-[8%] text-center">{mk.jumlahLulus}</TableCell>
+          <TableCell className="w-[8%] text-center">
+            {jumlahMahasiswa > 0
+              ? ((mk.jumlahLulus / jumlahMahasiswa) * 100).toFixed(2) + "%"
+              : "0.00%"}
+          </TableCell>
+          <TableCell className="w-[8%] text-center">
+            {mk.batasLulusMK}%
+          </TableCell>
+          <TableCell className="w-[8%] text-center">
             {(mk.jumlahLulus / jumlahMahasiswa) * 100 >= mk.batasLulusMK
               ? "Lulus"
               : "Tidak Lulus"}
           </TableCell>
-          <TableCell className="w-[8%] flex gap-2">
+          <TableCell className="w-[8%] flex gap-2 text-center">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>
               Hapus
             </Button>
@@ -161,16 +166,28 @@ const DataMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Nama Matakuliah</TableHead>
-                  <TableHead className="w-[15%]">Kelas</TableHead>
-                  <TableHead className="w-[15%]">CPMK</TableHead>
-                  <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
-                  <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                  <TableHead className="w-[8%]">Persentase Lulus</TableHead>
-                  <TableHead className="w-[8%]">Batas Lulus MK</TableHead>
-                  <TableHead className="w-[8%]">Status MK</TableHead>
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className="w-[8%] text-center">Kode</TableHead>
+                  <TableHead className="flex-1 text-center">
+                    Nama Matakuliah
+                  </TableHead>
+                  <TableHead className="w-[15%] text-center">Kelas</TableHead>
+                  <TableHead className="w-[15%] text-center">CPMK</TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Jumlah Mahasiswa
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Jumlah Lulus
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Persentase Lulus
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Batas Lulus MK
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Status MK
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -181,16 +198,28 @@ const DataMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Nama Matakuliah</TableHead>
-                  <TableHead className="w-[15%]">Kelas</TableHead>
-                  <TableHead className="w-[15%]">CPMK</TableHead>
-                  <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
-                  <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                  <TableHead className="w-[8%]">Persentase Lulus</TableHead>
-                  <TableHead className="w-[8%]">Batas Lulus MK</TableHead>
-                  <TableHead className="w-[8%]">Status MK</TableHead>
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className="w-[8%] text-center">Kode</TableHead>
+                  <TableHead className="flex-1 text-center">
+                    Nama Matakuliah
+                  </TableHead>
+                  <TableHead className="w-[15%] text-center">Kelas</TableHead>
+                  <TableHead className="w-[15%] text-center">CPMK</TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Jumlah Mahasiswa
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Jumlah Lulus
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Persentase Lulus
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Batas Lulus MK
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">
+                    Status MK
+                  </TableHead>
+                  <TableHead className="w-[8%] text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
