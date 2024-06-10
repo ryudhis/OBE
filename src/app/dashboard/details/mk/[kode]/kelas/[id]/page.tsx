@@ -228,6 +228,9 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
+  console.log(dataMahasiswaLulus);
+  dataMahasiswaLulus.map((data, index)=> console.log(data.nim, " :", data.statusCPMK))
+
   const renderDataNilai = () => {
     return dataMahasiswaLulus.map((lulusData, index) => (
       <TableRow key={lulusData.nim}>
@@ -308,7 +311,7 @@ export default function Page({ params }: { params: { id: string } }) {
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
           <TableCell className='w-[8%]'>
-            {data.nilaiMasuk}/{kelas.mahasiswa.length}
+            {data.jumlahLulus}/{kelas.mahasiswa.length}
           </TableCell>
           <TableCell className='w-[8%]'>{data.persenLulus}%</TableCell>
           <TableCell className='w-[8%]'>{data.rataNilai}</TableCell>
@@ -359,7 +362,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </Card>
 
         {kelas.mahasiswa.length != 0 ? (
-          <Card className='w-[1000px] mx-auto'>
+          <Card className='w-[1200px] mx-auto'>
             <CardHeader className='flex flex-row justify-between items-center'>
               <div className='flex flex-col'>
                 <CardTitle>Tabel Mahasiswa Kelas {kelas.nama}</CardTitle>
