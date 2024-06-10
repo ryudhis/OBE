@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
@@ -6,7 +6,7 @@ async function main() {
     data: {
       email : "admin@itera.ac.id",
       nama : "admin",
-      role : "admin",
+      role : "Admin",
       //123456
       password : "$2a$12$rYT6BJWBuJ28u6POeWjnJ.SlnVv/8yswsQye58OFherUlHiN04AmG",
     },
