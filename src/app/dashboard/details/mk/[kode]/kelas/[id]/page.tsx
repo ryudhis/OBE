@@ -228,9 +228,6 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
-  console.log(dataMahasiswaLulus);
-  dataMahasiswaLulus.map((data, index)=> console.log(data.nim, " :", data.statusCPMK))
-
   const renderDataNilai = () => {
     return dataMahasiswaLulus.map((lulusData, index) => (
       <TableRow key={lulusData.nim}>
