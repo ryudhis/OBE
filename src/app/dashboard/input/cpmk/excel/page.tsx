@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import axiosConfig from "../../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { getAccountData } from "@utils/api";
+import { accountProdi } from "@/app/interface/input";
 
 interface CPMKItem {
   kode: string;
@@ -30,8 +32,32 @@ interface CPMKItem {
 
 const CPMKExcel = () => {
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
   const [cpmk, setCpmk] = useState<CPMKItem[]>([]);
   const { toast } = useToast();
+
+  const exportTemplate = () => {
+    // Define headers
+    const headers = [
+      { header: "Kode", key: "Kode" },
+      { header: "Deskripsi", key: "Deskripsi" },
+    ];
+
+    // Create worksheet with headers
+    const ws = XLSX.utils.json_to_sheet([], {
+      header: headers.map((h) => h.key),
+    });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    // Export workbook
+    XLSX.writeFile(wb, "Template CPMK.xlsx");
+  };
+
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -58,6 +84,7 @@ const CPMKExcel = () => {
 
     const data = {
       CPMK: cpmk,
+      prodiId: account?.prodiId,
     };
 
     axiosConfig
@@ -86,23 +113,46 @@ const CPMKExcel = () => {
       });
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input CPMK Excel</CardTitle>
           <CardDescription>Data Capaian Mata Kuliah</CardDescription>
-          <Button
-            className="w-[100px] self-end"
-            onClick={() => {
-              router.push(`/dashboard/input/cpmk/`);
-            }}
-          >
-            Input Manual
-          </Button>
+          <div className='flex items-center justify-end gap-4'>
+            <Button
+              className='w-[130px] self-end'
+              onClick={() => {
+                exportTemplate();
+              }}
+            >
+              Export Template
+            </Button>
+            <Button
+              className='w-[100px] self-end'
+              onClick={() => {
+                router.push(`/dashboard/input/cpmk/`);
+              }}
+            >
+              Input Manual
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+          <Input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
           {cpmk.length > 0 && (
             <Table>
               <TableHeader>

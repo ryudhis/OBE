@@ -35,6 +35,29 @@ const PLExcel = () => {
   const [account, setAccount] = useState<accountProdi>();
   const [pl, setPl] = useState<PLItem[]>([]);
   const { toast } = useToast();
+
+  const exportTemplate = () => {
+    // Define headers
+    const headers = [
+      { header: "Kode", key: "Kode" },
+      { header: "Deskripsi", key: "Deskripsi" },
+    ];
+
+    // Create worksheet with headers
+    const ws = XLSX.utils.json_to_sheet([], {
+      header: headers.map((h) => h.key),
+    });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    // Export workbook
+    XLSX.writeFile(wb, "Template PL.xlsx");
+  };
+
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -61,7 +84,7 @@ const PLExcel = () => {
 
     const data = {
       PL: pl,
-      prodiId: account?.prodiId
+      prodiId: account?.prodiId,
     };
 
     axiosConfig
@@ -104,22 +127,32 @@ const PLExcel = () => {
   }, []);
 
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input PL Excel</CardTitle>
           <CardDescription>Data Profil Lulusan</CardDescription>
-          <Button
-            className="w-[100px] self-end"
-            onClick={() => {
-              router.push(`/dashboard/input/pl/`);
-            }}
-          >
-            Input Manual
-          </Button>
+          <div className='flex items-center justify-end gap-4'>
+            <Button
+              className='w-[130px] self-end'
+              onClick={() => {
+                exportTemplate();
+              }}
+            >
+              Export Template
+            </Button>
+            <Button
+              className='w-[100px] self-end'
+              onClick={() => {
+                router.push(`/dashboard/input/pl/`);
+              }}
+            >
+              Input Manual
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+          <Input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
           {pl.length > 0 && (
             <Table>
               <TableHeader>
