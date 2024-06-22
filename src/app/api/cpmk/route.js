@@ -32,7 +32,19 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const CPMK = await prisma.CPMK.create({ data });
+    const { prodiId, ...restData } = data; // Extract prodiId from data
+
+    // Create the PL entry and connect it to the prodi
+    const CPMK = await prisma.CPMK.create({
+      data: {
+        ...restData,
+        prodi: {
+          connect: {
+            kode: prodiId,
+          },
+        },
+      },
+    });
 
     return Response.json({
       status: 200,

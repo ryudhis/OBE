@@ -27,7 +27,19 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const PL = await prisma.PL.create({ data });
+    const { prodiId, ...restData } = data; // Extract prodiId from data
+
+    // Create the PL entry and connect it to the prodi
+    const PL = await prisma.PL.create({
+      data: {
+        ...restData,
+        prodi: {
+          connect: {
+            kode: prodiId,
+          },
+        },
+      },
+    });
 
     return Response.json({
       status: 200,
@@ -39,5 +51,6 @@ export async function POST(req) {
     return Response.json({ status: 400, message: "Something went wrong!" });
   }
 }
+
 
 

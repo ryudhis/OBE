@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from "../../../../utils/axios";
+import axiosConfig from "@utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,8 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { getAccountData } from "../../../../utils/api";
+import { getAccountData } from "@utils/api";
 import { useState, useEffect } from "react";
+import { accountProdi } from "@/app/interface/input";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -33,9 +34,7 @@ const formSchema = z.object({
 const PLScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const [account, setAccount] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [account, setAccount] = useState<accountProdi>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,12 +48,15 @@ const PLScreen = () => {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
+    console.log(account);
+
     const data = {
       kode: "PL-" + values.kode,
       deskripsi: values.deskripsi,
+      prodiId: account?.prodiId,
     };
 
-    console.log(data.kode);
+    console.log(data);
 
     axiosConfig
       .post("api/pl", data)
@@ -86,14 +88,11 @@ const PLScreen = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
       try {
         const data = await getAccountData();
         setAccount(data);
       } catch (error) {
         console.log(error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
