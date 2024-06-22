@@ -57,16 +57,16 @@ const DataMK = () => {
     try {
       const data = await getAccountData();
       setAccount(data);
+      getMK(data.prodiId)
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getMK = async () => {
+  const getMK = async (prodiId:string) => {
     try {
-      const prodiId = account?.prodiId
       const response = await axiosConfig.get(
-        `api/mk?prodi=${parseInt(prodiId)}`
+        `api/mk?prodi=${prodiId}`
       );
       if (response.data.status !== 400) {
         setMK(response.data.data);
@@ -86,7 +86,6 @@ const DataMK = () => {
           title: "Berhasil menghapus data MK",
           variant: "default",
         });
-        getMK();
       } else {
         toast({
           title: response.data.message,
@@ -101,11 +100,6 @@ const DataMK = () => {
   useEffect(() => {
     setIsLoading(true); // Set loading to true when useEffect starts
     fetchData()
-      .then(() => {
-        if (account?.prodiId) {
-          return getMK(); // Return the promise chain for getMK
-        }
-      })
       .catch((error) => {
         console.error("Error fetching account data:", error);
       })
@@ -114,7 +108,7 @@ const DataMK = () => {
       });
   }, []); // Trigger useEffect only on initial mount
 
-  console.log(MK);
+  console.log(account);
 
   let jumlahMahasiswa: number = 0;
   const renderData = () => {
