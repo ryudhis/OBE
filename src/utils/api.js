@@ -1,17 +1,19 @@
 // utils/api.js
-import axiosConfig from "./axios"
+import axiosConfig from "./axios";
 
 export const getAccountData = async () => {
   try {
-    const response = await axiosConfig.get('/api/account');
+    const response = await axiosConfig.get("/api/account");
     if (response.data.status !== 400) {
-      return response.data.data;
+      const data = response.data.data.shift();
+      console.log(data);
+      return data;
     } else {
       alert(response.data.message);
       return null;
     }
   } catch (error) {
-    console.error('There was a problem with the fetch operation:', error);
+    console.error("There was a problem with the fetch operation:", error);
     throw error;
   }
 };

@@ -127,7 +127,12 @@ const CPLScreen = () => {
                   <FormItem>
                     <FormLabel>ID CPL</FormLabel>
                     <FormControl>
-                      <Input placeholder="id" type="text" required {...field} />
+                      <Input
+                        placeholder="ID CPL"
+                        type="text"
+                        required
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

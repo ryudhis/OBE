@@ -1,5 +1,6 @@
 "use client";
-import axiosConfig from "../../../../utils/axios";
+import { useEffect, useState } from "react";
+import axiosConfig from "@utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,9 +24,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
-  kode: z.string().min(2).max(50),
+  id: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
   min: z.string().min(0).max(10),
   max: z.string().min(0).max(10),
@@ -34,11 +37,12 @@ const formSchema = z.object({
 const BKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      kode: "",
+      id: "",
       deskripsi: "",
       min: "0",
       max: "0",
@@ -50,13 +54,14 @@ const BKScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: "BK-" + values.kode,
+      id: values.id,
       deskripsi: values.deskripsi,
       min: parseInt(values.min),
       max: parseInt(values.max),
+      prodiId: account?.prodiId,
     };
 
-    console.log(data.kode);
+    console.log(data.id);
 
     axiosConfig
       .post("api/bk", data)
@@ -68,7 +73,7 @@ const BKScreen = () => {
           });
         } else {
           toast({
-            title: "Kode Sudah Ada!",
+            title: "ID Sudah Ada!",
             description: String(new Date()),
             variant: "destructive",
           });
@@ -85,6 +90,19 @@ const BKScreen = () => {
 
     form.reset();
   }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
@@ -108,13 +126,13 @@ const BKScreen = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="kode"
+                name="id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode BK-</FormLabel>
+                    <FormLabel>ID BK</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Kode"
+                        placeholder="ID BK"
                         type="number"
                         required
                         {...field}
