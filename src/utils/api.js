@@ -6,7 +6,6 @@ export const getAccountData = async () => {
     const response = await axiosConfig.get("/api/account");
     if (response.data.status !== 400) {
       const data = response.data.data.shift();
-      console.log(data);
       return data;
     } else {
       alert(response.data.message);
