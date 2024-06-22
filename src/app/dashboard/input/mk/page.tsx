@@ -22,6 +22,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { getAccountData } from "@utils/api";
+import { useState, useEffect } from "react";
+import { accountProdi } from "@/app/interface/input";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -33,6 +36,7 @@ const formSchema = z.object({
 
 const MKScreen = () => {
   const { toast } = useToast();
+  const [account, setAccount] = useState<accountProdi>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,12 +54,13 @@ const MKScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: "MK-" + values.kode,
+      kode: values.kode,
       deskripsi: values.deskripsi,
       sks: values.sks,
       batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
       batasLulusMK: parseFloat(values.batasLulusMK),
       jumlahLulus: 0,
+      prodiId: account?.prodiId,
     };
 
     axiosConfig
@@ -86,6 +91,19 @@ const MKScreen = () => {
     form.reset();
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <section className='flex h-screen mt-[-100px] justify-center items-center'>
       <Card className='w-[1000px]'>
@@ -105,7 +123,6 @@ const MKScreen = () => {
                     <FormControl>
                       <Input
                         placeholder='Kode'
-                        type='number'
                         required
                         {...field}
                       />

@@ -41,8 +41,8 @@ model PL {
   kode      String
   deskripsi String
   CPL       CPL[]  @relation("cpl_pl")
-  prodi     prodi  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId   String
+  prodi     prodi?  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId   String?
 }
 
 model CPL {

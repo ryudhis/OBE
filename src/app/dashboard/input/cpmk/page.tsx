@@ -23,6 +23,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { getAccountData } from "@utils/api";
+import { useState, useEffect } from "react";
+import { accountProdi } from "@/app/interface/input";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -32,6 +35,7 @@ const formSchema = z.object({
 const CPMKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,8 +50,9 @@ const CPMKScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: "CPMK-" + values.kode,
+      kode: values.kode,
       deskripsi: values.deskripsi,
+      prodiId: account?.prodiId,
     };
 
     console.log(data.kode);
@@ -80,6 +85,19 @@ const CPMKScreen = () => {
     form.reset();
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
@@ -109,7 +127,6 @@ const CPMKScreen = () => {
                     <FormControl>
                       <Input
                         placeholder="Kode"
-                        type="number"
                         required
                         {...field}
                       />

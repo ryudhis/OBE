@@ -51,7 +51,7 @@ const PLScreen = () => {
     console.log(account);
 
     const data = {
-      kode: "PL-" + values.kode,
+      kode: values.kode,
       deskripsi: values.deskripsi,
       prodiId: account?.prodiId,
     };
@@ -128,7 +128,6 @@ const PLScreen = () => {
                     <FormControl>
                       <Input
                         placeholder="Kode"
-                        type="number"
                         required
                         {...field}
                       />

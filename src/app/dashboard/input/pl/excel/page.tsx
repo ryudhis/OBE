@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import axiosConfig from "../../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { getAccountData } from "@utils/api";
+import { accountProdi } from "@/app/interface/input";
 
 interface PLItem {
   kode: string;
@@ -30,6 +32,7 @@ interface PLItem {
 
 const PLExcel = () => {
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
   const [pl, setPl] = useState<PLItem[]>([]);
   const { toast } = useToast();
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +61,7 @@ const PLExcel = () => {
 
     const data = {
       PL: pl,
+      prodiId: account?.prodiId
     };
 
     axiosConfig
@@ -85,6 +89,19 @@ const PLExcel = () => {
         console.log(error);
       });
   }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
