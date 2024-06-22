@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 
 export interface bk {
+  id: number;
   kode: string;
   deskripsi: string;
   min: number;
@@ -57,9 +58,9 @@ const DataBK = () => {
       setIsLoading(false);
     }
   };
-  const delBK = async (kode: string) => {
+  const delBK = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/bk/${kode}`);
+      const response = await axiosConfig.delete(`api/bk/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data BK",
@@ -99,7 +100,7 @@ const DataBK = () => {
             {bk.MK.map((item) => item.kode).join(", ")}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">
-            <Button variant="destructive" onClick={() => delBK(bk.kode)}>
+            <Button variant="destructive" onClick={() => delBK(bk.id)}>
               Hapus
             </Button>
             <Button

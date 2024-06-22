@@ -18,10 +18,10 @@ const Page = () => {
   const router = useRouter();
   const { toast } = useToast();
   return (
-    <main className="flex flex-col gap-2 justify-center items-center h-screen">
+    <main className='flex flex-col gap-2 justify-center items-center h-screen'>
       <DropdownMenu>
-        <DropdownMenuTrigger className="outline-none">
-          <div className="px-2 py-1 border-2 border-slate-700 rounded-sm">
+        <DropdownMenuTrigger className='outline-none'>
+          <div className='px-2 py-1 border-2 border-slate-700 rounded-sm'>
             Input
           </div>
         </DropdownMenuTrigger>
@@ -84,12 +84,19 @@ const Page = () => {
           >
             Nilai
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/input/akun");
+            }}
+          >
+            Akun
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <DropdownMenu>
-        <DropdownMenuTrigger className="outline-none">
-          <div className="px-2 py-1 border-2 border-slate-700 rounded-sm">
+        <DropdownMenuTrigger className='outline-none'>
+          <div className='px-2 py-1 border-2 border-slate-700 rounded-sm'>
             Data
           </div>
         </DropdownMenuTrigger>
@@ -152,11 +159,18 @@ const Page = () => {
           >
             Nilai
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/data/akun");
+            }}
+          >
+            Akun
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Button
-        variant="destructive"
+        variant='destructive'
         onClick={() => {
           toast({
             description: "Berhasil Log Out.",

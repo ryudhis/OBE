@@ -2,10 +2,10 @@ import prisma from "@/utils/prisma";
 
 export async function GET(req) {
   try {
-    const kode = req.url.split("/cpl/")[1];
+    const id = req.url.split("/cpl/")[1];
     const CPL = await prisma.CPL.findUnique({
       where: {
-        kode: kode,
+        id: parseInt(id),
       },
       include: { PL: true, 
         BK : {
@@ -33,10 +33,10 @@ export async function GET(req) {
 
 export async function DELETE(req) {
   try {
-    const kode = req.url.split("/cpl/")[1];
+    const id = req.url.split("/cpl/")[1];
     const CPL = await prisma.CPL.delete({
       where: {
-        kode: kode,
+        id: parseInt(id),
       },
     });
 
@@ -53,12 +53,12 @@ export async function DELETE(req) {
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/cpl/")[1];
+    const id = req.url.split("/cpl/")[1];
     const data = await req.json();
 
     const CPL = await prisma.CPL.update({
       where: {
-        kode,
+        id: parseInt(id),
       },
       data,
     });

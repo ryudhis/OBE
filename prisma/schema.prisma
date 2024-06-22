@@ -14,38 +14,60 @@ model Widget {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 }
 
+model prodi {
+  kode   String    @id @unique
+  nama   String
+  tendik account[]
+  PL     PL[]
+  CPL    CPL[]
+  BK     BK[]
+  MK     MK[]
+  CPMK   CPMK[]
+}
+
 model account {
-  id       Int    @id @unique @default(sequence())
-  nama     String 
-  email    String @unique
+  id       Int     @id @unique @default(sequence())
+  nama     String
+  email    String  @unique
   role     String
   password String
   kelas    kelas[] @relation("kelas_dosen")
+  prodi    prodi   @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId  String
 }
 
 model PL {
-  kode      String @id @unique
+  id        Int    @id @unique @default(sequence())
+  kode      String
   deskripsi String
   CPL       CPL[]  @relation("cpl_pl")
+  prodi     prodi  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId   String
 }
 
 model CPL {
-  kode          String          @id @unique
+  id            Int             @id @unique @default(sequence())
+  kode          String
   deskripsi     String
   keterangan    String
   BK            BK[]            @relation("cpl_bk")
   PL            PL[]            @relation("cpl_pl")
   CPMK          CPMK[]          @relation("cpmk_cpl")
   penilaianCPMK penilaianCPMK[]
+  prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId       String
 }
 
 model BK {
-  kode      String @id @unique
+  id        Int    @id @unique @default(sequence())
+  kode      String
   deskripsi String
   min       Int
   max       Int
   CPL       CPL[]  @relation("cpl_bk")
   MK        MK[]   @relation("bk_mk")
+  prodi     prodi  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId   String
 }
 
 model MK {
@@ -59,6 +81,8 @@ model MK {
   BK                  BK[]            @relation("bk_mk")
   CPMK                CPMK[]          @relation("cpmk_mk")
   penilaianCPMK       penilaianCPMK[]
+  prodi               prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId             String
 }
 
 model kelas {
@@ -68,19 +92,22 @@ model kelas {
   MKId           String
   mahasiswa      mahasiswa[]  @relation("kelas_mahasiswa")
   nilaiMahasiswa inputNilai[]
-  dosen          account[]  @relation("kelas_dosen")
+  dosen          account[]    @relation("kelas_dosen")
   jumlahLulus    Int
   mahasiswaLulus Json?
   dataCPMK       Json?
 }
 
 model CPMK {
-  kode          String          @id @unique
+  id            Int             @id @unique @default(sequence())
+  kode          String
   deskripsi     String
   CPL           CPL[]           @relation("cpmk_cpl")
   MK            MK[]            @relation("cpmk_mk")
   subCPMK       subCPMK[]       @relation("cpmk_subcpmk")
   penilaianCPMK penilaianCPMK[]
+  prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId       String
 }
 
 model subCPMK {
@@ -91,12 +118,12 @@ model subCPMK {
 
 model penilaianCPMK {
   kode            String       @id @unique
-  CPL             CPL          @relation(fields: [CPLkode], references: [kode], onDelete: Cascade)
-  CPLkode         String
+  CPL             CPL          @relation(fields: [CPLkode], references: [id], onDelete: Cascade)
+  CPLkode         Int
   MK              MK           @relation(fields: [MKkode], references: [kode], onDelete: Cascade)
   MKkode          String
-  CPMK            CPMK         @relation(fields: [CPMKkode], references: [kode], onDelete: Cascade)
-  CPMKkode        String
+  CPMK            CPMK         @relation(fields: [CPMKkode], references: [id], onDelete: Cascade)
+  CPMKkode        Int
   tahapPenilaian  String
   teknikPenilaian String
   instrumen       String

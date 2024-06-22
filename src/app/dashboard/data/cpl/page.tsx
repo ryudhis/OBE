@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export interface cpl {
+  id: number;
   kode: string;
   deskripsi: string;
   keterangan: string;
@@ -62,9 +63,9 @@ const DataCPL = () => {
     }
   };
 
-  const delCPL = async (kode: string) => {
+  const delCPL = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/cpl/${kode}`);
+      const response = await axiosConfig.delete(`api/cpl/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data CPL",
@@ -110,7 +111,7 @@ const DataCPL = () => {
             <Button
               variant="destructive"
               onClick={() => {
-                delCPL(cpl.kode);
+                delCPL(cpl.id);
               }}
             >
               Hapus

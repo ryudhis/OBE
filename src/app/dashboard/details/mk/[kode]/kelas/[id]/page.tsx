@@ -238,14 +238,14 @@ export default function Page({ params }: { params: { id: string } }) {
         </TableCell>
         <TableCell
           className={`w-[8%] ${
-            lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-500"
+            lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-300"
           }`}
         >
           {lulusData.totalNilai}
         </TableCell>
         <TableCell
           className={`w-[8%] ${
-            lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-500"
+            lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-300"
           }`}
         >
           {lulusData.indexNilai}
@@ -265,7 +265,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     const isNilaiValid = nilai >= nilaiMahasiswaItem.batasNilai;
                     const cellClassName = isNilaiValid
                       ? "bg-green-300"
-                      : "bg-red-500";
+                      : "bg-red-300";
                     return (
                       <TableCell
                         key={index}
@@ -285,7 +285,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 className={`w-[16%] text-center ${
                   statusCPMKItem?.statusLulus === "Lulus"
                     ? "bg-green-300"
-                    : "bg-red-500"
+                    : "bg-red-300"
                 }`}
               >
                 {statusCPMKItem?.statusLulus || "Tidak Lulus"}
@@ -319,7 +319,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (kelas) {
     return (
-      <main className='w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12'>
+      <main className='w-screen mx-auto pt-20 p-5 flex flex-col gap-12'>
         <Card className='w-[1000px] mx-auto'>
           <CardHeader>
             <CardTitle>Input Mahasiswa Excel</CardTitle>
@@ -434,7 +434,7 @@ export default function Page({ params }: { params: { id: string } }) {
                                   className='text-center w-[16%]'
                                   key={index}
                                 >
-                                  {kriteria.kriteria}
+                                  {kriteria.kriteria} <br/> <span className="font-semibold text-blue-600">{kriteria.bobot}</span>
                                 </TableHead>
                               ))}
                               <TableHead
@@ -475,7 +475,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
         ) : (
-          <h1>Tidak ada data mahasiswa.</h1>
+          <h1 className="self-center">Belum ada data mahasiswa.</h1>
         )}
       </main>
     );

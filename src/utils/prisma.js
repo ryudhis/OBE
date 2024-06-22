@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient().$extends({
-  name: "UpdateMKExtension", // Optional name for the extension
+  name: "UpdateMKExtension",
   query: {
     inputNilai: {
       async create({ args, query }) {
@@ -15,7 +15,7 @@ const prisma = new PrismaClient().$extends({
         const MKId = inputNilai.penilaianCPMK.MKkode;
         const kelasId = inputNilai.kelasId;
 
-        await updateMK({ MKId, kelasId });
+        await updateMK({ MKId, kelasId, context: {} });
 
         return createdInputNilai;
       },
@@ -34,7 +34,7 @@ const prisma = new PrismaClient().$extends({
           const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
-          await updateMK({ MKId, kelasId });
+          await updateMK({ MKId, kelasId, context: {} });
         }
 
         return createdInputNilaiArray;
@@ -54,7 +54,7 @@ const prisma = new PrismaClient().$extends({
         const MKId = inputNilai.penilaianCPMK.MKkode;
         const kelasId = inputNilai.kelasId;
 
-        await updateMK({ MKId, kelasId });
+        await updateMK({ MKId, kelasId, context: {} });
 
         return updatedInputNilai;
       },
@@ -73,7 +73,7 @@ const prisma = new PrismaClient().$extends({
           const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
-          await updateMK({ MKId, kelasId });
+          await updateMK({ MKId, kelasId, context: {} });
         }
 
         return updatedInputNilaiArray;
@@ -88,7 +88,7 @@ const prisma = new PrismaClient().$extends({
         const MKId = penilaianCPMK.MKkode;
         const kelasId = deletedInputNilai.kelasId;
 
-        await updateMK({ MKId, kelasId });
+        await updateMK({ MKId, kelasId, context: {} });
 
         return deletedInputNilai;
       },
@@ -107,19 +107,39 @@ const prisma = new PrismaClient().$extends({
           const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
-          await updateMK({ MKId, kelasId });
+          await updateMK({ MKId, kelasId, context: {} });
         }
 
         return deletedInputNilaiArray;
       },
     },
+    kelas: {
+      async update({ args, query }) {
+        const updatedKelas = await query(args);
+        console.log("kelas updated: ", updatedKelas);
+
+        const MKId = updatedKelas.MKId;
+        const kelasId = updatedKelas.id;
+
+        await updateMK({ MKId, kelasId });
+
+        return updatedKelas;
+      },
+    },
   },
 });
 
-const updateMK = async (data) => {
-  try {
-    console.log(data);
+let isUpdatingKelas = false; // Flag to prevent recursive updates
 
+const updateMK = async (data) => {
+  if (isUpdatingKelas) {
+    return;
+  }
+
+  // Set the flag to indicate the update is in progress
+  isUpdatingKelas = true;
+
+  try {
     const MK = await prisma.MK.findUnique({
       where: {
         kode: data.MKId,
@@ -330,6 +350,9 @@ const updateMK = async (data) => {
     });
   } catch (error) {
     console.error("Error updating MK:", error);
+  } finally {
+    // Reset the flag after the update is complete
+    isUpdatingKelas = false;
   }
 };
 

@@ -5,7 +5,13 @@ import * as jose from "jose";
 const signToken = async (account) => {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
-  delete account.password;
+  const payload = {
+    id: account.id,  // Include user ID in the payload
+    nama: account.nama,
+    prodi: account.prodiKode,
+    role: account.role,
+  };
+
   return await new jose.SignJWT(account)
     .setProtectedHeader({ alg: "HS256" })
     .sign(secret);

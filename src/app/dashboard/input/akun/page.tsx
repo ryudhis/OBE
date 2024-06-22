@@ -50,7 +50,6 @@ const InputAkun = () => {
     },
   });
 
-  // AddBK
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
@@ -94,7 +93,7 @@ const InputAkun = () => {
       <Card className="w-[1000px]">
         <CardHeader className="flex flex-row justify-between">
           <div>
-            <CardTitle>Input Akun</CardTitle>
+            <CardTitle>Daftar Akun</CardTitle>
             <CardDescription>Buat akun baru</CardDescription>
           </div>
         </CardHeader>
@@ -109,7 +108,7 @@ const InputAkun = () => {
                     <FormLabel>Nama:</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Nama Akun"
+                        placeholder="Nama"
                         type="text"
                         min={5}
                         max={60}
@@ -130,7 +129,7 @@ const InputAkun = () => {
                     <FormLabel>Email:</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Deskripsi"
+                        placeholder="Email"
                         type="email"
                         min={5}
                         max={50}

@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export interface pl {
+  id: number;
   kode: string;
   deskripsi: string;
   CPL: CPLItem[];
@@ -51,9 +52,9 @@ const DataPL = () => {
     }
   };
 
-  const delPL = async (kode: string) => {
+  const delPL = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/pl/${kode}`);
+      const response = await axiosConfig.delete(`api/pl/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data PL",
@@ -89,7 +90,7 @@ const DataPL = () => {
             {pl.CPL.map((item) => item.kode).join(", ")}
           </TableCell>
           <TableCell className="w-[10%] flex gap-2">
-            <Button variant="destructive" onClick={() => delPL(pl.kode)}>
+            <Button variant="destructive" onClick={() => delPL(pl.id)}>
               Hapus
             </Button>
             <Button

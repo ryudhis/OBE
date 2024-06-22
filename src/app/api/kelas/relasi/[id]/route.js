@@ -18,7 +18,7 @@ export async function PATCH(req) {
         },
       },
     });
-    
+
     const existingMahasiswaNIMs = existingKelas.mahasiswa.map((mahasiswa) => mahasiswa.nim);
 
     // Filter out mahasiswa NIMs that are already connected
@@ -26,7 +26,7 @@ export async function PATCH(req) {
       (mahasiswa) => !existingMahasiswaNIMs.includes(String(mahasiswa.nim))
     );
 
-    // Connect all valid mahasiswa 
+    // Connect all valid mahasiswa
     const kelas = await prisma.kelas.update({
       where: {
         id: parseInt(id),

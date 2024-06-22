@@ -22,6 +22,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { getAccountData } from "../../../../utils/api";
+import { useState, useEffect } from "react";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -31,6 +33,9 @@ const formSchema = z.object({
 const PLScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const [account, setAccount] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,16 +84,32 @@ const PLScreen = () => {
     form.reset();
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between'>
           <div>
             <CardTitle>Input PL</CardTitle>
             <CardDescription>Profil Lulusan</CardDescription>
           </div>
           <Button
-            className="w-[100px] self-end"
+            className='w-[100px] self-end'
             onClick={() => {
               router.push(`/dashboard/input/pl/excel`);
             }}
@@ -98,17 +119,17 @@ const PLScreen = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name="kode"
+                name='kode'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kode PL-</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Kode"
-                        type="number"
+                        placeholder='Kode'
+                        type='number'
                         required
                         {...field}
                       />
@@ -120,19 +141,19 @@ const PLScreen = () => {
 
               <FormField
                 control={form.control}
-                name="deskripsi"
+                name='deskripsi'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Deskripsi</FormLabel>
                     <FormControl>
-                      <Input placeholder="Deskripsi" required {...field} />
+                      <Input placeholder='Deskripsi' required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
                 Submit
               </Button>
             </form>

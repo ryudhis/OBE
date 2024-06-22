@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 export interface cpmk {
+  id: number;
   kode: string;
   deskripsi: string;
   CPL: CPLItem[];
@@ -61,9 +62,9 @@ const DataCPMK = () => {
     }
   };
 
-  const delCPMK = async (kode: string) => {
+  const delCPMK = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/cpmk/${kode}`);
+      const response = await axiosConfig.delete(`api/cpmk/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data CPMK",
@@ -104,7 +105,7 @@ const DataCPMK = () => {
           </TableCell>
           {/* <TableCell className="w-[12%]">{cpmk.subCPMK.map((item) => item.kode).join(", ")}</TableCell> */}
           <TableCell className="w-[8%] flex gap-2">
-            <Button variant="destructive" onClick={() => delCPMK(cpmk.kode)}>
+            <Button variant="destructive" onClick={() => delCPMK(cpmk.id)}>
               Hapus
             </Button>
             <Button
