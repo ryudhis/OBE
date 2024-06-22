@@ -28,7 +28,7 @@ import { accountProdi } from "@/app/interface/input";
 import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
-  id: z.string().min(2).max(50),
+  kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
   keterangan: z.string().min(1).max(50),
 });
@@ -41,7 +41,7 @@ const CPLScreen = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: "",
+      kode: "",
       deskripsi: "",
       keterangan: "",
     },
@@ -52,7 +52,7 @@ const CPLScreen = () => {
     e.preventDefault();
 
     const data = {
-      id: values.id,
+      kode: values.kode,
       deskripsi: values.deskripsi,
       keterangan: values.keterangan,
       prodiId: account?.prodiId,
@@ -68,7 +68,7 @@ const CPLScreen = () => {
           });
         } else {
           toast({
-            title: "ID Sudah Ada!",
+            title: "Kode Sudah Ada!",
             description: String(new Date()),
             variant: "destructive",
           });
@@ -122,13 +122,13 @@ const CPLScreen = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="id"
+                name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ID CPL</FormLabel>
+                    <FormLabel>Kode CPL</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="ID CPL"
+                        placeholder="Kode CPL"
                         type="text"
                         required
                         {...field}
