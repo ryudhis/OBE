@@ -20,6 +20,8 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getAccountData } from "@/utils/api";
+import { accountProdi } from "@/app/interface/input";
 
 export interface cpl {
   id: number;
@@ -47,10 +49,21 @@ const DataCPL = () => {
   const router = useRouter();
   const [CPL, setCPL] = useState<cpl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const getCPL = async () => {
-    setIsLoading(true);
+  const [account, setAccount] = useState<accountProdi>();
+
+  const fetchData = async () => {
     try {
-      const response = await axiosConfig.get("api/cpl");
+      const data = await getAccountData();
+      setAccount(data);
+      getCPL(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCPL = async (prodiId: string) => {
+    try {
+      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -58,8 +71,6 @@ const DataCPL = () => {
       setCPL(response.data.data);
     } catch (error) {
       console.log(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -71,7 +82,6 @@ const DataCPL = () => {
           title: "Berhasil menghapus data CPL",
           variant: "default",
         });
-        getCPL();
       } else {
         toast({
           title: response.data.message,
@@ -84,8 +94,15 @@ const DataCPL = () => {
   };
 
   useEffect(() => {
-    getCPL();
-  }, []);
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  }, []); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return CPL.map((cpl, index) => {

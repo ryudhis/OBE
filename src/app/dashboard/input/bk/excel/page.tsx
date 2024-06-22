@@ -80,7 +80,6 @@ const BKExcel = () => {
         deskripsi: item.Deskripsi,
         min: item["Minimal MK"],
         max: item["Maksimal MK"],
-        prodiId: account?.prodiId,
       }));
       setBk(parsedData);
     };
@@ -91,6 +90,7 @@ const BKExcel = () => {
 
     const data = {
       BK: bk,
+      prodiId: account?.prodiId,
     };
 
     axiosConfig

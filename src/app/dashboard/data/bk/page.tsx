@@ -20,6 +20,8 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 export interface bk {
   id: number;
@@ -42,11 +44,23 @@ export interface CPLItem {
 const DataBK = () => {
   const router = useRouter();
   const [BK, setBK] = useState<bk[]>([]);
+  const [account, setAccount] = useState<accountProdi>();
   const [isLoading, setIsLoading] = useState(true);
-  const getBK = async () => {
+
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccount(data);
+      getBK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getBK = async (prodiId: string) => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/bk");
+      const response = await axiosConfig.get(`api/bk?prodi=${prodiId}`);
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -66,7 +80,6 @@ const DataBK = () => {
           title: "Berhasil menghapus data BK",
           variant: "default",
         });
-        getBK();
       } else {
         toast({
           title: response.data.message,
@@ -77,9 +90,17 @@ const DataBK = () => {
       throw error;
     }
   };
+
   useEffect(() => {
-    getBK();
-  }, []);
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  }, []); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return BK.map((bk, index) => {

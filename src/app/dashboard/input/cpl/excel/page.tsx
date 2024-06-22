@@ -76,7 +76,6 @@ const CPLExcel = () => {
         kode: item.Kode,
         deskripsi: item.Deskripsi,
         keterangan: item.Keterangan,
-        prodiId: account?.prodiId,
       }));
       setCpl(parsedData);
     };
@@ -87,6 +86,7 @@ const CPLExcel = () => {
 
     const data = {
       CPL: cpl,
+      prodiId: account?.prodiId,
     };
 
     axiosConfig
