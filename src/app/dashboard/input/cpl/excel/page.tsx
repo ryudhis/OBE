@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import axiosConfig from "../../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 interface CPLItem {
   kode: string;
@@ -32,7 +34,31 @@ interface CPLItem {
 const CPLExcel = () => {
   const router = useRouter();
   const [cpl, setCpl] = useState<CPLItem[]>([]);
+  const [account, setAccount] = useState<accountProdi>();
   const { toast } = useToast();
+  const exportTemplate = () => {
+    // Define headers
+    const headers = [
+      { header: "Kode", key: "Kode" },
+      { header: "Deskripsi", key: "Deskripsi" },
+      { header: "Keterangan", key: "Keterangan" },
+    ];
+
+    // Create worksheet with headers
+    const ws = XLSX.utils.json_to_sheet([], {
+      header: headers.map((h) => h.key),
+    });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    // Export workbook
+    XLSX.writeFile(wb, "Template CPL.xlsx");
+  };
+
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -50,6 +76,7 @@ const CPLExcel = () => {
         kode: item.Kode,
         deskripsi: item.Deskripsi,
         keterangan: item.Keterangan,
+        prodiId: account?.prodiId,
       }));
       setCpl(parsedData);
     };
@@ -88,20 +115,43 @@ const CPLExcel = () => {
       });
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input CPL Excel</CardTitle>
           <CardDescription>Data Capaian Kelulusan</CardDescription>
-          <Button
-            className="w-[100px] self-end"
-            onClick={() => {
-              router.push(`/dashboard/input/cpl/`);
-            }}
-          >
-            Input Manual
-          </Button>
+          <div className="flex items-center justify-end gap-4">
+            <Button
+              className="w-[130px] self-end"
+              onClick={() => {
+                exportTemplate();
+              }}
+            >
+              Export Template
+            </Button>
+            <Button
+              className="w-[100px] self-end"
+              onClick={() => {
+                router.push(`/dashboard/input/cpl/`);
+              }}
+            >
+              Input Manual
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
@@ -109,17 +159,21 @@ const CPLExcel = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {Object.keys(cpl[0]).map((key, index) => (
-                    <TableHead key={index}>{key}</TableHead>
-                  ))}
+                  {Object.keys(cpl[0])
+                    .slice(0, -1)
+                    .map((key, index) => (
+                      <TableHead key={index}>{key}</TableHead>
+                    ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {cpl.map((row, index) => (
                   <TableRow key={index}>
-                    {Object.values(row).map((value, index) => (
-                      <TableCell key={index}>{value}</TableCell>
-                    ))}
+                    {Object.values(row)
+                      .slice(0, -1)
+                      .map((value, index) => (
+                        <TableCell key={index}>{value}</TableCell>
+                      ))}
                   </TableRow>
                 ))}
               </TableBody>

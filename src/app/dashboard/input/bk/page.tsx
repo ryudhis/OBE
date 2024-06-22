@@ -28,7 +28,7 @@ import { accountProdi } from "@/app/interface/input";
 import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
-  id: z.string().min(2).max(50),
+  kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
   min: z.string().min(0).max(10),
   max: z.string().min(0).max(10),
@@ -42,7 +42,7 @@ const BKScreen = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: "",
+      kode: "",
       deskripsi: "",
       min: "0",
       max: "0",
@@ -54,14 +54,12 @@ const BKScreen = () => {
     e.preventDefault();
 
     const data = {
-      id: values.id,
+      kode: values.kode,
       deskripsi: values.deskripsi,
       min: parseInt(values.min),
       max: parseInt(values.max),
       prodiId: account?.prodiId,
     };
-
-    console.log(data.id);
 
     axiosConfig
       .post("api/bk", data)
@@ -73,7 +71,7 @@ const BKScreen = () => {
           });
         } else {
           toast({
-            title: "ID Sudah Ada!",
+            title: "Kode Sudah Ada!",
             description: String(new Date()),
             variant: "destructive",
           });
@@ -126,17 +124,12 @@ const BKScreen = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name="id"
+                name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ID BK</FormLabel>
+                    <FormLabel>Kode BK</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="ID BK"
-                        type="number"
-                        required
-                        {...field}
-                      />
+                      <Input placeholder="Kode BK" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
