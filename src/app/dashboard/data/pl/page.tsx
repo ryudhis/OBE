@@ -20,6 +20,8 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 export interface pl {
   id: number;
@@ -34,21 +36,31 @@ export interface CPLItem {
 
 const DataPL = () => {
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
   const [PL, setPL] = useState<pl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const getPL = async () => {
-    setIsLoading(true);
+  const fetchData = async () => {
     try {
-      const response = await axiosConfig.get("api/pl");
+      const data = await getAccountData();
+      setAccount(data);
+      getPL(data.prodiId)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getPL = async (prodiId:string) => {
+    try {
+      const response = await axiosConfig.get(
+        `api/pl?prodi=${prodiId}`
+      );
       if (response.data.status !== 400) {
+        setPL(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setPL(response.data.data);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -60,7 +72,6 @@ const DataPL = () => {
           title: "Berhasil menghapus data PL",
           variant: "default",
         });
-        getPL();
       } else {
         toast({
           title: response.data.message,
@@ -73,8 +84,16 @@ const DataPL = () => {
   };
 
   useEffect(() => {
-    getPL();
-  }, []);
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return PL.map((pl, index) => {

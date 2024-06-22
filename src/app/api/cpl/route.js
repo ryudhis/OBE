@@ -1,9 +1,21 @@
 import prisma from "@/utils/prisma";
 
-export async function GET() {
-  
+export async function GET(req, res) {
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+
+  // Validate prodi parameter if necessary
+  if (!prodi) {
+    return res
+      .status(400)
+      .json({ status: 400, message: "Missing prodi parameter" });
+  }
+
   try {
     const CPL = await prisma.CPL.findMany({
+      where: {
+        prodiId: prodi,
+      },
       include: { PL: true, 
         BK : {
           include : {

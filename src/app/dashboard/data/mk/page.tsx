@@ -104,6 +104,7 @@ const DataMK = () => {
       .finally(() => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Trigger useEffect only on initial mount
 
   let jumlahMahasiswa: number = 0;

@@ -20,6 +20,9 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
+
 
 export interface cpmk {
   id: number;
@@ -44,21 +47,32 @@ export interface subCPMKItem {
 
 const DataCPMK = () => {
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
   const [CPMK, setCPMK] = useState<cpmk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const getCPMK = async () => {
-    setIsLoading(true);
+
+  const fetchData = async () => {
     try {
-      const response = await axiosConfig.get("api/cpmk");
+      const data = await getAccountData();
+      setAccount(data);
+      getCPMK(data.prodiId)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCPMK = async (prodiId:string) => {
+    try {
+      const response = await axiosConfig.get(
+        `api/cpmk?prodi=${prodiId}`
+      );
       if (response.data.status !== 400) {
+        setCPMK(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setCPMK(response.data.data);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -70,7 +84,6 @@ const DataCPMK = () => {
           title: "Berhasil menghapus data CPMK",
           variant: "default",
         });
-        getCPMK();
       } else {
         toast({
           title: response.data.message,
@@ -83,9 +96,16 @@ const DataCPMK = () => {
   };
 
   useEffect(() => {
-    getCPMK();
-  }, []);
-  // id, kode, deskripsi
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return CPMK.map((cpmk, index) => {
