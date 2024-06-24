@@ -154,6 +154,7 @@ model mahasiswa {
   prodiId    String
 }
 
+
 model inputNilai {
   id              Int           @unique @default(sequence())
   penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode], onDelete: Cascade)
