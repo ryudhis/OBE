@@ -20,6 +20,8 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 export interface mahasiswa {
   nim: string;
@@ -35,19 +37,31 @@ const DataMahasiswa = () => {
   const router = useRouter();
   const [mahasiswa, setMahasiswa] = useState<mahasiswa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const getMahasiswa = async () => {
-    setIsLoading(true);
+  const [refresh, setRefresh] = useState(true);
+  const [account, setAccount] = useState<accountProdi>();
+  
+  const fetchData = async () => {
     try {
-      const response = await axiosConfig.get("api/mahasiswa");
+      const data = await getAccountData();
+      setAccount(data);
+      getMahasiswa(data.prodiId)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getMahasiswa = async (prodiId:string) => {
+    try {
+      const response = await axiosConfig.get(
+        `api/mahasiswa?prodi=${prodiId}`
+      );
       if (response.data.status !== 400) {
+        setMahasiswa(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setMahasiswa(response.data.data);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -59,7 +73,7 @@ const DataMahasiswa = () => {
           title: "Berhasil menghapus data Mahasiswa",
           variant: "default",
         });
-        getMahasiswa();
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -72,8 +86,16 @@ const DataMahasiswa = () => {
   };
 
   useEffect(() => {
-    getMahasiswa();
-  }, []);
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return mahasiswa.map((mhs) => {

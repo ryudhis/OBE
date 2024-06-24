@@ -55,8 +55,6 @@ const CPMKScreen = () => {
       prodiId: account?.prodiId,
     };
 
-    console.log(data.kode);
-
     axiosConfig
       .post("api/cpmk", data)
       .then(function (response) {

@@ -15,14 +15,15 @@ model Widget {
 }
 
 model prodi {
-  kode   String    @id @unique
-  nama   String
-  tendik account[]
-  PL     PL[]
-  CPL    CPL[]
-  BK     BK[]
-  MK     MK[]
-  CPMK   CPMK[]
+  kode      String      @id @unique
+  nama      String
+  tendik    account[]
+  PL        PL[]
+  CPL       CPL[]
+  BK        BK[]
+  MK        MK[]
+  CPMK      CPMK[]
+  mahasiswa mahasiswa[]
 }
 
 model account {
@@ -37,10 +38,10 @@ model account {
 }
 
 model PL {
-  id        Int    @id @unique @default(sequence())
+  id        Int     @id @unique @default(sequence())
   kode      String
   deskripsi String
-  CPL       CPL[]  @relation("cpl_pl")
+  CPL       CPL[]   @relation("cpl_pl")
   prodi     prodi?  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId   String?
 }
@@ -137,6 +138,8 @@ model mahasiswa {
   nama       String
   kelas      kelas[]      @relation("kelas_mahasiswa")
   inputNilai inputNilai[]
+  prodi      prodi        @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId    String
 }
 
 model inputNilai {

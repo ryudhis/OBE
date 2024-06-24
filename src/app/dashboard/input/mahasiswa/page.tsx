@@ -22,6 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
   nim: z.string().min(9).max(9),
@@ -30,6 +33,7 @@ const formSchema = z.object({
 
 const MahasiswaScreen = () => {
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -46,6 +50,7 @@ const MahasiswaScreen = () => {
     const data = {
       nim: values.nim,
       nama: values.nama,
+      prodiId: account?.prodiId,
     };
 
     console.log(data.nim);
@@ -77,6 +82,19 @@ const MahasiswaScreen = () => {
 
     form.reset();
   }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
