@@ -20,6 +20,8 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 export interface CPLinterface {
   kode: string;
@@ -46,8 +48,9 @@ const formSchema = z.object({
   keterangan: z.string().min(1).max(50),
 });
 
-export default function Page({ params }: { params: { kode: string } }) {
-  const { kode } = params;
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const [account, setAccount] = useState<accountProdi>();
   const [cpl, setCPl] = useState<CPLinterface | undefined>();
   const [bk, setBK] = useState<BKItem[] | undefined>([]);
   const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);
@@ -58,6 +61,18 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [searchBK, setSearchBK] = useState<string>("");
   const [searchCPMK, setSearchCPMK] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccount(data);
+      getAllBK(data.prodiId);
+      getAllCPMK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,7 +91,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     };
 
     axiosConfig
-      .patch(`api/cpl/${kode}`, data)
+      .patch(`api/cpl/${id}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
           setRefresh(!refresh);
@@ -112,7 +127,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   const getCPL = async () => {
     try {
-      const response = await axiosConfig.get(`api/cpl/${kode}`);
+      const response = await axiosConfig.get(`api/cpl/${id}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -144,9 +159,9 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const getAllBK = async () => {
+  const getAllBK = async (prodiId:string) => {
     try {
-      const response = await axiosConfig.get("api/bk");
+      const response = await axiosConfig.get(`api/bk?prodi=${prodiId}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -158,9 +173,9 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const getAllCPMK = async () => {
+  const getAllCPMK = async (prodiId:string) => {
     try {
-      const response = await axiosConfig.get("api/cpmk");
+      const response = await axiosConfig.get(`api/cpmk?prodi=${prodiId}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -210,10 +225,11 @@ export default function Page({ params }: { params: { kode: string } }) {
       removedBKId: removedBKId,
       addedCPMKId: addedCPMKId,
       removedCPMKId: removedCPMKId,
+      prodiId: account?.prodiId,
     };
 
     try {
-      const response = await axiosConfig.patch(`api/cpl/relasi/${kode}`, payload);
+      const response = await axiosConfig.patch(`api/cpl/relasi/${id}`, payload);
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {
         toast({
@@ -235,10 +251,16 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   // ONLY FIRST TIME
   useEffect(() => {
-    getAllBK();
-    getAllCPMK();
-  }, []);
-
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
   useEffect(() => {
     getCPL();
     // eslint-disable-next-line react-hooks/exhaustive-deps
