@@ -6,9 +6,7 @@ export async function GET(req, res) {
 
   // Validate prodi parameter if necessary
   if (!prodi) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "Missing prodi parameter" });
+    return Response.json({ status: 400, message: "Missing prodi parameter" });
   }
   
   try {

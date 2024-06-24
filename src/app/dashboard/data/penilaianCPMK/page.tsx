@@ -84,6 +84,7 @@ const DataPenilaianCPMK = () => {
       console.log(error);
     }
   };
+  
   const getPenilaianCPMK = async (prodiId: string) => {
     try {
       const response = await axiosConfig.get(`api/penilaianCPMK?prodi=${prodiId}`);
