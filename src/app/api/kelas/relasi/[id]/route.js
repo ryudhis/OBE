@@ -5,26 +5,46 @@ export async function PATCH(req) {
     const id = req.url.split("/relasi/")[1];
     const body = await req.json();
 
-    // Fetch the existing mahasiswa connections
-    const existingKelas = await prisma.kelas.findUnique({
+    // Fetch the MKId of the current kelas
+    const currentKelas = await prisma.kelas.findUnique({
       where: {
         id: parseInt(id),
       },
       select: {
-        mahasiswa: {
-          select: {
-            nim: true,
-          },
-        },
+        MKId: true,
       },
     });
 
-    const existingMahasiswaNIMs = existingKelas.mahasiswa.map((mahasiswa) => mahasiswa.nim);
+    if (!currentKelas) {
+      return new Response(
+        JSON.stringify({ status: 404, message: "Kelas not found!" }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-    // Filter out mahasiswa NIMs that are already connected
-    const newMahasiswaData = body.mahasiswa.filter(
-      (mahasiswa) => !existingMahasiswaNIMs.includes(String(mahasiswa.nim))
-    );
+    // Check each mahasiswa if they are already enrolled in another kelas for the same MK
+    for (const mahasiswa of body.mahasiswa) {
+      const existingEnrollment = await prisma.kelas.findFirst({
+        where: {
+          MKId: currentKelas.MKId,
+          mahasiswa: {
+            some: {
+              nim: mahasiswa.nim,
+            },
+          },
+        },
+      });
+
+      if (existingEnrollment) {
+        return new Response(
+          JSON.stringify({
+            status: 400,
+            message: `Mahasiswa with NIM ${mahasiswa.nim} is already enrolled in another kelas for this MK!`,
+          }),
+          { headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     // Connect all valid mahasiswa
     const kelas = await prisma.kelas.update({
@@ -33,7 +53,9 @@ export async function PATCH(req) {
       },
       data: {
         mahasiswa: {
-          connect: newMahasiswaData.map((mahasiswa) => ({ nim: String(mahasiswa.nim) })),
+          connect: body.mahasiswa.map((mahasiswa) => ({
+            nim: String(mahasiswa.nim),
+          })),
         },
       },
     });
@@ -44,13 +66,13 @@ export async function PATCH(req) {
         message: "Berhasil ubah data!",
         data: kelas,
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.log(error);
     return new Response(
       JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { "Content-Type": "application/json" } }
     );
   }
 }

@@ -15,7 +15,7 @@ model Widget {
 }
 
 model prodi {
-  kode      String          @id @unique
+  kode      String      @id @unique
   nama      String
   tendik    account[]
   PL        PL[]
@@ -24,8 +24,6 @@ model prodi {
   MK        MK[]
   CPMK      CPMK[]
   mahasiswa mahasiswa[]
-  PCPMK     penilaianCPMK[]
-  nilai     inputNilai[]
 }
 
 model account {
@@ -141,8 +139,6 @@ model penilaianCPMK {
   batasNilai      Float
   kriteria        Json
   inputNilai      inputNilai[]
-  prodi           prodi        @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId         String
 }
 
 model mahasiswa {
@@ -163,6 +159,4 @@ model inputNilai {
   kelas           kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)
   kelasId         Int
   nilai           Float[]
-  prodi           prodi         @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId         String
 }

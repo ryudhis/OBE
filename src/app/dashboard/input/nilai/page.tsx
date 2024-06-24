@@ -90,6 +90,7 @@ const InputNilai: React.FC = () => {
       const data = await getAccountData();
       setAccount(data);
       getMK(data.prodiId);
+      getPCPMK(data.prodiId);
     } catch (error) {
       console.log(error);
     }
@@ -103,9 +104,11 @@ const InputNilai: React.FC = () => {
     pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
   );
 
-  const getPCPMK = async () => {
+  const getPCPMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get("api/penilaianCPMK");
+      const response = await axiosConfig.get(
+        `api/penilaianCPMK?prodi=${prodiId}`
+      );
       if (response.data.status !== 400) {
         setPCPMK(response.data.data);
       } else {
@@ -148,6 +151,7 @@ const InputNilai: React.FC = () => {
       PCPMKId: values.PCPMK,
       MahasiswaId: item.mahasiswa,
       nilai: item.nilai.map((nilai) => parseFloat(nilai)),
+      prodiId: account?.prodiId,
     }));
 
     axiosConfig
@@ -179,10 +183,6 @@ const InputNilai: React.FC = () => {
     setSelectedPCPMK(undefined);
     setSearchPCPMK("");
   };
-
-  useEffect(() => {
-    getPCPMK();
-  }, []);
 
   useEffect(() => {
     // Set loading to true when useEffect starts
