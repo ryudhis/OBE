@@ -2,21 +2,31 @@ import prisma from "@/utils/prisma";
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/relasi/")[1];
+    const id = req.url.split("/relasi/")[1];
     const body = await req.json();
 
     console.log(body);
 
     const PL = await prisma.PL.update({
       where: {
-        kode,
+        id: parseInt(id),
       },
       data: {
         kode: body.kode,
         deskripsi: body.deskripsi,
         CPL: {
-          disconnect: body.removedCPLId.map((cplId) => ({ kode: cplId })),
-          connect: body.addedCPLId.map((cplId) => ({ kode: cplId })),
+          disconnect: body.removedCPLId.map((cplId) => ({
+            kode_prodiId: {
+              kode: cplId,
+              prodiId: body.prodiId,
+            },
+          })),
+          connect: body.addedCPLId.map((cplId) => ({
+            kode_prodiId: {
+              kode: cplId,
+              prodiId: body.prodiId,
+            },
+          })),
         },
       },
     });

@@ -44,6 +44,8 @@ model PL {
   CPL       CPL[]   @relation("cpl_pl")
   prodi     prodi?  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId   String?
+
+  @@unique([kode, prodiId])
 }
 
 model CPL {
@@ -57,6 +59,8 @@ model CPL {
   penilaianCPMK penilaianCPMK[]
   prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId       String
+
+  @@unique([kode, prodiId])
 }
 
 model BK {
@@ -69,6 +73,8 @@ model BK {
   MK        MK[]   @relation("bk_mk")
   prodi     prodi  @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId   String
+
+  @@unique([kode, prodiId])
 }
 
 model MK {
@@ -109,6 +115,8 @@ model CPMK {
   penilaianCPMK penilaianCPMK[]
   prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId       String
+
+  @@unique([kode, prodiId])
 }
 
 model subCPMK {

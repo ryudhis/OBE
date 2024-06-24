@@ -137,7 +137,7 @@ const DataCPL = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/cpl/${cpl.kode}/`);
+                router.push(`/dashboard/details/cpl/${cpl.id}/`);
               }}
             >
               Details

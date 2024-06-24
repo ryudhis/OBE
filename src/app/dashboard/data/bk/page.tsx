@@ -128,7 +128,7 @@ const DataBK = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/bk/${bk.kode}/`);
+                router.push(`/dashboard/details/bk/${bk.id}/`);
               }}
             >
               Details
