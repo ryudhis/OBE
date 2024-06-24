@@ -105,27 +105,23 @@ const MKScreen = () => {
   }, []);
 
   return (
-    <section className='flex h-screen mt-[-100px] justify-center items-center'>
-      <Card className='w-[1000px]'>
+    <section className="flex h-screen mt-[-100px] justify-center items-center">
+      <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input MK</CardTitle>
           <CardDescription>Mata Kuliah</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name='kode'
+                name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode MK-</FormLabel>
+                    <FormLabel>Kode MK</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder='Kode'
-                        required
-                        {...field}
-                      />
+                      <Input placeholder="Kode" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -134,12 +130,12 @@ const MKScreen = () => {
 
               <FormField
                 control={form.control}
-                name='deskripsi'
+                name="deskripsi"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nama</FormLabel>
                     <FormControl>
-                      <Input placeholder='Deskripsi' required {...field} />
+                      <Input placeholder="Deskripsi" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -148,12 +144,12 @@ const MKScreen = () => {
 
               <FormField
                 control={form.control}
-                name='sks'
+                name="sks"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>SKS</FormLabel>
                     <FormControl>
-                      <Input placeholder='SKS' required {...field} />
+                      <Input placeholder="SKS" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -162,16 +158,16 @@ const MKScreen = () => {
 
               <FormField
                 control={form.control}
-                name='batasLulusMahasiswa'
+                name="batasLulusMahasiswa"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Batas Lulus Mahasiswa</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
+                        type="number"
                         min={0}
                         max={100}
-                        placeholder='Batas Lulus Mahasiswa'
+                        placeholder="Batas Lulus Mahasiswa"
                         required
                         {...field}
                       />
@@ -183,16 +179,16 @@ const MKScreen = () => {
 
               <FormField
                 control={form.control}
-                name='batasLulusMK'
+                name="batasLulusMK"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
                     <FormControl>
                       <Input
-                        type='number'
+                        type="number"
                         min={0}
                         max={100}
-                        placeholder='Batas Lulus MK'
+                        placeholder="Batas Lulus MK"
                         required
                         {...field}
                       />
@@ -202,7 +198,7 @@ const MKScreen = () => {
                 )}
               />
 
-              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
+              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
                 Submit
               </Button>
             </form>

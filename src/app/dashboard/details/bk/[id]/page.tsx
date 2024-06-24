@@ -20,6 +20,8 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 export interface BKInterface {
   kode: string;
@@ -40,14 +42,26 @@ const formSchema = z.object({
   max: z.string().min(0).max(10),
 });
 
-export default function Page({ params }: { params: { kode: string } }) {
-  const { kode } = params;
+export default function Page({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const [account, setAccount] = useState<accountProdi>();
   const [bk, setBk] = useState<BKInterface | undefined>();
   const [mk, setMk] = useState<MKItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccount(data);
+      getAllMK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,7 +82,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     };
 
     axiosConfig
-      .patch(`api/bk/${kode}`, data)
+      .patch(`api/bk/${id}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
           setRefresh(!refresh);
@@ -95,7 +109,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   }
   const getBK = async () => {
     try {
-      const response = await axiosConfig.get(`api/bk/${kode}`);
+      const response = await axiosConfig.get(`api/bk/${id}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -120,9 +134,9 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const getAllMK = async () => {
+  const getAllMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get("api/mk");
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -178,7 +192,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
         try {
           const response = await axiosConfig.patch(
-            `api/bk/relasi/${kode}`,
+            `api/bk/relasi/${id}`,
             payload
           );
           setRefresh(!refresh);
@@ -203,8 +217,21 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   // ONLY FIRST TIME
   useEffect(() => {
-    getAllMK();
-  }, []);
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
+
+  useEffect(() => {
+    getBK();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]);
 
   useEffect(() => {
     getBK();
