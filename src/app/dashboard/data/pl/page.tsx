@@ -39,6 +39,8 @@ const DataPL = () => {
   const [account, setAccount] = useState<accountProdi>();
   const [PL, setPL] = useState<pl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
+
   const fetchData = async () => {
     try {
       const data = await getAccountData();
@@ -72,6 +74,7 @@ const DataPL = () => {
           title: "Berhasil menghapus data PL",
           variant: "default",
         });
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -93,7 +96,7 @@ const DataPL = () => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Trigger useEffect only on initial mount
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return PL.map((pl, index) => {

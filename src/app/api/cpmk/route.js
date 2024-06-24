@@ -1,17 +1,17 @@
 import prisma from "@/utils/prisma";
 
 export async function GET(req, res) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
-  
-    // Validate prodi parameter if necessary
-    if (!prodi) {
-      return res
-        .status(400)
-        .json({ status: 400, message: "Missing prodi parameter" });
-    }
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
 
+  // Validate prodi parameter if necessary
+  if (!prodi) {
+    return res
+      .status(400)
+      .json({ status: 400, message: "Missing prodi parameter" });
+  }
+  
+  try {
     const CPMK = await prisma.CPMK.findMany({
       where: {
         prodiId: prodi,

@@ -16,17 +16,19 @@ export async function GET(req, res) {
       where: {
         prodiId: prodi,
       },
-      include: { PL: true, 
-        BK : {
-          include : {
-            MK : true
-          }
-        }, 
+      include: {
+        PL: true,
+        BK: {
+          include: {
+            MK: true,
+          },
+        },
         CPMK: {
-          include : {
-            MK : true
-          }
-        } },
+          include: {
+            MK: true,
+          },
+        },
+      },
     });
 
     return Response.json({

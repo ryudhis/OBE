@@ -1,6 +1,6 @@
 import prisma from "@/utils/prisma";
 
-export async function GET() {
+export async function GET(req, res) {
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
 
@@ -10,7 +10,7 @@ export async function GET() {
       .status(400)
       .json({ status: 400, message: "Missing prodi parameter" });
   }
-  
+
   try {
     const PL = await prisma.PL.findMany({
       where: {
@@ -64,6 +64,3 @@ export async function POST(req) {
     return Response.json({ status: 400, message: "Something went wrong!" });
   }
 }
-
-
-

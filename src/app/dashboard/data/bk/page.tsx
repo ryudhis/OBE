@@ -46,6 +46,7 @@ const DataBK = () => {
   const [BK, setBK] = useState<bk[]>([]);
   const [account, setAccount] = useState<accountProdi>();
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -80,6 +81,7 @@ const DataBK = () => {
           title: "Berhasil menghapus data BK",
           variant: "default",
         });
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -100,7 +102,7 @@ const DataBK = () => {
       .finally(() => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
-  }, []); // Trigger useEffect only on initial mount
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return BK.map((bk, index) => {

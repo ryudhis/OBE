@@ -50,6 +50,7 @@ const DataCPMK = () => {
   const [account, setAccount] = useState<accountProdi>();
   const [CPMK, setCPMK] = useState<cpmk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -84,6 +85,7 @@ const DataCPMK = () => {
           title: "Berhasil menghapus data CPMK",
           variant: "default",
         });
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -105,7 +107,7 @@ const DataCPMK = () => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Trigger useEffect only on initial mount
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return CPMK.map((cpmk, index) => {

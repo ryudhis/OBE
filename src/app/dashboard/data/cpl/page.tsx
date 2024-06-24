@@ -50,6 +50,7 @@ const DataCPL = () => {
   const [CPL, setCPL] = useState<cpl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [account, setAccount] = useState<accountProdi>();
+  const [refresh, setRefresh] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -82,6 +83,7 @@ const DataCPL = () => {
           title: "Berhasil menghapus data CPL",
           variant: "default",
         });
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -102,7 +104,7 @@ const DataCPL = () => {
       .finally(() => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
-  }, []); // Trigger useEffect only on initial mount
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     return CPL.map((cpl, index) => {

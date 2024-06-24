@@ -52,6 +52,7 @@ const DataMK = () => {
   const [account, setAccount] = useState<accountProdi>();
   const [MK, setMK] = useState<mk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -84,6 +85,7 @@ const DataMK = () => {
           title: "Berhasil menghapus data MK",
           variant: "default",
         });
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -105,7 +107,7 @@ const DataMK = () => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Trigger useEffect only on initial mount
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   let jumlahMahasiswa: number = 0;
   const renderData = () => {
