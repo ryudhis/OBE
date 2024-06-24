@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
   kode: z.string(),
@@ -79,6 +81,7 @@ export interface CPLItem {
 
 const InputPenilaianCPMK = () => {
   const { toast } = useToast();
+  const [account, setAccount] = useState<accountProdi>();
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem>();
   const [selectedCPMK, setSelectedCPMK] = useState<CPMKItem>();
@@ -96,18 +99,29 @@ const InputPenilaianCPMK = () => {
     cpl.kode.toLowerCase().includes(searchCPL.toLowerCase())
   );
 
-  const getMK = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axiosConfig.get("api/mk");
+      const data = await getAccountData();
+      setAccount(data);
+      getMK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getMK = async (prodiId: string) => {
+    try {
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
         alert(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
+
 
   const tahapPenilaian = [
     { id: "Perkuliahan", label: "Perkuliahan" },
@@ -166,6 +180,7 @@ const InputPenilaianCPMK = () => {
       instrumen: values.instrumen,
       batasNilai: parseFloat(values.batasNilai),
       kriteria: convertKriteria,
+      prodiId: account?.prodiId,
     };
 
     try {
@@ -197,8 +212,12 @@ const InputPenilaianCPMK = () => {
   };
 
   useEffect(() => {
-    getMK();
-  }, []);
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
 
   useEffect(() => {
     const selectedTeknik = form.watch("teknikPenilaian");

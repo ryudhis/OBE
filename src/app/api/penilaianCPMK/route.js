@@ -1,8 +1,21 @@
 import prisma from "@/utils/prisma";
 
-export async function GET() {
+export async function GET(req, res) {
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+
+  // Validate prodi parameter if necessary
+  if (!prodi) {
+    return res
+      .status(400)
+      .json({ status: 400, message: "Missing prodi parameter" });
+  }
   try {
-    const penilaianCPMK = await prisma.penilaianCPMK.findMany();
+    const penilaianCPMK = await prisma.penilaianCPMK.findMany({
+      where: {
+        prodiId: prodi,
+      },
+    });
 
     return Response.json({
       status: 200,
@@ -18,10 +31,12 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
+    const { prodiId, ...restData } = data; // Extract prodiId from data
+
     const filteredPCPMK = await prisma.penilaianCPMK.findMany({
       where: {
         MKkode: data.MK,
-      }
+      },
     });
 
     let totalBobot = 0;
@@ -39,12 +54,14 @@ export async function POST(req) {
     });
 
     if (totalBobot + currentBobot > 100) {
-      throw new Error(`Bobot MK Melebihi 100, Bobot saat ini sudah ${totalBobot}`);
+      throw new Error(
+        `Bobot MK Melebihi 100, Bobot saat ini sudah ${totalBobot}`
+      );
     }
 
     const penilaianCPMK = await prisma.penilaianCPMK.create({
       data: {
-        ...data,
+        ...restData,
         MK: {
           connect: {
             kode: data.MK,
@@ -52,15 +69,26 @@ export async function POST(req) {
         },
         CPMK: {
           connect: {
-            kode: data.CPMK,
+            kode_prodiId: {
+              kode: data.CPMK,
+              prodiId: prodiId,
+            },
           },
         },
         CPL: {
           connect: {
-            kode: data.CPL,
+            kode_prodiId: {
+              kode: data.CPL,
+              prodiId: prodiId,
+            },
           },
-        }
-      }
+        },
+        prodi: {
+          connect: {
+            kode: prodiId,
+          },
+        },
+      },
     });
 
     return Response.json({
@@ -70,7 +98,9 @@ export async function POST(req) {
     });
   } catch (error) {
     console.log(error.message);
-    return Response.json({ status: 400, message: error.message || "Something went wrong!" });
+    return Response.json({
+      status: 400,
+      message: error.message || "Something went wrong!",
+    });
   }
 }
-

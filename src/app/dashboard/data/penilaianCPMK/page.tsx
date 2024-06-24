@@ -27,6 +27,8 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 export interface penilaianCPMK {
   kode: string;
@@ -52,10 +54,12 @@ export interface kriteriaItem {
 
 const DataPenilaianCPMK = () => {
   const router = useRouter();
+  const [account, setAccount] = useState<accountProdi>();
   const [penilaianCPMK, setPenilaianCPMK] = useState<penilaianCPMK[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterMK, setFilterMK] = useState("default");
+  const [refresh, setRefresh] = useState(true); 
 
   let filteredPCPMK = penilaianCPMK;
   let totalBobot = 0;
@@ -70,35 +74,39 @@ const DataPenilaianCPMK = () => {
     });
   }
 
-  const getPenilaianCPMK = async () => {
-    setIsLoading(true);
+  const fetchData = async () => {
     try {
-      const response = await axiosConfig.get("api/penilaianCPMK");
+      const data = await getAccountData();
+      setAccount(data);
+      getPenilaianCPMK(data.prodiId);
+      getMK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const getPenilaianCPMK = async (prodiId: string) => {
+    try {
+      const response = await axiosConfig.get(`api/penilaianCPMK?prodi=${prodiId}`);
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);
       } else {
         alert(response.data.message);
       }
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
-  const getMK = async () => {
-    setIsLoading(true);
+  const getMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get("api/mk");
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
         alert(response.data.message);
       }
     } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -110,7 +118,7 @@ const DataPenilaianCPMK = () => {
           title: "Berhasil menghapus data penilaian CPMK",
           variant: "default",
         });
-        getPenilaianCPMK();
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -121,14 +129,17 @@ const DataPenilaianCPMK = () => {
       throw error;
     }
   };
-
   useEffect(() => {
-    getPenilaianCPMK();
-  }, []);
-
-  useEffect(() => {
-    getMK();
-  }, []);
+    setIsLoading(true); // Set loading to true when useEffect starts
+    fetchData()
+      .catch((error) => {
+        console.error("Error fetching account data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading to false when useEffect completes
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     if (filteredPCPMK.length === 0) {

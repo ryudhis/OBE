@@ -118,8 +118,8 @@ export interface kriteriaItem {
 }
 
 export interface mahasiswaExcel {
-  nim: string;
-  nama: string;
+  NIM: string;
+  Nama: string;
 }
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -146,8 +146,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
-        nim: item.nim,
-        nama: item.nama,
+        Nama: item.Nama,
+        NIM: item.NIM,
       }));
       setMahasiswa(parsedData);
     };

@@ -33,6 +33,7 @@ export async function POST(req) {
       mahasiswaNim: mahasiswa.MahasiswaId, // Assuming MahasiswaId is the NIM for mahasiswa
       kelasId: mahasiswa.kelasId, // Assuming kelasId is the ID for kelas
       nilai: mahasiswa.nilai,
+      prodiId: mahasiswa.prodiId,
     }));
 
     // Use createMany to insert all entries at once
