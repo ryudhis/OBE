@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
   MK: z.string({
@@ -75,6 +76,7 @@ export interface mahasiswaItem {
 
 const InputNilai: React.FC = () => {
   const { toast } = useToast();
+  const [account, setAccount] = useState<accountProdi>();
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
@@ -82,6 +84,16 @@ const InputNilai: React.FC = () => {
   const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem | undefined>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchPCPMK, setSearchPCPMK] = useState<string>("");
+
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccount(data);
+      getMK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
@@ -104,9 +116,9 @@ const InputNilai: React.FC = () => {
     }
   };
 
-  const getMK = async () => {
+  const getMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get("api/mk");
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
@@ -173,8 +185,12 @@ const InputNilai: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    getMK();
-  }, []);
+    // Set loading to true when useEffect starts
+    fetchData().catch((error) => {
+      console.error("Error fetching account data:", error);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
 
   return (
     <section className="flex my-[50px] justify-center items-center">
