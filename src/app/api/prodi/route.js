@@ -20,7 +20,7 @@ export async function POST(req) {
     const data = await req.json();
 
     // Create the PL entry and connect it to the prodi
-    const prodi = await prisma.PL.create({
+    const prodi = await prisma.prodi.create({
       data,
     });
 

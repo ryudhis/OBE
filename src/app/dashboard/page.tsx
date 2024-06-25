@@ -91,6 +91,13 @@ const Page = () => {
           >
             Akun
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/input/prodi");
+            }}
+          >
+            Program Studi
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -165,6 +172,13 @@ const Page = () => {
             }}
           >
             Akun
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push("/dashboard/data/prodi");
+            }}
+          >
+            Program Studi
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
