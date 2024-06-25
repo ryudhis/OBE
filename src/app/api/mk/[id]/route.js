@@ -54,7 +54,7 @@ export async function PATCH(req) {
 
     const MK = await prisma.MK.update({
       where: {
-        kode,
+        kode: kode,
       },
       data,
     });

@@ -30,11 +30,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DataCard } from "@/components/DataCard";
 import {
   Table,
   TableBody,
@@ -115,8 +113,6 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
-
-    console.log(values);
 
     axiosConfig
       .patch(`api/mk/${kode}`, values)
