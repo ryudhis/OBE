@@ -30,9 +30,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DataCard } from "@/components/DataCard";
 import {
   Table,
   TableBody,
@@ -90,7 +92,9 @@ const formSchema = z.object({
   sks: z.string().min(1).max(50),
   batasLulusMahasiswa: z.string().min(1).max(50),
   batasLulusMK: z.string().min(1).max(50),
-  jumlahKelas: z.string(),
+  jumlahKelas: z.string({
+    required_error: "Please select Jumlah Kelas to display.",
+  }),
 });
 
 export default function Page({ params }: { params: { kode: string } }) {
@@ -113,19 +117,26 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
+    console.log("terpanggil");
+
+    const data = {
+      deskripsi: values.deskripsi,
+      sks: values.sks,
+      batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
+      batasLulusMK: parseFloat(values.batasLulusMK),
+    };
 
     axiosConfig
-      .patch(`api/mk/${kode}`, values)
+      .patch(`api/mk/${kode}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
-          setRefresh(!refresh);
           toast({
-            title: "Berhasil Edit",
+            title: "Berhasil Submit",
             description: String(new Date()),
           });
         } else {
           toast({
-            title: response.data.message,
+            title: "Kode Sudah Ada!",
             description: String(new Date()),
             variant: "destructive",
           });
@@ -133,7 +144,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       })
       .catch(function (error) {
         toast({
-          title: "Gagal Edit",
+          title: "Gagal Submit",
           description: String(new Date()),
           variant: "destructive",
         });
@@ -484,53 +495,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               )}
             </CardContent>
           </Card>
-        ) : (
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmitKelas)}
-              className='space-y-8'
-            >
-              <FormField
-                control={form.control}
-                name='jumlahKelas'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tambah Jumlah Kelas</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      defaultValue={field.value}
-                      value={field.value}
-                      required
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          {field.value ? (
-                            <SelectValue placeholder='Pilih Jumlah Kelas' />
-                          ) : (
-                            "Pilih Jumlah Kelas"
-                          )}
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={"1"}>1</SelectItem>
-                        <SelectItem value={"2"}>2</SelectItem>
-                        <SelectItem value={"3"}>3</SelectItem>
-                        <SelectItem value={"4"}>4</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
-                Submit
-              </Button>
-            </form>
-          </Form>
-        )}
+        ) : null}
       </main>
     );
   }
