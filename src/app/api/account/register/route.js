@@ -12,6 +12,11 @@ export async function POST(req) {
         nama: data.nama,
         role: data.role,
         password: hashedPassword,
+        prodi: {
+          connect: {
+            kode: data.prodiId,
+          },
+        },
       },
     });
 
