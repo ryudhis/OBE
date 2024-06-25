@@ -56,8 +56,6 @@ const PLScreen = () => {
       prodiId: account?.prodiId,
     };
 
-    console.log(data);
-
     axiosConfig
       .post("api/pl", data)
       .then(function (response) {

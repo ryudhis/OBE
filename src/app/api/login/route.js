@@ -12,7 +12,7 @@ const signToken = async (account) => {
     role: account.role,
   };
 
-  return await new jose.SignJWT(account)
+  return await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .sign(secret);
 };

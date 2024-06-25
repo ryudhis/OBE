@@ -116,7 +116,6 @@ const prisma = new PrismaClient().$extends({
     kelas: {
       async update({ args, query }) {
         const updatedKelas = await query(args);
-        console.log("kelas updated: ", updatedKelas);
 
         const MKId = updatedKelas.MKId;
         const kelasId = updatedKelas.id;

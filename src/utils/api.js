@@ -3,10 +3,9 @@ import axiosConfig from "./axios";
 
 export const getAccountData = async () => {
   try {
-    const response = await axiosConfig.get("/api/account");
+    const response = await axiosConfig.get("/api/account/fetchUser");
     if (response.data.status !== 400) {
-      const data = response.data.data.shift();
-      return data;
+      return response.data.data;
     } else {
       alert(response.data.message);
       return null;

@@ -87,26 +87,18 @@ export interface mahasiswaItem {
   nama: string;
 }
 
-// export interface transformedData{
-//   kode: string;
-//   deskripsi: string;
-// }
-
 const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
-  jumlahKelas: z.string({
-    required_error: "Please select Jumlah Kelas to display.",
-  }),
+  sks: z.string().min(1).max(50),
+  batasLulusMahasiswa: z.string().min(1).max(50),
+  batasLulusMK: z.string().min(1).max(50),
+  jumlahKelas: z.string(),
 });
 
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
   const [isLoading, setIsLoading] = useState(true);
-  // const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[] | undefined>([]);
-  // const [prevSelected, setPrevSelected] = useState<string[]>([]);
-  // const [selected, setSelected] = useState<string[]>([]);
-  // const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
   const router = useRouter();
 
@@ -114,6 +106,9 @@ export default function Page({ params }: { params: { kode: string } }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       deskripsi: "",
+      sks: "",
+      batasLulusMahasiswa: "",
+      batasLulusMK: "",
       jumlahKelas: "",
     },
   });
@@ -121,12 +116,10 @@ export default function Page({ params }: { params: { kode: string } }) {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
-    const data = {
-      deskripsi: values.deskripsi,
-    };
+    console.log(values);
 
     axiosConfig
-      .patch(`api/mk/${kode}`, data)
+      .patch(`api/mk/${kode}`, values)
       .then(function (response) {
         if (response.data.status != 400) {
           setRefresh(!refresh);
@@ -165,6 +158,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
       form.reset({
         deskripsi: response.data.data.deskripsi,
+        sks: response.data.data.sks,
+        batasLulusMahasiswa: String(response.data.data.batasLulusMahasiswa),
+        batasLulusMK: String(response.data.data.batasLulusMK),
       });
     } catch (error: any) {
       throw error;
@@ -346,23 +342,90 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <DialogTitle>Edit MK</DialogTitle>
                 <DialogDescription>{mk.kode}</DialogDescription>
               </DialogHeader>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='deskripsi' className='text-right'>
-                      Deskripsi
-                    </Label>
-                    <Input
-                      id='deskripsi'
-                      {...form.register("deskripsi")} 
-                      className='col-span-3'
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type='submit'>Simpan</Button>
-                </DialogFooter>
-              </form>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className='space-y-8'
+                >
+                  <FormField
+                    control={form.control}
+                    name='deskripsi'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nama</FormLabel>
+                        <FormControl>
+                          <Input placeholder='Deskripsi' required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='sks'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SKS</FormLabel>
+                        <FormControl>
+                          <Input placeholder='SKS' required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='batasLulusMahasiswa'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Batas Lulus Mahasiswa</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            placeholder='Batas Lulus Mahasiswa'
+                            required
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='batasLulusMK'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            placeholder='Batas Lulus MK'
+                            required
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button
+                      className='bg-blue-500 hover:bg-blue-600'
+                      type='submit'
+                    >
+                      Submit
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
         </div>
