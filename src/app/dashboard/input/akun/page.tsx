@@ -1,5 +1,6 @@
 "use client";
-import axiosConfig from "../../../../utils/axios";
+import { useState, useEffect } from "react";
+import axiosConfig from "@utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,16 +30,36 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
   nama: z.string().min(5).max(60),
   email: z.string().min(5).max(50),
   password: z.string().min(6).max(20),
   role: z.string().min(0).max(10),
+  prodi: z.string().min(0).max(30),
 });
+
+export interface prodi {
+  kode: string;
+  nama: string;
+}
 
 const InputAkun = () => {
   const { toast } = useToast();
+  const [prodi, setProdi] = useState<prodi[]>([]);
+  const [account, setAccount] = useState<accountProdi>();
+
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccount(data);
+      getProdi();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,6 +68,7 @@ const InputAkun = () => {
       email: "",
       password: "",
       role: "",
+      prodi: "",
     },
   });
 
@@ -58,6 +80,7 @@ const InputAkun = () => {
       email: values.email,
       password: values.password,
       role: values.role,
+      prodiId: values.prodi,
     };
 
     axiosConfig
@@ -86,6 +109,33 @@ const InputAkun = () => {
       });
 
     form.reset();
+  }
+
+  const getProdi = async () => {
+    try {
+      const response = await axiosConfig.get(`api/prodi`);
+      if (response.data.status !== 400) {
+        setProdi(response.data.data);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  });
+
+  if (account?.role !== "Admin") {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <h1 className="text-center font-bold text-2xl">
+          Anda tidak memiliki akses untuk page ini.
+        </h1>
+      </div>
+    );
   }
 
   return (
@@ -158,6 +208,40 @@ const InputAkun = () => {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="prodi"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Prodi:</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                      required
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          {field.value ? (
+                            <SelectValue placeholder="Pilih Prodi" />
+                          ) : (
+                            "Pilih Prodi"
+                          )}
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {prodi.map((data) => (
+                          <SelectItem key={data.kode} value={data.kode}>
+                            {data.nama}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
