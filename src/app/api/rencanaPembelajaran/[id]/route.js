@@ -2,27 +2,17 @@ import prisma from "@/utils/prisma";
 
 export async function GET(req) {
   try {
-    const kode = req.url.split("/mk/")[1];
-    const MK = await prisma.MK.findUnique({
+    const id = req.url.split("/rencanaPembelajaran/")[1];
+    const rencanaPembelajaran = await prisma.rencanaPembelajaran.findUnique({
       where: {
-        kode: kode,
-      },
-      include: {
-        BK: { include: { CPL: true } },
-        CPMK: true,
-        kelas: { include: { MK: true, mahasiswa: true } },
-        rencanaPembelajaran: {
-          orderBy: {
-            minggu: "asc",
-          },
-        },
+        id: parseInt(id),
       },
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil ambil data!",
-      data: MK,
+      data: rencanaPembelajaran,
     });
   } catch (error) {
     console.log(error);
@@ -32,17 +22,17 @@ export async function GET(req) {
 
 export async function DELETE(req) {
   try {
-    const kode = req.url.split("/mk/")[1];
-    const MK = await prisma.MK.delete({
+    const id = req.url.split("/rencanaPembelajaran/")[1];
+    const rencanaPembelajaran = await prisma.rencanaPembelajaran.delete({
       where: {
-        kode: kode,
+        id: parseInt(id),
       },
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil hapus data!",
-      data: MK,
+      data: rencanaPembelajaran,
     });
   } catch (error) {
     console.log(error);
@@ -52,12 +42,12 @@ export async function DELETE(req) {
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/mk/")[1];
+    const id = req.url.split("/rencanaPembelajaran/")[1];
     const data = await req.json();
 
-    const MK = await prisma.MK.update({
+    const rencanaPembelajaran = await prisma.rencanaPembelajaran.update({
       where: {
-        kode: kode,
+        id: parseInt(id),
       },
       data,
     });
@@ -65,7 +55,7 @@ export async function PATCH(req) {
     return Response.json({
       status: 200,
       message: "Berhasil ubah data!",
-      data: MK,
+      data: rencanaPembelajaran,
     });
   } catch (error) {
     console.log(error);

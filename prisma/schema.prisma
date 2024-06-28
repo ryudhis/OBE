@@ -80,19 +80,28 @@ model BK {
 }
 
 model MK {
-  kode                String          @id @unique
+  kode                String                @id @unique
   deskripsi           String
   sks                 String
   batasLulusMahasiswa Float
   batasLulusMK        Float
   jumlahLulus         Int
   kelas               kelas[]
-  BK                  BK[]            @relation("bk_mk")
-  CPMK                CPMK[]          @relation("cpmk_mk")
+  BK                  BK[]                  @relation("bk_mk")
+  CPMK                CPMK[]                @relation("cpmk_mk")
   penilaianCPMK       penilaianCPMK[]
-  prodi               prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodi               prodi                 @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId             String
-  rencanaPembelajaran Json?
+  rencanaPembelajaran rencanaPembelajaran[]
+}
+
+model rencanaPembelajaran {
+  id     Int    @id @unique @default(sequence())
+  minggu Int
+  materi String
+  metode String
+  MK     MK     @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId   String
 }
 
 model kelas {
@@ -154,7 +163,6 @@ model mahasiswa {
   prodi      prodi        @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId    String
 }
-
 
 model inputNilai {
   id              Int           @unique @default(sequence())
