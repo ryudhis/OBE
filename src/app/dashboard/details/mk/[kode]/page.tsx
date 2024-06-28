@@ -49,6 +49,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface MKinterface {
   kode: string;
@@ -315,6 +316,14 @@ export default function Page({ params }: { params: { kode: string } }) {
       <main className='w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
         <div className='flex'>
           <Table className='w-[400px] mb-5'>
+            <Tabs defaultValue='account' className='w-[400px]'>
+              <TabsList className='grid w-full grid-cols-2'>
+                <TabsTrigger value='account'>Account</TabsTrigger>
+                <TabsTrigger value='password'>Password</TabsTrigger>
+              </TabsList>
+              <TabsContent value='account'></TabsContent>
+              <TabsContent value='password'></TabsContent>
+            </Tabs>
             <TableBody>
               <TableRow>
                 <TableCell>

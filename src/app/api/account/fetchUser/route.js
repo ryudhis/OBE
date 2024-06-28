@@ -48,6 +48,12 @@ export async function GET(req) {
       where: {
         id: parseInt(userId),
       },
+      select: {
+        ...Object.fromEntries(
+          Object.keys(prisma.account.fields).map((field) => [field, true])
+        ),
+        password: false,
+      },
     });
 
     if (!account) {

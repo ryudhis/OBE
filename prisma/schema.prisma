@@ -92,6 +92,7 @@ model MK {
   penilaianCPMK       penilaianCPMK[]
   prodi               prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId             String
+  rencanaPembelajaran Json?
 }
 
 model kelas {

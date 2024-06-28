@@ -2,10 +2,8 @@ import prisma from "@/utils/prisma";
 
 export async function PATCH(req) {
   try {
-    const id = req.url.split("/relasi/")[1];
+    const id = req.url.split("/tambahMahasiswa/")[1];
     const body = await req.json();
-
-    console.log("Request body:", body);
 
     // Fetch the MKId of the current kelas
     const currentKelas = await prisma.kelas.findUnique({
@@ -28,8 +26,6 @@ export async function PATCH(req) {
         { headers: { "Content-Type": "application/json" } }
       );
     }
-
-    console.log("Current kelas MKId:", currentKelas.MKId);
 
     const existingMahasiswaNims = new Set(
       currentKelas.mahasiswa.map((m) => m.nim)
