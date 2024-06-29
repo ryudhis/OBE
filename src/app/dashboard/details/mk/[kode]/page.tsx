@@ -618,7 +618,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     return kriteriaArray.map(([kriteriaName, kriteriaData], index) => (
       <TableRow key={kriteriaName}>
-        <TableCell className="w-[8%]">{index + 1}</TableCell>
+        <TableCell className="w-[8%] text-center">{index + 1}</TableCell>
         <TableCell className="w-[16%]">{kriteriaName}</TableCell>
         {mk.penilaianCPMK.map((CPMK) => (
           <React.Fragment key={CPMK.CPMKkode}>
@@ -641,7 +641,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   if (mk) {
     return (
-      <main className="w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+      <main className="w-screen max-w-7xl mx-auto pt-20 p-5">
         <div className="flex">
           <Table className="w-[400px] mb-5">
             <TableBody>
@@ -787,7 +787,9 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <CardHeader className="flex flex-row justify-between items-center">
                   <div className="flex flex-col">
                     <CardTitle>Tabel Kelas</CardTitle>
-                    <CardDescription>Kelas {mk.deskripsi}</CardDescription>
+                    <CardDescription>
+                      Mata Kuliah {mk.deskripsi}
+                    </CardDescription>
                   </div>
                   <Button
                     variant="destructive"
@@ -990,7 +992,9 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <CardHeader className="flex flex-row justify-between items-center">
                   <div className="flex flex-col">
                     <CardTitle>Rencana Pembelajaran</CardTitle>
-                    <CardDescription>Kelas {mk.deskripsi}</CardDescription>
+                    <CardDescription>
+                      Mata Kuliah {mk.deskripsi}
+                    </CardDescription>
                   </div>
                   <Button
                     variant="destructive"
@@ -1044,7 +1048,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               <CardHeader className="flex flex-row justify-between items-center">
                 <div className="flex flex-col">
                   <CardTitle>Rencana Asesment dan Evaluasi</CardTitle>
-                  <CardDescription>Kelas {mk.deskripsi}</CardDescription>
+                  <CardDescription>Mata Kuliah {mk.deskripsi}</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
@@ -1052,7 +1056,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[8%]">No</TableHead>
+                      <TableHead className="w-[8%] text-center">No</TableHead>
                       <TableHead className="w-[16%]">
                         Rencana Evaluasi
                       </TableHead>
