@@ -115,11 +115,7 @@ const Header = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        open={open}
-        className="flex flex-row justify-between items-center"
-      >
+      <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
             color="inherit"
@@ -140,21 +136,6 @@ const Header = () => {
             OBE
           </Typography>
         </Toolbar>
-        <Button
-          size="medium"
-          variant="contained"
-          color="error"
-          className="text-black font-semibold mr-4 bg-red-500"
-          onClick={() => {
-            toast({
-              description: "Berhasil Log Out.",
-            });
-            Cookies.remove("token");
-            router.push("/login");
-          }}
-        >
-          Logout
-        </Button>
       </AppBar>
       <Drawer
         sx={{
@@ -225,6 +206,21 @@ const Header = () => {
             ))}
           </Collapse>
         </List>
+        <Button
+          size="medium"
+          variant="contained"
+          color="error"
+          className="text-black font-semibold bg-red-500 m-4"
+          onClick={() => {
+            toast({
+              description: "Berhasil Log Out.",
+            });
+            Cookies.remove("token");
+            router.push("/login");
+          }}
+        >
+          Logout
+        </Button>
         <Divider />
       </Drawer>
       <Main open={open}>
