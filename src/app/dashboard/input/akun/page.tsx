@@ -49,16 +49,7 @@ const InputAkun = () => {
   const { toast } = useToast();
   const [prodi, setProdi] = useState<prodi[]>([]);
   const [account, setAccount] = useState<accountProdi>();
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      setAccount(data);
-      getProdi();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -124,8 +115,27 @@ const InputAkun = () => {
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAccountData();
+        setAccount(data);
+        getProdi();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchData();
-  });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <h1 className="text-center font-bold text-2xl">Loading...</h1>
+      </div>
+    );
+  }
 
   if (account?.role !== "Admin") {
     return (

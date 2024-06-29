@@ -85,11 +85,6 @@ const DataAkun = () => {
           <TableCell className="flex-1 text-center">{akun.nama}</TableCell>
           <TableCell className="w-[18%] text-center">{akun.email}</TableCell>
           <TableCell className="w-[18%] text-center">{akun.role}</TableCell>
-          {/* <TableCell className="w-[18%]">
-            {akun.kelas.map((kelas) => {
-              return <div key={kelas.id}>{kelas.nama}</div>;
-            })}
-          </TableCell> */}
           <TableCell className="w-[18%] flex gap-2 text-center">
             <Button variant="destructive" onClick={() => delAkun(akun.id)}>
               Hapus
