@@ -57,3 +57,30 @@ export async function POST(req) {
     return Response.json({ status: 400, message: "Something went wrong!" });
   }
 }
+
+export async function DELETE(req) {
+  const { searchParams } = new URL(req.url);
+  const mk = searchParams.get("mk") || ""; // Access prodi query parameter
+
+  // Validate prodi parameter if necessary
+  if (!mk) {
+    return Response.json({ status: 400, message: "Missing mk parameter" });
+  }
+
+  try {
+    const rencanaPembelajaran = await prisma.rencanaPembelajaran.deleteMany({
+      where: {
+        MKId: mk,
+      },
+    });
+
+    return Response.json({
+      status: 200,
+      message: "Berhasil hapus data!",
+      data: rencanaPembelajaran,
+    });
+  } catch (error) {
+    console.log(error);
+    return Response.json({ status: 400, message: "Something went wrong!" });
+  }
+}
