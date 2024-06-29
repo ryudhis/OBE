@@ -8,6 +8,7 @@ export async function GET(req) {
         kode: kode,
       },
       include: {
+        penilaianCPMK: true,
         BK: { include: { CPL: true } },
         CPMK: true,
         kelas: { include: { MK: true, mahasiswa: true } },
