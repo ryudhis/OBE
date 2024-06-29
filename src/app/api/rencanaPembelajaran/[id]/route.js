@@ -45,6 +45,8 @@ export async function PATCH(req) {
     const id = req.url.split("/rencanaPembelajaran/")[1];
     const data = await req.json();
 
+    console.log(data);
+
     const rencanaPembelajaran = await prisma.rencanaPembelajaran.update({
       where: {
         id: parseInt(id),
