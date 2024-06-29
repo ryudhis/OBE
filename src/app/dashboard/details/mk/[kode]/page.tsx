@@ -95,14 +95,17 @@ export interface mahasiswaItem {
 }
 
 const formSchema = z.object({
-  deskripsi: z.string().min(1).max(50),
-  sks: z.string().min(1).max(50),
-  batasLulusMahasiswa: z.string().min(1).max(50),
-  batasLulusMK: z.string().min(1).max(50),
+  deskripsi: z.string(),
+  sks: z.string(),
+  batasLulusMahasiswa: z.string(),
+  batasLulusMK: z.string(),
   jumlahKelas: z.string(),
-  minggu: z.string().min(1).max(2),
-  materi: z.string().min(1).max(50),
-  metode: z.string().min(1).max(50),
+  minggu: z.string(),
+  materi: z.string(),
+  metode: z.string(),
+  editMinggu: z.string(),
+  editMateri: z.string(),
+  editMetode: z.string(),
 });
 
 export default function Page({ params }: { params: { kode: string } }) {
@@ -110,6 +113,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [mk, setMK] = useState<MKinterface | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -123,6 +127,9 @@ export default function Page({ params }: { params: { kode: string } }) {
       minggu: "",
       materi: "",
       metode: "",
+      editMinggu: "",
+      editMateri: "",
+      editMetode: "",
     },
   });
 
@@ -211,16 +218,13 @@ export default function Page({ params }: { params: { kode: string } }) {
       }
       setMK(response.data.data);
 
-      form.reset({
-        deskripsi: response.data.data.deskripsi,
-        sks: response.data.data.sks,
-        batasLulusMahasiswa: String(response.data.data.batasLulusMahasiswa),
-        batasLulusMK: String(response.data.data.batasLulusMK),
-        jumlahKelas: "",
-        minggu: "",
-        materi: "",
-        metode: "",
-      });
+      form.setValue("deskripsi", response.data.data.deskripsi);
+      form.setValue("sks", response.data.data.sks);
+      form.setValue(
+        "batasLulusMahasiswa",
+        String(response.data.data.batasLulusMahasiswa)
+      );
+      form.setValue("batasLulusMK", String(response.data.data.batasLulusMK));
     } catch (error: any) {
       throw error;
     } finally {
@@ -359,6 +363,57 @@ export default function Page({ params }: { params: { kode: string } }) {
       });
   };
 
+  function editRencana(values: z.infer<typeof formSchema>, e: any) {
+    e.preventDefault();
+
+    const data = {
+      minggu: parseInt(values.editMinggu),
+      materi: values.editMateri,
+      metode: values.editMetode,
+    };
+
+    axiosConfig
+      .patch(`api/rencanaPembelajaran/${selectedRencana?.id}`, data)
+      .then(function (response) {
+        if (response.status === 200) {
+          toast({
+            title: "Berhasil edit rencana pembelajaran",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Tidak ada rencana pembelajaran!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal edit rencana pembelajaran",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+      });
+  }
+
+  const handleSelectRP = (id: number) => {
+    const rencana = mk?.rencanaPembelajaran.find(
+      (rencana) => rencana.id === id
+    );
+
+    if (rencana) {
+      form.setValue("editMinggu", String(rencana.minggu));
+      form.setValue("editMateri", rencana.materi);
+      form.setValue("editMetode", rencana.metode);
+      setSelectedRencana(rencana);
+    }
+  };
+
   useEffect(() => {
     getMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -399,13 +454,118 @@ export default function Page({ params }: { params: { kode: string } }) {
     return mk?.rencanaPembelajaran.map((rencana) => {
       return (
         <TableRow key={rencana.id}>
-          <TableCell className='w-[8%]'>{rencana.minggu}</TableCell>
-          <TableCell className='w-[8%]'>{rencana.materi}</TableCell>
-          <TableCell className='w-[8%]'>{rencana.metode}</TableCell>
-          <TableCell className='w-[8%] flex gap-2'>
-            <Button variant='destructive' onClick={() => delRencana(rencana.id)}>
+          <TableCell className='text-center'>{rencana.minggu}</TableCell>
+          <TableCell className='text-center'>{rencana.materi}</TableCell>
+          <TableCell className='text-center'>{rencana.metode}</TableCell>
+          <TableCell className='text-center flex gap-3'>
+            <Button
+              variant='destructive'
+              onClick={() => delRencana(rencana.id)}
+            >
               Hapus
             </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={() => handleSelectRP(rencana.id)}
+                  variant='outline'
+                >
+                  Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Edit Data</DialogTitle>
+                  <DialogDescription>Rencana Pembelajaran</DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(editRencana)}
+                    className='space-y-8'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='editMinggu'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Minggu</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              min={1}
+                              max={12}
+                              placeholder='Minggu ke-'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='editMateri'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Materi</FormLabel>
+                          <FormControl>
+                            <Input placeholder='Materi' required {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='editMetode'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Metode</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                            }}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                {field.value ? (
+                                  <SelectValue placeholder='Pilih Metode' />
+                                ) : (
+                                  "Pilih Metode"
+                                )}
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value={"Project Based Learning"}>
+                                Project Based Learning
+                              </SelectItem>
+                              <SelectItem value={"Case Based Learning"}>
+                                Case Based Learning
+                              </SelectItem>
+                              <SelectItem value={"Problem Saved Learning"}>
+                                Problem Saved Learning
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button
+                        className='bg-blue-500 hover:bg-blue-600'
+                        type='submit'
+                      >
+                        Submit
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </TableCell>
         </TableRow>
       );
@@ -654,10 +814,12 @@ export default function Page({ params }: { params: { kode: string } }) {
               </Form>
             )}
           </TabsContent>
-          <TabsContent className="flex flex-col gap-3" value='rencana'>
+          <TabsContent className='flex flex-col gap-3' value='rencana'>
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="w-[200px] self-end mr-32" variant='outline'>Tambah Data</Button>
+                <Button className='w-[200px] self-end mr-32' variant='outline'>
+                  Tambah Data
+                </Button>
               </DialogTrigger>
               <DialogContent className='sm:max-w-[425px]'>
                 <DialogHeader>
@@ -773,11 +935,11 @@ export default function Page({ params }: { params: { kode: string } }) {
                   {isLoading ? (
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead className='w-[8%]'>Minggu</TableHead>
-                          <TableHead className='w-[8%]'>Materi</TableHead>
-                          <TableHead className='w-[8%]'>Metode</TableHead>
-                          <TableHead className='w-[8%]'>Aksi</TableHead>
+                        <TableRow >
+                          <TableHead className='text-center'>Minggu</TableHead>
+                          <TableHead className='text-center'>Materi</TableHead>
+                          <TableHead className='text-center'>Metode</TableHead>
+                          <TableHead className="w-[5%] text-center">Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -788,10 +950,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className='w-[8%]'>Minggu</TableHead>
-                          <TableHead className='w-[8%]'>Materi</TableHead>
-                          <TableHead className='w-[8%]'>Metode</TableHead>
-                          <TableHead className='w-[8%]'>Aksi</TableHead>
+                          <TableHead className='text-center'>Minggu</TableHead>
+                          <TableHead className='text-center'>Materi</TableHead>
+                          <TableHead className='text-center'>Metode</TableHead>
+                          <TableHead className="w-[5%] text-center">Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>{renderDataRP()}</TableBody>
@@ -800,7 +962,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </CardContent>
               </Card>
             ) : (
-              <p className="self-center">Belum Ada Rencana Pembelajaran ...</p>
+              <p className='self-center'>Belum Ada Rencana Pembelajaran ...</p>
             )}
           </TabsContent>
         </Tabs>
