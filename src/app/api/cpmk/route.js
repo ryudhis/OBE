@@ -26,6 +26,7 @@ export async function GET(req) {
             BK: true,
           },
         },
+        penilaianCPMK: true,
       },
     });
 
