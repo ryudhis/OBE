@@ -25,6 +25,7 @@ import InputIcon from "@mui/icons-material/Input";
 import Collapse from "@mui/material/Collapse";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import Button from "@mui/material/Button";
+import AssignmentReturn from "@mui/icons-material/AssignmentReturn";
 const drawerWidth = 240;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
@@ -83,6 +84,7 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const [openNestedInput, setOpenNestedInput] = useState(false);
   const [openNestedData, setOpenNestedData] = useState(false);
+  const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
   const linkList = [
     "pl",
     "cpl",
@@ -112,26 +114,30 @@ const Header = () => {
     setOpenNestedData(!openNestedData);
   };
 
+  const handleClickPemetaan = () => {
+    setOpenNestedPemetaan(!openNestedPemetaan);
+  };
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
+      <AppBar position='fixed' open={open}>
         <Toolbar>
           <IconButton
-            color="inherit"
-            aria-label="open drawer"
+            color='inherit'
+            aria-label='open drawer'
             onClick={handleDrawerOpen}
-            edge="start"
+            edge='start'
             sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
             <MenuIcon />
           </IconButton>
           <Typography
-            variant="h6"
+            variant='h6'
             noWrap
-            component="a"
-            className="cursor-pointer"
-            href="/dashboard"
+            component='a'
+            className='cursor-pointer'
+            href='/dashboard'
           >
             OBE
           </Typography>
@@ -146,8 +152,8 @@ const Header = () => {
             boxSizing: "border-box",
           },
         }}
-        variant="persistent"
-        anchor="left"
+        variant='persistent'
+        anchor='left'
         open={open}
       >
         <DrawerHeader>
@@ -162,17 +168,17 @@ const Header = () => {
         <Divider />
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-          component="nav"
-          aria-labelledby="nested-list-subheader"
+          component='nav'
+          aria-labelledby='nested-list-subheader'
         >
           <ListItemButton onClick={handleClickInput}>
             <ListItemIcon>
               <InputIcon />
             </ListItemIcon>
-            <ListItemText primary="Input" />
+            <ListItemText primary='Input' />
             {openNestedInput ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedInput} timeout="auto" unmountOnExit>
+          <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
@@ -189,10 +195,10 @@ const Header = () => {
             <ListItemIcon>
               <TextSnippetIcon />
             </ListItemIcon>
-            <ListItemText primary="Data" />
+            <ListItemText primary='Data' />
             {openNestedData ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedData} timeout="auto" unmountOnExit>
+          <Collapse in={openNestedData} timeout='auto' unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
@@ -205,12 +211,27 @@ const Header = () => {
               </ListItemButton>
             ))}
           </Collapse>
+          <ListItemButton onClick={handleClickPemetaan}>
+            <ListItemIcon>
+              <AssignmentReturn />
+            </ListItemIcon>
+            <ListItemText primary='Pemetaan' />
+            {openNestedPemetaan ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={openNestedPemetaan} timeout='auto' unmountOnExit>
+            <ListItemButton
+              onClick={() => router.push(`/dashboard/pemetaan/cpl-cpmk`)}
+              sx={{ pl: 4 }}
+            >
+              <ListItemText primary={"CPL - CPMK"} />
+            </ListItemButton>
+          </Collapse>
         </List>
         <Button
-          size="medium"
-          variant="contained"
-          color="error"
-          className="text-black font-semibold bg-red-500 m-4"
+          size='medium'
+          variant='contained'
+          color='error'
+          className='text-black font-semibold bg-red-500 m-4'
           onClick={() => {
             toast({
               description: "Berhasil Log Out.",

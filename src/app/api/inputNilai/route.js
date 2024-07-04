@@ -40,7 +40,7 @@ export async function POST(req) {
     const data = await req.json();
 
     const inputNilaiData = data.map((mahasiswa) => ({
-      penilaianCPMKId: mahasiswa.PCPMKId, // Assuming PCPMKId is the ID for penilaianCPMK
+      penilaianCPMKId: parseInt(mahasiswa.PCPMKId), // Assuming PCPMKId is the ID for penilaianCPMK
       mahasiswaNim: mahasiswa.MahasiswaId, // Assuming MahasiswaId is the NIM for mahasiswa
       kelasId: mahasiswa.kelasId, // Assuming kelasId is the ID for kelas
       nilai: mahasiswa.nilai,

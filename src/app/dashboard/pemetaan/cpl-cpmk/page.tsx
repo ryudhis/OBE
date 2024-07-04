@@ -67,7 +67,15 @@ export default function Page() {
   const getAllCPL = async (prodiId: string) => {
     try {
       const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
-      setCPl(response.data.data);
+      const cplData = response.data.data;
+      setCPl(cplData);
+
+      // Initialize the selected state with empty sets for each CPL
+      const initialSelected: { [cplId: string]: Set<string> } = {};
+      cplData.forEach((cplItem: CPLItem) => {
+        initialSelected[cplItem.id] = new Set();
+      });
+      setSelected(initialSelected);
     } catch (error: any) {
       console.error(error);
     }
@@ -79,17 +87,16 @@ export default function Page() {
       const cpmkData = response.data.data;
       setCPMK(cpmkData);
 
-      // Initialize the selected state based on the fetched data
-      const initialSelected: { [cplId: string]: Set<string> } = {};
-      cpmkData.forEach((cpmkItem: CPMKItem) => {
-        cpmkItem.CPL.forEach((cplItem: CPLItem) => {
-          if (!initialSelected[cplItem.id]) {
-            initialSelected[cplItem.id] = new Set();
-          }
-          initialSelected[cplItem.id].add(cpmkItem.id);
+      // Populate the selected state with existing relationships
+      setSelected((prevSelected) => {
+        const newSelected = { ...prevSelected };
+        cpmkData.forEach((cpmkItem: CPMKItem) => {
+          cpmkItem.CPL.forEach((cplItem: CPLItem) => {
+            newSelected[cplItem.id].add(cpmkItem.id);
+          });
         });
+        return newSelected;
       });
-      setSelected(initialSelected);
     } catch (error: any) {
       console.error(error);
     }
@@ -103,10 +110,6 @@ export default function Page() {
         const updatedSet = new Set(newSelected[cplId]);
         updatedSet.delete(cpmkId);
         newSelected[cplId] = updatedSet;
-
-        if (updatedSet.size === 0) {
-          delete newSelected[cplId];
-        }
       } else {
         if (!newSelected[cplId]) {
           newSelected[cplId] = new Set();
@@ -121,33 +124,31 @@ export default function Page() {
   };
 
   const updateRelation = async () => {
-    const payload = Object.entries(selected).map(([cplId, cpmkIds]) => ({
+    const data = Object.entries(selected).map(([cplId, cpmkIds]) => ({
       cplId,
       cpmkIds: Array.from(cpmkIds),
     }));
 
-    console.log(payload);
+    console.log(data);
 
-    // try {
-    //   const response = await axiosConfig.patch(`api/cpl/relasi`, {
-    //     relations: payload,
-    //   });
-    //   setRefresh(!refresh);
-    //   if (response.data.status === 200 || response.data.status === 201) {
-    //     toast({
-    //       title: response.data.message,
-    //       variant: "default",
-    //     });
-    //   } else {
-    //     console.error(response.data);
-    //     toast({
-    //       title: response.data.message,
-    //       variant: "destructive",
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    try {
+      const response = await axiosConfig.patch(`api/cpl/relasiCPMK`, data);
+      setRefresh(!refresh);
+      if (response.data.status === 200 || response.data.status === 201) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+      } else {
+        console.error(response.data);
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const calculateTotalBobot = (penilaianCPMK: PCPMKItem[]) => {
@@ -160,7 +161,6 @@ export default function Page() {
       );
     }, 0);
   };
-  
 
   useEffect(() => {
     fetchData();
@@ -209,7 +209,9 @@ export default function Page() {
                         />
                       </TableCell>
                     ))}
-                    <TableCell>{calculateTotalBobot(cpmkItem.penilaianCPMK)}</TableCell>
+                    <TableCell>
+                      {calculateTotalBobot(cpmkItem.penilaianCPMK)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

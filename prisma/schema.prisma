@@ -138,7 +138,8 @@ model subCPMK {
 }
 
 model penilaianCPMK {
-  kode            String       @id @unique
+  id              Int          @id @unique @default(sequence())
+  kode            String
   CPL             CPL          @relation(fields: [CPLkode], references: [id], onDelete: Cascade)
   CPLkode         Int
   MK              MK           @relation(fields: [MKkode], references: [kode], onDelete: Cascade)
@@ -153,6 +154,8 @@ model penilaianCPMK {
   inputNilai      inputNilai[]
   prodi           prodi        @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId         String
+
+  @@unique([kode, prodiId])
 }
 
 model mahasiswa {
@@ -166,8 +169,8 @@ model mahasiswa {
 
 model inputNilai {
   id              Int           @unique @default(sequence())
-  penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [kode], onDelete: Cascade)
-  penilaianCPMKId String
+  penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [id], onDelete: Cascade)
+  penilaianCPMKId Int
   mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim    String
   kelas           kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)

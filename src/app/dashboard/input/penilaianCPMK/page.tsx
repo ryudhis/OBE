@@ -171,7 +171,7 @@ const InputPenilaianCPMK = () => {
     const concat = (data: string[]) => data.join(", ");
 
     const data = {
-      kode: "PCPMK-" + values.kode,
+      kode: values.kode,
       MK: values.MK,
       CPMK: values.CPMK,
       CPL: values.CPL,

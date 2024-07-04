@@ -965,8 +965,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <SelectItem value={"Case Based Learning"}>
                                 Case Based Learning
                               </SelectItem>
-                              <SelectItem value={"Problem Saved Learning"}>
-                                Problem Saved Learning
+                              <SelectItem value={"Problem Based Learning"}>
+                                Problem Based Learning
                               </SelectItem>
                             </SelectContent>
                           </Select>
