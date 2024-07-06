@@ -52,6 +52,7 @@ export async function GET(req) {
         ...Object.fromEntries(
           Object.keys(prisma.account.fields).map((field) => [field, true])
         ),
+        kelas: true,
         password: false,
       },
     });

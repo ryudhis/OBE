@@ -60,12 +60,14 @@ export interface PCPMKItem {
 
 export interface MKItem {
   kode: string;
+  deskripsi: string;
   kelas: kelasItem[];
 }
 
 export interface kelasItem {
   id: number;
   nama: string;
+  MK: MKItem;
   MKId: string;
   mahasiswa: mahasiswaItem[];
 }
@@ -77,7 +79,7 @@ export interface mahasiswaItem {
 
 const InputNilai: React.FC = () => {
   const { toast } = useToast();
-  const [account, setAccount] = useState<accountProdi>();
+  const [account, setAccount] = useState<accountProdi>({} as accountProdi);
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
@@ -90,7 +92,7 @@ const InputNilai: React.FC = () => {
     try {
       const data = await getAccountData();
       setAccount(data);
-      getMK(data.prodiId);
+      getMK(data.prodiId, data);
       getPCPMK(data.prodiId);
     } catch (error) {
       console.log(error);
@@ -120,11 +122,24 @@ const InputNilai: React.FC = () => {
     }
   };
 
-  const getMK = async (prodiId: string) => {
+  const getMK = async (prodiId: string, accountData: accountProdi) => {
     try {
+      console.log(accountData);
+
+      const userMKCodes = accountData.kelas.map(
+        (kelas: kelasItem) => kelas.MKId
+      );
+
+      // Fetch the MK data
       const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
       if (response.data.status !== 400) {
-        setMK(response.data.data);
+        // Filter the MK data
+        const filteredMK = response.data.data.filter((mk: MKItem) =>
+          userMKCodes.includes(mk.kode)
+        );
+
+        // Set the filtered MK data to the state
+        setMK(filteredMK);
       } else {
         alert(response.data.message);
       }
@@ -252,7 +267,7 @@ const InputNilai: React.FC = () => {
                         />
                         {filteredMK.map((mk, index) => (
                           <SelectItem key={index} value={mk.kode}>
-                            {mk.kode}
+                            {mk.kode + " - " + mk.deskripsi}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -293,11 +308,17 @@ const InputNilai: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {selectedMK?.kelas.map((kelas, index) => (
-                          <SelectItem key={index} value={kelas.nama}>
-                            {kelas.nama}
-                          </SelectItem>
-                        ))}
+                        {selectedMK?.kelas
+                          .filter((kelas) =>
+                            account?.kelas.some(
+                              (accKelas) => accKelas.nama === kelas.nama
+                            )
+                          )
+                          .map((kelas, index) => (
+                            <SelectItem key={index} value={kelas.nama}>
+                              {kelas.nama}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
