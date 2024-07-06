@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -26,6 +26,9 @@ import Collapse from "@mui/material/Collapse";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import Button from "@mui/material/Button";
 import AssignmentReturn from "@mui/icons-material/AssignmentReturn";
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
+
 const drawerWidth = 240;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
@@ -85,6 +88,8 @@ const Header = () => {
   const [openNestedInput, setOpenNestedInput] = useState(false);
   const [openNestedData, setOpenNestedData] = useState(false);
   const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [account, setAccount] = useState<accountProdi>({} as accountProdi);
   const linkList = [
     "pl",
     "cpl",
@@ -118,6 +123,22 @@ const Header = () => {
     setOpenNestedPemetaan(!openNestedPemetaan);
   };
 
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccount(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -141,6 +162,18 @@ const Header = () => {
           >
             OBE
           </Typography>
+          {isLoading ? (
+            <Typography
+              variant='body1'
+              sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
+            >
+              ...
+            </Typography>
+          ) : (
+            <Typography variant='body1' sx={{ marginLeft: "auto" }}>
+              {account.nama} - {account.role}
+            </Typography>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
