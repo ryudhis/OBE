@@ -26,8 +26,7 @@ import Collapse from "@mui/material/Collapse";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import Button from "@mui/material/Button";
 import AssignmentReturn from "@mui/icons-material/AssignmentReturn";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const drawerWidth = 240;
 
@@ -88,9 +87,9 @@ const Header = () => {
   const [openNestedInput, setOpenNestedInput] = useState(false);
   const [openNestedData, setOpenNestedData] = useState(false);
   const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [account, setAccount] = useState<accountProdi>({} as accountProdi);
-  const linkList = [
+  const [isLoading, setIsLoading] = useState(false);
+  const accountData = useAccount();
+  const linkListSuperAdmin = [
     "pl",
     "cpl",
     "bk",
@@ -102,6 +101,38 @@ const Header = () => {
     "akun",
     "prodi",
   ];
+
+  const linkListKaprodi = [
+    "pl",
+    "cpl",
+    "bk",
+    "cpmk",
+    "mk",
+    "penilaian CPMK",
+    "mahasiswa",
+    "nilai",
+  ];
+
+  const linkListAdminProdi = [
+    "pl",
+    "cpl",
+    "bk",
+    "cpmk",
+    "mk",
+    "penilaian CPMK",
+    "mahasiswa",
+  ];
+
+  const linkListDosen = ["nilai", "penilaian CPMK"];
+
+  const linkList =
+    accountData?.role === "Admin"
+      ? linkListSuperAdmin
+      : accountData?.role === "Kaprodi"
+      ? linkListKaprodi
+      : accountData?.role === "Admin Prodi"
+      ? linkListAdminProdi
+      : linkListDosen;
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -123,55 +154,39 @@ const Header = () => {
     setOpenNestedPemetaan(!openNestedPemetaan);
   };
 
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      setAccount(data);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position='fixed' open={open}>
+      <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
-            color='inherit'
-            aria-label='open drawer'
+            color="inherit"
+            aria-label="open drawer"
             onClick={handleDrawerOpen}
-            edge='start'
+            edge="start"
             sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
             <MenuIcon />
           </IconButton>
           <Typography
-            variant='h6'
+            variant="h6"
             noWrap
-            component='a'
-            className='cursor-pointer'
-            href='/dashboard'
+            component="a"
+            className="cursor-pointer"
+            onClick={() => router.push(`/dashboard/`)}
           >
             OBE
           </Typography>
           {isLoading ? (
             <Typography
-              variant='body1'
+              variant="body1"
               sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
             >
               ...
             </Typography>
           ) : (
-            <Typography variant='body1' sx={{ marginLeft: "auto" }}>
-              {account.nama} - {account.role}
+            <Typography variant="body1" sx={{ marginLeft: "auto" }}>
+              {accountData?.nama} - {accountData?.role}
             </Typography>
           )}
         </Toolbar>
@@ -185,8 +200,8 @@ const Header = () => {
             boxSizing: "border-box",
           },
         }}
-        variant='persistent'
-        anchor='left'
+        variant="persistent"
+        anchor="left"
         open={open}
       >
         <DrawerHeader>
@@ -201,17 +216,17 @@ const Header = () => {
         <Divider />
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-          component='nav'
-          aria-labelledby='nested-list-subheader'
+          component="nav"
+          aria-labelledby="nested-list-subheader"
         >
           <ListItemButton onClick={handleClickInput}>
             <ListItemIcon>
               <InputIcon />
             </ListItemIcon>
-            <ListItemText primary='Input' />
+            <ListItemText primary="Input" />
             {openNestedInput ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
+          <Collapse in={openNestedInput} timeout="auto" unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
@@ -228,10 +243,10 @@ const Header = () => {
             <ListItemIcon>
               <TextSnippetIcon />
             </ListItemIcon>
-            <ListItemText primary='Data' />
+            <ListItemText primary="Data" />
             {openNestedData ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedData} timeout='auto' unmountOnExit>
+          <Collapse in={openNestedData} timeout="auto" unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
@@ -248,10 +263,10 @@ const Header = () => {
             <ListItemIcon>
               <AssignmentReturn />
             </ListItemIcon>
-            <ListItemText primary='Pemetaan' />
+            <ListItemText primary="Pemetaan" />
             {openNestedPemetaan ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedPemetaan} timeout='auto' unmountOnExit>
+          <Collapse in={openNestedPemetaan} timeout="auto" unmountOnExit>
             <ListItemButton
               onClick={() => router.push(`/dashboard/pemetaan/cpl-cpmk`)}
               sx={{ pl: 4 }}
@@ -261,10 +276,10 @@ const Header = () => {
           </Collapse>
         </List>
         <Button
-          size='medium'
-          variant='contained'
-          color='error'
-          className='text-black font-semibold bg-red-500 m-4'
+          size="medium"
+          variant="contained"
+          color="error"
+          className="text-black font-semibold bg-red-500 m-4"
           onClick={() => {
             toast({
               description: "Berhasil Log Out.",
