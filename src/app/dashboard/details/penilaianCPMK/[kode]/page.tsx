@@ -28,7 +28,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useToast } from "@/components/ui/use-toast";
 import {
   Select,
   SelectContent,
@@ -210,9 +209,9 @@ export default function Page({ params }: { params: { kode: string } }) {
     return PCPMK?.inputNilai.map((mahasiswa, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[10%]'>{mahasiswa.mahasiswaNim}</TableCell>
+          <TableCell className="w-[10%]">{mahasiswa.mahasiswaNim}</TableCell>
           {mahasiswa.nilai.map((nilai, index) => (
-            <TableCell className='w-[10%]' key={index}>
+            <TableCell className="w-[10%]" key={index}>
               {nilai}
             </TableCell>
           ))}
@@ -228,9 +227,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   if (PCPMK) {
     return (
-      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <div className='flex'>
-          <Table className='w-[400px] mb-5'>
+      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <div className="flex">
+          <Table className="w-[400px] mb-5">
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -259,7 +258,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               {PCPMK.kriteria.map((kriteria, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <strong>Kriteria {index+1}</strong>{" "}
+                    <strong>Kriteria {index + 1}</strong>{" "}
                   </TableCell>
                   <TableCell>: {kriteria.kriteria}</TableCell>
                 </TableRow>
@@ -269,9 +268,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Edit Data</Button>
+              <Button variant="outline">Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px]'>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Edit MK</DialogTitle>
                 <DialogDescription>{PCPMK.kode}</DialogDescription>
@@ -279,16 +278,16 @@ export default function Page({ params }: { params: { kode: string } }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className='space-y-8'
+                  className="space-y-8"
                 >
-                  <div className='grid gap-4 py-4'>
+                  <div className="grid gap-4 py-4">
                     <FormField
                       control={form.control}
-                      name='tahapPenilaian'
+                      name="tahapPenilaian"
                       render={() => (
                         <FormItem>
-                          <div className='mb-4'>
-                            <FormLabel className='text-base'>
+                          <div className="mb-4">
+                            <FormLabel className="text-base">
                               Tahap Penilaian :
                             </FormLabel>
                           </div>
@@ -296,12 +295,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <FormField
                               key={item.id}
                               control={form.control}
-                              name='tahapPenilaian'
+                              name="tahapPenilaian"
                               render={({ field }) => {
                                 return (
                                   <FormItem
                                     key={item.id}
-                                    className='flex flex-row items-start space-x-3 space-y-0'
+                                    className="flex flex-row items-start space-x-3 space-y-0"
                                   >
                                     <FormControl>
                                       <Checkbox
@@ -320,7 +319,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                                         }}
                                       />
                                     </FormControl>
-                                    <FormLabel className='font-normal'>
+                                    <FormLabel className="font-normal">
                                       {item.label}
                                     </FormLabel>
                                   </FormItem>
@@ -335,11 +334,11 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                     <FormField
                       control={form.control}
-                      name='teknikPenilaian'
+                      name="teknikPenilaian"
                       render={() => (
                         <FormItem>
-                          <div className='mb-4'>
-                            <FormLabel className='text-base'>
+                          <div className="mb-4">
+                            <FormLabel className="text-base">
                               Teknik Penilaian :
                             </FormLabel>
                           </div>
@@ -347,12 +346,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <FormField
                               key={item.id}
                               control={form.control}
-                              name='teknikPenilaian'
+                              name="teknikPenilaian"
                               render={({ field }) => {
                                 return (
                                   <FormItem
                                     key={item.id}
-                                    className='flex flex-row items-start space-x-3 space-y-0'
+                                    className="flex flex-row items-start space-x-3 space-y-0"
                                   >
                                     <FormControl>
                                       <Checkbox
@@ -371,7 +370,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                                         }}
                                       />
                                     </FormControl>
-                                    <FormLabel className='font-normal'>
+                                    <FormLabel className="font-normal">
                                       {item.label}
                                     </FormLabel>
                                   </FormItem>
@@ -386,10 +385,10 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                     <FormField
                       control={form.control}
-                      name='instrumen'
+                      name="instrumen"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className='text-base'>
+                          <FormLabel className="text-base">
                             Instrumen :{" "}
                           </FormLabel>
                           <Select
@@ -401,15 +400,15 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <FormControl>
                               <SelectTrigger>
                                 {field.value ? (
-                                  <SelectValue placeholder='Pilih Instrumen' />
+                                  <SelectValue placeholder="Pilih Instrumen" />
                                 ) : (
                                   "Pilih Instrumen"
                                 )}
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value='Rubrik'>Rubrik</SelectItem>
-                              <SelectItem value='Panduan Proyek Akhir'>
+                              <SelectItem value="Rubrik">Rubrik</SelectItem>
+                              <SelectItem value="Panduan Proyek Akhir">
                                 Panduan Proyek Akhir
                               </SelectItem>
                             </SelectContent>
@@ -421,14 +420,14 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                     <FormField
                       control={form.control}
-                      name='batasNilai'
+                      name="batasNilai"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Batas Nilai : </FormLabel>
                           <FormControl>
                             <Input
-                              placeholder='Batas Nilai'
-                              type='number'
+                              placeholder="Batas Nilai"
+                              type="number"
                               required
                               {...field}
                             />
@@ -439,7 +438,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                   </div>
                   <DialogFooter>
-                    <Button type='submit'>Simpan</Button>
+                    <Button type="submit">Simpan</Button>
                   </DialogFooter>
                 </form>
               </Form>
@@ -447,14 +446,14 @@ export default function Page({ params }: { params: { kode: string } }) {
           </Dialog>
         </div>
 
-        <div className=' font-bold text-xl'>Data Nilai Mahasiswa</div>
+        <div className=" font-bold text-xl">Data Nilai Mahasiswa</div>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-[10%]'>NIM</TableHead>
+              <TableHead className="w-[10%]">NIM</TableHead>
               {PCPMK.kriteria.map((nilai, index) => (
-                <TableHead className='w-[10%]' key={index}>
+                <TableHead className="w-[10%]" key={index}>
                   Kriteria {index + 1}
                 </TableHead>
               ))}

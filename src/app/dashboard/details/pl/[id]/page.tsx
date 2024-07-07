@@ -20,9 +20,9 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
+import { get } from "http";
 
 export interface PLinterface {
   id: number;
@@ -44,31 +44,13 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [pl, setPl] = useState<PLinterface | undefined>();
   const [cpl, setCPL] = useState<CPLItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail PL",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getAllCPL(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -123,26 +105,33 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         alert(response.data.message);
       }
+      if (response.data.data.prodiId !== accountData?.prodiId) {
+        router.push("/dashboard");
+        toast({
+          title: `Anda tidak memiliki akses untuk page detail PL prodi ${accountData?.prodiId}`,
+          variant: "destructive",
+        });
+      } else {
+        setPl(response.data.data);
+        const prevSelected = response.data.data.CPL.map(
+          (item: CPLItem) => item.kode
+        );
 
-      setPl(response.data.data);
-      const prevSelected = response.data.data.CPL.map(
-        (item: CPLItem) => item.kode
-      );
+        setSelected(prevSelected);
+        setPrevSelected(prevSelected);
 
-      setSelected(prevSelected);
-      setPrevSelected(prevSelected);
-
-      form.reset({
-        deskripsi: response.data.data.deskripsi,
-      });
+        form.reset({
+          deskripsi: response.data.data.deskripsi,
+        });
+      }
     } catch (error: any) {
       throw error;
     }
   };
 
-  const getAllCPL = async (prodiId: string) => {
+  const getAllCPL = async (prodiId: string | undefined) => {
     try {
-      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId || ""}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -176,7 +165,7 @@ export default function Page({ params }: { params: { id: string } }) {
       deskripsi: pl?.deskripsi,
       addedCPLId: addedCPLId,
       removedCPLId: removedCPLId,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     try {
@@ -202,14 +191,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   // ONLY FIRST TIME
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
+    getAllCPL(accountData?.prodiId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Trigger useEffect only on initial mount
 
@@ -218,11 +200,20 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page detail pl.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
+
   if (pl) {
     return (
-      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <div className='flex'>
-          <Table className='w-[400px] mb-5'>
+      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <div className="flex">
+          <Table className="w-[400px] mb-5">
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -241,53 +232,53 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Edit Data</Button>
+              <Button variant="outline">Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px]'>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Edit PL</DialogTitle>
                 <DialogDescription>{pl.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='deskripsi' className='text-right'>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="deskripsi" className="text-right">
                       Deskripsi
                     </Label>
                     <Input
-                      id='deskripsi'
+                      id="deskripsi"
                       {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className='col-span-3'
+                      className="col-span-3"
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type='submit'>Simpan</Button>
+                  <Button type="submit">Simpan</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi CPL</div>
-          <RelationData data={pl.CPL} jenisData='CPL' />
+        <div className="mb-5">
+          <div className=" font-bold text-xl">Data Relasi CPL</div>
+          <RelationData data={pl.CPL} jenisData="CPL" />
         </div>
 
         {/* HEADER */}
-        <div className='flex flex-row justify-between items-center mb-5'>
-          <div className=' font-bold text-xl'>Sambungkan CPL</div>
+        <div className="flex flex-row justify-between items-center mb-5">
+          <div className=" font-bold text-xl">Sambungkan CPL</div>
           <input
-            type='text'
-            className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+            type="text"
+            className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
             value={search}
-            placeholder='Cari...'
+            placeholder="Cari..."
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* LIST OF CPL */}
-        <div className='grid grid-cols-4 gap-4'>
+        <div className="grid grid-cols-4 gap-4">
           {filteredCPL && filteredCPL.length > 0 ? (
             filteredCPL?.map((cpl, index) => {
               return (
@@ -300,15 +291,15 @@ export default function Page({ params }: { params: { id: string } }) {
               );
             })
           ) : (
-            <div className='text-sm'>CPL Tidak Ditemukan</div>
+            <div className="text-sm">CPL Tidak Ditemukan</div>
           )}
         </div>
 
         {/* SAVE */}
         <button
           onClick={updateCPL}
-          type='button'
-          className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+          type="button"
+          className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
         >
           Simpan
         </button>

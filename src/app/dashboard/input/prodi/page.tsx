@@ -81,7 +81,7 @@ const InputProdi = () => {
     form.reset();
   }
 
-  if (accountData?.role === "Dosen") {
+  if (accountData?.role !== "Super Admin") {
     toast({
       title: "Anda tidak memiliki akses untuk page input prodi.",
       variant: "destructive",

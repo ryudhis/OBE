@@ -115,8 +115,10 @@ const Page = () => {
     <main className="mt-4 flex flex-col gap-2 justify-center items-center">
       {isLoading ? (
         <h1 className="animate-pulse">Loading...</h1>
-      ) : accountData?.role === "Admin" ? (
+      ) : accountData?.role === "Super Admin" ? (
         <h1>Dashboard Super Admin</h1>
+      ) : accountData?.role === "Admin Prodi" ? (
+        <h1>Dashboard Admin Prodi</h1>
       ) : accountData?.role === "Kaprodi" ? (
         <>
           <Card className="w-[1200px] mx-auto">
