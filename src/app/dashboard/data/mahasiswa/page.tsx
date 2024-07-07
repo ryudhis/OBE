@@ -43,6 +43,13 @@ const DataMahasiswa = () => {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Data Mahasiswa",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getMahasiswa(data.prodiId)
     } catch (error) {

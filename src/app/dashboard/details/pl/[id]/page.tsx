@@ -22,16 +22,17 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountProdi } from "@/app/interface/input";
 import { getAccountData } from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 export interface PLinterface {
-  id: number
+  id: number;
   kode: string;
   deskripsi: string;
   CPL: CPLItem[];
 }
 
 export interface CPLItem {
-  id:number;
+  id: number;
   kode: string;
   deskripsi: string;
 }
@@ -40,8 +41,9 @@ const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
 });
 
-export default function Page({ params }: { params: { id: string} }) {
+export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
   const [account, setAccount] = useState<accountProdi>();
   const [pl, setPl] = useState<PLinterface | undefined>();
   const [cpl, setCPL] = useState<CPLItem[] | undefined>([]);
@@ -54,8 +56,15 @@ export default function Page({ params }: { params: { id: string} }) {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail PL",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
-      getAllCPL(data.prodiId)
+      getAllCPL(data.prodiId);
     } catch (error) {
       console.log(error);
     }
@@ -131,11 +140,9 @@ export default function Page({ params }: { params: { id: string} }) {
     }
   };
 
-  const getAllCPL = async (prodiId:string) => {
+  const getAllCPL = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get(
-        `api/cpl?prodi=${prodiId}`
-      );
+      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -173,10 +180,7 @@ export default function Page({ params }: { params: { id: string} }) {
     };
 
     try {
-      const response = await axiosConfig.patch(
-        `api/pl/relasi/${id}`,
-        payload
-      );
+      const response = await axiosConfig.patch(`api/pl/relasi/${id}`, payload);
 
       setRefresh(!refresh);
       if (response.data.status == 200 || response.data.status == 201) {
@@ -206,7 +210,7 @@ export default function Page({ params }: { params: { id: string} }) {
       .finally(() => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Trigger useEffect only on initial mount
 
   useEffect(() => {

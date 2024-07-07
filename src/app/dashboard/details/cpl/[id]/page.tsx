@@ -22,6 +22,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountProdi } from "@/app/interface/input";
 import { getAccountData } from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 export interface CPLinterface {
   kode: string;
@@ -62,10 +63,18 @@ export default function Page({ params }: { params: { id: string } }) {
   const [searchCPMK, setSearchCPMK] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail CPL",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getAllBK(data.prodiId);
       getAllCPMK(data.prodiId);

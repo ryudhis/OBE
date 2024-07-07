@@ -55,6 +55,13 @@ const DataCPMK = () => {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Data CPMK",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getCPMK(data.prodiId)
     } catch (error) {
