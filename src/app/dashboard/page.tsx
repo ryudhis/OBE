@@ -117,6 +117,8 @@ const Page = () => {
         <h1 className="animate-pulse">Loading...</h1>
       ) : accountData?.role === "Super Admin" ? (
         <h1>Dashboard Super Admin</h1>
+      ) : accountData?.role === "Admin Prodi" ? (
+        <h1>Dashboard Admin Prodi</h1>
       ) : accountData?.role === "Kaprodi" ? (
         <>
           <Card className="w-[1200px] mx-auto">
