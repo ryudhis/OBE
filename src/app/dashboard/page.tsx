@@ -2,12 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import axiosConfig from "@utils/axios";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 import {
   Table,
   TableBody,
@@ -65,9 +61,8 @@ export interface dataCPMKItem {
 
 const Page = () => {
   const router = useRouter();
-  const { toast } = useToast();
+  const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  const [account, setAccount] = useState<accountProdi>();
   const [MK, setMK] = useState<MKinterface[]>([]);
 
   const getMK = async (prodiId: string) => {
@@ -84,21 +79,10 @@ const Page = () => {
     }
   };
 
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      setAccount(data);
-      getMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (accountData) {
+      getMK(accountData.prodiId);
+    }
   }, []);
 
   const renderDataRangkuman = () => {
@@ -131,19 +115,18 @@ const Page = () => {
     <main className="mt-4 flex flex-col gap-2 justify-center items-center">
       {isLoading ? (
         <h1 className="animate-pulse">Loading...</h1>
-      ) : account?.role === "Admin" ? (
+      ) : accountData?.role === "Admin" ? (
         <h1>Dashboard Super Admin</h1>
-      ) : account?.role === "Kaprodi" ? (
+      ) : accountData?.role === "Kaprodi" ? (
         <>
           <Card className="w-[1200px] mx-auto">
             <CardHeader className="flex flex-row justify-between items-center">
               <div className="flex flex-col">
                 <CardTitle>Tabel Rangkuman Evaluasi </CardTitle>
-                <CardDescription>{`Program Studi ${account.prodiId}`}</CardDescription>
+                <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              {" "}
               <Table>
                 <TableHeader>
                   <TableRow>
