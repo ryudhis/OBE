@@ -26,7 +26,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface InputNilaiInterface {
   id: string;
@@ -58,6 +58,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
+  const accountData = useAccount();
   const [inputNilai, setInputNilai] = useState<
     InputNilaiInterface | undefined
   >();
@@ -116,39 +117,27 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         alert(response.data.message);
       }
+      if (response.data.data.prodiId !== accountData?.prodiId) {
+        router.push("/dashboard");
+        toast({
+          title: `Anda tidak memiliki akses untuk page detail nilai prodi ${accountData?.prodiId}`,
+          variant: "destructive",
+        });
+      } else {
+        setInputNilai(response.data.data);
 
-      setInputNilai(response.data.data);
+        const convertNilai = response.data.data.nilai.map((nilai: number) => {
+          return String(nilai);
+        });
 
-      const convertNilai = response.data.data.nilai.map((nilai: number) => {
-        return String(nilai);
-      });
-
-      form.reset({
-        nilai: convertNilai,
-      });
+        form.reset({
+          nilai: convertNilai,
+        });
+      }
     } catch (error: any) {
       throw error;
     }
   };
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail Nilai",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   useEffect(() => {
     getInputNilai();
@@ -157,9 +146,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (inputNilai) {
     return (
-      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <div className='flex'>
-          <Table className='w-[300px] mb-5'>
+      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <div className="flex">
+          <Table className="w-[300px] mb-5">
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -204,9 +193,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Edit Data</Button>
+              <Button variant="outline">Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px]'>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Edit Data Nilai</DialogTitle>
                 <DialogDescription>
@@ -217,25 +206,25 @@ export default function Page({ params }: { params: { id: string } }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className='space-y-8'
+                  className="space-y-8"
                 >
                   <FormField
                     control={form.control}
-                    name='nilai'
+                    name="nilai"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className='text-base'>Nilai : </FormLabel>
+                        <FormLabel className="text-base">Nilai : </FormLabel>
                         {inputNilai.penilaianCPMK.kriteria.map(
                           (kriteria, index) => (
                             <div
                               key={index}
-                              className='flex items-center space-x-5'
+                              className="flex items-center space-x-5"
                             >
                               <FormItem>
                                 <FormLabel>{kriteria.kriteria} :</FormLabel>
                                 <Input
-                                  placeholder='Nilai'
-                                  type='number'
+                                  placeholder="Nilai"
+                                  type="number"
                                   required
                                   value={field.value[index] ?? ""}
                                   onChange={(e) => {
@@ -254,8 +243,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   />
                   <DialogFooter>
                     <Button
-                      className='bg-blue-500 hover:bg-blue-600'
-                      type='submit'
+                      className="bg-blue-500 hover:bg-blue-600"
+                      type="submit"
                     >
                       Submit
                     </Button>
