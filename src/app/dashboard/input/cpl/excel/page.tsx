@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 interface CPLItem {
   kode: string;
@@ -34,7 +33,7 @@ interface CPLItem {
 const CPLExcel = () => {
   const router = useRouter();
   const [cpl, setCpl] = useState<CPLItem[]>([]);
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const { toast } = useToast();
   const exportTemplate = () => {
     // Define headers
@@ -86,7 +85,7 @@ const CPLExcel = () => {
 
     const data = {
       CPL: cpl,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -115,18 +114,14 @@ const CPLExcel = () => {
       });
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input excel cpl.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">

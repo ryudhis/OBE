@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -31,6 +32,7 @@ const formSchema = z.object({
 const InputProdi = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const accountData = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -79,6 +81,15 @@ const InputProdi = () => {
     form.reset();
   }
 
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input prodi.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
@@ -106,11 +117,7 @@ const InputProdi = () => {
                   <FormItem>
                     <FormLabel>Kode Program Studi</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Kode"
-                        required
-                        {...field}
-                      />
+                      <Input placeholder="Kode" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

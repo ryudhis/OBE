@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, ChangeEvent } from "react";
+import { useState, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import axiosConfig from "../../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 interface BKItem {
   kode: string;
@@ -35,7 +34,7 @@ interface BKItem {
 const BKExcel = () => {
   const router = useRouter();
   const [bk, setBk] = useState<BKItem[]>([]);
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const { toast } = useToast();
 
   const exportTemplate = () => {
@@ -90,7 +89,7 @@ const BKExcel = () => {
 
     const data = {
       BK: bk,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -119,18 +118,14 @@ const BKExcel = () => {
       });
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input excel bk.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">

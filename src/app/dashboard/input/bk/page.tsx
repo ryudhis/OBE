@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import axiosConfig from "@utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -24,8 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -37,7 +35,7 @@ const formSchema = z.object({
 const BKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,7 +56,7 @@ const BKScreen = () => {
       deskripsi: values.deskripsi,
       min: parseInt(values.min),
       max: parseInt(values.max),
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -89,18 +87,14 @@ const BKScreen = () => {
     form.reset();
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input bk.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">

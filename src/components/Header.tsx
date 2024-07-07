@@ -123,10 +123,10 @@ const Header = () => {
     "mahasiswa",
   ];
 
-  const linkListDosen = ["nilai", "penilaian CPMK"];
+  const linkListDosen = ["mk", "nilai", "penilaian CPMK"];
 
   const linkList =
-    accountData?.role === "Admin"
+    accountData?.role === "Super Admin"
       ? linkListSuperAdmin
       : accountData?.role === "Kaprodi"
       ? linkListKaprodi

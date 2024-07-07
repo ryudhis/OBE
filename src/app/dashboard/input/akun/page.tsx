@@ -29,8 +29,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   nama: z.string().min(5).max(60),
@@ -47,8 +47,9 @@ export interface prodi {
 
 const InputAkun = () => {
   const { toast } = useToast();
+  const router = useRouter();
   const [prodi, setProdi] = useState<prodi[]>([]);
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -111,40 +112,22 @@ const InputAkun = () => {
       }
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-        getProdi();
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+    getProdi();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <h1 className="text-center font-bold text-2xl">Loading...</h1>
-      </div>
-    );
-  }
-
-  if (account?.role !== "Admin") {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <h1 className="text-center font-bold text-2xl">
-          Anda tidak memiliki akses untuk page ini.
-        </h1>
-      </div>
-    );
+  if (accountData?.role !== "Super Admin") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input akun.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
   }
 
   return (

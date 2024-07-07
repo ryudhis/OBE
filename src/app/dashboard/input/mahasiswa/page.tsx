@@ -22,9 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   nim: z.string().min(9).max(9),
@@ -33,7 +31,7 @@ const formSchema = z.object({
 
 const MahasiswaScreen = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -50,7 +48,7 @@ const MahasiswaScreen = () => {
     const data = {
       nim: values.nim,
       nama: values.nama,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     console.log(data.nim);
@@ -83,18 +81,14 @@ const MahasiswaScreen = () => {
     form.reset();
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input mahasiswa.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">

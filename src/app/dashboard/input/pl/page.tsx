@@ -22,9 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { getAccountData } from "@utils/api";
-import { useState, useEffect } from "react";
-import { accountProdi } from "@/app/interface/input";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -34,7 +32,7 @@ const formSchema = z.object({
 const PLScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,12 +46,10 @@ const PLScreen = () => {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
-    console.log(account);
-
     const data = {
       kode: values.kode,
       deskripsi: values.deskripsi,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -84,18 +80,14 @@ const PLScreen = () => {
     form.reset();
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input pl.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
@@ -124,11 +116,7 @@ const PLScreen = () => {
                   <FormItem>
                     <FormLabel>Kode PL-</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Kode"
-                        required
-                        {...field}
-                      />
+                      <Input placeholder="Kode" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { getAccountData } from "@utils/api";
-import { accountProdi } from "@/app/interface/input";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 interface PLItem {
   kode: string;
@@ -32,7 +31,7 @@ interface PLItem {
 
 const PLExcel = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [pl, setPl] = useState<PLItem[]>([]);
   const { toast } = useToast();
 
@@ -84,7 +83,7 @@ const PLExcel = () => {
 
     const data = {
       PL: pl,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -113,28 +112,24 @@ const PLExcel = () => {
       });
   }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input excel pl.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
-    <section className='flex h-screen mt-[-100px] justify-center items-center'>
-      <Card className='w-[1000px]'>
+    <section className="flex h-screen mt-[-100px] justify-center items-center">
+      <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input PL Excel</CardTitle>
           <CardDescription>Data Profil Lulusan</CardDescription>
-          <div className='flex items-center justify-end gap-4'>
+          <div className="flex items-center justify-end gap-4">
             <Button
-              className='w-[130px] self-end'
+              className="w-[130px] self-end"
               onClick={() => {
                 exportTemplate();
               }}
@@ -142,7 +137,7 @@ const PLExcel = () => {
               Export Template
             </Button>
             <Button
-              className='w-[100px] self-end'
+              className="w-[100px] self-end"
               onClick={() => {
                 router.push(`/dashboard/input/pl/`);
               }}
@@ -152,7 +147,7 @@ const PLExcel = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
+          <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
           {pl.length > 0 && (
             <Table>
               <TableHeader>
