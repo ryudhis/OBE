@@ -116,6 +116,8 @@ export interface kriteriaItem {
   kriteria: string;
   bobot: number;
 }
+import { accountProdi } from "@/app/interface/input";
+import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
   deskripsi: z.string(),
@@ -134,6 +136,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
+  const [account, setAccount] = useState<accountProdi>();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
@@ -230,7 +233,24 @@ export default function Page({ params }: { params: { kode: string } }) {
       });
   }
 
-  const getMK = async () => {
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail CPMK",
+          variant: "destructive",
+        });
+      }
+      setAccount(data);
+      getMK(data.prodiId);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getMK = async (prodiId: String) => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(`api/mk/${kode}`);
@@ -239,6 +259,14 @@ export default function Page({ params }: { params: { kode: string } }) {
       } else {
         alert(response.data.message);
       }
+      if(response.data.data.prodiId !== prodiId){
+        router.push("/dashboard");
+        toast({
+          title: `Kamu Tidak Memiliki Akses Ke Halaman Detail MK Prodi ${prodiId}`,
+          variant: "destructive",
+        });
+      }
+      
       setMK(response.data.data);
       console.log(response.data.data);
       form.setValue("deskripsi", response.data.data.deskripsi);
@@ -438,7 +466,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   useEffect(() => {
-    getMK();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
@@ -446,16 +474,16 @@ export default function Page({ params }: { params: { kode: string } }) {
     return mk?.kelas.map((kelas) => {
       return (
         <TableRow key={kelas.id}>
-          <TableCell className="w-[8%]">{kelas.nama}</TableCell>
-          <TableCell className="w-[8%]">
+          <TableCell className='w-[8%]'>{kelas.nama}</TableCell>
+          <TableCell className='w-[8%]'>
             {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
-          <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
-          <TableCell className="w-[8%]">
+          <TableCell className='w-[8%]'>{kelas.jumlahLulus}</TableCell>
+          <TableCell className='w-[8%]'>
             {kelas.MK.batasLulusMahasiswa}
           </TableCell>
-          <TableCell className="w-[8%] flex gap-2">
-            <Button variant="destructive" onClick={() => delKelas(kelas.id)}>
+          <TableCell className='w-[8%] flex gap-2'>
+            <Button variant='destructive' onClick={() => delKelas(kelas.id)}>
               Hapus
             </Button>
             <Button
@@ -477,12 +505,12 @@ export default function Page({ params }: { params: { kode: string } }) {
     return mk?.rencanaPembelajaran.map((rencana) => {
       return (
         <TableRow key={rencana.id}>
-          <TableCell className="text-center">{rencana.minggu}</TableCell>
-          <TableCell className="text-center">{rencana.materi}</TableCell>
-          <TableCell className="text-center">{rencana.metode}</TableCell>
-          <TableCell className="text-center flex gap-3">
+          <TableCell className='text-center'>{rencana.minggu}</TableCell>
+          <TableCell className='text-center'>{rencana.materi}</TableCell>
+          <TableCell className='text-center'>{rencana.metode}</TableCell>
+          <TableCell className='text-center flex gap-3'>
             <Button
-              variant="destructive"
+              variant='destructive'
               onClick={() => delRencana(rencana.id)}
             >
               Hapus
@@ -491,12 +519,12 @@ export default function Page({ params }: { params: { kode: string } }) {
               <DialogTrigger asChild>
                 <Button
                   onClick={() => handleSelectRP(rencana.id)}
-                  variant="outline"
+                  variant='outline'
                 >
                   Edit
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className='sm:max-w-[425px]'>
                 <DialogHeader>
                   <DialogTitle>Edit Data</DialogTitle>
                   <DialogDescription>Rencana Pembelajaran</DialogDescription>
@@ -504,20 +532,20 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(editRencana)}
-                    className="space-y-8"
+                    className='space-y-8'
                   >
                     <FormField
                       control={form.control}
-                      name="editMinggu"
+                      name='editMinggu'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Minggu</FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
+                              type='number'
                               min={1}
                               max={12}
-                              placeholder="Minggu ke-"
+                              placeholder='Minggu ke-'
                               required
                               {...field}
                             />
@@ -528,12 +556,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <FormField
                       control={form.control}
-                      name="editMateri"
+                      name='editMateri'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Materi</FormLabel>
                           <FormControl>
-                            <Input placeholder="Materi" required {...field} />
+                            <Input placeholder='Materi' required {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -541,7 +569,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <FormField
                       control={form.control}
-                      name="editMetode"
+                      name='editMetode'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Metode</FormLabel>
@@ -555,7 +583,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <FormControl>
                               <SelectTrigger>
                                 {field.value ? (
-                                  <SelectValue placeholder="Pilih Metode" />
+                                  <SelectValue placeholder='Pilih Metode' />
                                 ) : (
                                   "Pilih Metode"
                                 )}
@@ -579,8 +607,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <DialogFooter>
                       <Button
-                        className="bg-blue-500 hover:bg-blue-600"
-                        type="submit"
+                        className='bg-blue-500 hover:bg-blue-600'
+                        type='submit'
                       >
                         Submit
                       </Button>
@@ -618,21 +646,21 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     return kriteriaArray.map(([kriteriaName, kriteriaData], index) => (
       <TableRow key={kriteriaName}>
-        <TableCell className="w-[8%] text-center">{index + 1}</TableCell>
-        <TableCell className="w-[16%]">{kriteriaName}</TableCell>
+        <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
+        <TableCell className='w-[16%]'>{kriteriaName}</TableCell>
         {mk.penilaianCPMK.map((CPMK) => (
           <React.Fragment key={CPMK.CPMKkode}>
             {CPMK.kriteria.some((k) => k.kriteria === kriteriaName) ? (
-              <TableCell className="w-[8%] text-center">
+              <TableCell className='w-[8%] text-center'>
                 {CPMK.kriteria.find((k) => k.kriteria === kriteriaName)
                   ?.bobot || "-"}
               </TableCell>
             ) : (
-              <TableCell className="w-[8%] text-center">-</TableCell>
+              <TableCell className='w-[8%] text-center'>-</TableCell>
             )}
           </React.Fragment>
         ))}
-        <TableCell className="w-[8%] text-center">
+        <TableCell className='w-[8%] text-center'>
           {kriteriaData.totalBobot}
         </TableCell>
       </TableRow>
@@ -641,9 +669,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   if (mk) {
     return (
-      <main className="w-screen max-w-7xl mx-auto pt-20 p-5">
-        <div className="flex">
-          <Table className="w-[400px] mb-5">
+      <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
+        <div className='flex'>
+          <Table className='w-[400px] mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -668,9 +696,9 @@ export default function Page({ params }: { params: { kode: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Data</Button>
+              <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Edit MK</DialogTitle>
                 <DialogDescription>{mk.kode}</DialogDescription>
@@ -678,16 +706,16 @@ export default function Page({ params }: { params: { kode: string } }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+                  className='space-y-8'
                 >
                   <FormField
                     control={form.control}
-                    name="deskripsi"
+                    name='deskripsi'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nama</FormLabel>
                         <FormControl>
-                          <Input placeholder="Deskripsi" required {...field} />
+                          <Input placeholder='Deskripsi' required {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -696,12 +724,12 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                   <FormField
                     control={form.control}
-                    name="sks"
+                    name='sks'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>SKS</FormLabel>
                         <FormControl>
-                          <Input placeholder="SKS" required {...field} />
+                          <Input placeholder='SKS' required {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -710,16 +738,16 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                   <FormField
                     control={form.control}
-                    name="batasLulusMahasiswa"
+                    name='batasLulusMahasiswa'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Batas Lulus Mahasiswa</FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            type='number'
                             min={0}
                             max={100}
-                            placeholder="Batas Lulus Mahasiswa"
+                            placeholder='Batas Lulus Mahasiswa'
                             required
                             {...field}
                           />
@@ -731,16 +759,16 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                   <FormField
                     control={form.control}
-                    name="batasLulusMK"
+                    name='batasLulusMK'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            type='number'
                             min={0}
                             max={100}
-                            placeholder="Batas Lulus MK"
+                            placeholder='Batas Lulus MK'
                             required
                             {...field}
                           />
@@ -751,8 +779,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                   />
                   <DialogFooter>
                     <Button
-                      className="bg-blue-500 hover:bg-blue-600"
-                      type="submit"
+                      className='bg-blue-500 hover:bg-blue-600'
+                      type='submit'
                     >
                       Submit
                     </Button>
@@ -763,36 +791,36 @@ export default function Page({ params }: { params: { kode: string } }) {
           </Dialog>
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi BK</div>
-          <RelationData data={mk.BK} jenisData="BK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi BK</div>
+          <RelationData data={mk.BK} jenisData='BK' />
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi CPMK</div>
-          <RelationData data={mk.CPMK} jenisData="CPMK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi CPMK</div>
+          <RelationData data={mk.CPMK} jenisData='CPMK' />
         </div>
 
-        <Tabs defaultValue="kelas" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="kelas">Data Kelas</TabsTrigger>
-            <TabsTrigger value="rencana">Rencana Pembelajaran</TabsTrigger>
-            <TabsTrigger value="asesment">
+        <Tabs defaultValue='kelas' className='w-full'>
+          <TabsList className='grid w-full grid-cols-3'>
+            <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
+            <TabsTrigger value='rencana'>Rencana Pembelajaran</TabsTrigger>
+            <TabsTrigger value='asesment'>
               Rencana Asesment dan Evaluasi
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="kelas">
+          <TabsContent value='kelas'>
             {mk.kelas.length != 0 ? (
-              <Card className="w-[1000px] mx-auto">
-                <CardHeader className="flex flex-row justify-between items-center">
-                  <div className="flex flex-col">
+              <Card className='w-[1000px] mx-auto'>
+                <CardHeader className='flex flex-row justify-between items-center'>
+                  <div className='flex flex-col'>
                     <CardTitle>Tabel Kelas</CardTitle>
                     <CardDescription>
                       Mata Kuliah {mk.deskripsi}
                     </CardDescription>
                   </div>
                   <Button
-                    variant="destructive"
+                    variant='destructive'
                     onClick={() => {
                       onDeleteAllKelas();
                     }}
@@ -805,13 +833,13 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[8%]">Nama</TableHead>
-                          <TableHead className="w-[8%]">
+                          <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>
                             Jumlah Mahasiswa
                           </TableHead>
-                          <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                          <TableHead className="w-[8%]">Batas Lulus</TableHead>
-                          <TableHead className="w-[8%]">Aksi</TableHead>
+                          <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Batas Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -822,13 +850,13 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[8%]">Nama</TableHead>
-                          <TableHead className="w-[8%]">
+                          <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>
                             Jumlah Mahasiswa
                           </TableHead>
-                          <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                          <TableHead className="w-[8%]">Batas Lulus</TableHead>
-                          <TableHead className="w-[8%]">Aksi</TableHead>
+                          <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Batas Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>{renderData()}</TableBody>
@@ -840,11 +868,11 @@ export default function Page({ params }: { params: { kode: string } }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmitKelas)}
-                  className="space-y-8"
+                  className='space-y-8'
                 >
                   <FormField
                     control={form.control}
-                    name="jumlahKelas"
+                    name='jumlahKelas'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tambah Jumlah Kelas</FormLabel>
@@ -858,7 +886,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                           <FormControl>
                             <SelectTrigger>
                               {field.value ? (
-                                <SelectValue placeholder="Pilih Jumlah Kelas" />
+                                <SelectValue placeholder='Pilih Jumlah Kelas' />
                               ) : (
                                 "Pilih Jumlah Kelas"
                               )}
@@ -877,8 +905,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                   />
 
                   <Button
-                    className="bg-blue-500 hover:bg-blue-600"
-                    type="submit"
+                    className='bg-blue-500 hover:bg-blue-600'
+                    type='submit'
                   >
                     Submit
                   </Button>
@@ -886,14 +914,14 @@ export default function Page({ params }: { params: { kode: string } }) {
               </Form>
             )}
           </TabsContent>
-          <TabsContent className="flex flex-col gap-3" value="rencana">
+          <TabsContent className='flex flex-col gap-3' value='rencana'>
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="w-[200px] self-end mr-32" variant="outline">
+                <Button className='w-[200px] self-end mr-32' variant='outline'>
                   Tambah Data
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className='sm:max-w-[425px]'>
                 <DialogHeader>
                   <DialogTitle>Tambah Data</DialogTitle>
                   <DialogDescription>Rencana Pembelajaran</DialogDescription>
@@ -901,20 +929,20 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmitRP)}
-                    className="space-y-8"
+                    className='space-y-8'
                   >
                     <FormField
                       control={form.control}
-                      name="minggu"
+                      name='minggu'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Minggu</FormLabel>
                           <FormControl>
                             <Input
-                              type="number"
+                              type='number'
                               min={1}
                               max={12}
-                              placeholder="Minggu ke-"
+                              placeholder='Minggu ke-'
                               required
                               {...field}
                             />
@@ -925,12 +953,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <FormField
                       control={form.control}
-                      name="materi"
+                      name='materi'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Materi</FormLabel>
                           <FormControl>
-                            <Input placeholder="Materi" required {...field} />
+                            <Input placeholder='Materi' required {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -938,7 +966,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <FormField
                       control={form.control}
-                      name="metode"
+                      name='metode'
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Metode</FormLabel>
@@ -952,7 +980,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <FormControl>
                               <SelectTrigger>
                                 {field.value ? (
-                                  <SelectValue placeholder="Pilih Metode" />
+                                  <SelectValue placeholder='Pilih Metode' />
                                 ) : (
                                   "Pilih Metode"
                                 )}
@@ -976,8 +1004,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <DialogFooter>
                       <Button
-                        className="bg-blue-500 hover:bg-blue-600"
-                        type="submit"
+                        className='bg-blue-500 hover:bg-blue-600'
+                        type='submit'
                       >
                         Submit
                       </Button>
@@ -988,16 +1016,16 @@ export default function Page({ params }: { params: { kode: string } }) {
             </Dialog>
 
             {mk.rencanaPembelajaran.length != 0 ? (
-              <Card className="w-[1000px] mx-auto">
-                <CardHeader className="flex flex-row justify-between items-center">
-                  <div className="flex flex-col">
+              <Card className='w-[1000px] mx-auto'>
+                <CardHeader className='flex flex-row justify-between items-center'>
+                  <div className='flex flex-col'>
                     <CardTitle>Rencana Pembelajaran</CardTitle>
                     <CardDescription>
                       Mata Kuliah {mk.deskripsi}
                     </CardDescription>
                   </div>
                   <Button
-                    variant="destructive"
+                    variant='destructive'
                     onClick={() => {
                       onDeleteAllKelas();
                     }}
@@ -1010,10 +1038,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="text-center">Minggu</TableHead>
-                          <TableHead className="text-center">Materi</TableHead>
-                          <TableHead className="text-center">Metode</TableHead>
-                          <TableHead className="w-[5%] text-center">
+                          <TableHead className='text-center'>Minggu</TableHead>
+                          <TableHead className='text-center'>Materi</TableHead>
+                          <TableHead className='text-center'>Metode</TableHead>
+                          <TableHead className='w-[5%] text-center'>
                             Aksi
                           </TableHead>
                         </TableRow>
@@ -1026,10 +1054,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="text-center">Minggu</TableHead>
-                          <TableHead className="text-center">Materi</TableHead>
-                          <TableHead className="text-center">Metode</TableHead>
-                          <TableHead className="w-[5%] text-center">
+                          <TableHead className='text-center'>Minggu</TableHead>
+                          <TableHead className='text-center'>Materi</TableHead>
+                          <TableHead className='text-center'>Metode</TableHead>
+                          <TableHead className='w-[5%] text-center'>
                             Aksi
                           </TableHead>
                         </TableRow>
@@ -1040,13 +1068,13 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </CardContent>
               </Card>
             ) : (
-              <p className="self-center">Belum Ada Rencana Pembelajaran ...</p>
+              <p className='self-center'>Belum Ada Rencana Pembelajaran ...</p>
             )}
           </TabsContent>
-          <TabsContent value="asesment">
-            <Card className="w-[1000px] mx-auto">
-              <CardHeader className="flex flex-row justify-between items-center">
-                <div className="flex flex-col">
+          <TabsContent value='asesment'>
+            <Card className='w-[1000px] mx-auto'>
+              <CardHeader className='flex flex-row justify-between items-center'>
+                <div className='flex flex-col'>
                   <CardTitle>Rencana Asesment dan Evaluasi</CardTitle>
                   <CardDescription>Mata Kuliah {mk.deskripsi}</CardDescription>
                 </div>
@@ -1056,19 +1084,19 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[8%] text-center">No</TableHead>
-                      <TableHead className="w-[16%]">
+                      <TableHead className='w-[8%] text-center'>No</TableHead>
+                      <TableHead className='w-[16%]'>
                         Rencana Evaluasi
                       </TableHead>
                       {mk.penilaianCPMK.map((CPMK) => (
                         <TableHead
                           key={CPMK.CPMKkode}
-                          className="w-[8%] text-center"
+                          className='w-[8%] text-center'
                         >
                           {`CPMK ${CPMK.CPMKkode}`}
                         </TableHead>
                       ))}
-                      <TableHead className="w-[8%]  text-center">
+                      <TableHead className='w-[8%]  text-center'>
                         Total Bobot
                       </TableHead>
                     </TableRow>

@@ -20,6 +20,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface akun {
   id: string;
@@ -37,7 +38,9 @@ export interface kelas {
 const DataAkun = () => {
   const router = useRouter();
   const [akun, setAkun] = useState<akun[]>([]);
+  const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
+
   const getAkun = async () => {
     setIsLoading(true);
     try {
@@ -45,13 +48,6 @@ const DataAkun = () => {
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
-      }
-      if (response.data.data.role !== "Super Admin") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Ini",
-          variant: "destructive",
-        });
       }
       setAkun(response.data.data);
     } catch (error) {
@@ -83,7 +79,17 @@ const DataAkun = () => {
 
   useEffect(() => {
     getAkun();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (accountData?.role !== "Super Admin") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data akun.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return akun.map((akun) => {

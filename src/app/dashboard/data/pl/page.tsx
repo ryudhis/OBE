@@ -20,8 +20,8 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
+import { set } from "react-hook-form";
 
 export interface pl {
   id: number;
@@ -36,32 +36,16 @@ export interface CPLItem {
 
 const DataPL = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [PL, setPL] = useState<pl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Data PL",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getPL(data.prodiId)
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getPL = async (prodiId:string) => {
+  const getPL = async () => {
+    setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/pl?prodi=${prodiId}`
+        `api/pl?prodi=${accountData?.prodiId}`
       );
       if (response.data.status !== 400) {
         setPL(response.data.data);
@@ -70,6 +54,8 @@ const DataPL = () => {
       }
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -94,16 +80,18 @@ const DataPL = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    getPL();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data PL.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return PL.map((pl, index) => {

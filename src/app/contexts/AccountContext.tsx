@@ -13,7 +13,7 @@ export const AccountProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [account, setAccount] = useState<accountProdi | null>(null);
+  const [account, setAccount] = useState<accountProdi | null>({} as accountProdi);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

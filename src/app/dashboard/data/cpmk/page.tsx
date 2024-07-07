@@ -20,9 +20,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
-
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface cpmk {
   id: number;
@@ -47,32 +45,16 @@ export interface subCPMKItem {
 
 const DataCPMK = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [CPMK, setCPMK] = useState<cpmk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Data CPMK",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getCPMK(data.prodiId)
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getCPMK = async (prodiId:string) => {
+  const getCPMK = async () => {
+    setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/cpmk?prodi=${prodiId}`
+        `api/cpmk?prodi=${accountData?.prodiId}`
       );
       if (response.data.status !== 400) {
         setCPMK(response.data.data);
@@ -81,6 +63,8 @@ const DataCPMK = () => {
       }
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,36 +89,38 @@ const DataCPMK = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    getCPMK();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data CPMK.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return CPMK.map((cpmk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[8%]">{cpmk.kode}</TableCell>
-          <TableCell className="flex-1">
+          <TableCell className='w-[8%]'>{cpmk.kode}</TableCell>
+          <TableCell className='flex-1'>
             {cpmk.deskripsi.length > 20
               ? cpmk.deskripsi.slice(0, 18) + "..."
               : cpmk.deskripsi}
           </TableCell>
-          <TableCell className="w-[12%]">
+          <TableCell className='w-[12%]'>
             {cpmk.CPL.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[12%]">
+          <TableCell className='w-[12%]'>
             {cpmk.MK.map((item) => item.kode).join(", ")}
           </TableCell>
           {/* <TableCell className="w-[12%]">{cpmk.subCPMK.map((item) => item.kode).join(", ")}</TableCell> */}
-          <TableCell className="w-[8%] flex gap-2">
-            <Button variant="destructive" onClick={() => delCPMK(cpmk.id)}>
+          <TableCell className='w-[8%] flex gap-2'>
+            <Button variant='destructive' onClick={() => delCPMK(cpmk.id)}>
               Hapus
             </Button>
             <Button
@@ -151,10 +137,10 @@ const DataCPMK = () => {
   };
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center mt-20'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel CPMK</CardTitle>
             <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
           </div>
@@ -171,12 +157,12 @@ const DataCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[12%]">CPL</TableHead>
-                  <TableHead className="w-[12%]">MK</TableHead>
+                  <TableHead className='w-[8%]'>Kode</TableHead>
+                  <TableHead className='flex-1'>Deskripsi</TableHead>
+                  <TableHead className='w-[12%]'>CPL</TableHead>
+                  <TableHead className='w-[12%]'>MK</TableHead>
                   {/* <TableHead className="w-[12%]">subCPMK</TableHead> */}
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -187,12 +173,12 @@ const DataCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[12%]">CPL</TableHead>
-                  <TableHead className="w-[12%]">MK</TableHead>
+                  <TableHead className='w-[8%]'>Kode</TableHead>
+                  <TableHead className='flex-1'>Deskripsi</TableHead>
+                  <TableHead className='w-[12%]'>CPL</TableHead>
+                  <TableHead className='w-[12%]'>MK</TableHead>
                   {/* <TableHead className="w-[12%]">subCPMK</TableHead> */}
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

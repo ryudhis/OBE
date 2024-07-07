@@ -20,8 +20,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { getAccountData } from "@/utils/api";
-import { accountProdi } from "@/app/interface/input";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface cpl {
   id: number;
@@ -49,29 +48,15 @@ const DataCPL = () => {
   const router = useRouter();
   const [CPL, setCPL] = useState<cpl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [account, setAccount] = useState<accountProdi>();
   const [refresh, setRefresh] = useState(false);
+  const accountData = useAccount();
 
-  const fetchData = async () => {
+  const getCPL = async () => {
+    setIsLoading(true);
     try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Data CPL",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getCPL(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getCPL = async (prodiId: string) => {
-    try {
-      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/cpl?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -79,6 +64,8 @@ const DataCPL = () => {
       setCPL(response.data.data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,39 +90,41 @@ const DataCPL = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
+    getCPL();
   }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data CPL.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[8%]">{cpl.kode}</TableCell>
-          <TableCell className="flex-1">
+          <TableCell className='w-[8%]'>{cpl.kode}</TableCell>
+          <TableCell className='flex-1'>
             {cpl.deskripsi.length > 16
               ? cpl.deskripsi.slice(0, 14) + "..."
               : cpl.deskripsi}
           </TableCell>
-          <TableCell className="w-[8%]">{cpl.keterangan}</TableCell>
-          <TableCell className="w-[12%]">
+          <TableCell className='w-[8%]'>{cpl.keterangan}</TableCell>
+          <TableCell className='w-[12%]'>
             {cpl.BK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[12%]">
+          <TableCell className='w-[12%]'>
             {cpl.PL.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[12%]">
+          <TableCell className='w-[12%]'>
             {cpl.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[8%] flex gap-2">
+          <TableCell className='w-[8%] flex gap-2'>
             <Button
-              variant="destructive"
+              variant='destructive'
               onClick={() => {
                 delCPL(cpl.id);
               }}
@@ -156,10 +145,10 @@ const DataCPL = () => {
   };
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center mt-20'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
@@ -176,13 +165,13 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[8%]">Keterangan</TableHead>
-                  <TableHead className="w-[12%]">BK</TableHead>
-                  <TableHead className="w-[12%]">PL</TableHead>
-                  <TableHead className="w-[12%]">CPMK</TableHead>
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className='w-[8%]'>Kode</TableHead>
+                  <TableHead className='flex-1'>Deskripsi</TableHead>
+                  <TableHead className='w-[8%]'>Keterangan</TableHead>
+                  <TableHead className='w-[12%]'>BK</TableHead>
+                  <TableHead className='w-[12%]'>PL</TableHead>
+                  <TableHead className='w-[12%]'>CPMK</TableHead>
+                  <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -193,13 +182,13 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[8%]">Keterangan</TableHead>
-                  <TableHead className="w-[12%]">BK</TableHead>
-                  <TableHead className="w-[12%]">PL</TableHead>
-                  <TableHead className="w-[12%]">CPMK</TableHead>
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className='w-[8%]'>Kode</TableHead>
+                  <TableHead className='flex-1'>Deskripsi</TableHead>
+                  <TableHead className='w-[8%]'>Keterangan</TableHead>
+                  <TableHead className='w-[12%]'>BK</TableHead>
+                  <TableHead className='w-[12%]'>PL</TableHead>
+                  <TableHead className='w-[12%]'>CPMK</TableHead>
+                  <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
