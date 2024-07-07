@@ -55,6 +55,13 @@ const DataCPL = () => {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Data CPL",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getCPL(data.prodiId);
     } catch (error) {

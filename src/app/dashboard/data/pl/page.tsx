@@ -44,6 +44,13 @@ const DataPL = () => {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Data PL",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getPL(data.prodiId)
     } catch (error) {

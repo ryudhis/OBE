@@ -22,6 +22,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountProdi } from "@/app/interface/input";
 import { getAccountData } from "@/utils/api";
+import { useRouter } from "next/navigation";
 
 export interface BKInterface {
   kode: string;
@@ -52,10 +53,18 @@ export default function Page({ params }: { params: { id: string } }) {
   const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail BK",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getAllMK(data.prodiId);
     } catch (error) {
@@ -240,9 +249,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (bk) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        <div className="flex">
-          <Table className="w-[300px] mb-5">
+      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <div className='flex'>
+          <Table className='w-[300px] mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -273,79 +282,79 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Data</Button>
+              <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Edit BK</DialogTitle>
                 <DialogDescription>{bk.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="deskripsi" className="text-right">
+                <div className='grid gap-4 py-4'>
+                  <div className='grid grid-cols-4 items-center gap-4'>
+                    <Label htmlFor='deskripsi' className='text-right'>
                       Deskripsi
                     </Label>
                     <Input
-                      id="deskripsi"
+                      id='deskripsi'
                       {...form.register("deskripsi")}
-                      className="col-span-3"
+                      className='col-span-3'
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="min" className="text-right">
+                  <div className='grid grid-cols-4 items-center gap-4'>
+                    <Label htmlFor='min' className='text-right'>
                       Minimal MK
                     </Label>
                     <Input
-                      id="min"
+                      id='min'
                       {...form.register("min")}
-                      className="col-span-3"
-                      type="number"
+                      className='col-span-3'
+                      type='number'
                       min={0}
                       max={10}
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="max" className="text-right">
+                  <div className='grid grid-cols-4 items-center gap-4'>
+                    <Label htmlFor='max' className='text-right'>
                       Maksimal MK
                     </Label>
                     <Input
-                      id="max"
+                      id='max'
                       {...form.register("max")}
-                      className="col-span-3"
-                      type="number"
+                      className='col-span-3'
+                      type='number'
                       min={0}
                       max={10}
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Simpan</Button>
+                  <Button type='submit'>Simpan</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi MK</div>
-          <RelationData data={bk.MK} jenisData="MK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi MK</div>
+          <RelationData data={bk.MK} jenisData='MK' />
         </div>
 
         {/* HEADER */}
-        <div className="flex flex-row justify-between items-center mb-5">
-          <div className=" font-bold text-xl">Sambungkan MK</div>
+        <div className='flex flex-row justify-between items-center mb-5'>
+          <div className=' font-bold text-xl'>Sambungkan MK</div>
           <input
-            type="text"
-            className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
+            type='text'
+            className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
             value={search}
-            placeholder="Cari..."
+            placeholder='Cari...'
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* LIST OF MK */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className='grid grid-cols-4 gap-4'>
           {filteredMK && filteredMK.length > 0 ? (
             filteredMK?.map((mk, index) => {
               return (
@@ -358,15 +367,15 @@ export default function Page({ params }: { params: { id: string } }) {
               );
             })
           ) : (
-            <div className="text-sm">MK Tidak Ditemukan</div>
+            <div className='text-sm'>MK Tidak Ditemukan</div>
           )}
         </div>
 
         {/* SAVE */}
         <button
           onClick={updateMK}
-          type="button"
-          className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
+          type='button'
+          className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
         >
           Simpan
         </button>

@@ -38,6 +38,13 @@ const DataProdi = () => {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role !== "Super Admin") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Data Prodi",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getProdi();
     } catch (error) {

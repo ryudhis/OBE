@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { getAccountData } from "@/utils/api";
 
 export interface InputNilaiInterface {
   id: string;
@@ -55,15 +57,14 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
   const [inputNilai, setInputNilai] = useState<
     InputNilaiInterface | undefined
   >();
   const [refresh, setRefresh] = useState<boolean>(false);
-
   const defaultValues = {
     nilai: [],
   };
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -118,7 +119,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
       setInputNilai(response.data.data);
 
-      const convertNilai = response.data.data.nilai.map((nilai:number) => {
+      const convertNilai = response.data.data.nilai.map((nilai: number) => {
         return String(nilai);
       });
 
@@ -129,6 +130,25 @@ export default function Page({ params }: { params: { id: string } }) {
       throw error;
     }
   };
+
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail Nilai",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     getInputNilai();

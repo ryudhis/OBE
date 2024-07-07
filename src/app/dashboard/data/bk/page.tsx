@@ -51,6 +51,13 @@ const DataBK = () => {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
+      if (data.role === "Dosen") {
+        router.push("/dashboard");
+        toast({
+          title: "Kamu Tidak Memiliki Akses Ke Halaman Data BK",
+          variant: "destructive",
+        });
+      }
       setAccount(data);
       getBK(data.prodiId);
     } catch (error) {

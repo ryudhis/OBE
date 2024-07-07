@@ -278,7 +278,8 @@ const InputAkun = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Super Admin">Super Admin</SelectItem>
+                        <SelectItem value="Admin Prodi">Admin Prodi</SelectItem>
                         <SelectItem value="Kaprodi">Kaprodi</SelectItem>
                         <SelectItem value="Dosen">Dosen</SelectItem>
                       </SelectContent>
