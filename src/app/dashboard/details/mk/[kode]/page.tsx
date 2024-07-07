@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface MKinterface {
   kode: string;
@@ -116,8 +117,6 @@ export interface kriteriaItem {
   kriteria: string;
   bobot: number;
 }
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
 
 const formSchema = z.object({
   deskripsi: z.string(),
@@ -136,7 +135,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
@@ -233,49 +232,32 @@ export default function Page({ params }: { params: { kode: string } }) {
       });
   }
 
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail CPMK",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getMK = async (prodiId: String) => {
+  const getMK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/mk/${kode}`);
+      const response = await axiosConfig.get(`api/mk/${accountData?.prodiId}`);
 
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
       }
-      if(response.data.data.prodiId !== prodiId){
+      if (response.data.data.prodiId !== accountData?.prodiId) {
         router.push("/dashboard");
         toast({
-          title: `Kamu Tidak Memiliki Akses Ke Halaman Detail MK Prodi ${prodiId}`,
+          title: `Kamu Tidak Memiliki Akses Ke Halaman Detail MK Prodi ${response.data.data.prodiId}`,
           variant: "destructive",
         });
+      } else {
+        setMK(response.data.data);
+        console.log(response.data.data);
+        form.setValue("deskripsi", response.data.data.deskripsi);
+        form.setValue("sks", response.data.data.sks);
+        form.setValue(
+          "batasLulusMahasiswa",
+          String(response.data.data.batasLulusMahasiswa)
+        );
+        form.setValue("batasLulusMK", String(response.data.data.batasLulusMK));
       }
-      
-      setMK(response.data.data);
-      console.log(response.data.data);
-      form.setValue("deskripsi", response.data.data.deskripsi);
-      form.setValue("sks", response.data.data.sks);
-      form.setValue(
-        "batasLulusMahasiswa",
-        String(response.data.data.batasLulusMahasiswa)
-      );
-      form.setValue("batasLulusMK", String(response.data.data.batasLulusMK));
     } catch (error: any) {
       throw error;
     } finally {
@@ -466,7 +448,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   useEffect(() => {
-    fetchData();
+    getMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 

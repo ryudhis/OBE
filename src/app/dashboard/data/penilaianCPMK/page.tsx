@@ -27,10 +27,10 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface penilaianCPMK {
+  id: string;
   kode: string;
   CPLkode: string;
   MKkode: string;
@@ -54,12 +54,12 @@ export interface kriteriaItem {
 
 const DataPenilaianCPMK = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [penilaianCPMK, setPenilaianCPMK] = useState<penilaianCPMK[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterMK, setFilterMK] = useState("default");
-  const [refresh, setRefresh] = useState(true); 
+  const [refresh, setRefresh] = useState(true);
 
   let filteredPCPMK = penilaianCPMK;
   let totalBobot = 0;
@@ -74,20 +74,12 @@ const DataPenilaianCPMK = () => {
     });
   }
 
-  const fetchData = async () => {
+  const getPenilaianCPMK = async () => {
+    setIsLoading(true);
     try {
-      const data = await getAccountData();
-      setAccount(data);
-      getPenilaianCPMK(data.prodiId);
-      getMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  
-  const getPenilaianCPMK = async (prodiId: string) => {
-    try {
-      const response = await axiosConfig.get(`api/penilaianCPMK?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/penilaianCPMK?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);
       } else {
@@ -95,12 +87,14 @@ const DataPenilaianCPMK = () => {
       }
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getMK = async (prodiId: string) => {
+  const getMK = async () => {
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/mk?prodi=${accountData?.prodiId}`);
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
@@ -131,14 +125,8 @@ const DataPenilaianCPMK = () => {
     }
   };
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
+    getPenilaianCPMK();
+    getMK();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]); // Trigger useEffect only on initial mount
 
@@ -187,7 +175,7 @@ const DataPenilaianCPMK = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/penilaianCPMK/${pCPMK.kode}/`);
+                router.push(`/dashboard/details/penilaianCPMK/${pCPMK.id}/`);
               }}
             >
               Details

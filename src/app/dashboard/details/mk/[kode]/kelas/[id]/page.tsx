@@ -30,8 +30,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
+import { useRouter } from "next/navigation";
 
 export interface MKinterface {
   kode: string;
@@ -140,6 +140,7 @@ export interface mahasiswaExcel {
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
   const [kelas, setKelas] = useState<KelasItem | undefined>();
   const [dataMahasiswaLulus, setDataMahasiswaLulus] = useState<
     mahasiswaLulusItem[]
@@ -149,17 +150,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [selectedDosen, setSelectedDosen] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [account, setAccount] = useState<accountProdi>();
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      setAccount(data);
-      getAllDosen(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const accountData = useAccount();
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -225,27 +216,35 @@ export default function Page({ params }: { params: { id: string } }) {
       const response = await axiosConfig.get(`api/kelas/${id}`);
 
       if (response.data.status !== 400) {
-        const kelasData = response.data.data;
-        const mahasiswaLulusData: mahasiswaLulusItem[] = [];
-
-        kelasData.mahasiswa.forEach((mahasiswa: mahasiswaItem) => {
-          mahasiswa.kelas.forEach((kelasMahasiswa: KelasItem) => {
-            if (kelasMahasiswa.id === kelasData.id) {
-              kelasMahasiswa.mahasiswaLulus.forEach(
-                (mahasiswaLulus: mahasiswaLulusItem) => {
-                  if (mahasiswaLulus.nim === mahasiswa.nim) {
-                    mahasiswaLulusData.push(mahasiswaLulus);
-                  }
-                }
-              );
-            }
+        if (response.data.data.MK.prodiId !== accountData?.prodiId) {
+          router.push("/dashboard");
+          toast({
+            title: `Anda tidak memiliki akses untuk page detail Kelas prodi ${response.data.data.MK.prodiId}`,
+            variant: "destructive",
           });
-        });
-        setDataMahasiswaLulus(mahasiswaLulusData);
-        setKelas(kelasData);
+        } else {
+          const kelasData = response.data.data;
+          const mahasiswaLulusData: mahasiswaLulusItem[] = [];
 
-        const dosenIds = kelasData.dosen.map((dosen: dosenItem) => dosen.id);
-        setSelectedDosen(new Set(dosenIds));
+          kelasData.mahasiswa.forEach((mahasiswa: mahasiswaItem) => {
+            mahasiswa.kelas.forEach((kelasMahasiswa: KelasItem) => {
+              if (kelasMahasiswa.id === kelasData.id) {
+                kelasMahasiswa.mahasiswaLulus.forEach(
+                  (mahasiswaLulus: mahasiswaLulusItem) => {
+                    if (mahasiswaLulus.nim === mahasiswa.nim) {
+                      mahasiswaLulusData.push(mahasiswaLulus);
+                    }
+                  }
+                );
+              }
+            });
+          });
+          setDataMahasiswaLulus(mahasiswaLulusData);
+          setKelas(kelasData);
+
+          const dosenIds = kelasData.dosen.map((dosen: dosenItem) => dosen.id);
+          setSelectedDosen(new Set(dosenIds));
+        }
       }
     } catch (error: any) {
       throw error;
@@ -254,10 +253,10 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  const getAllDosen = async (prodiId: string) => {
+  const getAllDosen = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/account/getDosen?prodi=${prodiId}`
+        `api/account/getDosen?prodi=${accountData?.prodiId}`
       );
       setAllDosen(response.data.data);
     } catch (error) {
@@ -321,7 +320,7 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   useEffect(() => {
-    fetchData();
+    getAllDosen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

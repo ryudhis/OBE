@@ -202,7 +202,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (accountData?.role === "Dosen") {
     toast({
-      title: "Anda tidak memiliki akses untuk page detail pl.",
+      title: "Anda tidak memiliki akses untuk page detail PL prodi .",
       variant: "destructive",
     });
     router.push("/dashboard");
@@ -211,9 +211,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (pl) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        <div className="flex">
-          <Table className="w-[400px] mb-5">
+      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <div className='flex'>
+          <Table className='w-[400px] mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -232,53 +232,53 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Data</Button>
+              <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Edit PL</DialogTitle>
                 <DialogDescription>{pl.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="deskripsi" className="text-right">
+                <div className='grid gap-4 py-4'>
+                  <div className='grid grid-cols-4 items-center gap-4'>
+                    <Label htmlFor='deskripsi' className='text-right'>
                       Deskripsi
                     </Label>
                     <Input
-                      id="deskripsi"
+                      id='deskripsi'
                       {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className="col-span-3"
+                      className='col-span-3'
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Simpan</Button>
+                  <Button type='submit'>Simpan</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi CPL</div>
-          <RelationData data={pl.CPL} jenisData="CPL" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi CPL</div>
+          <RelationData data={pl.CPL} jenisData='CPL' />
         </div>
 
         {/* HEADER */}
-        <div className="flex flex-row justify-between items-center mb-5">
-          <div className=" font-bold text-xl">Sambungkan CPL</div>
+        <div className='flex flex-row justify-between items-center mb-5'>
+          <div className=' font-bold text-xl'>Sambungkan CPL</div>
           <input
-            type="text"
-            className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
+            type='text'
+            className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
             value={search}
-            placeholder="Cari..."
+            placeholder='Cari...'
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         {/* LIST OF CPL */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className='grid grid-cols-4 gap-4'>
           {filteredCPL && filteredCPL.length > 0 ? (
             filteredCPL?.map((cpl, index) => {
               return (
@@ -291,15 +291,15 @@ export default function Page({ params }: { params: { id: string } }) {
               );
             })
           ) : (
-            <div className="text-sm">CPL Tidak Ditemukan</div>
+            <div className='text-sm'>CPL Tidak Ditemukan</div>
           )}
         </div>
 
         {/* SAVE */}
         <button
           onClick={updateCPL}
-          type="button"
-          className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
+          type='button'
+          className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
         >
           Simpan
         </button>

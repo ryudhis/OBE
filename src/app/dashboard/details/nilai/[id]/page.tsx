@@ -146,9 +146,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (inputNilai) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        <div className="flex">
-          <Table className="w-[300px] mb-5">
+      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <div className='flex'>
+          <Table className='w-[300px] mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -193,9 +193,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Data</Button>
+              <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Edit Data Nilai</DialogTitle>
                 <DialogDescription>
@@ -206,25 +206,25 @@ export default function Page({ params }: { params: { id: string } }) {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+                  className='space-y-8'
                 >
                   <FormField
                     control={form.control}
-                    name="nilai"
+                    name='nilai'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base">Nilai : </FormLabel>
+                        <FormLabel className='text-base'>Nilai : </FormLabel>
                         {inputNilai.penilaianCPMK.kriteria.map(
                           (kriteria, index) => (
                             <div
                               key={index}
-                              className="flex items-center space-x-5"
+                              className='flex items-center space-x-5'
                             >
                               <FormItem>
                                 <FormLabel>{kriteria.kriteria} :</FormLabel>
                                 <Input
-                                  placeholder="Nilai"
-                                  type="number"
+                                  placeholder='Nilai'
+                                  type='number'
                                   required
                                   value={field.value[index] ?? ""}
                                   onChange={(e) => {
@@ -243,8 +243,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   />
                   <DialogFooter>
                     <Button
-                      className="bg-blue-500 hover:bg-blue-600"
-                      type="submit"
+                      className='bg-blue-500 hover:bg-blue-600'
+                      type='submit'
                     >
                       Submit
                     </Button>

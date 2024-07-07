@@ -17,11 +17,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
 export interface BKInterface {
@@ -45,7 +44,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [bk, setBk] = useState<BKInterface | undefined>();
   const [mk, setMk] = useState<MKItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
@@ -54,23 +53,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail BK",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getAllMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -116,6 +98,7 @@ export default function Page({ params }: { params: { id: string } }) {
         console.log(error);
       });
   }
+
   const getBK = async () => {
     try {
       const response = await axiosConfig.get(`api/bk/${id}`);
@@ -125,27 +108,38 @@ export default function Page({ params }: { params: { id: string } }) {
         alert(response.data.message);
       }
 
-      setBk(response.data.data);
-      const prevSelected = response.data.data.MK.map(
-        (item: MKItem) => item.kode
-      );
+      if (response.data.data.prodiId !== accountData?.prodiId) {
+        router.push("/dashboard");
+        toast({
+          title: `Anda tidak memiliki akses untuk page detail BK prodi ${response.data.data.prodiId}`,
+          variant: "destructive",
+        });
+      } else {
+        setBk(response.data.data);
+        const prevSelected = response.data.data.MK.map(
+          (item: MKItem) => item.kode
+        );
 
-      setSelected(prevSelected);
-      setPrevSelected(prevSelected);
+        setSelected(prevSelected);
+        setPrevSelected(prevSelected);
 
-      form.reset({
-        deskripsi: response.data.data.deskripsi,
-        min: String(response.data.data.min),
-        max: String(response.data.data.max),
-      });
+        form.reset({
+          deskripsi: response.data.data.deskripsi,
+          min: String(response.data.data.min),
+          max: String(response.data.data.max),
+        });
+      }
     } catch (error: any) {
       throw error;
     }
   };
 
-  const getAllMK = async (prodiId: string) => {
+  const getAllMK = async () => {
+    setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${accountData?.prodiId}`
+      );
 
       if (response.data.status !== 400) {
       } else {
@@ -154,6 +148,8 @@ export default function Page({ params }: { params: { id: string } }) {
       setMk(response.data.data);
     } catch (error: any) {
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -224,21 +220,8 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  // ONLY FIRST TIME
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Trigger useEffect only on initial mount
-
-  useEffect(() => {
-    getBK();
+    getAllMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 

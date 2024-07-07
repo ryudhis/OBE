@@ -20,8 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
 export interface CPLinterface {
@@ -51,7 +50,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [cpl, setCPl] = useState<CPLinterface | undefined>();
   const [bk, setBK] = useState<BKItem[] | undefined>([]);
   const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);
@@ -64,24 +63,6 @@ export default function Page({ params }: { params: { id: string } }) {
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Detail CPL",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getAllBK(data.prodiId);
-      getAllCPMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -143,34 +124,44 @@ export default function Page({ params }: { params: { id: string } }) {
         alert(response.data.message);
       }
 
-      setCPl(response.data.data);
+      if (response.data.data.prodiId !== accountData?.prodiId) {
+        router.push("/dashboard");
+        toast({
+          title: `Anda tidak memiliki akses untuk page detail CPL prodi ${response.data.data.prodiId}`,
+          variant: "destructive",
+        });
+      } else {
+        setCPl(response.data.data);
 
-      const prevSelected1 = response.data.data.BK.map(
-        (item: BKItem) => item.kode
-      );
+        const prevSelected1 = response.data.data.BK.map(
+          (item: BKItem) => item.kode
+        );
 
-      const prevSelected2 = response.data.data.CPMK.map(
-        (item: CPMKItem) => item.kode
-      );
+        const prevSelected2 = response.data.data.CPMK.map(
+          (item: CPMKItem) => item.kode
+        );
 
-      setSelected1(prevSelected1);
-      setPrevSelected1(prevSelected1);
+        setSelected1(prevSelected1);
+        setPrevSelected1(prevSelected1);
 
-      setSelected2(prevSelected2);
-      setPrevSelected2(prevSelected2);
+        setSelected2(prevSelected2);
+        setPrevSelected2(prevSelected2);
 
-      form.reset({
-        deskripsi: response.data.data.deskripsi,
-        keterangan: response.data.data.keterangan,
-      });
+        form.reset({
+          deskripsi: response.data.data.deskripsi,
+          keterangan: response.data.data.keterangan,
+        });
+      }
     } catch (error: any) {
       throw error;
     }
   };
 
-  const getAllBK = async (prodiId:string) => {
+  const getAllBK = async () => {
     try {
-      const response = await axiosConfig.get(`api/bk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/bk?prodi=${accountData?.prodiId}`
+      );
 
       if (response.data.status !== 400) {
       } else {
@@ -182,9 +173,11 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  const getAllCPMK = async (prodiId:string) => {
+  const getAllCPMK = async () => {
     try {
-      const response = await axiosConfig.get(`api/cpmk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/cpmk?prodi=${accountData?.prodiId}`
+      );
 
       if (response.data.status !== 400) {
       } else {
@@ -234,7 +227,7 @@ export default function Page({ params }: { params: { id: string } }) {
       removedBKId: removedBKId,
       addedCPMKId: addedCPMKId,
       removedCPMKId: removedCPMKId,
-      prodiId: account?.prodiId,
+      prodiId: accountData?.prodiId,
     };
 
     try {
@@ -260,16 +253,10 @@ export default function Page({ params }: { params: { id: string } }) {
 
   // ONLY FIRST TIME
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    getAllBK();
+    getAllCPMK();
   }, []); // Trigger useEffect only on initial mount
+
   useEffect(() => {
     getCPL();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -277,9 +264,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (cpl) {
     return (
-      <main className="flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        <div className="flex">
-          <Table className="w-[300px] mb-5">
+      <main className='flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <div className='flex'>
+          <Table className='w-[300px] mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -304,68 +291,68 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Data</Button>
+              <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Edit CPL</DialogTitle>
                 <DialogDescription>{cpl.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="deskripsi" className="text-right">
+                <div className='grid gap-4 py-4'>
+                  <div className='grid grid-cols-4 items-center gap-4'>
+                    <Label htmlFor='deskripsi' className='text-right'>
                       Deskripsi
                     </Label>
                     <Input
-                      id="deskripsi"
+                      id='deskripsi'
                       {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className="col-span-3"
+                      className='col-span-3'
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="keterangan" className="text-right">
+                  <div className='grid grid-cols-4 items-center gap-4'>
+                    <Label htmlFor='keterangan' className='text-right'>
                       Keterangan
                     </Label>
                     <Input
-                      id="keterangan"
+                      id='keterangan'
                       {...form.register("keterangan")} // Register the input with react-hook-form
-                      className="col-span-3"
+                      className='col-span-3'
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Simpan</Button>
+                  <Button type='submit'>Simpan</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi BK</div>
-          <RelationData data={cpl.BK} jenisData="BK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi BK</div>
+          <RelationData data={cpl.BK} jenisData='BK' />
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi CPMK</div>
-          <RelationData data={cpl.CPMK} jenisData="CPMK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi CPMK</div>
+          <RelationData data={cpl.CPMK} jenisData='CPMK' />
         </div>
 
         {/* HEADER */}
-        <div className="flex flex-row justify-between items-center mb-5">
-          <div className=" font-bold text-xl">Sambungkan BK</div>
+        <div className='flex flex-row justify-between items-center mb-5'>
+          <div className=' font-bold text-xl'>Sambungkan BK</div>
           <input
-            type="text"
-            className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
+            type='text'
+            className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
             value={searchBK}
-            placeholder="Cari..."
+            placeholder='Cari...'
             onChange={(e) => setSearchBK(e.target.value)}
           />
         </div>
 
         {/* LIST OF BK */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className='grid grid-cols-4 gap-4'>
           {filteredBK && filteredBK.length > 0 ? (
             filteredBK?.map((bk, index) => {
               return (
@@ -378,23 +365,23 @@ export default function Page({ params }: { params: { id: string } }) {
               );
             })
           ) : (
-            <div className="text-sm">PL Tidak Ditemukan</div>
+            <div className='text-sm'>PL Tidak Ditemukan</div>
           )}
         </div>
 
-        <div className="flex flex-row justify-between items-center mb-5">
-          <div className=" font-bold text-xl">Sambungkan CPMK</div>
+        <div className='flex flex-row justify-between items-center mb-5'>
+          <div className=' font-bold text-xl'>Sambungkan CPMK</div>
           <input
-            type="text"
-            className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
+            type='text'
+            className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
             value={searchCPMK}
-            placeholder="Cari..."
+            placeholder='Cari...'
             onChange={(e) => setSearchCPMK(e.target.value)}
           />
         </div>
 
         {/* LIST OF CPMK */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className='grid grid-cols-4 gap-4'>
           {filteredCPMK && filteredCPMK.length > 0 ? (
             filteredCPMK?.map((cpmk, index) => {
               return (
@@ -407,15 +394,15 @@ export default function Page({ params }: { params: { id: string } }) {
               );
             })
           ) : (
-            <div className="text-sm">CPMK Tidak Ditemukan</div>
+            <div className='text-sm'>CPMK Tidak Ditemukan</div>
           )}
         </div>
 
         {/* SAVE */}
         <button
           onClick={updateRelation}
-          type="button"
-          className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
+          type='button'
+          className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
         >
           Simpan
         </button>
