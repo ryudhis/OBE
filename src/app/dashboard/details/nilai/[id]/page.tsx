@@ -120,7 +120,7 @@ export default function Page({ params }: { params: { id: string } }) {
       if (response.data.data.prodiId !== accountData?.prodiId) {
         router.push("/dashboard");
         toast({
-          title: `Anda tidak memiliki akses untuk page detail nilai prodi ${accountData?.prodiId}`,
+          title: `Anda tidak memiliki akses untuk page detail nilai prodi ${response.data.data.prodiId}`,
           variant: "destructive",
         });
       } else {
