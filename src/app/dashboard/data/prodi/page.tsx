@@ -20,8 +20,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface prodi {
   kode: string;
@@ -30,29 +29,13 @@ export interface prodi {
 
 const DataProdi = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [prodi, setProdi] = useState<prodi[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role !== "Super Admin") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Data Prodi",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getProdi();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const getProdi = async () => {
+    setIsLoading(true);
     try {
       const response = await axiosConfig.get(`api/prodi?`);
       if (response.data.status !== 400) {
@@ -62,6 +45,8 @@ const DataProdi = () => {
       }
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,16 +71,17 @@ const DataProdi = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getProdi();
   }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role !== "Super Admin") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data Prodi.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return prodi.map((prodi, index) => {

@@ -27,8 +27,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface inputNilai {
   id: number;
@@ -60,29 +59,11 @@ export interface MKItem {
 
 const DataNilai = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const accountData = useAccount();
   const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [filterMK, setFilterMK] = useState("default");
-
-  const fetchData = async () => {
-    try {
-      const data = await getAccountData();
-      if (data.role === "Dosen") {
-        router.push("/dashboard");
-        toast({
-          title: "Kamu Tidak Memiliki Akses Ke Halaman Data Nilai",
-          variant: "destructive",
-        });
-      }
-      setAccount(data);
-      getInputNilai(data.prodiId);
-      getMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   let filteredNilai = inputNilai;
 
@@ -92,10 +73,12 @@ const DataNilai = () => {
     );
   }
 
-  const getInputNilai = async (prodiId: string) => {
+  const getInputNilai = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/inputNilai?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/inputNilai?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -108,10 +91,12 @@ const DataNilai = () => {
     }
   };
 
-  const getMK = async (prodiId: string) => {
+  const getMK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -144,34 +129,41 @@ const DataNilai = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
+    getMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Trigger useEffect only on initial mount
+
+  useEffect(() => {
+    getInputNilai();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Admin Prodi") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data Nilai.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return filteredNilai?.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
-          <TableCell className="w-[10%]">{nilai.penilaianCPMKId}</TableCell>
-          <TableCell className="flex-1">{nilai.mahasiswaNim}</TableCell>
-          <TableCell className="flex-1">{nilai.mahasiswa.nama}</TableCell>
+          <TableCell className='w-[10%]'>{nilai.penilaianCPMKId}</TableCell>
+          <TableCell className='flex-1'>{nilai.mahasiswaNim}</TableCell>
+          <TableCell className='flex-1'>{nilai.mahasiswa.nama}</TableCell>
           <TableCell>
             {nilai.nilai.map((item, index) => (
-              <TableRow key={index} className="flex-1">
+              <TableRow key={index} className='flex-1'>
                 {item}
               </TableRow>
             ))}
           </TableCell>
           <TableCell>
             {nilai.nilai.map((item, index) => (
-              <TableRow key={index} className="flex-1">
+              <TableRow key={index} className='flex-1'>
                 {(
                   item *
                   (nilai.penilaianCPMK.kriteria[index].bobot * 0.01)
@@ -179,9 +171,9 @@ const DataNilai = () => {
               </TableRow>
             ))}
           </TableCell>
-          <TableCell className="w-[10%] flex gap-2">
+          <TableCell className='w-[10%] flex gap-2'>
             <Button
-              variant="destructive"
+              variant='destructive'
               onClick={() => delInputNilai(nilai.id)}
             >
               Hapus
@@ -200,10 +192,10 @@ const DataNilai = () => {
   };
 
   return (
-    <section className="flex justify-center items-center my-20">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center my-20'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel Nilai Mahasiswa</CardTitle>
             <CardDescription>Nilai Mahasiswa</CardDescription>
           </div>
@@ -216,11 +208,11 @@ const DataNilai = () => {
             value={filterMK}
             required
           >
-            <SelectTrigger className="w-[30%]">
-              <SelectValue placeholder="Pilih MK" />
+            <SelectTrigger className='w-[30%]'>
+              <SelectValue placeholder='Pilih MK' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">Pilih MK</SelectItem>
+              <SelectItem value='default'>Pilih MK</SelectItem>
               {MK.map((mk, index) => {
                 return (
                   <SelectItem key={index} value={mk.kode}>
@@ -244,12 +236,12 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">PCPMK ID</TableHead>
-                  <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="flex-1">Nama</TableHead>
-                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
-                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[10%]'>PCPMK ID</TableHead>
+                  <TableHead className='flex-1'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Asli</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Pembobotan</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -260,12 +252,12 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">PCPMK ID</TableHead>
-                  <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="flex-1">Nama</TableHead>
-                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
-                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[10%]'>PCPMK ID</TableHead>
+                  <TableHead className='flex-1'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Asli</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Pembobotan</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
