@@ -157,35 +157,35 @@ const Header = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
+      <AppBar position='fixed' open={open}>
         <Toolbar>
           <IconButton
-            color="inherit"
-            aria-label="open drawer"
+            color='inherit'
+            aria-label='open drawer'
             onClick={handleDrawerOpen}
-            edge="start"
+            edge='start'
             sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
             <MenuIcon />
           </IconButton>
           <Typography
-            variant="h6"
+            variant='h6'
             noWrap
-            component="a"
-            className="cursor-pointer"
+            component='a'
+            className='cursor-pointer'
             onClick={() => router.push(`/dashboard/`)}
           >
             OBE
           </Typography>
           {isLoading ? (
             <Typography
-              variant="body1"
+              variant='body1'
               sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
             >
               ...
             </Typography>
           ) : (
-            <Typography variant="body1" sx={{ marginLeft: "auto" }}>
+            <Typography variant='body1' sx={{ marginLeft: "auto" }}>
               {accountData?.nama} - {accountData?.role}
             </Typography>
           )}
@@ -200,8 +200,8 @@ const Header = () => {
             boxSizing: "border-box",
           },
         }}
-        variant="persistent"
-        anchor="left"
+        variant='persistent'
+        anchor='left'
         open={open}
       >
         <DrawerHeader>
@@ -216,17 +216,17 @@ const Header = () => {
         <Divider />
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-          component="nav"
-          aria-labelledby="nested-list-subheader"
+          component='nav'
+          aria-labelledby='nested-list-subheader'
         >
           <ListItemButton onClick={handleClickInput}>
             <ListItemIcon>
               <InputIcon />
             </ListItemIcon>
-            <ListItemText primary="Input" />
+            <ListItemText primary='Input' />
             {openNestedInput ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedInput} timeout="auto" unmountOnExit>
+          <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
@@ -243,10 +243,10 @@ const Header = () => {
             <ListItemIcon>
               <TextSnippetIcon />
             </ListItemIcon>
-            <ListItemText primary="Data" />
+            <ListItemText primary='Data' />
             {openNestedData ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedData} timeout="auto" unmountOnExit>
+          <Collapse in={openNestedData} timeout='auto' unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
@@ -263,10 +263,10 @@ const Header = () => {
             <ListItemIcon>
               <AssignmentReturn />
             </ListItemIcon>
-            <ListItemText primary="Pemetaan" />
+            <ListItemText primary='Pemetaan' />
             {openNestedPemetaan ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedPemetaan} timeout="auto" unmountOnExit>
+          <Collapse in={openNestedPemetaan} timeout='auto' unmountOnExit>
             <ListItemButton
               onClick={() => router.push(`/dashboard/pemetaan/cpl-cpmk`)}
               sx={{ pl: 4 }}
@@ -276,10 +276,10 @@ const Header = () => {
           </Collapse>
         </List>
         <Button
-          size="medium"
-          variant="contained"
-          color="error"
-          className="text-black font-semibold bg-red-500 m-4"
+          size='medium'
+          variant='contained'
+          color='error'
+          className='text-black font-semibold bg-red-500 m-4'
           onClick={() => {
             toast({
               description: "Berhasil Log Out.",

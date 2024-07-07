@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "PL" ALTER COLUMN "prodiId" DROP NOT NULL;
