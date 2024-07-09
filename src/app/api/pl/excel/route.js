@@ -8,6 +8,7 @@ export async function POST(req) {
       data: dataArray.PL.map((data) => ({
         kode: data.kode,
         deskripsi: data.deskripsi,
+        prodiId: dataArray.prodiId,
       })),
       skipDuplicates: true, 
     });

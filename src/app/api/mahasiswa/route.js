@@ -1,9 +1,22 @@
 import prisma from "@/utils/prisma";
 
-export async function GET() {
+export async function GET(req, res) {
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+
+  // Validate prodi parameter if necessary
+  if (!prodi) {
+    return res
+      .status(400)
+      .json({ status: 400, message: "Missing prodi parameter" });
+  }
+
   try {
     const mahasiswa = await prisma.mahasiswa.findMany({
       orderBy: { nim: "asc" },
+      where: {
+        prodiId: prodi,
+      },
     });
 
     return Response.json({
@@ -20,7 +33,19 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const mahasiswa = await prisma.mahasiswa.create({ data });
+    const { prodiId, ...restData } = data; // Extract prodiId from data
+
+    // Create the PL entry and connect it to the prodi
+    const mahasiswa = await prisma.mahasiswa.create({
+      data: {
+        ...restData,
+        prodi: {
+          connect: {
+            kode: prodiId,
+          },
+        },
+      },
+    });
 
     return Response.json({
       status: 200,

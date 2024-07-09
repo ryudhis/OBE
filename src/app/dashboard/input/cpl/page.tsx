@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from "../../../../utils/axios";
+import axiosConfig from "@utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -33,6 +34,7 @@ const formSchema = z.object({
 const CPLScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const accountData = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,12 +50,11 @@ const CPLScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: "CPL-" + values.kode,
+      kode: values.kode,
       deskripsi: values.deskripsi,
       keterangan: values.keterangan,
+      prodiId: accountData?.prodiId,
     };
-
-    console.log(data.kode);
 
     axiosConfig
       .post("api/cpl", data)
@@ -84,6 +85,15 @@ const CPLScreen = () => {
     form.reset();
   }
 
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input cpl.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
@@ -109,11 +119,11 @@ const CPLScreen = () => {
                 name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode CPL-</FormLabel>
+                    <FormLabel>Kode CPL</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Kode"
-                        type="number"
+                        placeholder="Kode CPL"
+                        type="text"
                         required
                         {...field}
                       />

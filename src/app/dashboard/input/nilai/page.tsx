@@ -30,7 +30,9 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
+import { accountProdi } from "@/app/interface/input";
 
 const formSchema = z.object({
   MK: z.string({
@@ -51,6 +53,7 @@ const formSchema = z.object({
 });
 
 export interface PCPMKItem {
+  id: number;
   kode: string;
   MKkode: string;
   kriteria: { kriteria: string; bobot: number }[];
@@ -58,12 +61,14 @@ export interface PCPMKItem {
 
 export interface MKItem {
   kode: string;
+  deskripsi: string;
   kelas: kelasItem[];
 }
 
 export interface kelasItem {
   id: number;
   nama: string;
+  MK: MKItem;
   MKId: string;
   mahasiswa: mahasiswaItem[];
 }
@@ -75,6 +80,8 @@ export interface mahasiswaItem {
 
 const InputNilai: React.FC = () => {
   const { toast } = useToast();
+  const router = useRouter();
+  const accountData = useAccount();
   const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
@@ -91,9 +98,11 @@ const InputNilai: React.FC = () => {
     pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
   );
 
-  const getPCPMK = async () => {
+  const getPCPMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get("api/penilaianCPMK");
+      const response = await axiosConfig.get(
+        `api/penilaianCPMK?prodi=${prodiId}`
+      );
       if (response.data.status !== 400) {
         setPCPMK(response.data.data);
       } else {
@@ -104,11 +113,24 @@ const InputNilai: React.FC = () => {
     }
   };
 
-  const getMK = async () => {
+  const getMK = async (prodiId: string, accountData: accountProdi) => {
     try {
-      const response = await axiosConfig.get("api/mk");
+      console.log(accountData);
+
+      const userMKCodes = accountData.kelas.map(
+        (kelas: kelasItem) => kelas.MKId
+      );
+
+      // Fetch the MK data
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
       if (response.data.status !== 400) {
-        setMK(response.data.data);
+        // Filter the MK data
+        const filteredMK = response.data.data.filter((mk: MKItem) =>
+          userMKCodes.includes(mk.kode)
+        );
+
+        // Set the filtered MK data to the state
+        setMK(filteredMK);
       } else {
         alert(response.data.message);
       }
@@ -133,9 +155,10 @@ const InputNilai: React.FC = () => {
     const data = values.nilai.map((item) => ({
       MKId: values.MK,
       kelasId: selectedKelas?.id,
-      PCPMKId: values.PCPMK,
+      PCPMKId: selectedPCPMK?.id,
       MahasiswaId: item.mahasiswa,
       nilai: item.nilai.map((nilai) => parseFloat(nilai)),
+      prodiId: accountData?.prodiId,
     }));
 
     axiosConfig
@@ -169,12 +192,25 @@ const InputNilai: React.FC = () => {
   };
 
   useEffect(() => {
-    getPCPMK();
+    try {
+      if (accountData?.prodiId) {
+        getMK(accountData.prodiId, accountData);
+        getPCPMK(accountData.prodiId);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    getMK();
-  }, []);
+  if (accountData?.role === "Admin Prodi") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input nilai.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   return (
     <section className="flex my-[50px] justify-center items-center">
@@ -235,7 +271,7 @@ const InputNilai: React.FC = () => {
                         />
                         {filteredMK.map((mk, index) => (
                           <SelectItem key={index} value={mk.kode}>
-                            {mk.kode}
+                            {mk.kode + " - " + mk.deskripsi}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -276,11 +312,17 @@ const InputNilai: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {selectedMK?.kelas.map((kelas, index) => (
-                          <SelectItem key={index} value={kelas.nama}>
-                            {kelas.nama}
-                          </SelectItem>
-                        ))}
+                        {selectedMK?.kelas
+                          .filter((kelas) =>
+                            accountData?.kelas.some(
+                              (accKelas) => accKelas.nama === kelas.nama
+                            )
+                          )
+                          .map((kelas, index) => (
+                            <SelectItem key={index} value={kelas.nama}>
+                              {kelas.nama}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

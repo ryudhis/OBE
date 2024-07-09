@@ -20,8 +20,11 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
+import { set } from "react-hook-form";
 
 export interface pl {
+  id: number;
   kode: string;
   deskripsi: string;
   CPL: CPLItem[];
@@ -33,33 +36,38 @@ export interface CPLItem {
 
 const DataPL = () => {
   const router = useRouter();
+  const accountData = useAccount();
   const [PL, setPL] = useState<pl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
+
   const getPL = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/pl");
+      const response = await axiosConfig.get(
+        `api/pl?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
+        setPL(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setPL(response.data.data);
     } catch (error) {
-      console.log(error);
-    } finally {
+      console.error("There was a problem with the fetch operation:", error);
+    }finally {
       setIsLoading(false);
     }
   };
 
-  const delPL = async (kode: string) => {
+  const delPL = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/pl/${kode}`);
+      const response = await axiosConfig.delete(`api/pl/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data PL",
           variant: "default",
         });
-        getPL();
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -73,7 +81,17 @@ const DataPL = () => {
 
   useEffect(() => {
     getPL();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data PL.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return PL.map((pl, index) => {
@@ -89,12 +107,12 @@ const DataPL = () => {
             {pl.CPL.map((item) => item.kode).join(", ")}
           </TableCell>
           <TableCell className="w-[10%] flex gap-2">
-            <Button variant="destructive" onClick={() => delPL(pl.kode)}>
+            <Button variant="destructive" onClick={() => delPL(pl.id)}>
               Hapus
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/pl/${pl.kode}/`);
+                router.push(`/dashboard/details/pl/${pl.id}/`);
               }}
             >
               Details

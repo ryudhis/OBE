@@ -20,8 +20,10 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface bk {
+  id: number;
   kode: string;
   deskripsi: string;
   min: number;
@@ -41,11 +43,16 @@ export interface CPLItem {
 const DataBK = () => {
   const router = useRouter();
   const [BK, setBK] = useState<bk[]>([]);
+  const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
+
   const getBK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/bk");
+      const response = await axiosConfig.get(
+        `api/bk?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -57,15 +64,15 @@ const DataBK = () => {
       setIsLoading(false);
     }
   };
-  const delBK = async (kode: string) => {
+  const delBK = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/bk/${kode}`);
+      const response = await axiosConfig.delete(`api/bk/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data BK",
           variant: "default",
         });
-        getBK();
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -76,35 +83,45 @@ const DataBK = () => {
       throw error;
     }
   };
+
   useEffect(() => {
     getBK();
-  }, []);
+  }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data BK.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return BK.map((bk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className="w-[8%]">{bk.kode}</TableCell>
-          <TableCell className="flex-1">
+          <TableCell className='w-[8%]'>{bk.kode}</TableCell>
+          <TableCell className='flex-1'>
             {bk.deskripsi.length > 20
               ? bk.deskripsi.slice(0, 18) + "..."
               : bk.deskripsi}
           </TableCell>
-          <TableCell className="w-[4%]">{bk.min}</TableCell>
-          <TableCell className="w-[4%]">{bk.max}</TableCell>
-          <TableCell className="w-[18%]">
+          <TableCell className='w-[4%]'>{bk.min}</TableCell>
+          <TableCell className='w-[4%]'>{bk.max}</TableCell>
+          <TableCell className='w-[18%]'>
             {bk.CPL.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[18%]">
+          <TableCell className='w-[18%]'>
             {bk.MK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[8%] flex gap-2">
-            <Button variant="destructive" onClick={() => delBK(bk.kode)}>
+          <TableCell className='w-[8%] flex gap-2'>
+            <Button variant='destructive' onClick={() => delBK(bk.id)}>
               Hapus
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/bk/${bk.kode}/`);
+                router.push(`/dashboard/details/bk/${bk.id}/`);
               }}
             >
               Details
@@ -116,10 +133,10 @@ const DataBK = () => {
   };
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center mt-20'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel BK</CardTitle>
             <CardDescription>Bahan Kajian</CardDescription>
           </div>
@@ -136,13 +153,13 @@ const DataBK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[4%]">Min</TableHead>
-                  <TableHead className="w-[4%]">Max</TableHead>
-                  <TableHead className="w-[18%]">CPL</TableHead>
-                  <TableHead className="w-[18%]">MK</TableHead>
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className='w-[8%]'>Kode</TableHead>
+                  <TableHead className='flex-1'>Deskripsi</TableHead>
+                  <TableHead className='w-[4%]'>Min</TableHead>
+                  <TableHead className='w-[4%]'>Max</TableHead>
+                  <TableHead className='w-[18%]'>CPL</TableHead>
+                  <TableHead className='w-[18%]'>MK</TableHead>
+                  <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,13 +170,13 @@ const DataBK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%]">Kode</TableHead>
-                  <TableHead className="flex-1">Deskripsi</TableHead>
-                  <TableHead className="w-[4%]">Min</TableHead>
-                  <TableHead className="w-[4%]">Max</TableHead>
-                  <TableHead className="w-[18%]">CPL</TableHead>
-                  <TableHead className="w-[18%]">MK</TableHead>
-                  <TableHead className="w-[8%]">Aksi</TableHead>
+                  <TableHead className='w-[8%]'>Kode</TableHead>
+                  <TableHead className='flex-1'>Deskripsi</TableHead>
+                  <TableHead className='w-[4%]'>Min</TableHead>
+                  <TableHead className='w-[4%]'>Max</TableHead>
+                  <TableHead className='w-[18%]'>CPL</TableHead>
+                  <TableHead className='w-[18%]'>MK</TableHead>
+                  <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

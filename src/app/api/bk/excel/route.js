@@ -10,6 +10,7 @@ export async function POST(req) {
         deskripsi: data.deskripsi,
         min: data.min,
         max: data.max,
+        prodiId: dataArray.prodiId,
       })),
       skipDuplicates: true, 
     });

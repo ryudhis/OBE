@@ -1,20 +1,32 @@
 import prisma from "@/utils/prisma";
 
-export async function GET() {
-  
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+
+  // Validate prodi parameter if necessary
+  if (!prodi) {
+    return Response.json({ status: 400, message: "Missing prodi parameter" });
+  }
+
   try {
     const CPL = await prisma.CPL.findMany({
-      include: { PL: true, 
-        BK : {
-          include : {
-            MK : true
-          }
-        }, 
+      where: {
+        prodiId: prodi,
+      },
+      include: {
+        PL: true,
+        BK: {
+          include: {
+            MK: true,
+          },
+        },
         CPMK: {
-          include : {
-            MK : true
-          }
-        } },
+          include: {
+            MK: true,
+          },
+        },
+      },
     });
 
     return Response.json({
@@ -31,7 +43,19 @@ export async function GET() {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const CPL = await prisma.CPL.create({ data });
+    const { prodiId, ...restData } = data; // Extract prodiId from data
+
+    // Create the PL entry and connect it to the prodi
+    const CPL = await prisma.CPL.create({
+      data: {
+        ...restData,
+        prodi: {
+          connect: {
+            kode: prodiId,
+          },
+        },
+      },
+    });
 
     return Response.json({
       status: 200,

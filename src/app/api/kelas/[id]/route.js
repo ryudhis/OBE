@@ -24,6 +24,7 @@ export async function GET(req) {
             },
           },
         },
+        dosen : true,
       },
     });
 
@@ -43,7 +44,7 @@ export async function DELETE(req) {
     const id = req.url.split("/kelas/")[1];
     const kelas = await prisma.kelas.delete({
       where: {
-        id,
+        id:parseInt(id),
       },
     });
 
@@ -65,7 +66,7 @@ export async function PATCH(req) {
 
     const kelas = await prisma.kelas.update({
       where: {
-        id,
+        id:parseInt(id),
       },
       data,
     });

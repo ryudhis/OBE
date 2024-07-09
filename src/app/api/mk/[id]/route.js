@@ -8,13 +8,17 @@ export async function GET(req) {
         kode: kode,
       },
       include: {
+        penilaianCPMK: {include: {CPMK:true}},
         BK: { include: { CPL: true } },
         CPMK: true,
         kelas: { include: { MK: true, mahasiswa: true } },
+        rencanaPembelajaran: {
+          orderBy: {
+            minggu: "asc",
+          },
+        },
       },
     });
-
-    console.log(MK);
 
     return Response.json({
       status: 200,
@@ -54,7 +58,7 @@ export async function PATCH(req) {
 
     const MK = await prisma.MK.update({
       where: {
-        kode,
+        kode: kode,
       },
       data,
     });

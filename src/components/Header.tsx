@@ -1,184 +1,301 @@
 "use client";
-import React from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { styled, useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import CssBaseline from "@mui/material/CssBaseline";
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import InputIcon from "@mui/icons-material/Input";
+import Collapse from "@mui/material/Collapse";
+import TextSnippetIcon from "@mui/icons-material/TextSnippet";
+import Button from "@mui/material/Button";
+import AssignmentReturn from "@mui/icons-material/AssignmentReturn";
+import { useAccount } from "@/app/contexts/AccountContext";
+
+const drawerWidth = 240;
+
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
+  open?: boolean;
+}>(({ theme, open }) => ({
+  flexGrow: 1,
+  padding: theme.spacing(0),
+  transition: theme.transitions.create("margin", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  marginLeft: `-${drawerWidth}px`,
+  ...(open && {
+    transition: theme.transitions.create("margin", {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
+  }),
+}));
+
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})<AppBarProps>(({ theme, open }) => ({
+  transition: theme.transitions.create(["margin", "width"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(["margin", "width"], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  padding: theme.spacing(0, 1),
+  // necessary for content to be below app bar
+  ...theme.mixins.toolbar,
+  justifyContent: "flex-end",
+}));
 
 const Header = () => {
   const router = useRouter();
   const { toast } = useToast();
+  const theme = useTheme();
+  const [open, setOpen] = useState(false);
+  const [openNestedInput, setOpenNestedInput] = useState(false);
+  const [openNestedData, setOpenNestedData] = useState(false);
+  const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
+  const accountData = useAccount();
+
+  const linkListSuperAdmin = [
+    "pl",
+    "cpl",
+    "bk",
+    "cpmk",
+    "mk",
+    "penilaian CPMK",
+    "mahasiswa",
+    "nilai",
+    "akun",
+    "prodi",
+  ];
+
+  const linkListKaprodi = [
+    "pl",
+    "cpl",
+    "bk",
+    "cpmk",
+    "mk",
+    "penilaian CPMK",
+    "mahasiswa",
+    "nilai",
+  ];
+
+  const linkListAdminProdi = [
+    "pl",
+    "cpl",
+    "bk",
+    "cpmk",
+    "mk",
+    "penilaian CPMK",
+    "mahasiswa",
+  ];
+
+  const linkListDosen = ["mk", "nilai", "penilaian CPMK"];
+
+  const linkList =
+    accountData?.role === "Super Admin"
+      ? linkListSuperAdmin
+      : accountData?.role === "Kaprodi"
+      ? linkListKaprodi
+      : accountData?.role === "Admin Prodi"
+      ? linkListAdminProdi
+      : linkListDosen;
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const handleClickInput = () => {
+    setOpenNestedInput(!openNestedInput);
+  };
+
+  const handleClickData = () => {
+    setOpenNestedData(!openNestedData);
+  };
+
+  const handleClickPemetaan = () => {
+    setOpenNestedPemetaan(!openNestedPemetaan);
+  };
 
   return (
-    <div>
-      <header className="flex justify-between items-center py-4 px-6 bg-slate-800">
-        <h1
-          className="text-white cursor-pointer font-bold text-2xl tracking-widest"
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar position='fixed' open={open}>
+        <Toolbar>
+          <IconButton
+            color='inherit'
+            aria-label='open drawer'
+            onClick={handleDrawerOpen}
+            edge='start'
+            sx={{ mr: 2, ...(open && { display: "none" }) }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant='h6'
+            noWrap
+            component='a'
+            className='cursor-pointer'
+            onClick={() => router.push(`/dashboard/`)}
+          >
+            OBE
+          </Typography>
+          {!accountData ? (
+            <Typography
+              variant='body1'
+              sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
+            >
+              ...
+            </Typography>
+          ) : (
+            <Typography variant='body1' sx={{ marginLeft: "auto" }}>
+              {accountData.nama} - {accountData.role}
+            </Typography>
+          )}
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+        variant='persistent'
+        anchor='left'
+        open={open}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === "ltr" ? (
+              <ChevronLeftIcon />
+            ) : (
+              <ChevronRightIcon />
+            )}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <List
+          sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+          component='nav'
+          aria-labelledby='nested-list-subheader'
+        >
+          <ListItemButton onClick={handleClickInput}>
+            <ListItemIcon>
+              <InputIcon />
+            </ListItemIcon>
+            <ListItemText primary='Input' />
+            {openNestedInput ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
+            {linkList.map((item) => (
+              <ListItemButton
+                key={item}
+                onClick={() =>
+                  router.push(`/dashboard/input/${item.replace(/\s+/g, "")}`)
+                }
+                sx={{ pl: 4 }}
+              >
+                <ListItemText primary={item.toLocaleUpperCase()} />
+              </ListItemButton>
+            ))}
+          </Collapse>
+          <ListItemButton onClick={handleClickData}>
+            <ListItemIcon>
+              <TextSnippetIcon />
+            </ListItemIcon>
+            <ListItemText primary='Data' />
+            {openNestedData ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={openNestedData} timeout='auto' unmountOnExit>
+            {linkList.map((item) => (
+              <ListItemButton
+                key={item}
+                onClick={() =>
+                  router.push(`/dashboard/data/${item.replace(/\s+/g, "")}`)
+                }
+                sx={{ pl: 4 }}
+              >
+                <ListItemText primary={item.toLocaleUpperCase()} />
+              </ListItemButton>
+            ))}
+          </Collapse>
+          <ListItemButton onClick={handleClickPemetaan}>
+            <ListItemIcon>
+              <AssignmentReturn />
+            </ListItemIcon>
+            <ListItemText primary='Pemetaan' />
+            {openNestedPemetaan ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+          <Collapse in={openNestedPemetaan} timeout='auto' unmountOnExit>
+            <ListItemButton
+              onClick={() => router.push(`/dashboard/pemetaan/cpl-cpmk`)}
+              sx={{ pl: 4 }}
+            >
+              <ListItemText primary={"CPL - CPMK"} />
+            </ListItemButton>
+          </Collapse>
+        </List>
+        <Button
+          size='medium'
+          variant='contained'
+          color='error'
+          className='text-black font-semibold bg-red-500 m-4'
           onClick={() => {
-            router.push("/dashboard");
+            toast({
+              description: "Berhasil Log Out.",
+            });
+            Cookies.remove("token");
+            router.push("/login");
           }}
         >
-          OBE
-        </h1>
-        <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="outline-none">
-              <div className="px-4 py-2 border-1 bg-white border-slate-900 rounded-md">
-                Input
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Input Data</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/pl");
-                }}
-              >
-                PL
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/cpl");
-                }}
-              >
-                CPL
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/bk");
-                }}
-              >
-                BK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/cpmk");
-                }}
-              >
-                CPMK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/mk");
-                }}
-              >
-                MK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/penilaianCPMK");
-                }}
-              >
-                Penilaian CPMK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/mahasiswa");
-                }}
-              >
-                Mahasiswa
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/input/nilai");
-                }}
-              >
-                Nilai
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger className="outline-none">
-              <div className="px-4 py-2 border-1 bg-white border-slate-900 rounded-md">
-                Data
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Lihat Data</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/pl");
-                }}
-              >
-                PL
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/cpl");
-                }}
-              >
-                CPL
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/bk");
-                }}
-              >
-                BK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/cpmk");
-                }}
-              >
-                CPMK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/mk");
-                }}
-              >
-                MK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/penilaianCPMK");
-                }}
-              >
-                Penilaian CPMK
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/mahasiswa");
-                }}
-              >
-                Mahasiswa
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push("/dashboard/data/nilai");
-                }}
-              >
-                Nilai
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              toast({
-                description: "Berhasil Log Out.",
-              });
-              Cookies.remove("token");
-              router.push("/login");
-            }}
-          >
-            Log Out
-          </Button>
-        </div>
-      </header>
-    </div>
+          Logout
+        </Button>
+        <Divider />
+      </Drawer>
+      <Main open={open}>
+        <DrawerHeader />
+      </Main>
+    </Box>
   );
 };
 

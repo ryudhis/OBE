@@ -8,6 +8,7 @@ export async function POST(req) {
       data: dataArray.mahasiswa.map((data) => ({
         nama: data.Nama,
         nim: String(data.NIM),
+        prodiId: dataArray.prodiId,
       })),
       skipDuplicates: true,
     });

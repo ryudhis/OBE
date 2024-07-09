@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 interface BKItem {
   kode: string;
@@ -33,7 +34,33 @@ interface BKItem {
 const BKExcel = () => {
   const router = useRouter();
   const [bk, setBk] = useState<BKItem[]>([]);
+  const accountData = useAccount();
   const { toast } = useToast();
+
+  const exportTemplate = () => {
+    // Define headers
+    const headers = [
+      { header: "Kode", key: "Kode" },
+      { header: "Deskripsi", key: "Deskripsi" },
+      { header: "Minimal MK", key: "Minimal MK" },
+      { header: "Maksimal MK", key: "Maksimal MK" },
+    ];
+
+    // Create worksheet with headers
+    const ws = XLSX.utils.json_to_sheet([], {
+      header: headers.map((h) => h.key),
+    });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    // Export workbook
+    XLSX.writeFile(wb, "Template BK.xlsx");
+  };
+
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -50,8 +77,8 @@ const BKExcel = () => {
       parsedData = parsedData.map((item: any) => ({
         kode: item.Kode,
         deskripsi: item.Deskripsi,
-        min: item.Min,
-        max: item.Max,
+        min: item["Minimal MK"],
+        max: item["Maksimal MK"],
       }));
       setBk(parsedData);
     };
@@ -62,6 +89,7 @@ const BKExcel = () => {
 
     const data = {
       BK: bk,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -90,20 +118,39 @@ const BKExcel = () => {
       });
   }
 
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input excel bk.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input BK Excel</CardTitle>
           <CardDescription>Data Bahan Kajian</CardDescription>
-          <Button
-            className="w-[100px] self-end"
-            onClick={() => {
-              router.push(`/dashboard/input/bk/`);
-            }}
-          >
-            Input Manual
-          </Button>
+          <div className="flex items-center justify-end gap-4">
+            <Button
+              className="w-[130px] self-end"
+              onClick={() => {
+                exportTemplate();
+              }}
+            >
+              Export Template
+            </Button>
+            <Button
+              className="w-[100px] self-end"
+              onClick={() => {
+                router.push(`/dashboard/input/bk/`);
+              }}
+            >
+              Input Manual
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
@@ -111,17 +158,21 @@ const BKExcel = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {Object.keys(bk[0]).map((key, index) => (
-                    <TableHead key={index}>{key}</TableHead>
-                  ))}
+                  {Object.keys(bk[0])
+                    .slice(0, -1)
+                    .map((key, index) => (
+                      <TableHead key={index}>{key}</TableHead>
+                    ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {bk.map((row, index) => (
                   <TableRow key={index}>
-                    {Object.values(row).map((value, index) => (
-                      <TableCell key={index}>{value}</TableCell>
-                    ))}
+                    {Object.values(row)
+                      .slice(0, -1)
+                      .map((value, index) => (
+                        <TableCell key={index}>{value}</TableCell>
+                      ))}
                   </TableRow>
                 ))}
               </TableBody>

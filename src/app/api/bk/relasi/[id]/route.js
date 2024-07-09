@@ -2,15 +2,15 @@ import prisma from "@/utils/prisma";
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/relasi/")[1];
+    const id = req.url.split("/relasi/")[1];
     const body = await req.json();
 
     const BK = await prisma.BK.update({
       where: {
-        kode,
+        id: parseInt(id),
       },
       data: {
-        kode: body.kode,
+        id: body.id,
         deskripsi: body.deskripsi,
         min: body.min,
         max: body.max,

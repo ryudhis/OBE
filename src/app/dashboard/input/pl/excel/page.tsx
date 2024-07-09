@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import axiosConfig from "../../../../../utils/axios";
 import { useToast } from "@/components/ui/use-toast";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 interface PLItem {
   kode: string;
@@ -30,8 +31,32 @@ interface PLItem {
 
 const PLExcel = () => {
   const router = useRouter();
+  const accountData = useAccount();
   const [pl, setPl] = useState<PLItem[]>([]);
   const { toast } = useToast();
+
+  const exportTemplate = () => {
+    // Define headers
+    const headers = [
+      { header: "Kode", key: "Kode" },
+      { header: "Deskripsi", key: "Deskripsi" },
+    ];
+
+    // Create worksheet with headers
+    const ws = XLSX.utils.json_to_sheet([], {
+      header: headers.map((h) => h.key),
+    });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    // Export workbook
+    XLSX.writeFile(wb, "Template PL.xlsx");
+  };
+
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -58,6 +83,7 @@ const PLExcel = () => {
 
     const data = {
       PL: pl,
+      prodiId: accountData?.prodiId,
     };
 
     axiosConfig
@@ -86,20 +112,39 @@ const PLExcel = () => {
       });
   }
 
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input excel pl.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input PL Excel</CardTitle>
           <CardDescription>Data Profil Lulusan</CardDescription>
-          <Button
-            className="w-[100px] self-end"
-            onClick={() => {
-              router.push(`/dashboard/input/pl/`);
-            }}
-          >
-            Input Manual
-          </Button>
+          <div className="flex items-center justify-end gap-4">
+            <Button
+              className="w-[130px] self-end"
+              onClick={() => {
+                exportTemplate();
+              }}
+            >
+              Export Template
+            </Button>
+            <Button
+              className="w-[100px] self-end"
+              onClick={() => {
+                router.push(`/dashboard/input/pl/`);
+              }}
+            >
+              Input Manual
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />

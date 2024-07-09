@@ -1,5 +1,5 @@
 "use client";
-import axiosConfig from "../../../../utils/axios";
+import axiosConfig from "@utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
@@ -34,6 +35,7 @@ const formSchema = z.object({
 const BKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
+  const accountData = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,13 +52,12 @@ const BKScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: "BK-" + values.kode,
+      kode: values.kode,
       deskripsi: values.deskripsi,
       min: parseInt(values.min),
       max: parseInt(values.max),
+      prodiId: accountData?.prodiId,
     };
-
-    console.log(data.kode);
 
     axiosConfig
       .post("api/bk", data)
@@ -86,6 +87,15 @@ const BKScreen = () => {
     form.reset();
   }
 
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page input bk.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
+
   return (
     <section className="flex h-screen mt-[-100px] justify-center items-center">
       <Card className="w-[1000px]">
@@ -111,14 +121,9 @@ const BKScreen = () => {
                 name="kode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kode BK-</FormLabel>
+                    <FormLabel>Kode BK</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Kode"
-                        type="number"
-                        required
-                        {...field}
-                      />
+                      <Input placeholder="Kode BK" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

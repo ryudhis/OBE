@@ -2,23 +2,43 @@ import prisma from "@/utils/prisma";
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/relasi/")[1];
+    const id = req.url.split("/relasi/")[1];
     const body = await req.json();
 
     const CPL = await prisma.CPL.update({
       where: {
-        kode,
+        id: parseInt(id),
       },
       data: {
         kode: body.kode,
         deskripsi: body.deskripsi,
         BK: {
-          disconnect: body.removedBKId.map((bkId) => ({ kode: bkId })),
-          connect: body.addedBKId.map((bkId) => ({ kode: bkId })),
+          disconnect: body.removedBKId.map((bkId) => ({
+            kode_prodiId: {
+              kode: bkId,
+              prodiId: body.prodiId,
+            },
+          })),
+          connect: body.addedBKId.map((bkId) => ({
+            kode_prodiId: {
+              kode: bkId,
+              prodiId: body.prodiId,
+            },
+          })),
         },
         CPMK: {
-          disconnect: body.removedCPMKId.map((cpmkId) => ({ kode: cpmkId })),
-          connect: body.addedCPMKId.map((cpmkId) => ({ kode: cpmkId })),
+          disconnect: body.removedCPMKId.map((cpmkId) => ({
+            kode_prodiId: {
+              kode: cpmkId,
+              prodiId: body.prodiId,
+            },
+          })),
+          connect: body.addedCPMKId.map((cpmkId) => ({
+            kode_prodiId: {
+              kode: cpmkId,
+              prodiId: body.prodiId,
+            },
+          })),
         },
       },
     });
@@ -30,6 +50,6 @@ export async function PATCH(req) {
     });
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "endpointbaru!" });
+    return Response.json({ status: 400, message: "Gagal ubah data!" });
   }
 }

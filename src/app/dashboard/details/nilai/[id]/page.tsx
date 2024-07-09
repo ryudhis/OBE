@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface InputNilaiInterface {
   id: string;
@@ -55,15 +57,15 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
+  const accountData = useAccount();
   const [inputNilai, setInputNilai] = useState<
     InputNilaiInterface | undefined
   >();
   const [refresh, setRefresh] = useState<boolean>(false);
-
   const defaultValues = {
     nilai: [],
   };
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -115,16 +117,23 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         alert(response.data.message);
       }
+      if (response.data.data.prodiId !== accountData?.prodiId) {
+        router.push("/dashboard");
+        toast({
+          title: `Anda tidak memiliki akses untuk page detail nilai prodi ${response.data.data.prodiId}`,
+          variant: "destructive",
+        });
+      } else {
+        setInputNilai(response.data.data);
 
-      setInputNilai(response.data.data);
+        const convertNilai = response.data.data.nilai.map((nilai: number) => {
+          return String(nilai);
+        });
 
-      const convertNilai = response.data.data.nilai.map((nilai:number) => {
-        return String(nilai);
-      });
-
-      form.reset({
-        nilai: convertNilai,
-      });
+        form.reset({
+          nilai: convertNilai,
+        });
+      }
     } catch (error: any) {
       throw error;
     }

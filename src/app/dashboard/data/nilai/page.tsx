@@ -27,6 +27,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface inputNilai {
   id: number;
@@ -58,6 +59,7 @@ export interface MKItem {
 
 const DataNilai = () => {
   const router = useRouter();
+  const accountData = useAccount();
   const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKItem[]>([]);
@@ -74,7 +76,9 @@ const DataNilai = () => {
   const getInputNilai = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/inputNilai");
+      const response = await axiosConfig.get(
+        `api/inputNilai?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -90,7 +94,9 @@ const DataNilai = () => {
   const getMK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/mk");
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
@@ -111,7 +117,6 @@ const DataNilai = () => {
           title: "Berhasil menghapus data inputNilai",
           variant: "default",
         });
-        getInputNilai();
       } else {
         toast({
           title: response.data.message,
@@ -124,12 +129,23 @@ const DataNilai = () => {
   };
 
   useEffect(() => {
-    getInputNilai();
-  }, []);
+    getMK();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
 
   useEffect(() => {
-    getMK();
-  }, []);
+    getInputNilai();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Admin Prodi") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data Nilai.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return filteredNilai?.map((nilai) => {
@@ -229,7 +245,7 @@ const DataNilai = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={5} />
+                <SkeletonTable rows={5} cols={6} />
               </TableBody>
             </Table>
           ) : (

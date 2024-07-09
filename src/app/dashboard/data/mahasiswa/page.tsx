@@ -20,6 +20,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface mahasiswa {
   nim: string;
@@ -35,17 +36,22 @@ const DataMahasiswa = () => {
   const router = useRouter();
   const [mahasiswa, setMahasiswa] = useState<mahasiswa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refresh, setRefresh] = useState(true);
+  const accountData = useAccount();
+
   const getMahasiswa = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get("api/mahasiswa");
+      const response = await axiosConfig.get(
+        `api/mahasiswa?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
+        setMahasiswa(response.data.data);
       } else {
         alert(response.data.message);
       }
-      setMahasiswa(response.data.data);
     } catch (error) {
-      console.log(error);
+      console.error("There was a problem with the fetch operation:", error);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +65,7 @@ const DataMahasiswa = () => {
           title: "Berhasil menghapus data Mahasiswa",
           variant: "default",
         });
-        getMahasiswa();
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -73,16 +79,26 @@ const DataMahasiswa = () => {
 
   useEffect(() => {
     getMahasiswa();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refresh]); // Trigger useEffect only on initial mount
+
+  if (accountData?.role === "Dosen") {
+    toast({
+      title: "Anda tidak memiliki akses untuk page data Mahasiswa.",
+      variant: "destructive",
+    });
+    router.push("/dashboard");
+    return null;
+  }
 
   const renderData = () => {
     return mahasiswa.map((mhs) => {
       return (
         <TableRow key={mhs.nim}>
-          <TableCell className="w-[20%]">{mhs.nim}</TableCell>
-          <TableCell className="flex-1">{mhs.nama}</TableCell>
-          <TableCell className="w-[10%] flex gap-2">
-            <Button variant="destructive" onClick={() => delPL(mhs.nim)}>
+          <TableCell className='w-[20%]'>{mhs.nim}</TableCell>
+          <TableCell className='flex-1'>{mhs.nama}</TableCell>
+          <TableCell className='w-[10%] flex gap-2'>
+            <Button variant='destructive' onClick={() => delPL(mhs.nim)}>
               Hapus
             </Button>
             <Button
@@ -99,10 +115,10 @@ const DataMahasiswa = () => {
   };
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center mt-20'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel Mahasiswa</CardTitle>
             <CardDescription>Mahasiswa</CardDescription>
           </div>
@@ -119,9 +135,9 @@ const DataMahasiswa = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">NIM</TableHead>
-                  <TableHead className="flex-1">Nama</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[20%]'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -132,9 +148,9 @@ const DataMahasiswa = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[20%]">NIM</TableHead>
-                  <TableHead className="flex-1">Nama</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[20%]'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

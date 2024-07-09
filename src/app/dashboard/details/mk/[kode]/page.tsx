@@ -30,11 +30,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DataCard } from "@/components/DataCard";
 import {
   Table,
   TableBody,
@@ -51,6 +49,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface MKinterface {
   kode: string;
@@ -60,6 +60,15 @@ export interface MKinterface {
   BK: BKItem[];
   CPMK: CPMKItem[];
   kelas: KelasItem[];
+  penilaianCPMK: penilaianCPMKItem[];
+  rencanaPembelajaran: rpItem[];
+}
+
+export interface rpItem {
+  id: number;
+  minggu: string;
+  materi: string;
+  metode: string;
 }
 
 export interface KelasItem {
@@ -87,34 +96,65 @@ export interface mahasiswaItem {
   nama: string;
 }
 
-// export interface transformedData{
-//   kode: string;
-//   deskripsi: string;
-// }
+export interface penilaianCPMKItem {
+  kode: string;
+  inputNilai: inputNilaiItem[];
+  kriteria: kriteriaItem[];
+  CPMK: CPMKItem;
+  CPMKkode: string;
+  batasNilai: number;
+}
+
+export interface inputNilaiItem {
+  id: number;
+  penilaianCPMK: penilaianCPMKItem[];
+  mahasiswaNim: string;
+  nilai: number[];
+  kelasId: number;
+}
+
+export interface kriteriaItem {
+  kriteria: string;
+  bobot: number;
+}
 
 const formSchema = z.object({
-  deskripsi: z.string().min(1).max(50),
-  jumlahKelas: z.string({
-    required_error: "Please select Jumlah Kelas to display.",
-  }),
+  deskripsi: z.string(),
+  sks: z.string(),
+  batasLulusMahasiswa: z.string(),
+  batasLulusMK: z.string(),
+  jumlahKelas: z.string(),
+  minggu: z.string(),
+  materi: z.string(),
+  metode: z.string(),
+  editMinggu: z.string(),
+  editMateri: z.string(),
+  editMetode: z.string(),
 });
 
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
+  const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  // const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[] | undefined>([]);
-  // const [prevSelected, setPrevSelected] = useState<string[]>([]);
-  // const [selected, setSelected] = useState<string[]>([]);
-  // const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       deskripsi: "",
+      sks: "",
+      batasLulusMahasiswa: "",
+      batasLulusMK: "",
       jumlahKelas: "",
+      minggu: "",
+      materi: "",
+      metode: "",
+      editMinggu: "",
+      editMateri: "",
+      editMetode: "",
     },
   });
 
@@ -123,20 +163,23 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     const data = {
       deskripsi: values.deskripsi,
+      sks: values.sks,
+      batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
+      batasLulusMK: parseFloat(values.batasLulusMK),
     };
 
     axiosConfig
       .patch(`api/mk/${kode}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
-          setRefresh(!refresh);
           toast({
-            title: "Berhasil Edit",
+            title: "Berhasil Submit",
             description: String(new Date()),
           });
+          setRefresh(!refresh);
         } else {
           toast({
-            title: response.data.message,
+            title: "Kode Sudah Ada!",
             description: String(new Date()),
             variant: "destructive",
           });
@@ -144,7 +187,44 @@ export default function Page({ params }: { params: { kode: string } }) {
       })
       .catch(function (error) {
         toast({
-          title: "Gagal Edit",
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      });
+  }
+
+  function onSubmitRP(values: z.infer<typeof formSchema>, e: any) {
+    e.preventDefault();
+
+    const data = {
+      minggu: parseInt(values.minggu),
+      materi: values.materi,
+      metode: values.metode,
+      MKId: mk?.kode,
+    };
+
+    axiosConfig
+      .post(`api/rencanaPembelajaran/`, data)
+      .then(function (response) {
+        if (response.data.status != 400) {
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
+          setRefresh(!refresh);
+        } else {
+          toast({
+            title: "Kode Sudah Ada!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
           description: String(new Date()),
           variant: "destructive",
         });
@@ -161,17 +241,23 @@ export default function Page({ params }: { params: { kode: string } }) {
       } else {
         alert(response.data.message);
       }
-      setMK(response.data.data);
-      // const prevSelected = response.data.data.mahasiswa.map(
-      //   (item: mahasiswaItem) => item.nim
-      // );
-
-      // setSelected(prevSelected);
-      // setPrevSelected(prevSelected);
-
-      form.reset({
-        deskripsi: response.data.data.deskripsi,
-      });
+      if (response.data.data.prodiId !== accountData?.prodiId) {
+        router.push("/dashboard");
+        toast({
+          title: `Kamu Tidak Memiliki Akses Ke Halaman Detail MK Prodi ${response.data.data.prodiId}`,
+          variant: "destructive",
+        });
+      } else {
+        setMK(response.data.data);
+        console.log(response.data.data);
+        form.setValue("deskripsi", response.data.data.deskripsi);
+        form.setValue("sks", response.data.data.sks);
+        form.setValue(
+          "batasLulusMahasiswa",
+          String(response.data.data.batasLulusMahasiswa)
+        );
+        form.setValue("batasLulusMK", String(response.data.data.batasLulusMK));
+      }
     } catch (error: any) {
       throw error;
     } finally {
@@ -256,12 +342,12 @@ export default function Page({ params }: { params: { kode: string } }) {
       .then(function (response) {
         if (response.status === 200) {
           toast({
-            title: "Berhasil hapus data",
+            title: "Berhasil hapus kelas",
             description: String(new Date()),
           });
         } else {
           toast({
-            title: "Tidak ada data!",
+            title: "Tidak ada kelas!",
             description: String(new Date()),
             variant: "destructive",
           });
@@ -269,95 +355,97 @@ export default function Page({ params }: { params: { kode: string } }) {
       })
       .catch(function (error) {
         toast({
-          title: "Gagal Submit",
+          title: "Gagal hapus kelas",
           description: String(new Date()),
           variant: "destructive",
         });
         console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
       });
   };
 
-  // const getAllMahasiswa = async () => {
-  //   try {
-  //     const response = await axiosConfig.get("api/mahasiswa");
+  const delRencana = (id: number) => {
+    axiosConfig
+      .delete(`api/rencanaPembelajaran/${id}`)
+      .then(function (response) {
+        if (response.status === 200) {
+          toast({
+            title: "Berhasil hapus rencana pembelajaran",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Tidak ada rencana pembelajaran!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal hapus rencana pembelajaran",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+      });
+  };
 
-  //     if (response.data.status !== 400) {
-  //     } else {
-  //       alert(response.data.message);
-  //     }
-  //     setMahasiswa(response.data.data);
-  //   } catch (error: any) {
-  //     throw error;
-  //   }
-  // };
+  function editRencana(values: z.infer<typeof formSchema>, e: any) {
+    e.preventDefault();
 
-  // const transformMahasiswaData = (mahasiswa: mahasiswaItem): transformedData => {
-  //   return {
-  //     kode: mahasiswa.nim,
-  //     deskripsi: mahasiswa.nama,
-  //   };
-  // };
+    const data = {
+      minggu: parseInt(values.editMinggu),
+      materi: values.editMateri,
+      metode: values.editMetode,
+    };
 
-  // const filteredMahasiswa = mahasiswa?.filter((mahasiswa) =>
-  //   mahasiswa.nim.toLowerCase().includes(search.toLowerCase())
-  // );
+    axiosConfig
+      .patch(`api/rencanaPembelajaran/${selectedRencana?.id}`, data)
+      .then(function (response) {
+        if (response.status === 200) {
+          toast({
+            title: "Berhasil edit rencana pembelajaran",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Tidak ada rencana pembelajaran!",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal edit rencana pembelajaran",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+      });
+  }
 
-  // const handleCheck = (nim: string) => {
-  //   setSelected((prevSelected) => {
-  //     if (!prevSelected.includes(nim)) {
-  //       return [...prevSelected, nim];
-  //     } else {
-  //       return prevSelected.filter((item) => item !== nim);
-  //     }
-  //   });
-  // };
+  const handleSelectRP = (id: number) => {
+    const rencana = mk?.rencanaPembelajaran.find(
+      (rencana) => rencana.id === id
+    );
 
-  // const updateMahasiswa = async () => {
-  //   if (mk) {
-  //     let addedMahasiswaId: string[] = [];
-  //     let removedMahasiswaId: string[] = [];
-
-  //     addedMahasiswaId = selected.filter(
-  //       (item) => !prevSelected.includes(item)
-  //     );
-  //     removedMahasiswaId = prevSelected.filter(
-  //       (item) => !selected.includes(item)
-  //     );
-
-  //     const payload = {
-  //       kode: mk?.kode,
-  //       deskripsi: mk?.deskripsi,
-  //       addedMahasiswaId: addedMahasiswaId,
-  //       removedMahasiswaId: removedMahasiswaId,
-  //     };
-
-  //     try {
-  //       const response = await axiosConfig.patch(
-  //         `api/mk/relasi/${kode}`,
-  //         payload
-  //       );
-  //       setRefresh(!refresh);
-  //       if (response.data.status == 200 || response.data.status == 201) {
-  //         toast({
-  //           title: response.data.message,
-  //           variant: "default",
-  //         });
-  //         setRefresh(!refresh);
-  //       } else {
-  //         toast({
-  //           title: response.data.message,
-  //           variant: "destructive",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getAllMahasiswa();
-  // }, []);
+    if (rencana) {
+      form.setValue("editMinggu", String(rencana.minggu));
+      form.setValue("editMateri", rencana.materi);
+      form.setValue("editMetode", rencana.metode);
+      setSelectedRencana(rencana);
+    }
+  };
 
   useEffect(() => {
     getMK();
@@ -368,16 +456,16 @@ export default function Page({ params }: { params: { kode: string } }) {
     return mk?.kelas.map((kelas) => {
       return (
         <TableRow key={kelas.id}>
-          <TableCell className="w-[8%]">{kelas.nama}</TableCell>
-          <TableCell className="w-[8%]">
+          <TableCell className='w-[8%]'>{kelas.nama}</TableCell>
+          <TableCell className='w-[8%]'>
             {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
-          <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
-          <TableCell className="w-[8%]">
+          <TableCell className='w-[8%]'>{kelas.jumlahLulus}</TableCell>
+          <TableCell className='w-[8%]'>
             {kelas.MK.batasLulusMahasiswa}
           </TableCell>
-          <TableCell className="w-[8%] flex gap-2">
-            <Button variant="destructive" onClick={() => delKelas(kelas.id)}>
+          <TableCell className='w-[8%] flex gap-2'>
+            <Button variant='destructive' onClick={() => delKelas(kelas.id)}>
               Hapus
             </Button>
             <Button
@@ -395,11 +483,177 @@ export default function Page({ params }: { params: { kode: string } }) {
     });
   };
 
+  const renderDataRP = () => {
+    return mk?.rencanaPembelajaran.map((rencana) => {
+      return (
+        <TableRow key={rencana.id}>
+          <TableCell className='text-center'>{rencana.minggu}</TableCell>
+          <TableCell className='text-center'>{rencana.materi}</TableCell>
+          <TableCell className='text-center'>{rencana.metode}</TableCell>
+          <TableCell className='text-center flex gap-3'>
+            <Button
+              variant='destructive'
+              onClick={() => delRencana(rencana.id)}
+            >
+              Hapus
+            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={() => handleSelectRP(rencana.id)}
+                  variant='outline'
+                >
+                  Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Edit Data</DialogTitle>
+                  <DialogDescription>Rencana Pembelajaran</DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(editRencana)}
+                    className='space-y-8'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='editMinggu'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Minggu</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              min={1}
+                              max={12}
+                              placeholder='Minggu ke-'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='editMateri'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Materi</FormLabel>
+                          <FormControl>
+                            <Input placeholder='Materi' required {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='editMetode'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Metode</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                            }}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                {field.value ? (
+                                  <SelectValue placeholder='Pilih Metode' />
+                                ) : (
+                                  "Pilih Metode"
+                                )}
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value={"Project Based Learning"}>
+                                Project Based Learning
+                              </SelectItem>
+                              <SelectItem value={"Case Based Learning"}>
+                                Case Based Learning
+                              </SelectItem>
+                              <SelectItem value={"Problem Saved Learning"}>
+                                Problem Saved Learning
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button
+                        className='bg-blue-500 hover:bg-blue-600'
+                        type='submit'
+                      >
+                        Submit
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </TableCell>
+        </TableRow>
+      );
+    });
+  };
+
+  const renderDataAsesment = () => {
+    if (!mk) return null;
+
+    const kriteriaMap = new Map<
+      string,
+      { bobot: number[]; totalBobot: number }
+    >();
+
+    mk.penilaianCPMK.forEach((CPMK) => {
+      CPMK.kriteria.forEach((kriteria) => {
+        if (!kriteriaMap.has(kriteria.kriteria)) {
+          kriteriaMap.set(kriteria.kriteria, { bobot: [], totalBobot: 0 });
+        }
+        const kriteriaData = kriteriaMap.get(kriteria.kriteria);
+        kriteriaData?.bobot.push(kriteria.bobot);
+        kriteriaData!.totalBobot += kriteria.bobot;
+      });
+    });
+
+    const kriteriaArray = Array.from(kriteriaMap.entries());
+
+    return kriteriaArray.map(([kriteriaName, kriteriaData], index) => (
+      <TableRow key={kriteriaName}>
+        <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
+        <TableCell className='w-[16%]'>{kriteriaName}</TableCell>
+        {mk.penilaianCPMK.map((CPMK) => (
+          <React.Fragment key={CPMK.CPMKkode}>
+            {CPMK.kriteria.some((k) => k.kriteria === kriteriaName) ? (
+              <TableCell className='w-[8%] text-center'>
+                {CPMK.kriteria.find((k) => k.kriteria === kriteriaName)
+                  ?.bobot || "-"}
+              </TableCell>
+            ) : (
+              <TableCell className='w-[8%] text-center'>-</TableCell>
+            )}
+          </React.Fragment>
+        ))}
+        <TableCell className='w-[8%] text-center'>
+          {kriteriaData.totalBobot}
+        </TableCell>
+      </TableRow>
+    ));
+  };
+
   if (mk) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
-        <div className="flex">
-          <Table className="w-[400px] mb-5">
+      <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
+        <div className='flex'>
+          <Table className='w-[400px] mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell>
@@ -424,179 +678,417 @@ export default function Page({ params }: { params: { kode: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Edit Data</Button>
+              <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Edit MK</DialogTitle>
                 <DialogDescription>{mk.kode}</DialogDescription>
               </DialogHeader>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="deskripsi" className="text-right">
-                      Deskripsi
-                    </Label>
-                    <Input
-                      id="deskripsi"
-                      {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className="col-span-3"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit">Simpan</Button>
-                </DialogFooter>
-              </form>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className='space-y-8'
+                >
+                  <FormField
+                    control={form.control}
+                    name='deskripsi'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nama</FormLabel>
+                        <FormControl>
+                          <Input placeholder='Deskripsi' required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='sks'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SKS</FormLabel>
+                        <FormControl>
+                          <Input placeholder='SKS' required {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='batasLulusMahasiswa'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Batas Lulus Mahasiswa</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            placeholder='Batas Lulus Mahasiswa'
+                            required
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name='batasLulusMK'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type='number'
+                            min={0}
+                            max={100}
+                            placeholder='Batas Lulus MK'
+                            required
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button
+                      className='bg-blue-500 hover:bg-blue-600'
+                      type='submit'
+                    >
+                      Submit
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi BK</div>
-          <RelationData data={mk.BK} jenisData="BK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi BK</div>
+          <RelationData data={mk.BK} jenisData='BK' />
         </div>
 
-        <div className="mb-5">
-          <div className=" font-bold text-xl">Data Relasi CPMK</div>
-          <RelationData data={mk.CPMK} jenisData="CPMK" />
+        <div className='mb-5'>
+          <div className=' font-bold text-xl'>Data Relasi CPMK</div>
+          <RelationData data={mk.CPMK} jenisData='CPMK' />
         </div>
 
-        {/* HEADER */}
-        {/* <div className="flex flex-row justify-between items-center mb-5">
-          <div className=" font-bold text-xl">Sambungkan Mahasiswa</div>
-          <input
-            type="text"
-            className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
-            value={search}
-            placeholder="Cari..."
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div> */}
+        <Tabs defaultValue='kelas' className='w-full'>
+          <TabsList className='grid w-full grid-cols-3'>
+            <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
+            <TabsTrigger value='rencana'>Rencana Pembelajaran</TabsTrigger>
+            <TabsTrigger value='asesment'>
+              Rencana Asesment dan Evaluasi
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value='kelas'>
+            {mk.kelas.length != 0 ? (
+              <Card className='w-[1000px] mx-auto'>
+                <CardHeader className='flex flex-row justify-between items-center'>
+                  <div className='flex flex-col'>
+                    <CardTitle>Tabel Kelas</CardTitle>
+                    <CardDescription>
+                      Mata Kuliah {mk.deskripsi}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant='destructive'
+                    onClick={() => {
+                      onDeleteAllKelas();
+                    }}
+                  >
+                    Hapus Semua Kelas
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>
+                            Jumlah Mahasiswa
+                          </TableHead>
+                          <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Batas Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Aksi</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <SkeletonTable rows={5} cols={5} />
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>
+                            Jumlah Mahasiswa
+                          </TableHead>
+                          <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Batas Lulus</TableHead>
+                          <TableHead className='w-[8%]'>Aksi</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>{renderData()}</TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmitKelas)}
+                  className='space-y-8'
+                >
+                  <FormField
+                    control={form.control}
+                    name='jumlahKelas'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tambah Jumlah Kelas</FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              {field.value ? (
+                                <SelectValue placeholder='Pilih Jumlah Kelas' />
+                              ) : (
+                                "Pilih Jumlah Kelas"
+                              )}
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value={"1"}>1</SelectItem>
+                            <SelectItem value={"2"}>2</SelectItem>
+                            <SelectItem value={"3"}>3</SelectItem>
+                            <SelectItem value={"4"}>4</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-        {/* LIST OF Mahasiswa */}
-        {/* <div className="grid grid-cols-4 gap-4">
-          {filteredMahasiswa && filteredMahasiswa.length > 0 ? (
-            filteredMahasiswa?.map((mahasiswa, index) => {
-              const transformedData = transformMahasiswaData(mahasiswa);
-              return (
-                <DataCard<transformedData>
-                  key={index}
-                  selected={selected}
-                  handleCheck={handleCheck}
-                  data={transformedData}
-                />
-              );
-            })
-          ) : (
-            <div className="text-sm">Mahasiswa Tidak Ditemukan</div>
-          )}
-        </div> */}
+                  <Button
+                    className='bg-blue-500 hover:bg-blue-600'
+                    type='submit'
+                  >
+                    Submit
+                  </Button>
+                </form>
+              </Form>
+            )}
+          </TabsContent>
+          <TabsContent className='flex flex-col gap-3' value='rencana'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className='w-[200px] self-end mr-32' variant='outline'>
+                  Tambah Data
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Tambah Data</DialogTitle>
+                  <DialogDescription>Rencana Pembelajaran</DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmitRP)}
+                    className='space-y-8'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='minggu'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Minggu</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              min={1}
+                              max={12}
+                              placeholder='Minggu ke-'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='materi'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Materi</FormLabel>
+                          <FormControl>
+                            <Input placeholder='Materi' required {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name='metode'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Metode</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                            }}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                {field.value ? (
+                                  <SelectValue placeholder='Pilih Metode' />
+                                ) : (
+                                  "Pilih Metode"
+                                )}
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value={"Project Based Learning"}>
+                                Project Based Learning
+                              </SelectItem>
+                              <SelectItem value={"Case Based Learning"}>
+                                Case Based Learning
+                              </SelectItem>
+                              <SelectItem value={"Problem Based Learning"}>
+                                Problem Based Learning
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button
+                        className='bg-blue-500 hover:bg-blue-600'
+                        type='submit'
+                      >
+                        Submit
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
 
-        {/* SAVE */}
-        {/* <button
-          onClick={updateMahasiswa}
-          type="button"
-          className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600"
-        >
-          Simpan
-        </button> */}
-
-        {mk.kelas.length != 0 ? (
-          <Card className="w-[1000px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <CardTitle>Tabel Kelas</CardTitle>
-                <CardDescription>Kelas {mk.deskripsi}</CardDescription>
-              </div>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  onDeleteAllKelas();
-                }}
-              >
-                Hapus Semua Kelas
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
+            {mk.rencanaPembelajaran.length != 0 ? (
+              <Card className='w-[1000px] mx-auto'>
+                <CardHeader className='flex flex-row justify-between items-center'>
+                  <div className='flex flex-col'>
+                    <CardTitle>Rencana Pembelajaran</CardTitle>
+                    <CardDescription>
+                      Mata Kuliah {mk.deskripsi}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant='destructive'
+                    onClick={() => {
+                      onDeleteAllKelas();
+                    }}
+                  >
+                    Hapus Semua Data
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {isLoading ? (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='text-center'>Minggu</TableHead>
+                          <TableHead className='text-center'>Materi</TableHead>
+                          <TableHead className='text-center'>Metode</TableHead>
+                          <TableHead className='w-[5%] text-center'>
+                            Aksi
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <SkeletonTable rows={5} cols={5} />
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className='text-center'>Minggu</TableHead>
+                          <TableHead className='text-center'>Materi</TableHead>
+                          <TableHead className='text-center'>Metode</TableHead>
+                          <TableHead className='w-[5%] text-center'>
+                            Aksi
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>{renderDataRP()}</TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <p className='self-center'>Belum Ada Rencana Pembelajaran ...</p>
+            )}
+          </TabsContent>
+          <TabsContent value='asesment'>
+            <Card className='w-[1000px] mx-auto'>
+              <CardHeader className='flex flex-row justify-between items-center'>
+                <div className='flex flex-col'>
+                  <CardTitle>Rencana Asesment dan Evaluasi</CardTitle>
+                  <CardDescription>Mata Kuliah {mk.deskripsi}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {" "}
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[8%]">Nama</TableHead>
-                      <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
-                      <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                      <TableHead className="w-[8%]">Batas Lulus</TableHead>
-                      <TableHead className="w-[8%]">Aksi</TableHead>
+                      <TableHead className='w-[8%] text-center'>No</TableHead>
+                      <TableHead className='w-[16%]'>
+                        Rencana Evaluasi
+                      </TableHead>
+                      {mk.penilaianCPMK.map((CPMK) => (
+                        <TableHead
+                          key={CPMK.CPMK.kode}
+                          className='w-[8%] text-center'
+                        >
+                          {`${CPMK.CPMK.kode}`}
+                        </TableHead>
+                      ))}
+                      <TableHead className='w-[8%]  text-center'>
+                        Total Bobot
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody>
-                    <SkeletonTable rows={5} cols={5} />
-                  </TableBody>
+                  <TableBody>{renderDataAsesment()}</TableBody>
                 </Table>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[8%]">Nama</TableHead>
-                      <TableHead className="w-[8%]">Jumlah Mahasiswa</TableHead>
-                      <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                      <TableHead className="w-[8%]">Batas Lulus</TableHead>
-                      <TableHead className="w-[8%]">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>{renderData()}</TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmitKelas)}
-              className="space-y-8"
-            >
-              <FormField
-                control={form.control}
-                name="jumlahKelas"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tambah Jumlah Kelas</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      defaultValue={field.value}
-                      value={field.value}
-                      required
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          {field.value ? (
-                            <SelectValue placeholder="Pilih Jumlah Kelas" />
-                          ) : (
-                            "Pilih Jumlah Kelas"
-                          )}
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value={"1"}>1</SelectItem>
-                        <SelectItem value={"2"}>2</SelectItem>
-                        <SelectItem value={"3"}>3</SelectItem>
-                        <SelectItem value={"4"}>4</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
-                Submit
-              </Button>
-            </form>
-          </Form>
-        )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     );
   }

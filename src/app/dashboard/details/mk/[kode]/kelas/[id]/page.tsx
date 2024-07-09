@@ -23,6 +23,15 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useAccount } from "@/app/contexts/AccountContext";
+import { useRouter } from "next/navigation";
 
 export interface MKinterface {
   kode: string;
@@ -43,6 +52,13 @@ export interface KelasItem {
   mahasiswaLulus: mahasiswaLulusItem[];
   dataCPMK: dataCPMKItem[];
   MK: MKinterface;
+  dosen: dosenItem[];
+}
+
+export interface dosenItem {
+  id: number;
+  nama: string;
+  role: string;
 }
 
 export interface dataCPMKItem {
@@ -118,19 +134,23 @@ export interface kriteriaItem {
 }
 
 export interface mahasiswaExcel {
-  nim: string;
-  nama: string;
+  NIM: string;
+  Nama: string;
 }
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
   const [kelas, setKelas] = useState<KelasItem | undefined>();
   const [dataMahasiswaLulus, setDataMahasiswaLulus] = useState<
     mahasiswaLulusItem[]
   >([]);
   const [mahasiswa, setMahasiswa] = useState<mahasiswaExcel[]>([]);
+  const [allDosen, setAllDosen] = useState<dosenItem[]>([]);
+  const [selectedDosen, setSelectedDosen] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
+  const accountData = useAccount();
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -146,8 +166,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
-        nim: item.nim,
-        nama: item.nama,
+        Nama: item.Nama,
+        NIM: item.NIM,
       }));
       setMahasiswa(parsedData);
     };
@@ -162,7 +182,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     axiosConfig
-      .patch(`api/kelas/relasi/${id}`, data)
+      .patch(`api/kelas/tambahMahasiswa/${id}`, data)
       .then(function (response) {
         if (response.data.status != 400) {
           toast({
@@ -196,25 +216,35 @@ export default function Page({ params }: { params: { id: string } }) {
       const response = await axiosConfig.get(`api/kelas/${id}`);
 
       if (response.data.status !== 400) {
-        const kelasData = response.data.data;
-        const mahasiswaLulusData: mahasiswaLulusItem[] = [];
-
-        kelasData.mahasiswa.forEach((mahasiswa: mahasiswaItem) => {
-          mahasiswa.kelas.forEach((kelasMahasiswa: KelasItem) => {
-            if (kelasMahasiswa.id === kelasData.id) {
-              kelasMahasiswa.mahasiswaLulus.forEach(
-                (mahasiswaLulus: mahasiswaLulusItem) => {
-                  if (mahasiswaLulus.nim === mahasiswa.nim) {
-                    mahasiswaLulusData.push(mahasiswaLulus);
-                  }
-                }
-              );
-            }
+        if (response.data.data.MK.prodiId !== accountData?.prodiId) {
+          router.push("/dashboard");
+          toast({
+            title: `Anda tidak memiliki akses untuk page detail Kelas prodi ${response.data.data.MK.prodiId}`,
+            variant: "destructive",
           });
-        });
-        console.log(mahasiswaLulusData);
-        setDataMahasiswaLulus(mahasiswaLulusData);
-        setKelas(kelasData);
+        } else {
+          const kelasData = response.data.data;
+          const mahasiswaLulusData: mahasiswaLulusItem[] = [];
+
+          kelasData.mahasiswa.forEach((mahasiswa: mahasiswaItem) => {
+            mahasiswa.kelas.forEach((kelasMahasiswa: KelasItem) => {
+              if (kelasMahasiswa.id === kelasData.id) {
+                kelasMahasiswa.mahasiswaLulus.forEach(
+                  (mahasiswaLulus: mahasiswaLulusItem) => {
+                    if (mahasiswaLulus.nim === mahasiswa.nim) {
+                      mahasiswaLulusData.push(mahasiswaLulus);
+                    }
+                  }
+                );
+              }
+            });
+          });
+          setDataMahasiswaLulus(mahasiswaLulusData);
+          setKelas(kelasData);
+
+          const dosenIds = kelasData.dosen.map((dosen: dosenItem) => dosen.id);
+          setSelectedDosen(new Set(dosenIds));
+        }
       }
     } catch (error: any) {
       throw error;
@@ -223,28 +253,100 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
+  const getAllDosen = async () => {
+    try {
+      const response = await axiosConfig.get(
+        `api/account/getDosen?prodi=${accountData?.prodiId}`
+      );
+      setAllDosen(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDosenChange = (dosenId: number) => {
+    setSelectedDosen((prevSelectedDosen) => {
+      const newSelectedDosen = new Set(prevSelectedDosen);
+      if (newSelectedDosen.has(dosenId)) {
+        newSelectedDosen.delete(dosenId);
+      } else {
+        newSelectedDosen.add(dosenId);
+      }
+      return newSelectedDosen;
+    });
+  };
+
+  const updateDosen = async () => {
+    const payload = Array.from(selectedDosen);
+    console.log(payload);
+
+    try {
+      const response = await axiosConfig.patch(`api/kelas/${id}/updateDosen`, {
+        dosen: payload,
+      });
+      if (response.data.status === 200 || response.data.status === 201) {
+        toast({
+          title: "Dosen updated successfully",
+          variant: "default",
+        });
+        setRefresh(!refresh);
+      } else {
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Failed to update dosen",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderDosenChecklist = () => {
+    console.log(selectedDosen);
+    return allDosen.map((dosen) => (
+      <label key={dosen.id} className='flex items-center space-x-2'>
+        <input
+          type='checkbox'
+          checked={selectedDosen.has(dosen.id)}
+          onChange={() => handleDosenChange(dosen.id)}
+        />
+        <span>{dosen.nama}</span>
+      </label>
+    ));
+  };
+
+  useEffect(() => {
+    getAllDosen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     getKelas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   const renderDataNilai = () => {
-    return dataMahasiswaLulus.map((lulusData) => (
+    return dataMahasiswaLulus.map((lulusData, index) => (
       <TableRow key={lulusData.nim}>
-        <TableCell className="w-[8%]">{lulusData.nim}</TableCell>
-        <TableCell className="w-[8%]">
+        <TableCell className='w-[8%]'>{index + 1}</TableCell>
+        <TableCell className='w-[8%]'>{lulusData.nim}</TableCell>
+        <TableCell className='w-[8%]'>
           {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
         </TableCell>
         <TableCell
           className={`w-[8%] ${
-            lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-500"
+            lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-300"
           }`}
         >
           {lulusData.totalNilai}
         </TableCell>
         <TableCell
           className={`w-[8%] ${
-            lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-500"
+            lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-300"
           }`}
         >
           {lulusData.indexNilai}
@@ -264,7 +366,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     const isNilaiValid = nilai >= nilaiMahasiswaItem.batasNilai;
                     const cellClassName = isNilaiValid
                       ? "bg-green-300"
-                      : "bg-red-500";
+                      : "bg-red-300";
                     return (
                       <TableCell
                         key={index}
@@ -275,7 +377,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     );
                   })
                 : Array.from({ length: CPMK.kriteria.length }, (_, i) => (
-                    <TableCell key={i} className="w-[16%] text-center">
+                    <TableCell key={i} className='w-[16%] text-center'>
                       -
                     </TableCell>
                   ))}
@@ -284,7 +386,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 className={`w-[16%] text-center ${
                   statusCPMKItem?.statusLulus === "Lulus"
                     ? "bg-green-300"
-                    : "bg-red-500"
+                    : "bg-red-300"
                 }`}
               >
                 {statusCPMKItem?.statusLulus || "Tidak Lulus"}
@@ -300,17 +402,17 @@ export default function Page({ params }: { params: { id: string } }) {
     return kelas?.dataCPMK.map((data) => {
       return (
         <TableRow key={data.cpmk}>
-          <TableCell className="w-[8%]">{data.cpmk}</TableCell>
-          <TableCell className="w-[8%]">{data.cpl}</TableCell>
-          <TableCell className="w-[8%]">{data.nilaiMinimal}/100</TableCell>
-          <TableCell className="w-[8%]">
+          <TableCell className='w-[8%]'>{data.cpmk}</TableCell>
+          <TableCell className='w-[8%]'>{data.cpl}</TableCell>
+          <TableCell className='w-[8%]'>{data.nilaiMinimal}/100</TableCell>
+          <TableCell className='w-[8%]'>
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className="w-[8%]">
-            {data.nilaiMasuk}/{kelas.mahasiswa.length}
+          <TableCell className='w-[8%]'>
+            {data.jumlahLulus}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className="w-[8%]">{data.persenLulus}%</TableCell>
-          <TableCell className="w-[8%]">{data.rataNilai}</TableCell>
+          <TableCell className='w-[8%]'>{data.persenLulus}%</TableCell>
+          <TableCell className='w-[8%]'>{data.rataNilai}</TableCell>
         </TableRow>
       );
     });
@@ -318,74 +420,134 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (kelas) {
     return (
-      <main className="w-screen h-full mx-auto pt-20 bg-[#FAFAFA] p-5 flex flex-col gap-12">
-        <Card className="w-[1000px] mx-auto">
-          <CardHeader>
-            <CardTitle>Input Mahasiswa Excel</CardTitle>
-            <CardDescription>Data Mahasiswa</CardDescription>
+      <main className='w-screen mx-auto pt-20 flex flex-col gap-12'>
+        <Card className='w-[1200px] mx-auto'>
+          <CardHeader className='flex justify-center'>
+            <CardTitle>Data Kelas {kelas.nama} </CardTitle>
+            <CardDescription>Kelas {kelas.MK.deskripsi} </CardDescription>
+            <Table className='w-[350px]'>
+              <TableBody>
+                <TableRow>
+                  <TableCell>
+                    <strong>Dosen Pengampu</strong>
+                  </TableCell>
+                  <TableCell>
+                    {": "}
+                    {kelas.dosen.length > 0
+                      ? kelas.dosen.map((dosen) => dosen.nama).join(", ")
+                      : "Belum ada dosen"}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </CardHeader>
-          <CardContent>
-            <Input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleFileUpload}
-            />
+          <CardContent className='flex gap-3'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className='w-[200px] self-center' variant='outline'>
+                  Tambah Mahasiswa
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Input Mahasiswa</DialogTitle>
+                </DialogHeader>
+                <Card className='mx-auto'>
+                  <CardHeader>
+                    <CardDescription>Data Mahasiswa</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Input
+                      type='file'
+                      accept='.xlsx, .xls'
+                      onChange={handleFileUpload}
+                    />
 
-            {mahasiswa.length > 0 && (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {Object.keys(mahasiswa[0]).map((key, index) => (
-                      <TableHead key={index}>{key}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mahasiswa.map((row, index) => (
-                    <TableRow key={index}>
-                      {Object.values(row).map((value, index) => (
-                        <TableCell key={index}>{value}</TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                    {mahasiswa.length > 0 && (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            {Object.keys(mahasiswa[0]).map((key, index) => (
+                              <TableHead key={index}>{key}</TableHead>
+                            ))}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {mahasiswa.map((row, index) => (
+                            <TableRow key={index}>
+                              {Object.values(row).map((value, index) => (
+                                <TableCell key={index}>{value}</TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    )}
+                  </CardContent>
+                  <CardFooter>
+                    <Button onClick={onSubmit}>Submit</Button>
+                  </CardFooter>
+                </Card>
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button className='w-[200px] self-center' variant='outline'>
+                  Dosen Pengampu
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Update Data</DialogTitle>
+                </DialogHeader>
+                <Card className='mx-auto'>
+                  <CardHeader>
+                    <CardDescription>Data Dosen</CardDescription>
+                  </CardHeader>
+                  <CardContent className='flex w-[300px]'>
+                    <div className='flex flex-col gap-2'>
+                      {" "}
+                      {renderDosenChecklist()}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button onClick={updateDosen}>Save Changes</Button>
+                  </CardFooter>
+                </Card>
+              </DialogContent>
+            </Dialog>
           </CardContent>
-          <CardFooter>
-            <Button onClick={onSubmit}>Submit</Button>
-          </CardFooter>
         </Card>
 
         {kelas.mahasiswa.length != 0 ? (
-          <Card className="w-[1000px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
+          <Card className='w-[1200px] mx-auto'>
+            <CardHeader className='flex flex-row justify-between items-center'>
+              <div className='flex flex-col'>
                 <CardTitle>Tabel Mahasiswa Kelas {kelas.nama}</CardTitle>
                 <CardDescription>Kelas {kelas.MK.deskripsi}</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="nilai" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="nilai">Nilai Mahasiswa</TabsTrigger>
-                  <TabsTrigger value="rangkuman">
+              <Tabs defaultValue='nilai' className='w-full'>
+                <TabsList className='grid w-full grid-cols-2'>
+                  <TabsTrigger value='nilai'>Nilai Mahasiswa</TabsTrigger>
+                  <TabsTrigger value='rangkuman'>
                     Rangkuman Evaluasi CPMK
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value="nilai">
+                <TabsContent value='nilai'>
                   {isLoading ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[8%]">NIM</TableHead>
-                          <TableHead className="w-[8%]">Nama</TableHead>
-                          <TableHead className="w-[8%]">Total Nilai</TableHead>
+                          <TableHead className='w-[8%]'>NIM</TableHead>
+                          <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>Total Nilai</TableHead>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
                               colSpan={CPMK.kriteria.length}
                               key={CPMK.CPMKkode}
-                              className="w-[16%]"
+                              className='w-[16%]'
                             >
                               {CPMK.CPMKkode}
                             </TableHead>
@@ -400,25 +562,28 @@ export default function Page({ params }: { params: { id: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead rowSpan={2} className="w-[8%] text-center">
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                            No
+                          </TableHead>
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
                             NIM
                           </TableHead>
-                          <TableHead rowSpan={2} className="w-[8%] text-center">
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
                             Nama
                           </TableHead>
-                          <TableHead rowSpan={2} className="w-[8%] text-center">
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
                             Total Nilai
                           </TableHead>
-                          <TableHead rowSpan={2} className="w-[8%] text-center">
+                          <TableHead rowSpan={2} className='w-[8%] text-center'>
                             Indeks Nilai
                           </TableHead>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
                               colSpan={CPMK.kriteria.length + 1}
                               key={CPMK.CPMKkode}
-                              className="w-[16%] text-center border-x-2"
+                              className='w-[16%] text-center border-x-2'
                             >
-                              {CPMK.CPMKkode}
+                              {`CPMK ${CPMK.CPMKkode}`}
                             </TableHead>
                           ))}
                         </TableRow>
@@ -427,14 +592,17 @@ export default function Page({ params }: { params: { id: string } }) {
                             <React.Fragment key={CPMK.CPMKkode}>
                               {CPMK.kriteria.map((kriteria, index) => (
                                 <TableHead
-                                  className="text-center w-[16%]"
+                                  className='text-center w-[16%]'
                                   key={index}
                                 >
-                                  {kriteria.kriteria}
+                                  {kriteria.kriteria} <br />{" "}
+                                  <span className='font-semibold text-blue-600'>
+                                    {kriteria.bobot}
+                                  </span>
                                 </TableHead>
                               ))}
                               <TableHead
-                                className="text-center w-[16%]"
+                                className='text-center w-[16%]'
                                 key={`status-${CPMK.CPMKkode}`}
                               >
                                 Status
@@ -447,21 +615,21 @@ export default function Page({ params }: { params: { id: string } }) {
                     </Table>
                   )}
                 </TabsContent>
-                <TabsContent value="rangkuman">
+                <TabsContent value='rangkuman'>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[8%]">CPMK </TableHead>
-                        <TableHead className="w-[8%]">CPL</TableHead>
-                        <TableHead className="w-[8%]">
+                        <TableHead className='w-[8%]'>CPMK </TableHead>
+                        <TableHead className='w-[8%]'>CPL</TableHead>
+                        <TableHead className='w-[8%]'>
                           Total Nilai Minimal
                         </TableHead>
-                        <TableHead className="w-[8%]">Nilai Masuk</TableHead>
-                        <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                        <TableHead className="w-[8%]">
+                        <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
+                        <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                        <TableHead className='w-[8%]'>
                           Persen Mencapai Nilai Minimal
                         </TableHead>
-                        <TableHead className="w-[8%]">Rata-Rata</TableHead>
+                        <TableHead className='w-[8%]'>Rata-Rata</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderDataRangkuman()}</TableBody>
@@ -471,7 +639,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
         ) : (
-          <h1>Tidak ada data mahasiswa.</h1>
+          <h1 className='self-center'>Belum ada data mahasiswa.</h1>
         )}
       </main>
     );
