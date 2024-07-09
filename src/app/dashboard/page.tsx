@@ -83,6 +83,7 @@ const Page = () => {
     if (accountData) {
       getMK(accountData.prodiId);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderDataRangkuman = () => {
