@@ -235,7 +235,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const getMK = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/mk/${accountData?.prodiId}`);
+      const response = await axiosConfig.get(`api/mk/${kode}`);
 
       if (response.data.status !== 400) {
       } else {
@@ -1072,10 +1072,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                       </TableHead>
                       {mk.penilaianCPMK.map((CPMK) => (
                         <TableHead
-                          key={CPMK.CPMKkode}
+                          key={CPMK.CPMK.kode}
                           className='w-[8%] text-center'
                         >
-                          {`CPMK ${CPMK.CPMKkode}`}
+                          {`${CPMK.CPMK.kode}`}
                         </TableHead>
                       ))}
                       <TableHead className='w-[8%]  text-center'>

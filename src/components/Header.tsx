@@ -87,8 +87,8 @@ const Header = () => {
   const [openNestedInput, setOpenNestedInput] = useState(false);
   const [openNestedData, setOpenNestedData] = useState(false);
   const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const accountData = useAccount();
+
   const linkListSuperAdmin = [
     "pl",
     "cpl",
@@ -177,7 +177,7 @@ const Header = () => {
           >
             OBE
           </Typography>
-          {isLoading ? (
+          {!accountData ? (
             <Typography
               variant='body1'
               sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
@@ -186,7 +186,7 @@ const Header = () => {
             </Typography>
           ) : (
             <Typography variant='body1' sx={{ marginLeft: "auto" }}>
-              {accountData?.nama} - {accountData?.role}
+              {accountData.nama} - {accountData.role}
             </Typography>
           )}
         </Toolbar>
