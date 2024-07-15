@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient().$extends({
+const prismaClient = new PrismaClient();
+
+const prisma = prismaClient.$extends({
   name: "UpdateMKExtension",
   query: {
     inputNilai: {

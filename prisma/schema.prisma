@@ -14,6 +14,15 @@ model Widget {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 }
 
+model tahunAjaran {
+  id       Int     @id @unique @default(sequence())
+  tahun    String
+  semester String
+  kelas    kelas[]
+
+  @@unique([tahun, semester])
+}
+
 model prodi {
   kode      String          @id @unique
   nama      String
@@ -83,6 +92,7 @@ model MK {
   kode                String                @id @unique
   deskripsi           String
   sks                 String
+  semester            String
   batasLulusMahasiswa Float
   batasLulusMK        Float
   jumlahLulus         Int
@@ -109,12 +119,16 @@ model kelas {
   nama           String
   MK             MK           @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId           String
+  tahunAjaran    tahunAjaran  @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId  Int
   mahasiswa      mahasiswa[]  @relation("kelas_mahasiswa")
   nilaiMahasiswa inputNilai[]
   dosen          account[]    @relation("kelas_dosen")
   jumlahLulus    Int
   mahasiswaLulus Json?
   dataCPMK       Json?
+
+  @@unique([nama, MKId, tahunAjaranId])
 }
 
 model CPMK {

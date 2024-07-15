@@ -1,6 +1,6 @@
 "use client";
 import axiosConfig from "../../../../../utils/axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { RelationData } from "@/components/RelationData";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,8 @@ import {
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccount } from "@/app/contexts/AccountContext";
+import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
+import { get } from "http";
 
 export interface MKinterface {
   kode: string;
@@ -135,10 +137,12 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
+  const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
   const accountData = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
+  const [selectedTahun, setSelectedTahun] = useState("");
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -262,6 +266,20 @@ export default function Page({ params }: { params: { kode: string } }) {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getTahunAjaran = async () => {
+    try {
+      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      if (response.data.status !== 400) {
+        setTahunAjaran(response.data.data);
+        setSelectedTahun(String(response.data.data[0].id));
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -447,8 +465,13 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
+  const handleTahunChange = (value: string) => {
+    setSelectedTahun(value);
+  };
+
   useEffect(() => {
     getMK();
+    getTahunAjaran();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
@@ -652,7 +675,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (mk) {
     return (
       <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
-        <div className='flex'>
+        <div className='flex gap-3'>
           <Table className='w-[400px] mb-5'>
             <TableBody>
               <TableRow>
@@ -675,6 +698,19 @@ export default function Page({ params }: { params: { kode: string } }) {
               </TableRow>
             </TableBody>
           </Table>
+
+          <Select onValueChange={handleTahunChange} value={selectedTahun}>
+            <SelectTrigger className='w-[180px]'>
+              <SelectValue placeholder='Tahun Ajaran' />
+            </SelectTrigger>
+            <SelectContent>
+              {tahunAjaran.map((tahun) => (
+                <SelectItem key={tahun.id} value={String(tahun.id)}>
+                  {tahun.tahun} {tahun.semester}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Dialog>
             <DialogTrigger asChild>

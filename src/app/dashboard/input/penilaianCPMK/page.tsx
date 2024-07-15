@@ -224,23 +224,23 @@ const InputPenilaianCPMK = () => {
   }, [form.watch("teknikPenilaian")]);
 
   return (
-    <section className="flex my-[50px] justify-center items-center">
-      <Card className="w-[1000px]">
+    <section className='flex my-[50px] justify-center items-center'>
+      <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input</CardTitle>
           <CardDescription>Penilaian CPMK</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name="kode"
+                name='kode'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kode :</FormLabel>
                     <FormControl>
-                      <Input placeholder="PCPMK-" type="text" {...field} />
+                      <Input placeholder='PCPMK-' type='text' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -249,7 +249,7 @@ const InputPenilaianCPMK = () => {
 
               <FormField
                 control={form.control}
-                name="MK"
+                name='MK'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>MK</FormLabel>
@@ -264,15 +264,15 @@ const InputPenilaianCPMK = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih MK" />
+                          <SelectValue placeholder='Pilih MK' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type="text"
-                          className="mb-2"
+                          type='text'
+                          className='mb-2'
                           value={searchMK}
-                          placeholder="Cari..."
+                          placeholder='Cari...'
                           onChange={(e) => setSearchMK(e.target.value)}
                         />
                         {filteredMK.map((item) => (
@@ -289,7 +289,7 @@ const InputPenilaianCPMK = () => {
 
               <FormField
                 control={form.control}
-                name="CPMK"
+                name='CPMK'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>CPMK</FormLabel>
@@ -306,15 +306,15 @@ const InputPenilaianCPMK = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih CPMK" />
+                          <SelectValue placeholder='Pilih CPMK' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type="text"
-                          className="mb-2"
+                          type='text'
+                          className='mb-2'
                           value={searchCPMK}
-                          placeholder="Cari..."
+                          placeholder='Cari...'
                           onChange={(e) => setSearchCPMK(e.target.value)}
                         />
                         {filteredCPMK?.map((item) => (
@@ -331,7 +331,7 @@ const InputPenilaianCPMK = () => {
 
               <FormField
                 control={form.control}
-                name="CPL"
+                name='CPL'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>CPL</FormLabel>
@@ -342,15 +342,15 @@ const InputPenilaianCPMK = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih CPL" />
+                          <SelectValue placeholder='Pilih CPL' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type="text"
-                          className="mb-2"
+                          type='text'
+                          className='mb-2'
                           value={searchCPL}
-                          placeholder="Cari..."
+                          placeholder='Cari...'
                           onChange={(e) => setSearchCPL(e.target.value)}
                         />
                         {filteredCPL?.map((item) => (
@@ -365,18 +365,18 @@ const InputPenilaianCPMK = () => {
                 )}
               />
 
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <FormLabel>Tahap Penilaian :</FormLabel>
                 {tahapPenilaian.map((item) => (
                   <FormField
                     key={item.id}
                     control={form.control}
-                    name="tahapPenilaian"
+                    name='tahapPenilaian'
                     render={({ field }) => {
                       return (
                         <FormItem
                           key={item.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
+                          className='flex flex-row items-start space-x-3 space-y-0'
                         >
                           <FormControl>
                             <Checkbox
@@ -392,7 +392,7 @@ const InputPenilaianCPMK = () => {
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal">
+                          <FormLabel className='font-normal'>
                             {item.label}
                           </FormLabel>
                         </FormItem>
@@ -402,18 +402,18 @@ const InputPenilaianCPMK = () => {
                 ))}
               </div>
 
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <FormLabel>Teknik Penilaian :</FormLabel>
                 {teknikPenilaian.map((item) => (
                   <FormField
                     key={item.id}
                     control={form.control}
-                    name="teknikPenilaian"
+                    name='teknikPenilaian'
                     render={({ field }) => {
                       return (
                         <FormItem
                           key={item.id}
-                          className="flex flex-row items-start space-x-3 space-y-0"
+                          className='flex flex-row items-start space-x-3 space-y-0'
                         >
                           <FormControl>
                             <Checkbox
@@ -429,7 +429,7 @@ const InputPenilaianCPMK = () => {
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="font-normal">
+                          <FormLabel className='font-normal'>
                             {item.label}
                           </FormLabel>
                         </FormItem>
@@ -441,10 +441,10 @@ const InputPenilaianCPMK = () => {
 
               <FormField
                 control={form.control}
-                name="instrumen"
+                name='instrumen'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Instrumen : </FormLabel>
+                    <FormLabel className='text-base'>Instrumen : </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -454,15 +454,15 @@ const InputPenilaianCPMK = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder="Pilih Instrumen" />
+                            <SelectValue placeholder='Pilih Instrumen' />
                           ) : (
                             "Pilih Instrumen"
                           )}
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Rubrik">Rubrik</SelectItem>
-                        <SelectItem value="Panduan Proyek Akhir">
+                        <SelectItem value='Rubrik'>Rubrik</SelectItem>
+                        <SelectItem value='Panduan Proyek Akhir'>
                           Panduan Proyek Akhir
                         </SelectItem>
                       </SelectContent>
@@ -474,12 +474,12 @@ const InputPenilaianCPMK = () => {
 
               <FormField
                 control={form.control}
-                name="batasNilai"
+                name='batasNilai'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Batas Nilai :</FormLabel>
                     <FormControl>
-                      <Input placeholder="Batas Nilai" type="text" {...field} />
+                      <Input placeholder='Batas Nilai' type='text' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -487,7 +487,7 @@ const InputPenilaianCPMK = () => {
               />
 
               {fields.map((field, index) => (
-                <div className="flex items-center gap-5" key={field.id}>
+                <div className='flex items-center gap-5' key={field.id}>
                   <FormField
                     control={form.control}
                     name={`kriteria.${index}.kriteria`}
@@ -495,7 +495,7 @@ const InputPenilaianCPMK = () => {
                       <FormItem>
                         <FormLabel>Kriteria :</FormLabel>
                         <FormControl>
-                          <Input type="text" readOnly {...field} />
+                          <Input type='text' readOnly {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -508,7 +508,7 @@ const InputPenilaianCPMK = () => {
                       <FormItem>
                         <FormLabel>Bobot :</FormLabel>
                         <FormControl>
-                          <Input placeholder="Bobot" type="text" {...field} />
+                          <Input placeholder='Bobot' type='text' {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -517,7 +517,7 @@ const InputPenilaianCPMK = () => {
                 </div>
               ))}
 
-              <Button type="submit">Submit</Button>
+              <Button type='submit'>Submit</Button>
             </form>
           </Form>
         </CardContent>

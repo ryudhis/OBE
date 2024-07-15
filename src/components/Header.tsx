@@ -100,6 +100,7 @@ const Header = () => {
     "nilai",
     "akun",
     "prodi",
+    'tahun Ajaran'
   ];
 
   const linkListKaprodi = [
