@@ -92,6 +92,7 @@ model BK {
 model MK {
   kode                String                @id @unique
   deskripsi           String
+  deskripsiInggris    String
   sks                 String
   semester            String
   batasLulusMahasiswa Float

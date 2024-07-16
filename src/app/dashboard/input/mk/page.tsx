@@ -34,6 +34,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
+  deskripsiInggris: z.string().min(1).max(50),
   semester: z.string().min(1).max(50),
   sks: z.string().min(1).max(50),
   batasLulusMahasiswa: z.string().min(1).max(50),
@@ -50,6 +51,7 @@ const MKScreen = () => {
     defaultValues: {
       kode: "",
       deskripsi: "",
+      deskripsiInggris: "",
       sks: "",
       semester: "",
       batasLulusMahasiswa: "0",
@@ -64,6 +66,7 @@ const MKScreen = () => {
     const data = {
       kode: values.kode,
       deskripsi: values.deskripsi,
+      deskripsiInggris: values.deskripsiInggris,
       semester: values.semester,
       sks: values.sks,
       batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
@@ -141,6 +144,20 @@ const MKScreen = () => {
                     <FormLabel>Nama</FormLabel>
                     <FormControl>
                       <Input placeholder='Deskripsi' required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='deskripsiInggris'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Inggris</FormLabel>
+                    <FormControl>
+                      <Input placeholder='Deskripsi Inggris' required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
