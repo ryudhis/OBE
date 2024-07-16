@@ -41,6 +41,11 @@ export async function POST(req) {
               kode: data.MKId,
             },
           },
+          tahunAjaran: {
+            connect: {
+              id: data.tahunAjaranId,
+            },
+          },
         },
       });
     }

@@ -60,16 +60,17 @@ model PL {
 }
 
 model CPL {
-  id            Int             @id @unique @default(sequence())
-  kode          String
-  deskripsi     String
-  keterangan    String
-  BK            BK[]            @relation("cpl_bk")
-  PL            PL[]            @relation("cpl_pl")
-  CPMK          CPMK[]          @relation("cpmk_cpl")
-  penilaianCPMK penilaianCPMK[]
-  prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId       String
+  id               Int             @id @unique @default(sequence())
+  kode             String
+  deskripsi        String
+  keterangan       String
+  deskripsiInggris String
+  BK               BK[]            @relation("cpl_bk")
+  PL               PL[]            @relation("cpl_pl")
+  CPMK             CPMK[]          @relation("cpmk_cpl")
+  penilaianCPMK    penilaianCPMK[]
+  prodi            prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId          String
 
   @@unique([kode, prodiId])
 }

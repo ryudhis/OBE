@@ -52,7 +52,6 @@ import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
-import { get } from "http";
 
 export interface MKinterface {
   kode: string;
@@ -79,6 +78,13 @@ export interface KelasItem {
   mahasiswa: mahasiswaItem[];
   jumlahLulus: number;
   MK: MKinterface;
+  tahunAjaran: tahunAjaranItem;
+}
+
+export interface tahunAjaranItem {
+  id: number;
+  tahun: string;
+  semester: string;
 }
 
 export interface CPMKItem {
@@ -289,6 +295,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     const data = {
       MKId: kode,
       jumlahKelas: values.jumlahKelas,
+      tahunAjaranId: parseInt(selectedTahun),
     };
 
     axiosConfig
@@ -469,6 +476,10 @@ export default function Page({ params }: { params: { kode: string } }) {
     setSelectedTahun(value);
   };
 
+  const filteredKelas = mk?.kelas.filter(
+    (kelas) => kelas.tahunAjaran.id === parseInt(selectedTahun)
+  );
+
   useEffect(() => {
     getMK();
     getTahunAjaran();
@@ -476,10 +487,13 @@ export default function Page({ params }: { params: { kode: string } }) {
   }, [refresh]);
 
   const renderData = () => {
-    return mk?.kelas.map((kelas) => {
+    return filteredKelas?.map((kelas) => {
       return (
         <TableRow key={kelas.id}>
           <TableCell className='w-[8%]'>{kelas.nama}</TableCell>
+          <TableCell className='w-[8%]'>
+            {kelas.tahunAjaran.tahun} - {kelas.tahunAjaran.semester}
+          </TableCell>
           <TableCell className='w-[8%]'>
             {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
@@ -852,6 +866,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHeader>
                         <TableRow>
                           <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>Tahun Ajaran</TableHead>
                           <TableHead className='w-[8%]'>
                             Jumlah Mahasiswa
                           </TableHead>
@@ -869,6 +884,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHeader>
                         <TableRow>
                           <TableHead className='w-[8%]'>Nama</TableHead>
+                          <TableHead className='w-[8%]'>Tahun Ajaran</TableHead>
                           <TableHead className='w-[8%]'>
                             Jumlah Mahasiswa
                           </TableHead>
