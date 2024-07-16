@@ -29,6 +29,7 @@ const formSchema = z.object({
   kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
   keterangan: z.string().min(1).max(50),
+  deskripsiInggris: z.string().min(1).max(50),
 });
 
 const CPLScreen = () => {
@@ -42,6 +43,7 @@ const CPLScreen = () => {
       kode: "",
       deskripsi: "",
       keterangan: "",
+      deskripsiInggris: "",
     },
   });
 
@@ -53,6 +55,7 @@ const CPLScreen = () => {
       kode: values.kode,
       deskripsi: values.deskripsi,
       keterangan: values.keterangan,
+      deskripsiInggris: values.deskripsiInggris,
       prodiId: accountData?.prodiId,
     };
 
@@ -155,6 +158,24 @@ const CPLScreen = () => {
                     <FormLabel>Keterangan</FormLabel>
                     <FormControl>
                       <Input placeholder="Keterangan" required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="deskripsiInggris"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Deskripsi Inggris</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Deskripsi dalam Bahasa Inggris"
+                        required
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
