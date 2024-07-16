@@ -54,6 +54,7 @@ model CPL {
   id            Int             @id @unique @default(sequence())
   kode          String
   deskripsi     String
+  deskripsiInggris String
   keterangan    String
   BK            BK[]            @relation("cpl_bk")
   PL            PL[]            @relation("cpl_pl")

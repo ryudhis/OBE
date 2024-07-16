@@ -33,6 +33,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "fs": "^0.0.1-security",
+    "google-translate-api-x": "^10.6.8",
     "jose": "^5.2.3",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",

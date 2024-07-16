@@ -24,11 +24,13 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
+import translate from "google-translate-api-x";
 
 const formSchema = z.object({
   kode: z.string().min(2).max(50),
   deskripsi: z.string().min(1).max(50),
   keterangan: z.string().min(1).max(50),
+  deskripsiInggris: z.string().optional(),
 });
 
 const CPLScreen = () => {
@@ -42,47 +44,60 @@ const CPLScreen = () => {
       kode: "",
       deskripsi: "",
       keterangan: "",
+      deskripsiInggris: "",
     },
   });
 
   // AddCPL
-  function onSubmit(values: z.infer<typeof formSchema>, e: any) {
+  async function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
-    const data = {
-      kode: values.kode,
-      deskripsi: values.deskripsi,
-      keterangan: values.keterangan,
-      prodiId: accountData?.prodiId,
-    };
+    try {
+      const translation = await translate(values.deskripsi, { to: "en" });
+      const data = {
+        kode: values.kode,
+        deskripsi: values.deskripsi,
+        keterangan: values.keterangan,
+        deskripsiInggris: translation.text,
+        prodiId: accountData?.prodiId,
+      };
 
-    axiosConfig
-      .post("api/cpl", data)
-      .then(function (response) {
-        if (response.data.status != 400) {
+      axiosConfig
+        .post("api/cpl", data)
+        .then(function (response) {
+          if (response.data.status != 400) {
+            toast({
+              title: "Berhasil Submit",
+              description: String(new Date()),
+            });
+          } else {
+            toast({
+              title: "Kode Sudah Ada!",
+              description: String(new Date()),
+              variant: "destructive",
+            });
+          }
+        })
+        .catch(function (error) {
           toast({
-            title: "Berhasil Submit",
-            description: String(new Date()),
-          });
-        } else {
-          toast({
-            title: "Kode Sudah Ada!",
+            title: "Gagal Submit",
             description: String(new Date()),
             variant: "destructive",
           });
-        }
-      })
-      .catch(function (error) {
-        toast({
-          title: "Gagal Submit",
-          description: String(new Date()),
-          variant: "destructive",
+
+          console.log(error);
         });
 
-        console.log(error);
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Gagal Menerjemahkan Deskripsi",
+        description: String(new Date()),
+        variant: "destructive",
       });
 
-    form.reset();
+      console.log(error);
+    }
   }
 
   if (accountData?.role === "Dosen") {
@@ -141,6 +156,23 @@ const CPLScreen = () => {
                     <FormLabel>Deskripsi</FormLabel>
                     <FormControl>
                       <Input placeholder="Deskripsi" required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="deskripsiInggris"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Deskripsi (Inggris)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Deskripsi dalam Bahasa Inggris"
+                        readOnly
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
