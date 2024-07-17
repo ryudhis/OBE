@@ -33,6 +33,8 @@ import { useState, useEffect } from "react";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { accountProdi } from "@/app/interface/input";
+import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
+import { CPMKItem } from "../penilaianCPMK/page";
 
 const formSchema = z.object({
   MK: z.string({
@@ -56,12 +58,14 @@ export interface PCPMKItem {
   id: number;
   kode: string;
   MKkode: string;
+  CPMK: CPMKItem;
   kriteria: { kriteria: string; bobot: number }[];
 }
 
 export interface MKItem {
   kode: string;
   deskripsi: string;
+  penilaianCPMK: PCPMKItem[];
   kelas: kelasItem[];
 }
 
@@ -71,6 +75,7 @@ export interface kelasItem {
   MK: MKItem;
   MKId: string;
   mahasiswa: mahasiswaItem[];
+  tahunAjaran: tahunAjaran;
 }
 
 export interface mahasiswaItem {
@@ -82,29 +87,49 @@ const InputNilai: React.FC = () => {
   const { toast } = useToast();
   const router = useRouter();
   const accountData = useAccount();
-  const [PCPMK, setPCPMK] = useState<PCPMKItem[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
+  const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
   const [selectedKelas, setSelectedKelas] = useState<kelasItem | undefined>();
   const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem | undefined>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchPCPMK, setSearchPCPMK] = useState<string>("");
+  const [selectedTahun, setSelectedTahun] = useState("");
+  let PCPMK: PCPMKItem[] = [];
+  let filteredPCPMK: PCPMKItem[] = [];
+
+  if (selectedMK) {
+    console.log(selectedMK);
+    PCPMK = selectedMK.penilaianCPMK;
+    console.log(PCPMK);
+  }
 
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
   );
 
-  const filteredPCPMK = PCPMK.filter((pcpmk) =>
-    pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
-  );
+  if (PCPMK.length !== 0) {
+    filteredPCPMK = PCPMK.filter((pcpmk) =>
+      pcpmk.kode.toLowerCase().includes(searchPCPMK.toLowerCase())
+    );
+  }
 
-  const getPCPMK = async (prodiId: string) => {
+  const getMK = async (accountData: accountProdi, tahunId: string) => {
     try {
+      // Filter the MKIds based on the matching tahunId
+      const userMKIds: string[] = accountData.kelas
+        .filter((kelas) => kelas.tahunAjaran.id === parseInt(tahunId))
+        .map((kelas) => kelas.MKId);
+
       const response = await axiosConfig.get(
-        `api/penilaianCPMK?prodi=${prodiId}`
+        `api/mk?prodi=${accountData.prodiId}`
       );
       if (response.data.status !== 400) {
-        setPCPMK(response.data.data);
+        const filteredMK = response.data.data.filter((mk: MKItem) =>
+          userMKIds.includes(mk.kode)
+        );
+
+        setMK(filteredMK);
       } else {
         alert(response.data.message);
       }
@@ -113,29 +138,20 @@ const InputNilai: React.FC = () => {
     }
   };
 
-  const getMK = async (prodiId: string, accountData: accountProdi) => {
+  const getTahunAjaran = async () => {
     try {
-      console.log(accountData);
-
-      const userMKCodes = accountData.kelas.map(
-        (kelas: kelasItem) => kelas.MKId
-      );
-
-      // Fetch the MK data
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/tahun-ajaran`);
       if (response.data.status !== 400) {
-        // Filter the MK data
-        const filteredMK = response.data.data.filter((mk: MKItem) =>
-          userMKCodes.includes(mk.kode)
-        );
-
-        // Set the filtered MK data to the state
-        setMK(filteredMK);
+        setTahunAjaran(response.data.data);
+        setSelectedTahun(String(response.data.data[0].id));
+        if (accountData) {
+          getMK(accountData, response.data.data[0].id);
+        }
       } else {
         alert(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -191,11 +207,14 @@ const InputNilai: React.FC = () => {
     setSearchPCPMK("");
   };
 
+  const handleTahunChange = (value: string) => {
+    setSelectedTahun(value);
+  };
+
   useEffect(() => {
     try {
       if (accountData?.prodiId) {
-        getMK(accountData.prodiId, accountData);
-        getPCPMK(accountData.prodiId);
+        getTahunAjaran();
       }
     } catch (error) {
       console.log(error);
@@ -213,9 +232,9 @@ const InputNilai: React.FC = () => {
   }
 
   return (
-    <section className="flex my-[50px] justify-center items-center">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between">
+    <section className='flex my-[50px] justify-center items-center'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between'>
           <div>
             <CardTitle>Input Nilai</CardTitle>
             <CardDescription>Nilai PCPMK</CardDescription>
@@ -231,12 +250,41 @@ const InputNilai: React.FC = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name="MK"
+                name='MK'
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Tahun Ajaran</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        handleTahunChange(value);
+                        form.resetField("MK");
+                        form.resetField("kelas");
+                        form.resetField("PCPMK");
+                        form.resetField("nilai");
+                        setSelectedMK(undefined);
+                        setSelectedKelas(undefined);
+                        setSelectedPCPMK(undefined);
+                        if (accountData) {
+                          getMK(accountData, value);
+                        }
+                      }}
+                      value={selectedTahun}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='Tahun Ajaran' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tahunAjaran.map((tahun) => (
+                          <SelectItem key={tahun.id} value={String(tahun.id)}>
+                            {tahun.tahun} {tahun.semester}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
                     <FormLabel>MK</FormLabel>
                     <Select
                       onValueChange={(value) => {
@@ -251,11 +299,12 @@ const InputNilai: React.FC = () => {
                       defaultValue={field.value}
                       value={field.value}
                       required
+                      disabled={!selectedTahun}
                     >
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder="Pilih MK" />
+                            <SelectValue placeholder='Pilih MK' />
                           ) : (
                             "Pilih MK"
                           )}
@@ -263,10 +312,10 @@ const InputNilai: React.FC = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type="text"
-                          className="mb-2"
+                          type='text'
+                          className='mb-2'
                           value={searchMK}
-                          placeholder="Cari..."
+                          placeholder='Cari...'
                           onChange={(e) => setSearchMK(e.target.value)}
                         />
                         {filteredMK.map((mk, index) => (
@@ -283,7 +332,7 @@ const InputNilai: React.FC = () => {
 
               <FormField
                 control={form.control}
-                name="kelas"
+                name='kelas'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kelas</FormLabel>
@@ -292,7 +341,7 @@ const InputNilai: React.FC = () => {
                         field.onChange(value);
                         setSelectedKelas(
                           selectedMK?.kelas.find(
-                            (kelas) => kelas.nama === value
+                            (kelas) => kelas.id === parseInt(value)
                           )
                         );
                         form.resetField("nilai");
@@ -305,7 +354,7 @@ const InputNilai: React.FC = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder="Pilih Kelas" />
+                            <SelectValue placeholder='Pilih Kelas' />
                           ) : (
                             "Pilih Kelas"
                           )}
@@ -315,11 +364,15 @@ const InputNilai: React.FC = () => {
                         {selectedMK?.kelas
                           .filter((kelas) =>
                             accountData?.kelas.some(
-                              (accKelas) => accKelas.nama === kelas.nama
+                              (accKelas) => accKelas.id === kelas.id
                             )
                           )
-                          .map((kelas, index) => (
-                            <SelectItem key={index} value={kelas.nama}>
+                          .filter(
+                            (kelas) =>
+                              kelas.tahunAjaran.id === parseInt(selectedTahun)
+                          )
+                          .map((kelas) => (
+                            <SelectItem key={kelas.id} value={String(kelas.id)}>
                               {kelas.nama}
                             </SelectItem>
                           ))}
@@ -332,7 +385,7 @@ const InputNilai: React.FC = () => {
 
               <FormField
                 control={form.control}
-                name="PCPMK"
+                name='PCPMK'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Penilaian CPMK</FormLabel>
@@ -353,7 +406,7 @@ const InputNilai: React.FC = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder="Pilih PCPMK" />
+                            <SelectValue placeholder='Pilih PCPMK' />
                           ) : (
                             "Pilih PCPMK"
                           )}
@@ -361,19 +414,17 @@ const InputNilai: React.FC = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type="text"
-                          className="mb-2"
+                          type='text'
+                          className='mb-2'
                           value={searchPCPMK}
-                          placeholder="Cari..."
+                          placeholder='Cari...'
                           onChange={(e) => setSearchPCPMK(e.target.value)}
                         />
-                        {filteredPCPMK
-                          .filter((pcpmk) => pcpmk.MKkode === selectedMK?.kode)
-                          .map((pcpmk, index) => (
-                            <SelectItem key={index} value={pcpmk.kode}>
-                              {pcpmk.kode}
-                            </SelectItem>
-                          ))}
+                        {filteredPCPMK.map((pcpmk, index) => (
+                          <SelectItem key={index} value={pcpmk.kode}>
+                            {pcpmk.CPMK.kode}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -382,14 +433,14 @@ const InputNilai: React.FC = () => {
               />
 
               {selectedKelas && selectedPCPMK && (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border">
+                <div className='overflow-x-auto'>
+                  <table className='min-w-full bg-white border'>
                     <thead>
                       <tr>
-                        <th className="py-2 px-4 border">NIM</th>
-                        <th className="py-2 px-4 border">Nama</th>
+                        <th className='py-2 px-4 border'>NIM</th>
+                        <th className='py-2 px-4 border'>Nama</th>
                         {selectedPCPMK.kriteria.map((kriteria, kIndex) => (
-                          <th key={kIndex} className="py-2 px-4 border">
+                          <th key={kIndex} className='py-2 px-4 border'>
                             {kriteria.kriteria}
                           </th>
                         ))}
@@ -397,21 +448,21 @@ const InputNilai: React.FC = () => {
                     </thead>
                     <tbody>
                       {selectedKelas.mahasiswa.map((mahasiswa, mIndex) => (
-                        <tr key={mIndex} className="border-t">
-                          <td className="py-2 px-4 border">{mahasiswa.nim}</td>
-                          <td className="py-2 px-4 border">{mahasiswa.nama}</td>
+                        <tr key={mIndex} className='border-t'>
+                          <td className='py-2 px-4 border'>{mahasiswa.nim}</td>
+                          <td className='py-2 px-4 border'>{mahasiswa.nama}</td>
                           {selectedPCPMK.kriteria.map((kriteria, kIndex) => (
-                            <td key={kIndex} className="py-2 px-4 border">
+                            <td key={kIndex} className='py-2 px-4 border'>
                               <FormField
                                 control={form.control}
                                 name={
                                   `nilai.${mIndex}.nilai.${kIndex}` as const
                                 }
                                 render={({ field }) => (
-                                  <FormItem className="m-0">
+                                  <FormItem className='m-0'>
                                     <Input
-                                      placeholder="Nilai"
-                                      type="number"
+                                      placeholder='Nilai'
+                                      type='number'
                                       min={0}
                                       max={100}
                                       required
@@ -447,7 +498,7 @@ const InputNilai: React.FC = () => {
                 </div>
               )}
 
-              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
                 Submit
               </Button>
             </form>

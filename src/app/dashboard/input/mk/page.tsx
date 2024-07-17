@@ -113,7 +113,7 @@ const MKScreen = () => {
   }
 
   return (
-    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+    <section className='flex h-screen justify-center items-center'>
       <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input MK</CardTitle>

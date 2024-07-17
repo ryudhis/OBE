@@ -714,7 +714,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           </Table>
 
           <Select onValueChange={handleTahunChange} value={selectedTahun}>
-            <SelectTrigger className='w-[180px]'>
+            <SelectTrigger className='w-[250px]'>
               <SelectValue placeholder='Tahun Ajaran' />
             </SelectTrigger>
             <SelectContent>
@@ -842,7 +842,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             </TabsTrigger>
           </TabsList>
           <TabsContent value='kelas'>
-            {mk.kelas.length != 0 ? (
+            {filteredKelas?.length != 0 ? (
               <Card className='w-[1000px] mx-auto'>
                 <CardHeader className='flex flex-row justify-between items-center'>
                   <div className='flex flex-col'>

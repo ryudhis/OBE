@@ -125,9 +125,6 @@ const DataMK = () => {
               : mk.deskripsi}
           </TableCell>
           <TableCell className="w-[15%] text-center">
-            {mk.kelas.map((item) => item.nama).join(", ")}
-          </TableCell>
-          <TableCell className="w-[15%] text-center">
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
           <TableCell className="w-[8%] text-center">
@@ -189,7 +186,6 @@ const DataMK = () => {
                   <TableHead className="flex-1 text-center">
                     Nama Matakuliah
                   </TableHead>
-                  <TableHead className="w-[15%] text-center">Kelas</TableHead>
                   <TableHead className="w-[15%] text-center">CPMK</TableHead>
                   <TableHead className="w-[8%] text-center">
                     Jumlah Mahasiswa
@@ -221,7 +217,6 @@ const DataMK = () => {
                   <TableHead className="flex-1 text-center">
                     Nama Matakuliah
                   </TableHead>
-                  <TableHead className="w-[15%] text-center">Kelas</TableHead>
                   <TableHead className="w-[15%] text-center">CPMK</TableHead>
                   <TableHead className="w-[8%] text-center">
                     Jumlah Mahasiswa

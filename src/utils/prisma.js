@@ -146,7 +146,12 @@ const updateMK = async (data) => {
         kode: data.MKId,
       },
       include: {
-        penilaianCPMK: true,
+        penilaianCPMK: {
+          include: {
+            CPMK: true,
+            CPL: true,
+          },
+        },
         kelas: {
           include: {
             mahasiswa: {
@@ -182,8 +187,8 @@ const updateMK = async (data) => {
 
     for (const pcpmk of MK.penilaianCPMK) {
       dataCPMK.push({
-        cpmk: pcpmk.CPMKkode,
-        cpl: pcpmk.CPLkode,
+        cpmk: pcpmk.CPMK.kode,
+        cpl: pcpmk.CPL.kode,
         nilaiMinimal: pcpmk.batasNilai,
         nilaiMasuk: 0,
         jumlahLulus: 0,
@@ -205,7 +210,7 @@ const updateMK = async (data) => {
           },
           mahasiswaNim: mahasiswa.nim,
         },
-        include: { penilaianCPMK: true },
+        include: { penilaianCPMK: { include: { CPMK: true, CPL: true } } },
       });
 
       let totalNilai = 0;
@@ -214,7 +219,7 @@ const updateMK = async (data) => {
 
       for (const nilaiCPMK of relevantNilai) {
         const indexCPMK = dataCPMK.findIndex(
-          (data) => data.cpmk === nilaiCPMK.penilaianCPMK.CPMKkode
+          (data) => data.cpmk === nilaiCPMK.penilaianCPMK.CPMK.kode
         );
 
         dataCPMK[indexCPMK].nilaiMasuk += 1;
@@ -223,7 +228,7 @@ const updateMK = async (data) => {
         let totalBobot = 0;
         let rataNilai = 0;
         let daftarNilai = {
-          namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
+          namaCPMK: nilaiCPMK.penilaianCPMK.CPMK.kode,
           batasNilai: nilaiCPMK.penilaianCPMK.batasNilai,
           nilai: [],
         };
@@ -257,7 +262,7 @@ const updateMK = async (data) => {
         nilaiMahasiswa.push(daftarNilai);
 
         statusCPMK.push({
-          namaCPMK: nilaiCPMK.penilaianCPMK.CPMKkode,
+          namaCPMK: nilaiCPMK.penilaianCPMK.CPMK.kode,
           nilaiCPMK: totalNilaiCPMK.toFixed(2),
           statusLulus:
             totalNilaiCPMK >=

@@ -27,6 +27,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
+import { MKItem } from "@/app/interface/input";
 
 export interface InputNilaiInterface {
   id: string;
@@ -37,7 +38,7 @@ export interface InputNilaiInterface {
 }
 
 export interface penilaianCPMKItem {
-  MK: string;
+  MK: MKItem;
   kode: string;
   kriteria: { kriteria: string; bobot: number }[];
 }
@@ -166,7 +167,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <TableCell>
                   <strong>MK</strong>{" "}
                 </TableCell>
-                <TableCell>: {inputNilai.penilaianCPMK.MK}</TableCell>
+                <TableCell>: {inputNilai.penilaianCPMK.MK.kode}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>
@@ -199,7 +200,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <DialogHeader>
                 <DialogTitle>Edit Data Nilai</DialogTitle>
                 <DialogDescription>
-                  {inputNilai.penilaianCPMK.MK}/{inputNilai.kelas.nama}/
+                  {inputNilai.penilaianCPMK.MK.kode}/{inputNilai.kelas.nama}/
                   {inputNilai.penilaianCPMK.kode}
                 </DialogDescription>
               </DialogHeader>

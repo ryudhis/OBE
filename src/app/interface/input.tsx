@@ -1,3 +1,5 @@
+import { tahunAjaranItem } from "../dashboard/details/mk/[kode]/page";
+
 export interface accountProdi {
   nama: string;
   role: string;
@@ -11,6 +13,7 @@ export interface kelasItem {
   MK: MKItem;
   MKId: string;
   mahasiswa: mahasiswaItem[];
+  tahunAjaran: tahunAjaranItem
 }
 
 export interface MKItem {
