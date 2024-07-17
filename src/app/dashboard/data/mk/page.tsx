@@ -26,6 +26,7 @@ import { getAccountData } from "@/utils/api";
 export interface mk {
   kode: string;
   deskripsi: string;
+  deskripsiInggris: string;
   CPMK: CPMKItem[];
   jumlahLulus: number;
   batasLulusMK: number;
@@ -106,7 +107,7 @@ const DataMK = () => {
       .finally(() => {
         setIsLoading(false); // Set loading to false when useEffect completes
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]); // Trigger useEffect only on initial mount
 
   let jumlahMahasiswa: number = 0;
@@ -123,6 +124,11 @@ const DataMK = () => {
             {mk.deskripsi.length > 20
               ? mk.deskripsi.slice(0, 18) + "..."
               : mk.deskripsi}
+          </TableCell>
+          <TableCell className="flex-1 text-center">
+            {mk.deskripsiInggris.length > 20
+              ? mk.deskripsiInggris.slice(0, 18) + "..."
+              : mk.deskripsiInggris}
           </TableCell>
           <TableCell className="w-[15%] text-center">
             {mk.CPMK.map((item) => item.kode).join(", ")}
@@ -186,6 +192,9 @@ const DataMK = () => {
                   <TableHead className="flex-1 text-center">
                     Nama Matakuliah
                   </TableHead>
+                  <TableHead className="flex-1 text-center">
+                    Nama Matakuliah Inggris
+                  </TableHead>
                   <TableHead className="w-[15%] text-center">CPMK</TableHead>
                   <TableHead className="w-[8%] text-center">
                     Jumlah Mahasiswa
@@ -206,7 +215,7 @@ const DataMK = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={10} />
+                <SkeletonTable rows={5} cols={11} />
               </TableBody>
             </Table>
           ) : (
@@ -216,6 +225,9 @@ const DataMK = () => {
                   <TableHead className="w-[8%] text-center">Kode</TableHead>
                   <TableHead className="flex-1 text-center">
                     Nama Matakuliah
+                  </TableHead>
+                  <TableHead className="flex-1 text-center">
+                    Nama Matakuliah Inggris
                   </TableHead>
                   <TableHead className="w-[15%] text-center">CPMK</TableHead>
                   <TableHead className="w-[8%] text-center">

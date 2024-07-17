@@ -26,6 +26,7 @@ export interface cpl {
   id: number;
   kode: string;
   deskripsi: string;
+  deskripsiInggris: string;
   keterangan: string;
   BK: BKItem[];
   PL: PLItem[];
@@ -106,25 +107,30 @@ const DataCPL = () => {
     return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[8%]'>{cpl.kode}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[8%]">{cpl.kode}</TableCell>
+          <TableCell className="flex-1">
             {cpl.deskripsi.length > 16
               ? cpl.deskripsi.slice(0, 14) + "..."
               : cpl.deskripsi}
           </TableCell>
-          <TableCell className='w-[8%]'>{cpl.keterangan}</TableCell>
-          <TableCell className='w-[12%]'>
+          <TableCell className="flex-1">
+            {cpl.deskripsiInggris.length > 16
+              ? cpl.deskripsiInggris.slice(0, 14) + "..."
+              : cpl.deskripsiInggris}
+          </TableCell>
+          <TableCell className="w-[8%]">{cpl.keterangan}</TableCell>
+          <TableCell className="w-[12%]">
             {cpl.BK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className='w-[12%]'>
+          <TableCell className="w-[12%]">
             {cpl.PL.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className='w-[12%]'>
+          <TableCell className="w-[12%]">
             {cpl.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className='w-[8%] flex gap-2'>
+          <TableCell className="w-[8%] flex gap-2">
             <Button
-              variant='destructive'
+              variant="destructive"
               onClick={() => {
                 delCPL(cpl.id);
               }}
@@ -145,10 +151,10 @@ const DataCPL = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
@@ -165,30 +171,32 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[8%]'>Keterangan</TableHead>
-                  <TableHead className='w-[12%]'>BK</TableHead>
-                  <TableHead className='w-[12%]'>PL</TableHead>
-                  <TableHead className='w-[12%]'>CPMK</TableHead>
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="flex-1">Deskripsi Inggris</TableHead>
+                  <TableHead className="w-[8%]">Keterangan</TableHead>
+                  <TableHead className="w-[12%]">BK</TableHead>
+                  <TableHead className="w-[12%]">PL</TableHead>
+                  <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={7} />
+                <SkeletonTable rows={5} cols={8} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[8%]'>Keterangan</TableHead>
-                  <TableHead className='w-[12%]'>BK</TableHead>
-                  <TableHead className='w-[12%]'>PL</TableHead>
-                  <TableHead className='w-[12%]'>CPMK</TableHead>
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="flex-1">Deskripsi Inggris</TableHead>
+                  <TableHead className="w-[8%]">Keterangan</TableHead>
+                  <TableHead className="w-[12%]">BK</TableHead>
+                  <TableHead className="w-[12%]">PL</TableHead>
+                  <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
