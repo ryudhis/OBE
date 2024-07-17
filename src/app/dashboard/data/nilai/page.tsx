@@ -60,6 +60,7 @@ export interface MKItem {
 const DataNilai = () => {
   const router = useRouter();
   const accountData = useAccount();
+  const [refresh, setRefresh] = useState(false);
   const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKItem[]>([]);
@@ -117,6 +118,7 @@ const DataNilai = () => {
           title: "Berhasil menghapus data inputNilai",
           variant: "default",
         });
+        setRefresh(!refresh);
       } else {
         toast({
           title: response.data.message,
@@ -136,7 +138,7 @@ const DataNilai = () => {
   useEffect(() => {
     getInputNilai();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Trigger useEffect only on initial mount
+  }, [refresh]); // Trigger useEffect only on initial mount
 
   if (accountData?.role === "Admin Prodi") {
     toast({

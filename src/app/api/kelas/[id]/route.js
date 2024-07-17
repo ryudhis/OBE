@@ -11,7 +11,7 @@ export async function GET(req) {
         MK: {
           include: {
             CPMK: true,
-            penilaianCPMK: { include: { inputNilai: true } },
+            penilaianCPMK: { include: { inputNilai: true, CPMK: true, CPL: true } },
           },
         },
         mahasiswa: {

@@ -239,6 +239,7 @@ export default function Page({ params }: { params: { id: string } }) {
               }
             });
           });
+
           setDataMahasiswaLulus(mahasiswaLulusData);
           setKelas(kelasData);
 
@@ -278,7 +279,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const updateDosen = async () => {
     const payload = Array.from(selectedDosen);
-    console.log(payload);
 
     try {
       const response = await axiosConfig.patch(`api/kelas/${id}/updateDosen`, {
@@ -306,7 +306,6 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   const renderDosenChecklist = () => {
-    console.log(selectedDosen);
     return allDosen.map((dosen) => (
       <label key={dosen.id} className='flex items-center space-x-2'>
         <input
@@ -353,14 +352,14 @@ export default function Page({ params }: { params: { id: string } }) {
         </TableCell>
         {kelas?.MK.penilaianCPMK.map((CPMK) => {
           const nilaiMahasiswaItem = lulusData.nilaiMahasiswa.find(
-            (item) => item.namaCPMK === CPMK.CPMKkode
+            (item) => item.namaCPMK === CPMK.CPMK.kode
           );
           const statusCPMKItem = lulusData.statusCPMK.find(
-            (item) => item.namaCPMK === CPMK.CPMKkode
+            (item) => item.namaCPMK === CPMK.CPMK.kode
           );
 
           return (
-            <React.Fragment key={CPMK.CPMKkode}>
+            <React.Fragment key={CPMK.CPMK.kode}>
               {nilaiMahasiswaItem
                 ? nilaiMahasiswaItem.nilai.map((nilai, index) => {
                     const isNilaiValid = nilai >= nilaiMahasiswaItem.batasNilai;
@@ -382,7 +381,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     </TableCell>
                   ))}
               <TableCell
-                key={`status-${CPMK.CPMKkode}`}
+                key={`status-${CPMK.CPMK.kode}`}
                 className={`w-[16%] text-center ${
                   statusCPMKItem?.statusLulus === "Lulus"
                     ? "bg-green-300"
@@ -546,10 +545,10 @@ export default function Page({ params }: { params: { id: string } }) {
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
                               colSpan={CPMK.kriteria.length}
-                              key={CPMK.CPMKkode}
+                              key={CPMK.CPMK.kode}
                               className='w-[16%]'
                             >
-                              {CPMK.CPMKkode}
+                              {CPMK.CPMK.kode}
                             </TableHead>
                           ))}
                         </TableRow>
@@ -580,16 +579,16 @@ export default function Page({ params }: { params: { id: string } }) {
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
                             <TableHead
                               colSpan={CPMK.kriteria.length + 1}
-                              key={CPMK.CPMKkode}
+                              key={CPMK.CPMK.kode}
                               className='w-[16%] text-center border-x-2'
                             >
-                              {`CPMK ${CPMK.CPMKkode}`}
+                              {`CPMK ${CPMK.CPMK.kode}`}
                             </TableHead>
                           ))}
                         </TableRow>
                         <TableRow>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
-                            <React.Fragment key={CPMK.CPMKkode}>
+                            <React.Fragment key={CPMK.CPMK.kode}>
                               {CPMK.kriteria.map((kriteria, index) => (
                                 <TableHead
                                   className='text-center w-[16%]'
@@ -603,7 +602,7 @@ export default function Page({ params }: { params: { id: string } }) {
                               ))}
                               <TableHead
                                 className='text-center w-[16%]'
-                                key={`status-${CPMK.CPMKkode}`}
+                                key={`status-${CPMK.CPMK.kode}`}
                               >
                                 Status
                               </TableHead>

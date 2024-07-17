@@ -84,7 +84,7 @@ const prisma = prismaClient.$extends({
         const deletedInputNilai = await query(args);
 
         const penilaianCPMK = await prisma.penilaianCPMK.findUnique({
-          where: { kode: deletedInputNilai.penilaianCPMKId },
+          where: { id: deletedInputNilai.penilaianCPMKId },
         });
 
         const MKId = penilaianCPMK.MKkode;
@@ -146,16 +146,17 @@ const updateMK = async (data) => {
         kode: data.MKId,
       },
       include: {
-        penilaianCPMK: {
-          include: {
-            CPMK: true,
-            CPL: true,
-          },
-        },
+        penilaianCPMK: { include: { CPMK: true, CPL: true } },
         kelas: {
           include: {
             mahasiswa: {
-              include: { inputNilai: { include: { penilaianCPMK: true } } },
+              include: {
+                inputNilai: {
+                  include: {
+                    penilaianCPMK: true,
+                  },
+                },
+              },
             },
           },
         },
@@ -210,7 +211,14 @@ const updateMK = async (data) => {
           },
           mahasiswaNim: mahasiswa.nim,
         },
-        include: { penilaianCPMK: { include: { CPMK: true, CPL: true } } },
+        include: {
+          penilaianCPMK: {
+            include: {
+              CPMK: true,
+              CPL: true,
+            },
+          },
+        },
       });
 
       let totalNilai = 0;
