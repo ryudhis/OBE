@@ -1,6 +1,7 @@
 import { tahunAjaranItem } from "../dashboard/details/mk/[kode]/page";
 
 export interface accountProdi {
+  id: string;
   nama: string;
   role: string;
   prodiId: string;

@@ -20,8 +20,7 @@ import axiosConfig from "../../../../utils/axios";
 import SkeletonTable from "@/components/SkeletonTable";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { accountProdi } from "@/app/interface/input";
-import { getAccountData } from "@/utils/api";
+import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface mk {
   kode: string;
@@ -50,24 +49,16 @@ export interface CPMKItem {
 
 const DataMK = () => {
   const router = useRouter();
-  const [account, setAccount] = useState<accountProdi>();
+  const { accountData } = useAccount();
   const [MK, setMK] = useState<mk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 
-  const fetchData = async () => {
+  const getMK = async (prodiId: string = "", dosenId: string = "") => {
     try {
-      const data = await getAccountData();
-      setAccount(data);
-      getMK(data.prodiId);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getMK = async (prodiId: string) => {
-    try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${prodiId}${dosenId ? `&dosen=${dosenId}` : ""}`
+      );
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
@@ -75,6 +66,8 @@ const DataMK = () => {
       }
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,19 +92,26 @@ const DataMK = () => {
   };
 
   useEffect(() => {
-    setIsLoading(true); // Set loading to true when useEffect starts
-    fetchData()
-      .catch((error) => {
-        console.error("Error fetching account data:", error);
-      })
-      .finally(() => {
-        setIsLoading(false); // Set loading to false when useEffect completes
-      });
+    if (accountData?.role === "Dosen") {
+      getMK(accountData.prodiId, accountData.id);
+    } else {
+      getMK(accountData?.prodiId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]); // Trigger useEffect only on initial mount
 
   let jumlahMahasiswa: number = 0;
   const renderData = () => {
+    if (MK.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={10} className="text-center">
+            Tidak ada data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
     return MK.map((mk) => {
       jumlahMahasiswa = 0;
       {
