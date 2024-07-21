@@ -5,13 +5,14 @@ export async function PATCH(req) {
     const id = req.url.split("/tambahMahasiswa/")[1];
     const body = await req.json();
 
-    // Fetch the MKId of the current kelas
+    // Fetch the MKId and tahunAjaran of the current kelas
     const currentKelas = await prisma.kelas.findUnique({
       where: {
         id: parseInt(id),
       },
       select: {
         MKId: true,
+        tahunAjaran: true,
         mahasiswa: {
           select: {
             nim: true,
@@ -62,6 +63,7 @@ export async function PATCH(req) {
       const existingEnrollment = await prisma.kelas.findFirst({
         where: {
           MKId: currentKelas.MKId,
+          tahunAjaran: currentKelas.tahunAjaran,
           mahasiswa: {
             some: {
               nim: nimString,
@@ -72,7 +74,7 @@ export async function PATCH(req) {
 
       if (existingEnrollment) {
         console.log(
-          `Mahasiswa with NIM ${nimString} is already enrolled in another kelas for this MK, ignoring.`
+          `Mahasiswa with NIM ${nimString} is already enrolled in another kelas for this MK and tahunAjaran, ignoring.`
         );
         continue;
       }
@@ -84,7 +86,7 @@ export async function PATCH(req) {
       return new Response(
         JSON.stringify({
           status: 400,
-          message: "No new mahasiswa to add.",
+          message: "Tidak ada mahasiswa eligible yang dapat ditambahkan!",
           data: currentKelas,
         }),
         { headers: { "Content-Type": "application/json" } }

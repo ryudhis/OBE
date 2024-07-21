@@ -25,6 +25,7 @@ export async function GET(req) {
           },
         },
         dosen : true,
+        tahunAjaran : true,
       },
     });
 

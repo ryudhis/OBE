@@ -59,7 +59,7 @@ export interface MKItem {
 
 const DataNilai = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [refresh, setRefresh] = useState(false);
   const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);

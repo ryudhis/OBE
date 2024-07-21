@@ -31,7 +31,7 @@ interface CPMKItem {
 
 const CPMKExcel = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [cpmk, setCpmk] = useState<CPMKItem[]>([]);
   const { toast } = useToast();
 

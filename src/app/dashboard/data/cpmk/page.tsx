@@ -45,7 +45,7 @@ export interface subCPMKItem {
 
 const DataCPMK = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [CPMK, setCPMK] = useState<cpmk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);

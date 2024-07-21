@@ -61,7 +61,7 @@ export interface dataCPMKItem {
 
 const Page = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKinterface[]>([]);
 
@@ -83,7 +83,7 @@ const Page = () => {
     if (accountData) {
       getMK(accountData.prodiId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderDataRangkuman = () => {
@@ -113,18 +113,18 @@ const Page = () => {
   };
 
   return (
-    <main className="mt-4 flex flex-col gap-2 justify-center items-center">
+    <main className='mt-4 flex flex-col gap-2 justify-center items-center'>
       {isLoading ? (
-        <h1 className="animate-pulse">Loading...</h1>
+        <h1 className='animate-pulse'>Loading...</h1>
       ) : accountData?.role === "Super Admin" ? (
         <h1>Dashboard Super Admin</h1>
       ) : accountData?.role === "Admin Prodi" ? (
         <h1>Dashboard Admin Prodi</h1>
       ) : accountData?.role === "Kaprodi" ? (
         <>
-          <Card className="w-[1200px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
+          <Card className='w-[1200px] mx-auto'>
+            <CardHeader className='flex flex-row justify-between items-center'>
+              <div className='flex flex-col'>
                 <CardTitle>Tabel Rangkuman Evaluasi </CardTitle>
                 <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
               </div>
@@ -133,19 +133,19 @@ const Page = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[8%]">MK </TableHead>
-                    <TableHead className="w-[8%]">Kelas </TableHead>
-                    <TableHead className="w-[8%]">CPMK </TableHead>
-                    <TableHead className="w-[8%]">CPL</TableHead>
-                    <TableHead className="w-[8%]">
+                    <TableHead className='w-[8%]'>MK </TableHead>
+                    <TableHead className='w-[8%]'>Kelas </TableHead>
+                    <TableHead className='w-[8%]'>CPMK </TableHead>
+                    <TableHead className='w-[8%]'>CPL</TableHead>
+                    <TableHead className='w-[8%]'>
                       Total Nilai Minimal
                     </TableHead>
-                    <TableHead className="w-[8%]">Nilai Masuk</TableHead>
-                    <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                    <TableHead className="w-[16%]">
+                    <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
+                    <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                    <TableHead className='w-[16%]'>
                       Persen Mencapai Nilai Minimal
                     </TableHead>
-                    <TableHead className="w-[8%]">Rata-Rata</TableHead>
+                    <TableHead className='w-[8%]'>Rata-Rata</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{renderDataRangkuman()}</TableBody>

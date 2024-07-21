@@ -45,7 +45,6 @@ export interface kriteriaItem {
 }
 
 export default function Page() {
-  const [account, setAccount] = useState(null);
   const [cpl, setCPl] = useState<CPLItem[]>([]);
   const [cpmk, setCPMK] = useState<CPMKItem[]>([]);
   const [selected, setSelected] = useState<{ [cplId: string]: Set<string> }>(
@@ -56,7 +55,6 @@ export default function Page() {
   const fetchData = async () => {
     try {
       const data = await getAccountData();
-      setAccount(data);
       await getAllCPL(data.prodiId);
       await getAllCPMK(data.prodiId);
     } catch (error) {

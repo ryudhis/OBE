@@ -80,7 +80,7 @@ export interface CPLItem {
 
 const InputPenilaianCPMK = () => {
   const { toast } = useToast();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem>();
   const [selectedCPMK, setSelectedCPMK] = useState<CPMKItem>();

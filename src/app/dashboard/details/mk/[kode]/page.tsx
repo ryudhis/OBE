@@ -144,7 +144,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
   const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);

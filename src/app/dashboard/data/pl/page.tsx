@@ -36,7 +36,7 @@ export interface CPLItem {
 
 const DataPL = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [PL, setPL] = useState<pl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);

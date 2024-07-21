@@ -32,7 +32,7 @@ interface mahasiswaItem {
 const MahasiswaExcel = () => {
   const router = useRouter();
   const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[]>([]);
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const { toast } = useToast();
 
   const exportTemplate = () => {

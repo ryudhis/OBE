@@ -50,7 +50,7 @@ const DataCPL = () => {
   const [CPL, setCPL] = useState<cpl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
 
   const getCPL = async () => {
     setIsLoading(true);

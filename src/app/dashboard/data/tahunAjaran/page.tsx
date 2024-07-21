@@ -30,7 +30,7 @@ export interface tahunAjaran {
 
 const DataTahun = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [tahun, setTahun] = useState<tahunAjaran[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
@@ -52,8 +52,9 @@ const DataTahun = () => {
   };
 
   const delTahun = async (id: number) => {
+    console.log(id);
     try {
-      const response = await axiosConfig.delete(`api/prodi/${id}`);
+      const response = await axiosConfig.delete(`api/tahun-ajaran/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data Tahun Ajaran",

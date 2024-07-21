@@ -44,7 +44,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [pl, setPl] = useState<PLinterface | undefined>();
   const [cpl, setCPL] = useState<CPLItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);

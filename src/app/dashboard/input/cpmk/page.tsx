@@ -33,7 +33,7 @@ const formSchema = z.object({
 const CPMKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

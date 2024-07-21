@@ -34,7 +34,7 @@ interface BKItem {
 const BKExcel = () => {
   const router = useRouter();
   const [bk, setBk] = useState<BKItem[]>([]);
-  const accountData = useAccount();
+  const { accountData } = useAccount();
   const { toast } = useToast();
 
   const exportTemplate = () => {
@@ -128,14 +128,14 @@ const BKExcel = () => {
   }
 
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input BK Excel</CardTitle>
           <CardDescription>Data Bahan Kajian</CardDescription>
-          <div className="flex items-center justify-end gap-4">
+          <div className='flex items-center justify-end gap-4'>
             <Button
-              className="w-[130px] self-end"
+              className='w-[130px] self-end'
               onClick={() => {
                 exportTemplate();
               }}
@@ -143,7 +143,7 @@ const BKExcel = () => {
               Export Template
             </Button>
             <Button
-              className="w-[100px] self-end"
+              className='w-[100px] self-end'
               onClick={() => {
                 router.push(`/dashboard/input/bk/`);
               }}
@@ -153,7 +153,7 @@ const BKExcel = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+          <Input type='file' accept='.xlsx, .xls' onChange={handleFileUpload} />
           {bk.length > 0 && (
             <Table>
               <TableHeader>

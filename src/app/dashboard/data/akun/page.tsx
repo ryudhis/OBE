@@ -38,7 +38,7 @@ export interface kelas {
 const DataAkun = () => {
   const router = useRouter();
   const [akun, setAkun] = useState<akun[]>([]);
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [isLoading, setIsLoading] = useState(true);
 
   const getAkun = async () => {

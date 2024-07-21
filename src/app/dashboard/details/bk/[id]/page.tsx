@@ -44,7 +44,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [bk, setBk] = useState<BKInterface | undefined>();
   const [mk, setMk] = useState<MKItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);

@@ -50,7 +50,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [cpl, setCPl] = useState<CPLinterface | undefined>();
   const [bk, setBK] = useState<BKItem[] | undefined>([]);
   const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);

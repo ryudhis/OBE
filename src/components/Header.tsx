@@ -87,7 +87,7 @@ const Header = () => {
   const [openNestedInput, setOpenNestedInput] = useState(false);
   const [openNestedData, setOpenNestedData] = useState(false);
   const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
-  const accountData = useAccount();
+  const { accountData } = useAccount();
 
   const linkListSuperAdmin = [
     "pl",
@@ -100,7 +100,7 @@ const Header = () => {
     "nilai",
     "akun",
     "prodi",
-    'tahun Ajaran'
+    "tahun Ajaran",
   ];
 
   const linkListKaprodi = [

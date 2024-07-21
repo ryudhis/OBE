@@ -35,7 +35,7 @@ const formSchema = z.object({
 const CPLScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData } = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -98,15 +98,15 @@ const CPLScreen = () => {
   }
 
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between'>
           <div>
             <CardTitle>Input CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
           <Button
-            className="w-[100px] self-end"
+            className='w-[100px] self-end'
             onClick={() => {
               router.push(`/dashboard/input/cpl/excel`);
             }}
@@ -116,17 +116,17 @@ const CPLScreen = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name="kode"
+                name='kode'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kode CPL</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Kode CPL"
-                        type="text"
+                        placeholder='Kode CPL'
+                        type='text'
                         required
                         {...field}
                       />
@@ -138,12 +138,12 @@ const CPLScreen = () => {
 
               <FormField
                 control={form.control}
-                name="deskripsi"
+                name='deskripsi'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Deskripsi</FormLabel>
                     <FormControl>
-                      <Input placeholder="Deskripsi" required {...field} />
+                      <Input placeholder='Deskripsi' required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -152,12 +152,12 @@ const CPLScreen = () => {
 
               <FormField
                 control={form.control}
-                name="keterangan"
+                name='keterangan'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Keterangan</FormLabel>
                     <FormControl>
-                      <Input placeholder="Keterangan" required {...field} />
+                      <Input placeholder='Keterangan' required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,13 +166,13 @@ const CPLScreen = () => {
 
               <FormField
                 control={form.control}
-                name="deskripsiInggris"
+                name='deskripsiInggris'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Deskripsi Inggris</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Deskripsi dalam Bahasa Inggris"
+                        placeholder='Deskripsi dalam Bahasa Inggris'
                         required
                         {...field}
                       />
@@ -182,7 +182,7 @@ const CPLScreen = () => {
                 )}
               />
 
-              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
                 Submit
               </Button>
             </form>

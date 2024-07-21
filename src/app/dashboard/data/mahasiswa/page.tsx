@@ -37,7 +37,7 @@ const DataMahasiswa = () => {
   const [mahasiswa, setMahasiswa] = useState<mahasiswa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(true);
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
 
   const getMahasiswa = async () => {
     setIsLoading(true);

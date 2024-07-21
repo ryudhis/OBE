@@ -49,7 +49,7 @@ const InputAkun = () => {
   const { toast } = useToast();
   const router = useRouter();
   const [prodi, setProdi] = useState<prodi[]>([]);
-  const accountData = useAccount();
+  const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -131,9 +131,9 @@ const InputAkun = () => {
   }
 
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between">
+    <section className='flex h-screen mt-[-100px] justify-center items-center'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between'>
           <div>
             <CardTitle>Daftar Akun</CardTitle>
             <CardDescription>Buat akun baru</CardDescription>
@@ -141,17 +141,17 @@ const InputAkun = () => {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name="nama"
+                name='nama'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nama:</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Nama"
-                        type="text"
+                        placeholder='Nama'
+                        type='text'
                         min={5}
                         max={60}
                         required
@@ -165,14 +165,14 @@ const InputAkun = () => {
 
               <FormField
                 control={form.control}
-                name="email"
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email:</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Email"
-                        type="email"
+                        placeholder='Email'
+                        type='email'
                         min={5}
                         max={50}
                         required
@@ -186,14 +186,14 @@ const InputAkun = () => {
 
               <FormField
                 control={form.control}
-                name="password"
+                name='password'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password:</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;"
-                        type="password"
+                        placeholder='&bull;&bull;&bull;&bull;&bull;&bull;'
+                        type='password'
                         min={6}
                         max={20}
                         required
@@ -207,7 +207,7 @@ const InputAkun = () => {
 
               <FormField
                 control={form.control}
-                name="prodi"
+                name='prodi'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prodi:</FormLabel>
@@ -220,7 +220,7 @@ const InputAkun = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder="Pilih Prodi" />
+                            <SelectValue placeholder='Pilih Prodi' />
                           ) : (
                             "Pilih Prodi"
                           )}
@@ -241,7 +241,7 @@ const InputAkun = () => {
 
               <FormField
                 control={form.control}
-                name="role"
+                name='role'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role akun:</FormLabel>
@@ -254,17 +254,17 @@ const InputAkun = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder="Pilih Role" />
+                            <SelectValue placeholder='Pilih Role' />
                           ) : (
                             "Pilih Role"
                           )}
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Super Admin">Super Admin</SelectItem>
-                        <SelectItem value="Admin Prodi">Admin Prodi</SelectItem>
-                        <SelectItem value="Kaprodi">Kaprodi</SelectItem>
-                        <SelectItem value="Dosen">Dosen</SelectItem>
+                        <SelectItem value='Super Admin'>Super Admin</SelectItem>
+                        <SelectItem value='Admin Prodi'>Admin Prodi</SelectItem>
+                        <SelectItem value='Kaprodi'>Kaprodi</SelectItem>
+                        <SelectItem value='Dosen'>Dosen</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -272,7 +272,7 @@ const InputAkun = () => {
                 )}
               />
 
-              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
+              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
                 Submit
               </Button>
             </form>

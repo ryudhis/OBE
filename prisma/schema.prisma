@@ -67,7 +67,7 @@ model CPL {
   deskripsiInggris String
   BK               BK[]            @relation("cpl_bk")
   PL               PL[]            @relation("cpl_pl")
-  CPMK             CPMK[]          @relation("cpmk_cpl")
+  CPMK             CPMK[]
   penilaianCPMK    penilaianCPMK[]
   prodi            prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId          String
@@ -137,20 +137,14 @@ model CPMK {
   id            Int             @id @unique @default(sequence())
   kode          String
   deskripsi     String
-  CPL           CPL[]           @relation("cpmk_cpl")
+  CPL           CPL             @relation(fields: [CPLKode], references: [id], onDelete: Cascade)
+  CPLKode       Int
   MK            MK[]            @relation("cpmk_mk")
-  subCPMK       subCPMK[]       @relation("cpmk_subcpmk")
   penilaianCPMK penilaianCPMK[]
   prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId       String
 
   @@unique([kode, prodiId])
-}
-
-model subCPMK {
-  kode      String @id @unique
-  deskripsi String
-  CPMK      CPMK[] @relation("cpmk_subcpmk")
 }
 
 model penilaianCPMK {

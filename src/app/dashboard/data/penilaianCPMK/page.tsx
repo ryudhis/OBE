@@ -54,7 +54,7 @@ export interface kriteriaItem {
 
 const DataPenilaianCPMK = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData } = useAccount();
   const [penilaianCPMK, setPenilaianCPMK] = useState<penilaianCPMK[]>([]);
   const [MK, setMK] = useState<MKItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,7 +94,9 @@ const DataPenilaianCPMK = () => {
 
   const getMK = async () => {
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${accountData?.prodiId}`);
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${accountData?.prodiId}`
+      );
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
@@ -127,7 +129,7 @@ const DataPenilaianCPMK = () => {
   useEffect(() => {
     getPenilaianCPMK();
     getMK();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]); // Trigger useEffect only on initial mount
 
   const renderData = () => {

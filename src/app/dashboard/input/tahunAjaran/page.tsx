@@ -38,7 +38,7 @@ const formSchema = z.object({
 const InputProdi = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

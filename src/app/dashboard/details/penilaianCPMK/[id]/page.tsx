@@ -89,7 +89,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [PCPMK, setPCPMK] = useState<PCPMKinterface | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
 

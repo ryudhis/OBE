@@ -2,7 +2,7 @@ import prisma from "@/utils/prisma";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameterz
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -19,7 +19,7 @@ export async function GET(req) {
         BK: true,
         CPMK: { include: { CPL: true } },
         kelas: { include: { mahasiswa: true, tahunAjaran: true } },
-        penilaianCPMK: {include : {CPMK: true}},
+        penilaianCPMK: { include: { CPMK: true } },
       },
     });
 

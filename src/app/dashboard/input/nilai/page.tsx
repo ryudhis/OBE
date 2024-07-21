@@ -86,7 +86,7 @@ export interface mahasiswaItem {
 const InputNilai: React.FC = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [MK, setMK] = useState<MKItem[]>([]);
   const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();

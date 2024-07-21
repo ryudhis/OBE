@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 const MahasiswaScreen = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({

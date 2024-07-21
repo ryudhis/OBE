@@ -1,32 +1,40 @@
 // contexts/AccountContext.js
 "use client";
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { getAccountData } from "@/utils/api";
 import { accountProdi } from "../interface/input";
 
-const AccountContext = createContext<accountProdi | null>(null);
+interface AccountContextType {
+  accountData: accountProdi | null;
+  fetchData: () => Promise<void>;
+}
 
-export const useAccount = () => useContext(AccountContext);
+const AccountContext = createContext<AccountContextType | null>(null);
 
-export const AccountProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [account, setAccount] = useState<accountProdi | null>({} as accountProdi);
+export const useAccount = () => {
+  const context = useContext(AccountContext);
+  if (!context) {
+    throw new Error("useAccount must be used within an AccountProvider");
+  }
+  return context;
+};
+
+export const AccountProvider = ({ children }: { children: ReactNode }) => {
+  const [accountData, setAccountData] = useState<accountProdi | null>({} as accountProdi);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    try {
+      const data = await getAccountData();
+      setAccountData(data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAccountData();
-        setAccount(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
@@ -35,7 +43,7 @@ export const AccountProvider = ({
   }
 
   return (
-    <AccountContext.Provider value={account}>
+    <AccountContext.Provider value={{ accountData, fetchData }}>
       {children}
     </AccountContext.Provider>
   );

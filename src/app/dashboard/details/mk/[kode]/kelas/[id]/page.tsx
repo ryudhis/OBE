@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
+import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
 
 export interface MKinterface {
   kode: string;
@@ -53,6 +54,7 @@ export interface KelasItem {
   dataCPMK: dataCPMKItem[];
   MK: MKinterface;
   dosen: dosenItem[];
+  tahunAjaran: tahunAjaran;
 }
 
 export interface dosenItem {
@@ -150,7 +152,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [selectedDosen, setSelectedDosen] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const accountData = useAccount();
+  const {accountData, fetchData} = useAccount();
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -184,15 +186,15 @@ export default function Page({ params }: { params: { id: string } }) {
     axiosConfig
       .patch(`api/kelas/tambahMahasiswa/${id}`, data)
       .then(function (response) {
-        if (response.data.status != 400) {
+        if (response.data.status === 200) {
           toast({
             title: "Berhasil Submit",
             description: String(new Date()),
           });
         } else {
           toast({
-            title: "Kode Sudah Ada!",
-            description: String(new Date()),
+            title: "Gagal Submit!",
+            description: response.data.message,
             variant: "destructive",
           });
         }
@@ -215,7 +217,7 @@ export default function Page({ params }: { params: { id: string } }) {
     try {
       const response = await axiosConfig.get(`api/kelas/${id}`);
 
-      if (response.data.status !== 400) {
+      if (response.data.status === 200) {
         if (response.data.data.MK.prodiId !== accountData?.prodiId) {
           router.push("/dashboard");
           toast({
@@ -286,9 +288,10 @@ export default function Page({ params }: { params: { id: string } }) {
       });
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
-          title: "Dosen updated successfully",
+          title: "Dosen berhasil ditambahkan!",
           variant: "default",
         });
+        fetchData();
         setRefresh(!refresh);
       } else {
         toast({
@@ -423,7 +426,7 @@ export default function Page({ params }: { params: { id: string } }) {
         <Card className='w-[1200px] mx-auto'>
           <CardHeader className='flex justify-center'>
             <CardTitle>Data Kelas {kelas.nama} </CardTitle>
-            <CardDescription>Kelas {kelas.MK.deskripsi} </CardDescription>
+            <CardDescription>Kelas {kelas.MK.deskripsi} - {kelas.tahunAjaran.tahun} {kelas.tahunAjaran.semester} </CardDescription>
             <Table className='w-[350px]'>
               <TableBody>
                 <TableRow>
@@ -582,7 +585,7 @@ export default function Page({ params }: { params: { id: string } }) {
                               key={CPMK.CPMK.kode}
                               className='w-[16%] text-center border-x-2'
                             >
-                              {`CPMK ${CPMK.CPMK.kode}`}
+                              {CPMK.CPMK.kode}
                             </TableHead>
                           ))}
                         </TableRow>

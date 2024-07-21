@@ -29,7 +29,7 @@ export interface prodi {
 
 const DataProdi = () => {
   const router = useRouter();
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const [prodi, setProdi] = useState<prodi[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);

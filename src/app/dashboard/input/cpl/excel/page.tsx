@@ -33,7 +33,7 @@ interface CPLItem {
 const CPLExcel = () => {
   const router = useRouter();
   const [cpl, setCpl] = useState<CPLItem[]>([]);
-  const accountData = useAccount();
+  const { accountData }  = useAccount();
   const { toast } = useToast();
   const exportTemplate = () => {
     // Define headers
