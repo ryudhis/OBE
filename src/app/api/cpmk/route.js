@@ -8,7 +8,7 @@ export async function GET(req) {
   if (!prodi) {
     return Response.json({ status: 400, message: "Missing prodi parameter" });
   }
-  
+
   try {
     const CPMK = await prisma.CPMK.findMany({
       where: {
@@ -44,12 +44,20 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const { prodiId, ...restData } = data; // Extract prodiId from data
+    const { prodiId, CPLId, ...restData } = data; // Extract prodiId from data
 
     // Create the PL entry and connect it to the prodi
     const CPMK = await prisma.CPMK.create({
       data: {
         ...restData,
+        CPL: {
+          connect: {
+            kode_prodiId: {
+              kode: CPLId,
+              prodiId: prodiId,
+            },
+          },
+        },
         prodi: {
           connect: {
             kode: prodiId,
@@ -68,5 +76,3 @@ export async function POST(req) {
     return Response.json({ status: 400, message: "Something went wrong!" });
   }
 }
-
-

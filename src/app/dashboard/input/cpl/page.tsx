@@ -152,12 +152,16 @@ const CPLScreen = () => {
 
               <FormField
                 control={form.control}
-                name='keterangan'
+                name='deskripsiInggris'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Keterangan</FormLabel>
+                    <FormLabel>Deskripsi Inggris</FormLabel>
                     <FormControl>
-                      <Input placeholder='Keterangan' required {...field} />
+                      <Input
+                        placeholder='Deskripsi dalam Bahasa Inggris'
+                        required 
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,16 +170,12 @@ const CPLScreen = () => {
 
               <FormField
                 control={form.control}
-                name='deskripsiInggris'
+                name='keterangan'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Deskripsi Inggris</FormLabel>
+                    <FormLabel>Keterangan</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder='Deskripsi dalam Bahasa Inggris'
-                        required
-                        {...field}
-                      />
+                      <Input placeholder='Keterangan' required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

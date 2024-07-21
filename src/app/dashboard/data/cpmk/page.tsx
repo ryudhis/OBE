@@ -26,9 +26,10 @@ export interface cpmk {
   id: number;
   kode: string;
   deskripsi: string;
-  CPL: CPLItem[];
+  CPL: CPLItem;
   MK: MKItem[];
   subCPMK: subCPMKItem[];
+  CPLKode: string;
 }
 
 export interface CPLItem {
@@ -113,7 +114,7 @@ const DataCPMK = () => {
               : cpmk.deskripsi}
           </TableCell>
           <TableCell className='w-[12%]'>
-            {cpmk.CPL.map((item) => item.kode).join(", ")}
+            {cpmk.CPL.kode}
           </TableCell>
           <TableCell className='w-[12%]'>
             {cpmk.MK.map((item) => item.kode).join(", ")}

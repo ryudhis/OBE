@@ -27,6 +27,11 @@ export interface CPMKInterface {
   kode: string;
   deskripsi: string;
   MK: MKItem[];
+  CPL: CPLItem;
+}
+
+export interface CPLItem {
+  kode: string;
 }
 
 export interface MKItem {
@@ -39,7 +44,7 @@ const formSchema = z.object({
 });
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [cpmk, setCpmk] = useState<CPMKInterface | undefined>();
   const [mk, setMk] = useState<MKItem[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
@@ -215,6 +220,14 @@ export default function Page({ params }: { params: { id: string } }) {
                 </TableCell>
                 <TableCell>: {cpmk.kode} </TableCell>
               </TableRow>
+
+              <TableRow>
+                <TableCell>
+                  <strong>CPL</strong>
+                </TableCell>
+                <TableCell>: {cpmk.CPL.kode} </TableCell>
+              </TableRow>
+
               <TableRow>
                 <TableCell>
                   <strong>Deskripsi</strong>{" "}
