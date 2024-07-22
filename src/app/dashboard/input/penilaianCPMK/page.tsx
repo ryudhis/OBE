@@ -71,7 +71,7 @@ export interface MKItem {
 
 export interface CPMKItem {
   kode: string;
-  CPL: CPLItem[];
+  CPL: CPLItem;
 }
 
 export interface CPLItem {
@@ -80,22 +80,18 @@ export interface CPLItem {
 
 const InputPenilaianCPMK = () => {
   const { toast } = useToast();
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem>();
   const [selectedCPMK, setSelectedCPMK] = useState<CPMKItem>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchCPMK, setSearchCPMK] = useState<string>("");
-  const [searchCPL, setSearchCPL] = useState<string>("");
 
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
   );
   const filteredCPMK = selectedMK?.CPMK.filter((cpmk) =>
     cpmk.kode.toLowerCase().includes(searchCPMK.toLowerCase())
-  );
-  const filteredCPL = selectedCPMK?.CPL.filter((cpl) =>
-    cpl.kode.toLowerCase().includes(searchCPL.toLowerCase())
   );
 
   const fetchData = async () => {
@@ -189,7 +185,6 @@ const InputPenilaianCPMK = () => {
         form.reset(defaultValues);
         setSearchMK("");
         setSearchCPMK("");
-        setSearchCPL("");
       } else {
         toast({
           title: "Gagal Submit!",
@@ -297,9 +292,14 @@ const InputPenilaianCPMK = () => {
                       onValueChange={(value) => {
                         field.onChange(value);
                         form.resetField("CPL");
-                        setSelectedCPMK(
-                          selectedMK?.CPMK.find((cpmk) => cpmk.kode === value)
+                        const CPMK = selectedMK?.CPMK.find(
+                          (cpmk) => cpmk.kode === value
                         );
+                        setSelectedCPMK(CPMK);
+                        if (CPMK) {
+                          form.setValue("CPL", CPMK.CPL.kode);
+                        }
+                        console.log(form.getValues("CPL"));
                       }}
                       value={field.value}
                       disabled={!selectedMK}
@@ -329,41 +329,27 @@ const InputPenilaianCPMK = () => {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name='CPL'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CPL</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={!selectedCPMK}
-                    >
+              <FormItem>
+                <FormLabel>CPL</FormLabel>
+                <FormField
+                  control={form.control}
+                  name='CPL'
+                  render={({ field }) => (
+                    <FormItem>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih CPL' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
                         <Input
+                          placeholder='CPL'
                           type='text'
-                          className='mb-2'
-                          value={searchCPL}
-                          placeholder='Cari...'
-                          onChange={(e) => setSearchCPL(e.target.value)}
+                          disabled
+                          {...field}
                         />
-                        {filteredCPL?.map((item) => (
-                          <SelectItem key={item.kode} value={item.kode}>
-                            {item.kode}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormMessage />
+              </FormItem>
 
               <div className='space-y-2'>
                 <FormLabel>Tahap Penilaian :</FormLabel>
