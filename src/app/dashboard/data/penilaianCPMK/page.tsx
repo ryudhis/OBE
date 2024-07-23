@@ -40,6 +40,18 @@ export interface penilaianCPMK {
   instrumen: string;
   kriteria: kriteriaItem[];
   batasNilai: number;
+  CPL: CPLItem;
+  CPMK: CPMKItem;
+}
+
+export interface CPLItem {
+  kode: string;
+  deskripsi: string;
+}
+
+export interface CPMKItem {
+  kode: string;
+  deskripsi: string;
 }
 
 export interface MKItem {
@@ -148,8 +160,8 @@ const DataPenilaianCPMK = () => {
         <TableRow key={pCPMK.kode}>
           <TableCell className='w-[2%]'>{pCPMK.kode}</TableCell>
           <TableCell className='w-[7%]'>{pCPMK.MKkode}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.CPLkode}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.CPMKkode}</TableCell>
+          <TableCell className='w-[7%]'>{pCPMK.CPL.kode}</TableCell>
+          <TableCell className='w-[7%]'>{pCPMK.CPMK.kode}</TableCell>
           <TableCell className='w-[7%]'>{pCPMK.tahapPenilaian}</TableCell>
           <TableCell className='w-[7%]'>{pCPMK.teknikPenilaian}</TableCell>
           <TableCell className='w-[7%]'>{pCPMK.instrumen}</TableCell>

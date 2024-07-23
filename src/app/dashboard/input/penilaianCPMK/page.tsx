@@ -35,7 +35,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
-  kode: z.string(),
   MK: z.string({ required_error: "Please select MK to display." }),
   CPMK: z.string({ required_error: "Please select CPMK to display." }),
   CPL: z.string({ required_error: "Please select CPL to display." }),
@@ -83,7 +82,6 @@ const InputPenilaianCPMK = () => {
   const { accountData } = useAccount();
   const [MK, setMK] = useState<MKItem[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem>();
-  const [selectedCPMK, setSelectedCPMK] = useState<CPMKItem>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchCPMK, setSearchCPMK] = useState<string>("");
 
@@ -119,6 +117,9 @@ const InputPenilaianCPMK = () => {
     { id: "Perkuliahan", label: "Perkuliahan" },
     { id: "Tengah Semester", label: "Tengah Semester" },
     { id: "Akhir Semester", label: "Akhir Semester" },
+    { id: "Project Based Learning", label: "Project Based Learning" },
+    { id: "Case Method", label: "Case Method" },
+    { id: "Problem Based Learning", label: "Problem Based Learning" },
   ];
 
   const teknikPenilaian = [
@@ -128,10 +129,10 @@ const InputPenilaianCPMK = () => {
     { id: "Tes Tulis (UTS)", label: "Tes Tulis (UTS)" },
     { id: "Tes Tulis (UAS)", label: "Tes Tulis (UAS)" },
     { id: "Partisipasi (Quiz)", label: "Partisipasi (Quiz)" },
+    { id: "Laporan Hasil Proyek", label: "Laporan Hasil Proyek" },
   ];
 
   const defaultValues = {
-    kode: "",
     MK: "",
     CPMK: "",
     CPL: "",
@@ -162,8 +163,15 @@ const InputPenilaianCPMK = () => {
 
     const concat = (data: string[]) => data.join(", ");
 
+    const extractNumber = (str: string) => str.match(/\d+/)?.[0] || "";
+
+    const mkNumber = extractNumber(values.MK);
+    const cpmkNumber = extractNumber(values.CPMK);
+
+    const kode = `PCPMK-${mkNumber}-${cpmkNumber}`;
+
     const data = {
-      kode: values.kode,
+      kode: kode,
       MK: values.MK,
       CPMK: values.CPMK,
       CPL: values.CPL,
@@ -230,20 +238,6 @@ const InputPenilaianCPMK = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
-                name='kode'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kode :</FormLabel>
-                    <FormControl>
-                      <Input placeholder='PCPMK-' type='text' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name='MK'
                 render={({ field }) => (
                   <FormItem>
@@ -295,7 +289,6 @@ const InputPenilaianCPMK = () => {
                         const CPMK = selectedMK?.CPMK.find(
                           (cpmk) => cpmk.kode === value
                         );
-                        setSelectedCPMK(CPMK);
                         if (CPMK) {
                           form.setValue("CPL", CPMK.CPL.kode);
                         }

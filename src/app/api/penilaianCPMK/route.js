@@ -14,6 +14,10 @@ export async function GET(req) {
       where: {
         prodiId: prodi,
       },
+      include: {
+        CPMK:true,
+        CPL:true,
+      }
     });
 
     return Response.json({
