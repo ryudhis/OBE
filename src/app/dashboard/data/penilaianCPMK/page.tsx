@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 
 export interface penilaianCPMK {
-  id: string;
+  id: number;
   kode: string;
   CPLkode: string;
   MKkode: string;
@@ -119,9 +119,9 @@ const DataPenilaianCPMK = () => {
     }
   };
 
-  const delPenilaianCPMK = async (kode: string) => {
+  const delPenilaianCPMK = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/penilaianCPMK/${kode}`);
+      const response = await axiosConfig.delete(`api/penilaianCPMK/${id}`);
       if (response.data.status === 200 || response.data.status === 201) {
         toast({
           title: "Berhasil menghapus data penilaian CPMK",
@@ -183,7 +183,7 @@ const DataPenilaianCPMK = () => {
           <TableCell className='w-[7%] flex gap-2'>
             <Button
               variant='destructive'
-              onClick={() => delPenilaianCPMK(pCPMK.kode)}
+              onClick={() => delPenilaianCPMK(pCPMK.id)}
             >
               Hapus
             </Button>

@@ -15,9 +15,9 @@ export async function GET(req) {
         prodiId: prodi,
       },
       include: {
-        CPMK:true,
-        CPL:true,
-      }
+        CPMK: true,
+        CPL: true,
+      },
     });
 
     return Response.json({
@@ -100,6 +100,12 @@ export async function POST(req) {
       data: penilaianCPMK,
     });
   } catch (error) {
+    if (error.code === "P2002") {
+      return Response.json({
+        status: 400,
+        message: "Kombinasi MK dan CPMK sudah ada",
+      });
+    }
     console.log(error.message);
     return Response.json({
       status: 400,

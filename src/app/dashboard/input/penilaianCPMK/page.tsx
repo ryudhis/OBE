@@ -156,6 +156,23 @@ const InputPenilaianCPMK = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>, e: any) => {
     e.stopPropagation();
 
+    if (values.tahapPenilaian.includes("Project Based Learning")) {
+      let totalBobot = 0;
+
+      values.kriteria.map((item) => {
+        totalBobot += parseFloat(item.bobot);
+      });
+
+      if (totalBobot < 50) {
+        toast({
+          title: "Gagal Submit",
+          description: "Total bobot Project Based Learning harus lebih dari 50%",
+          variant: "destructive",
+        });
+        return null;
+      }
+    }
+
     const convertKriteria = values.kriteria.map((item) => ({
       ...item,
       bobot: parseFloat(item.bobot),
