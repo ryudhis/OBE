@@ -175,6 +175,7 @@ const updateMK = async (data) => {
       },
       include: {
         mahasiswa: true,
+        tahunAjaran: true,
       },
     });
 
@@ -267,6 +268,35 @@ const updateMK = async (data) => {
           dataCPMK[indexCPMK].jumlahLulus += 1;
         }
 
+        await prisma.lulusKelas_CPMK.upsert({
+          where: {
+            kelasId_CPMKId_tahunAjaranId: {
+              kelasId: selectedKelas.id,
+              tahunAjaranId: selectedKelas.tahunAjaranId,
+              CPMKId: nilaiCPMK.penilaianCPMK.CPMK.id,
+            },
+          },
+          create: {
+            kelasId: selectedKelas.id,
+            tahunAjaranId: selectedKelas.tahunAjaranId,
+            CPMKId: nilaiCPMK.penilaianCPMK.CPMK.id,
+            jumlahLulus:
+              dataCPMK[indexCPMK].jumlahLulus /
+              (selectedKelas.mahasiswa.length / 100),
+          },
+          update: {
+            jumlahLulus:
+              dataCPMK[indexCPMK].jumlahLulus /
+              (selectedKelas.mahasiswa.length / 100),
+          },
+        });
+
+        console.log(
+          "persentase lulus CPMK = ",
+          dataCPMK[indexCPMK].jumlahLulus /
+            (selectedKelas.mahasiswa.length / 100)
+        );
+
         nilaiMahasiswa.push(daftarNilai);
 
         statusCPMK.push({
@@ -354,13 +384,93 @@ const updateMK = async (data) => {
 
     console.log("total lulus MK : ", totalLulusMK);
 
-    await prisma.MK.update({
+    const totalMahasiswa = await prisma.mahasiswa.count({
       where: {
-        kode: MK.kode,
+        kelas: {
+          some: {
+            MKId: MK.kode,
+            tahunAjaranId: selectedKelas.tahunAjaranId,
+          },
+        },
       },
-      data: {
+    });
+
+    const persentaseLulus =
+      totalMahasiswa > 0 ? totalLulusMK / totalMahasiswa : 0;
+
+    await prisma.lulusMK.upsert({
+      where: {
+        MKId_tahunAjaranId: {
+          MKId: MK.kode,
+          tahunAjaranId: selectedKelas.tahunAjaranId,
+        },
+      },
+      create: {
+        MKId: MK.kode,
+        tahunAjaranId: selectedKelas.tahunAjaranId,
         jumlahLulus: totalLulusMK,
+        persentaseLulus: persentaseLulus,
       },
+      update: {
+        jumlahLulus: totalLulusMK,
+        persentaseLulus: persentaseLulus,
+      },
+    });
+
+    let kelasOfMK = MK.kelas
+      .filter((kelas) => kelas.tahunAjaranId === selectedKelas.tahunAjaranId)
+      .map((kelas) => kelas.id);
+
+    const lulusKelas_CPMK = await prisma.lulusKelas_CPMK.findMany({
+      where: {
+        kelasId: {
+          in: kelasOfMK,
+        },
+      },
+      select: {
+        jumlahLulus: true,
+        CPMKId: true,
+      },
+    });
+
+    const dataLulusMK_CPMK = Object.entries(
+      lulusKelas_CPMK.reduce((acc, curr) => {
+        const { CPMKId, jumlahLulus } = curr;
+
+        if (!acc[CPMKId]) {
+          acc[CPMKId] = [];
+        }
+
+        acc[CPMKId].push(jumlahLulus);
+        return acc;
+      }, {})
+    ).map(([CPMKId, jumlahLulusArray]) => ({
+      CPMKId,
+      jumlahLulus: jumlahLulusArray,
+    }));
+
+    dataLulusMK_CPMK.forEach(async (data) => {
+      const totalLulus = data.jumlahLulus.reduce((acc, curr) => acc + curr, 0);
+      const averageLulus = totalLulus / data.jumlahLulus.length;
+
+      await prisma.lulusMK_CPMK.upsert({
+        where: {
+          MKId_CPMKId_tahunAjaranId: {
+            MKId: MK.kode,
+            CPMKId: parseInt(data.CPMKId),
+            tahunAjaranId: selectedKelas.tahunAjaranId,
+          },
+        },
+        update: {
+          jumlahLulus: averageLulus,
+        },
+        create: {
+          MKId: MK.kode,
+          CPMKId: parseInt(data.CPMKId),
+          tahunAjaranId: selectedKelas.tahunAjaranId,
+          jumlahLulus: averageLulus,
+        },
+      });
     });
   } catch (error) {
     console.error("Error updating MK:", error);

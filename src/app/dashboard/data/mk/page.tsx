@@ -136,19 +136,21 @@ const DataMK = () => {
           <TableCell className="w-[8%] text-center">
             {jumlahMahasiswa}
           </TableCell>
-          <TableCell className="w-[8%] text-center">{mk.jumlahLulus}</TableCell>
           <TableCell className="w-[8%] text-center">
-            {jumlahMahasiswa > 0
+            {/* {mk.jumlahLulus} */}
+          </TableCell>
+          <TableCell className="w-[8%] text-center">
+            {/* {jumlahMahasiswa > 0
               ? ((mk.jumlahLulus / jumlahMahasiswa) * 100).toFixed(2) + "%"
-              : "0.00%"}
+              : "0.00%"} */}
           </TableCell>
           <TableCell className="w-[8%] text-center">
             {mk.batasLulusMK}%
           </TableCell>
           <TableCell className="w-[8%] text-center">
-            {(mk.jumlahLulus / jumlahMahasiswa) * 100 >= mk.batasLulusMK
+            {/* {(mk.jumlahLulus / jumlahMahasiswa) * 100 >= mk.batasLulusMK
               ? "Lulus"
-              : "Tidak Lulus"}
+              : "Tidak Lulus"} */}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2 text-center">
             <Button variant="destructive" onClick={() => delMK(mk.kode)}>

@@ -15,10 +15,14 @@ model Widget {
 }
 
 model tahunAjaran {
-  id       Int     @id @unique @default(sequence())
-  tahun    String
-  semester String
-  kelas    kelas[]
+  id              Int               @id @unique @default(sequence())
+  tahun           String
+  semester        String
+  kelas           kelas[]
+  lulusMK         lulusMK[]
+  lulusCPMK       lulusCPMK[]
+  lulusMK_CPMK    lulusMK_CPMK[]
+  lulusKelas_CPMK lulusKelas_CPMK[]
 
   @@unique([tahun, semester])
 }
@@ -65,6 +69,7 @@ model CPL {
   deskripsi        String
   keterangan       String
   deskripsiInggris String
+  performaCPL      Float?
   BK               BK[]            @relation("cpl_bk")
   PL               PL[]            @relation("cpl_pl")
   CPMK             CPMK[]
@@ -97,7 +102,8 @@ model MK {
   semester            String
   batasLulusMahasiswa Float
   batasLulusMK        Float
-  jumlahLulus         Int
+  lulusMK             lulusMK[]
+  lulusMK_CPMK        lulusMK_CPMK[]
   kelas               kelas[]
   BK                  BK[]                  @relation("bk_mk")
   CPMK                CPMK[]                @relation("cpmk_mk")
@@ -105,6 +111,31 @@ model MK {
   prodi               prodi                 @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId             String
   rencanaPembelajaran rencanaPembelajaran[]
+}
+
+model lulusMK_CPMK {
+  id            Int         @id @unique @default(sequence())
+  MK            MK          @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId          String
+  tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId Int
+  CPMK          CPMK        @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
+  CPMKId        Int
+  jumlahLulus   Float
+
+  @@unique([MKId, CPMKId, tahunAjaranId])
+}
+
+model lulusMK {
+  id            Int         @id @unique @default(sequence())
+  MK            MK          @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId          String
+  tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId Int
+  jumlahLulus   Int
+  persentaseLulus Float
+
+  @@unique([MKId, tahunAjaranId])
 }
 
 model rencanaPembelajaran {
@@ -117,34 +148,62 @@ model rencanaPembelajaran {
 }
 
 model kelas {
-  id             Int          @id @unique @default(sequence())
+  id             Int               @id @unique @default(sequence())
   nama           String
-  MK             MK           @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MK             MK                @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId           String
-  tahunAjaran    tahunAjaran  @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaran    tahunAjaran       @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
   tahunAjaranId  Int
-  mahasiswa      mahasiswa[]  @relation("kelas_mahasiswa")
+  mahasiswa      mahasiswa[]       @relation("kelas_mahasiswa")
   nilaiMahasiswa inputNilai[]
-  dosen          account[]    @relation("kelas_dosen")
+  dosen          account[]         @relation("kelas_dosen")
   jumlahLulus    Int
   mahasiswaLulus Json?
   dataCPMK       Json?
+  lulusCPMK      lulusKelas_CPMK[]
 
   @@unique([nama, MKId, tahunAjaranId])
 }
 
+model lulusKelas_CPMK {
+  id            Int         @id @unique @default(sequence())
+  kelas         kelas       @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  kelasId       Int
+  CPMK          CPMK        @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
+  CPMKId        Int
+  tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId Int
+  jumlahLulus   Float
+
+  @@unique([kelasId, CPMKId, tahunAjaranId])
+}
+
 model CPMK {
-  id            Int             @id @unique @default(sequence())
-  kode          String
-  deskripsi     String
-  CPL           CPL             @relation(fields: [CPLKode], references: [id], onDelete: Cascade)
-  CPLKode       Int
-  MK            MK[]            @relation("cpmk_mk")
-  penilaianCPMK penilaianCPMK[]
-  prodi         prodi           @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId       String
+  id             Int               @id @unique @default(sequence())
+  kode           String
+  deskripsi      String
+  CPL            CPL               @relation(fields: [CPLKode], references: [id], onDelete: Cascade)
+  CPLKode        Int
+  MK             MK[]              @relation("cpmk_mk")
+  penilaianCPMK  penilaianCPMK[]
+  prodi          prodi             @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId        String
+  lulusKelasCPMK lulusKelas_CPMK[]
+  lulusCPMK      lulusCPMK[]
+  lulusMK_CPMK   lulusMK_CPMK[]
 
   @@unique([kode, prodiId])
+}
+
+model lulusCPMK {
+  id            Int         @id @unique @default(sequence())
+  CPMK          CPMK        @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
+  CPMKId        Int
+  tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId Int
+  jumlahLulus   Float
+
+  @@unique([CPMKId, tahunAjaranId])
 }
 
 model penilaianCPMK {
