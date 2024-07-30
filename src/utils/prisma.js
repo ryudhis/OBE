@@ -472,6 +472,43 @@ const updateMK = async (data) => {
         },
       });
     });
+
+       const dataLulusCPMK = Object.entries(
+         lulusKelas_CPMK.reduce((acc, curr) => {
+           const { CPMKId, jumlahLulus } = curr;
+           if (!acc[CPMKId]) {
+             acc[CPMKId] = [];
+           }
+           acc[CPMKId].push(jumlahLulus);
+           return acc;
+         }, {})
+       ).map(([CPMKId, jumlahLulusArray]) => ({
+         CPMKId,
+         jumlahLulus: jumlahLulusArray,
+       }));
+
+       dataLulusCPMK.forEach(async (data) => {
+         const totalLulus = data.jumlahLulus.reduce(
+           (acc, curr) => acc + curr,
+           0
+         );
+
+         await prisma.lulusCPMK.upsert({
+           where: {
+             CPMKId_tahunAjaranId: {
+               CPMKId: parseInt(data.CPMKId),
+               tahunAjaranId: selectedKelas.tahunAjaranId,
+             },
+           },
+           update: { jumlahLulus: totalLulus / data.jumlahLulus.length },
+           create: {
+             CPMKId: parseInt(data.CPMKId),
+             jumlahLulus: totalLulus / data.jumlahLulus.length,
+             tahunAjaranId: selectedKelas.tahunAjaranId,
+           },
+         });
+       });
+
   } catch (error) {
     console.error("Error updating MK:", error);
   } finally {
