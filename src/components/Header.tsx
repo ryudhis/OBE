@@ -260,21 +260,6 @@ const Header = () => {
               </ListItemButton>
             ))}
           </Collapse>
-          <ListItemButton onClick={handleClickPemetaan}>
-            <ListItemIcon>
-              <AssignmentReturn />
-            </ListItemIcon>
-            <ListItemText primary='Pemetaan' />
-            {openNestedPemetaan ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-          <Collapse in={openNestedPemetaan} timeout='auto' unmountOnExit>
-            <ListItemButton
-              onClick={() => router.push(`/dashboard/pemetaan/cpl-cpmk`)}
-              sx={{ pl: 4 }}
-            >
-              <ListItemText primary={"CPL - CPMK"} />
-            </ListItemButton>
-          </Collapse>
         </List>
         <Button
           size='medium'
