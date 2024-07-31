@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
@@ -27,6 +27,7 @@ import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import Button from "@mui/material/Button";
 import AssignmentReturn from "@mui/icons-material/AssignmentReturn";
 import { useAccount } from "@/app/contexts/AccountContext";
+import Image from "next/image";
 
 const drawerWidth = 240;
 
@@ -86,8 +87,16 @@ const Header = () => {
   const [open, setOpen] = useState(false);
   const [openNestedInput, setOpenNestedInput] = useState(false);
   const [openNestedData, setOpenNestedData] = useState(false);
-  const [openNestedPemetaan, setOpenNestedPemetaan] = useState(false);
   const { accountData } = useAccount();
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  const DrawerHeader = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    padding: theme.spacing(0, 1),
+    justifyContent: "space-between",
+    ...theme.mixins.toolbar,
+  }));
 
   const linkListSuperAdmin = [
     "pl",
@@ -151,48 +160,66 @@ const Header = () => {
     setOpenNestedData(!openNestedData);
   };
 
-  const handleClickPemetaan = () => {
-    setOpenNestedPemetaan(!openNestedPemetaan);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        drawerRef.current &&
+        !drawerRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [drawerRef]);
+
+  const handleItemClick = (path: string) => {
+    router.push(path);
+    setOpen(false);
   };
 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position='fixed' open={open}>
+      <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
-            color='inherit'
-            aria-label='open drawer'
+            color="inherit"
+            aria-label="open drawer"
             onClick={handleDrawerOpen}
-            edge='start'
+            edge="start"
             sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
             <MenuIcon />
           </IconButton>
           <Typography
-            variant='h6'
+            variant="h6"
             noWrap
-            component='a'
-            className='cursor-pointer'
+            component="a"
+            className="cursor-pointer"
             onClick={() => router.push(`/dashboard/`)}
           >
             OBE
           </Typography>
           {!accountData ? (
             <Typography
-              variant='body1'
+              variant="body1"
               sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
             >
               ...
             </Typography>
           ) : (
-            <Typography variant='body1' sx={{ marginLeft: "auto" }}>
+            <Typography variant="body1" sx={{ marginLeft: "auto" }}>
               {accountData.nama} - {accountData.role}
             </Typography>
           )}
         </Toolbar>
       </AppBar>
       <Drawer
+        ref={drawerRef}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -201,11 +228,12 @@ const Header = () => {
             boxSizing: "border-box",
           },
         }}
-        variant='persistent'
-        anchor='left'
+        variant="persistent"
+        anchor="left"
         open={open}
       >
-        <DrawerHeader>
+        <DrawerHeader className="flex justify-between">
+          <Image src="/Logo1.png" alt="logo" width={50} height={50} />
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
@@ -217,22 +245,24 @@ const Header = () => {
         <Divider />
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-          component='nav'
-          aria-labelledby='nested-list-subheader'
+          component="nav"
+          aria-labelledby="nested-list-subheader"
         >
           <ListItemButton onClick={handleClickInput}>
             <ListItemIcon>
               <InputIcon />
             </ListItemIcon>
-            <ListItemText primary='Input' />
+            <ListItemText primary="Input" />
             {openNestedInput ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
+          <Collapse in={openNestedInput} timeout="auto" unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
                 onClick={() =>
-                  router.push(`/dashboard/input/${item.replace(/\s+/g, "")}`)
+                  handleItemClick(
+                    `/dashboard/input/${item.replace(/\s+/g, "")}`
+                  )
                 }
                 sx={{ pl: 4 }}
               >
@@ -244,15 +274,15 @@ const Header = () => {
             <ListItemIcon>
               <TextSnippetIcon />
             </ListItemIcon>
-            <ListItemText primary='Data' />
+            <ListItemText primary="Data" />
             {openNestedData ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedData} timeout='auto' unmountOnExit>
+          <Collapse in={openNestedData} timeout="auto" unmountOnExit>
             {linkList.map((item) => (
               <ListItemButton
                 key={item}
                 onClick={() =>
-                  router.push(`/dashboard/data/${item.replace(/\s+/g, "")}`)
+                  handleItemClick(`/dashboard/data/${item.replace(/\s+/g, "")}`)
                 }
                 sx={{ pl: 4 }}
               >
@@ -262,16 +292,17 @@ const Header = () => {
           </Collapse>
         </List>
         <Button
-          size='medium'
-          variant='contained'
-          color='error'
-          className='text-black font-semibold bg-red-500 m-4'
+          size="medium"
+          variant="contained"
+          color="error"
+          className="text-black font-semibold bg-red-500 m-4"
           onClick={() => {
             toast({
               description: "Berhasil Log Out.",
             });
             Cookies.remove("token");
             router.push("/login");
+            setOpen(false);
           }}
         >
           Logout
