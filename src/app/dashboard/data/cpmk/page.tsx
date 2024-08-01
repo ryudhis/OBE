@@ -8,6 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -30,6 +37,21 @@ export interface cpmk {
   MK: MKItem[];
   subCPMK: subCPMKItem[];
   CPLKode: string;
+  lulusCPMK: lulusCPMKItem[];
+}
+
+export interface lulusCPMKItem {
+  id: number;
+  CPMKId: number;
+  tahunAjaranId: number;
+  jumlahLulus: number;
+  tahunAjaran: tahunAjaran[];
+}
+
+export interface tahunAjaran {
+  id: string;
+  tahun: string;
+  semester: string;
 }
 
 export interface CPLItem {
@@ -46,10 +68,12 @@ export interface subCPMKItem {
 
 const DataCPMK = () => {
   const router = useRouter();
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [CPMK, setCPMK] = useState<cpmk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
+  const [filterTahunAjaran, setFilterTahunAjaran] = useState("default");
+  const [semester, setSemester] = useState<tahunAjaran[]>([]);
 
   const getCPMK = async () => {
     setIsLoading(true);
@@ -59,6 +83,19 @@ const DataCPMK = () => {
       );
       if (response.data.status !== 400) {
         setCPMK(response.data.data);
+        const uniqueSemesters = new Set<string>();
+        const filteredSemesters = response.data.data
+          .flatMap((cpmk: cpmk) =>
+            cpmk.lulusCPMK.map((tahunAjaran) => tahunAjaran.tahunAjaran)
+          )
+          .filter((tahunAjaran: tahunAjaran) => {
+            if (!uniqueSemesters.has(tahunAjaran.id)) {
+              uniqueSemesters.add(tahunAjaran.id);
+              return true;
+            }
+            return false;
+          });
+        setSemester(filteredSemesters);
       } else {
         alert(response.data.message);
       }
@@ -104,24 +141,36 @@ const DataCPMK = () => {
   }
 
   const renderData = () => {
-    return CPMK.map((cpmk, index) => {
+    const filteredData =
+      filterTahunAjaran !== "default"
+        ? CPMK.filter((cpmk) =>
+            cpmk.lulusCPMK.some(
+              (lulusCPMK) =>
+                lulusCPMK.tahunAjaranId === Number(filterTahunAjaran)
+            )
+          )
+        : CPMK;
+    return filteredData.map((cpmk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[8%]'>{cpmk.kode}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[8%]">{cpmk.kode}</TableCell>
+          <TableCell className="flex-1">
             {cpmk.deskripsi.length > 20
               ? cpmk.deskripsi.slice(0, 18) + "..."
               : cpmk.deskripsi}
           </TableCell>
-          <TableCell className='w-[12%]'>
-            {cpmk.CPL.kode}
-          </TableCell>
-          <TableCell className='w-[12%]'>
+          <TableCell className="w-[12%]">{cpmk.CPL.kode}</TableCell>
+          <TableCell className="w-[12%]">
             {cpmk.MK.map((item) => item.kode).join(", ")}
           </TableCell>
-          {/* <TableCell className="w-[12%]">{cpmk.subCPMK.map((item) => item.kode).join(", ")}</TableCell> */}
-          <TableCell className='w-[8%] flex gap-2'>
-            <Button variant='destructive' onClick={() => delCPMK(cpmk.id)}>
+          <TableCell className="w-[12%]">
+            {cpmk.lulusCPMK
+              .filter((lulusCPMK) => lulusCPMK.tahunAjaranId === 5)
+              .map((lulusCPMK) => lulusCPMK.jumlahLulus.toFixed(2))}
+            {cpmk.lulusCPMK.length > 0 ? "%" : "-"}
+          </TableCell>
+          <TableCell className="w-[8%] flex gap-2">
+            <Button variant="destructive" onClick={() => delCPMK(cpmk.id)}>
               Hapus
             </Button>
             <Button
@@ -138,13 +187,35 @@ const DataCPMK = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel CPMK</CardTitle>
             <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
           </div>
+          <Select
+            onValueChange={(value) => {
+              setFilterTahunAjaran(value);
+            }}
+            defaultValue={filterTahunAjaran}
+            value={filterTahunAjaran}
+            required
+          >
+            <SelectTrigger className="w-[30%]">
+              <SelectValue placeholder="Pilih Tahun Ajaran" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Pilih Tahun Ajaran</SelectItem>
+              {semester.map((semester, index) => {
+                return (
+                  <SelectItem key={index} value={semester.id}>
+                    {semester.tahun} {semester.semester}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
           <Button
             onClick={() => {
               router.push("/dashboard/input/cpmk");
@@ -158,28 +229,28 @@ const DataCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[12%]'>CPL</TableHead>
-                  <TableHead className='w-[12%]'>MK</TableHead>
-                  {/* <TableHead className="w-[12%]">subCPMK</TableHead> */}
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[12%]">CPL</TableHead>
+                  <TableHead className="w-[12%]">MK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={5} />
+                <SkeletonTable rows={5} cols={6} />
               </TableBody>
             </Table>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[12%]'>CPL</TableHead>
-                  <TableHead className='w-[12%]'>MK</TableHead>
-                  {/* <TableHead className="w-[12%]">subCPMK</TableHead> */}
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[12%]">CPL</TableHead>
+                  <TableHead className="w-[12%]">MK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
