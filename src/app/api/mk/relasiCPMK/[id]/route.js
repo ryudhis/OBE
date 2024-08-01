@@ -2,10 +2,10 @@ import prisma from "@/utils/prisma";
 
 export async function PATCH(req) {
   try {
-    const kode = req.url.split("/relasi/")[1];
+    const kode = req.url.split("/relasiCPMK/")[1];
     const data = await req.json();
 
-    console.log(data);
+    console.log(kode);
 
     const MK = await prisma.MK.update({
       where: {

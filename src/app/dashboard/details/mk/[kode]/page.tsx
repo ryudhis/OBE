@@ -2,7 +2,6 @@
 import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { RelationData } from "@/components/RelationData";
 import { Button } from "@/components/ui/button";
 import SkeletonTable from "@/components/SkeletonTable";
 import {
@@ -151,13 +150,22 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
   const [selectedTahun, setSelectedTahun] = useState("");
   const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);
-  const [prevSelected, setPrevSelected] = useState<string[]>([]);
+  const [bk, setBK] = useState<BKItem[] | undefined>([]);
+  const [prevSelectedCPMK, setPrevSelectedCPMK] = useState<string[]>([]);
+  const [prevSelectedBK, setPrevSelectedBK] = useState<string[]>([]);
   const [searchCPMK, setSearchCPMK] = useState<string>("");
-  const [selected, setSelected] = useState<string[]>([]);
+  const [searchBK, setSearchBK] = useState<string>("");
+  const [selectedCPMK, setSelectedCPMK] = useState<string[]>([]);
+  const [selectedBK, setSelectedBK] = useState<string[]>([]);
+  const [selectedRelasi, setSelectedRelasi] = useState<string>("");
   const router = useRouter();
 
   const filteredCPMK = cpmk?.filter((cpmk) =>
     cpmk.kode.toLowerCase().includes(searchCPMK.toLowerCase())
+  );
+
+  const filteredBK = bk?.filter((bk) =>
+    bk.kode.toLowerCase().includes(searchBK.toLowerCase())
   );
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -270,12 +278,19 @@ export default function Page({ params }: { params: { kode: string } }) {
         setMK(response.data.data);
         console.log(response.data.data);
 
-        const prevSelected = response.data.data.CPMK.map(
+        const prevSelectedCPMK = response.data.data.CPMK.map(
           (item: CPMKItem) => item.kode
         );
 
-        setSelected(prevSelected);
-        setPrevSelected(prevSelected);
+        const prevSelectedBK = response.data.data.BK.map(
+          (item: BKItem) => item.kode
+        );
+
+        setSelectedCPMK(prevSelectedCPMK);
+        setPrevSelectedCPMK(prevSelectedCPMK);
+
+        setSelectedBK(prevSelectedBK);
+        setPrevSelectedBK(prevSelectedBK);
 
         form.setValue("deskripsi", response.data.data.deskripsi);
         form.setValue("sks", response.data.data.sks);
@@ -308,12 +323,38 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const handleCheck = (kode: string) => {
-    setSelected((prevSelected) => {
-      if (!prevSelected.includes(kode)) {
-        return [...prevSelected, kode];
+  const getAllBK = async () => {
+    try {
+      const response = await axiosConfig.get(
+        `api/bk?prodi=${accountData?.prodiId}`
+      );
+
+      if (response.data.status !== 400) {
       } else {
-        return prevSelected.filter((item) => item !== kode);
+        alert(response.data.message);
+      }
+      setBK(response.data.data);
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
+  const handleCheckCPMK = (kode: string) => {
+    setSelectedCPMK((prevSelectedCPMK) => {
+      if (!prevSelectedCPMK.includes(kode)) {
+        return [...prevSelectedCPMK, kode];
+      } else {
+        return prevSelectedCPMK.filter((item) => item !== kode);
+      }
+    });
+  };
+
+  const handleCheckBK = (kode: string) => {
+    setSelectedBK((prevSelectedBK) => {
+      if (!prevSelectedBK.includes(kode)) {
+        return [...prevSelectedBK, kode];
+      } else {
+        return prevSelectedBK.filter((item) => item !== kode);
       }
     });
   };
@@ -322,8 +363,12 @@ export default function Page({ params }: { params: { kode: string } }) {
     let addedCPMKId: string[] = [];
     let removedCPMKId: string[] = [];
 
-    addedCPMKId = selected.filter((item) => !prevSelected.includes(item));
-    removedCPMKId = prevSelected.filter((item) => !selected.includes(item));
+    addedCPMKId = selectedCPMK.filter(
+      (item) => !prevSelectedCPMK.includes(item)
+    );
+    removedCPMKId = prevSelectedCPMK.filter(
+      (item) => !selectedCPMK.includes(item)
+    );
 
     const payload = {
       ...mk,
@@ -334,7 +379,45 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     try {
       const response = await axiosConfig.patch(
-        `api/mk/relasi/${kode}`,
+        `api/mk/relasiCPMK/${kode}`,
+        payload
+      );
+      setRefresh(!refresh);
+      if (response.data.status == 200 || response.data.status == 201) {
+        toast({
+          title: response.data.message,
+          variant: "default",
+        });
+        setRefresh(!refresh);
+      } else {
+        console.log(response.data);
+        toast({
+          title: response.data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const updateBK = async () => {
+    let addedBKId: string[] = [];
+    let removedBKId: string[] = [];
+
+    addedBKId = selectedBK.filter((item) => !prevSelectedBK.includes(item));
+    removedBKId = prevSelectedBK.filter((item) => !selectedBK.includes(item));
+
+    const payload = {
+      ...mk,
+      addedBKId: addedBKId,
+      removedBKId: removedBKId,
+      prodiId: accountData?.prodiId,
+    };
+
+    try {
+      const response = await axiosConfig.patch(
+        `api/mk/relasiBK/${kode}`,
         payload
       );
       setRefresh(!refresh);
@@ -569,6 +652,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   useEffect(() => {
     getAllCPMK();
+    getAllBK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Trigger useEffect only on initial mount
 
@@ -796,6 +880,24 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </TableCell>
                 <TableCell>: {mk.sks}</TableCell>
               </TableRow>
+              <TableRow>
+                <TableCell>
+                  <strong>CPMK</strong>{" "}
+                </TableCell>
+                <TableCell>
+                  :{" "}
+                  {mk.CPMK.map((cpmk) => cpmk.kode).join(', ')}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <strong>BK</strong>{" "}
+                </TableCell>
+                <TableCell>
+                  :{" "}
+                  {mk.BK.map((bk) => bk.kode).join(', ')}
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
 
@@ -908,7 +1010,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             </DialogContent>
           </Dialog>
         </div>
-        
+
         <Tabs defaultValue='kelas' className='w-full'>
           <TabsList className='grid w-full grid-cols-4'>
             <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
@@ -916,7 +1018,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             <TabsTrigger value='asesment'>
               Rencana Asesment dan Evaluasi
             </TabsTrigger>
-            <TabsTrigger value='cpmk'>Sambungkan CPMK</TabsTrigger>
+            <TabsTrigger value='relasi'>Sambungkan CPMK/BK</TabsTrigger>
           </TabsList>
           <TabsContent value='kelas'>
             {filteredKelas?.length != 0 ? (
@@ -1221,53 +1323,106 @@ export default function Page({ params }: { params: { kode: string } }) {
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value='cpmk'>
+          <TabsContent value='relasi'>
             <Card className='w-[1000px] mx-auto'>
               <CardHeader className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>
-                  <CardTitle>Sambungkan CPMK untuk MK {mk.kode}</CardTitle>
+                  <CardTitle>Sambungkan CPMK/BK untuk MK {mk.kode}</CardTitle>
                   <CardDescription>
-                    Capaian Pembelajaran Mata Kuliah
+                    Capaian Pembelajaran Mata Kuliah / Bahan Kajian
                   </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 {" "}
                 {/* HEADER */}
-                <div className='flex flex-row items-center mb-5'>
-                  <input
-                    type='text'
-                    className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
-                    value={searchCPMK}
-                    placeholder='Cari...'
-                    onChange={(e) => setSearchCPMK(e.target.value)}
-                  />
-                </div>
-                {/* LIST OF MK */}
-                <div className='grid grid-cols-4 gap-4'>
-                  {filteredCPMK && filteredCPMK.length > 0 ? (
-                    filteredCPMK?.map((cpmk, index) => {
-                      return (
-                        <DataCard<CPMKItem>
-                          key={index}
-                          selected={selected}
-                          handleCheck={handleCheck}
-                          data={cpmk}
-                        />
-                      );
-                    })
-                  ) : (
-                    <div className='text-sm'>CPMK Tidak Ditemukan</div>
-                  )}
-                </div>
-                {/* SAVE */}
-                <button
-                  onClick={updateCPMK}
-                  type='button'
-                  className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+                <Select
+                  value={selectedRelasi}
+                  onValueChange={(e) => setSelectedRelasi(e)}
                 >
-                  Simpan
-                </button>
+                  <SelectTrigger className='w-[250px] mb-5'>
+                    <SelectValue placeholder='Pilih CPMK/BK' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='CPMK'>CPMK</SelectItem>
+                    <SelectItem value='BK'>BK</SelectItem>
+                  </SelectContent>
+                </Select>
+                {selectedRelasi === "CPMK" ? (
+                  <>
+                    <div className='flex flex-row items-center mb-5'>
+                      <input
+                        type='text'
+                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        value={searchCPMK}
+                        placeholder='Cari...'
+                        onChange={(e) => setSearchCPMK(e.target.value)}
+                      />
+                    </div>
+                    {/* LIST OF MK */}
+                    <div className='grid grid-cols-4 gap-4'>
+                      {filteredCPMK && filteredCPMK.length > 0 ? (
+                        filteredCPMK?.map((cpmk, index) => {
+                          return (
+                            <DataCard<CPMKItem>
+                              key={index}
+                              selected={selectedCPMK}
+                              handleCheck={handleCheckCPMK}
+                              data={cpmk}
+                            />
+                          );
+                        })
+                      ) : (
+                        <div className='text-sm'>CPMK Tidak Ditemukan</div>
+                      )}
+                    </div>
+                    {/* SAVE */}
+                    <button
+                      onClick={updateCPMK}
+                      type='button'
+                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+                    >
+                      Simpan
+                    </button>
+                  </>
+                ) : selectedRelasi === "BK" ? (
+                  <>
+                    <div className='flex flex-row items-center mb-5'>
+                      <input
+                        type='text'
+                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        value={searchBK}
+                        placeholder='Cari...'
+                        onChange={(e) => setSearchBK(e.target.value)}
+                      />
+                    </div>
+                    {/* LIST OF BK */}
+                    <div className='grid grid-cols-4 gap-4'>
+                      {filteredBK && filteredBK.length > 0 ? (
+                        filteredBK?.map((bk, index) => {
+                          return (
+                            <DataCard<BKItem>
+                              key={index}
+                              selected={selectedBK}
+                              handleCheck={handleCheckBK}
+                              data={bk}
+                            />
+                          );
+                        })
+                      ) : (
+                        <div className='text-sm'>BK Tidak Ditemukan</div>
+                      )}
+                    </div>
+                    {/* SAVE */}
+                    <button
+                      onClick={updateBK}
+                      type='button'
+                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+                    >
+                      Simpan
+                    </button>
+                  </>
+                ) : null}
               </CardContent>
             </Card>
           </TabsContent>

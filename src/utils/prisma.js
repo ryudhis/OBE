@@ -418,11 +418,11 @@ const updateMK = async (data) => {
         MKId: MK.kode,
         tahunAjaranId: selectedKelas.tahunAjaranId,
         jumlahLulus: totalLulusMK,
-        persentaseLulus: persentaseLulus,
+        persentaseLulus: (persentaseLulus * 100),
       },
       update: {
         jumlahLulus: totalLulusMK,
-        persentaseLulus: persentaseLulus,
+        persentaseLulus: (persentaseLulus * 100),
       },
     });
 
