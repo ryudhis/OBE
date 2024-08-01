@@ -27,6 +27,7 @@ export async function GET(req) {
           },
         },
         penilaianCPMK: true,
+        lulusCPMK: { include: { tahunAjaran: true } },
       },
     });
 
