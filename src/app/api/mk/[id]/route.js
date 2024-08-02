@@ -8,15 +8,23 @@ export async function GET(req) {
         kode: kode,
       },
       include: {
-        penilaianCPMK: {include: {CPMK:true}},
+        penilaianCPMK: { include: { CPMK: true } },
         BK: { include: { CPL: true } },
         CPMK: true,
-        kelas: { include: { MK: true, mahasiswa: true, tahunAjaran: true, } },
+        kelas: {
+          include: {
+            MK: true,
+            mahasiswa: true,
+            tahunAjaran: true,
+            lulusCPMK: true,
+          },
+        },
         rencanaPembelajaran: {
           orderBy: {
             minggu: "asc",
           },
         },
+        lulusMK_CPMK: true,
       },
     });
 
