@@ -167,6 +167,11 @@ const updateMK = async (data) => {
                 kelas: true,
               },
             },
+            CPL: {
+              include: {
+                CPMK: true,
+              },
+            },
           },
         },
       },
@@ -418,11 +423,11 @@ const updateMK = async (data) => {
         MKId: MK.kode,
         tahunAjaranId: selectedKelas.tahunAjaranId,
         jumlahLulus: totalLulusMK,
-        persentaseLulus: (persentaseLulus * 100),
+        persentaseLulus: persentaseLulus * 100,
       },
       update: {
         jumlahLulus: totalLulusMK,
-        persentaseLulus: (persentaseLulus * 100),
+        persentaseLulus: persentaseLulus * 100,
       },
     });
 
@@ -533,6 +538,73 @@ const updateMK = async (data) => {
         },
       });
     });
+
+    const listCPL = [...new Set(MK.CPMK.map((cpmk) => cpmk.CPL))];
+
+    const CPLtoUpdate = listCPL.reduce((uniqueCPLs, currentCPL) => {
+      const isDuplicate = uniqueCPLs.some((cpl) => cpl.id === currentCPL.id);
+      if (!isDuplicate) {
+        uniqueCPLs.push(currentCPL);
+      }
+      return uniqueCPLs;
+    }, []);
+
+    console.log("CPL to update = ", CPLtoUpdate);
+
+    const cpmkIds = CPLtoUpdate.flatMap((cpl) =>
+      cpl.CPMK.map((cpmk) => cpmk.id)
+    );
+
+    const lulusCPMK = await prisma.lulusCPMK.findMany({
+      where: {
+        CPMKId: {
+          in: cpmkIds,
+        },
+        tahunAjaranId: selectedKelas.tahunAjaranId,
+      },
+      select: {
+        jumlahLulus: true,
+        CPMKId: true,
+      },
+    });
+
+    for (const cpl of CPLtoUpdate) {
+      const cplId = cpl.id;
+      const relatedLulusCPMK = lulusCPMK.filter((entry) =>
+        cpl.CPMK.some((cpmk) => cpmk.id === entry.CPMKId)
+      );
+
+      console.log("CPL =", cplId, "relatedLulusCPMK =", relatedLulusCPMK);
+
+      const totalJumlahLulus = relatedLulusCPMK.reduce(
+        (sum, entry) => sum + entry.jumlahLulus,
+        0
+      );
+
+      console.log("totalJumlahLulus = ", totalJumlahLulus);
+
+      const numberOfCPMK = cpl.CPMK.length;
+
+      const performa = numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
+
+      // Upsert operation
+      await prisma.performaCPL.upsert({
+        where: {
+          CPLId_tahunAjaranId: {
+            CPLId: cplId,
+            tahunAjaranId: selectedKelas.tahunAjaranId,
+          },
+        },
+        update: {
+          performa: performa,
+        },
+        create: {
+          performa: performa,
+          CPLId: cplId,
+          tahunAjaranId: selectedKelas.tahunAjaranId,
+        },
+      });
+    }
   } catch (error) {
     console.error("Error updating MK:", error);
   } finally {
