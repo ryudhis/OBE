@@ -218,69 +218,65 @@ const DataMK = () => {
   }, []);
 
   return (
-    <section className='flex justify-center items-center mt-20'>
-      <Card className='w-[1200px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20">
+      <Card className="w-[1200px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel MK</CardTitle>
             <CardDescription>Mata Kuliah</CardDescription>
           </div>
-
-          <div className='flex gap-5'>
-            <Select
-              onValueChange={(e) => setSelectedTahun(e)}
-              value={selectedTahun}
-            >
-              <SelectTrigger className='w-[250px]'>
-                <SelectValue placeholder='Tahun Ajaran' />
-              </SelectTrigger>
-              <SelectContent>
-                {tahunAjaran.map((tahun) => (
-                  <SelectItem key={tahun.id} value={String(tahun.id)}>
-                    {tahun.tahun} {tahun.semester}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              onClick={() => {
-                router.push("/dashboard/input/mk");
-              }}
-            >
-              Tambah
-            </Button>
-          </div>
+          <Select
+            onValueChange={(e) => setSelectedTahun(e)}
+            value={selectedTahun}
+          >
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder="Tahun Ajaran" />
+            </SelectTrigger>
+            <SelectContent>
+              {tahunAjaran.map((tahun) => (
+                <SelectItem key={tahun.id} value={String(tahun.id)}>
+                  {tahun.tahun} {tahun.semester}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={() => {
+              router.push("/dashboard/input/mk");
+            }}
+          >
+            Tambah
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%] text-center'>Kode</TableHead>
-                  <TableHead className='flex-1 text-center'>
+                  <TableHead className="w-[8%] text-center">Kode</TableHead>
+                  <TableHead className="flex-1 text-center">
                     Nama Matakuliah
                   </TableHead>
-                  <TableHead className='flex-1 text-center'>
+                  <TableHead className="flex-1 text-center">
                     Nama Matakuliah Inggris
                   </TableHead>
-                  <TableHead className='w-[15%] text-center'>CPMK</TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[15%] text-center">CPMK</TableHead>
+                  <TableHead className="w-[8%] text-center">
                     Jumlah Mahasiswa
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Jumlah Lulus
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Persentase Lulus
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Batas Lulus MK
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Status MK
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>Aksi</TableHead>
+                  <TableHead className="w-[8%] text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -291,30 +287,30 @@ const DataMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%] text-center'>Kode</TableHead>
-                  <TableHead className='flex-1 text-center'>
+                  <TableHead className="w-[8%] text-center">Kode</TableHead>
+                  <TableHead className="flex-1 text-center">
                     Nama Matakuliah
                   </TableHead>
-                  <TableHead className='flex-1 text-center'>
+                  <TableHead className="flex-1 text-center">
                     Nama Matakuliah Inggris
                   </TableHead>
-                  <TableHead className='w-[15%] text-center'>CPMK</TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[15%] text-center">CPMK</TableHead>
+                  <TableHead className="w-[8%] text-center">
                     Jumlah Mahasiswa
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Jumlah Lulus
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Persentase Lulus
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Batas Lulus MK
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>
+                  <TableHead className="w-[8%] text-center">
                     Status MK
                   </TableHead>
-                  <TableHead className='w-[8%] text-center'>Aksi</TableHead>
+                  <TableHead className="w-[8%] text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

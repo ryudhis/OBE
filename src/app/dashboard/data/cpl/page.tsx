@@ -8,6 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -31,6 +38,21 @@ export interface cpl {
   BK: BKItem[];
   PL: PLItem[];
   CPMK: CPMKItem[];
+  performaCPL: performaCPLItem[];
+}
+
+export interface performaCPLItem {
+  id: number;
+  CPLId: number;
+  tahunAjaranId: number;
+  performa: number;
+  tahunAjaran: tahunAjaran[];
+}
+
+export interface tahunAjaran {
+  id: string;
+  tahun: string;
+  semester: string;
 }
 
 export interface BKItem {
@@ -50,7 +72,9 @@ const DataCPL = () => {
   const [CPL, setCPL] = useState<cpl[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
-  const { accountData }  = useAccount();
+  const [filterTahunAjaran, setFilterTahunAjaran] = useState("default");
+  const { accountData } = useAccount();
+  const [semester, setSemester] = useState<tahunAjaran[]>([]);
 
   const getCPL = async () => {
     setIsLoading(true);
@@ -63,6 +87,20 @@ const DataCPL = () => {
         alert(response.data.message);
       }
       setCPL(response.data.data);
+      const uniqueSemesters = new Set<string>();
+      const filteredSemesters = response.data.data
+        .flatMap((CPL: cpl) =>
+          CPL.performaCPL.map((tahunAjaran) => tahunAjaran.tahunAjaran)
+        )
+        .filter((tahunAjaran: tahunAjaran) => {
+          if (!uniqueSemesters.has(tahunAjaran.id)) {
+            uniqueSemesters.add(tahunAjaran.id);
+            return true;
+          }
+          return false;
+        });
+      setSemester(filteredSemesters);
+      setFilterTahunAjaran(filteredSemesters[0].id);
     } catch (error) {
       console.log(error);
     } finally {
@@ -104,7 +142,13 @@ const DataCPL = () => {
   }
 
   const renderData = () => {
-    return CPL.map((cpl, index) => {
+    const filteredData = CPL.filter((cpl) =>
+      cpl.performaCPL.some(
+        (performaCPL) => performaCPL.tahunAjaranId === Number(filterTahunAjaran)
+      )
+    );
+
+    return filteredData.map((cpl, index) => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{cpl.kode}</TableCell>
@@ -127,6 +171,14 @@ const DataCPL = () => {
           </TableCell>
           <TableCell className="w-[12%]">
             {cpl.CPMK.map((item) => item.kode).join(", ")}
+          </TableCell>
+          <TableCell className="w-[12%]">
+            {cpl.performaCPL
+              .find(
+                (item) => item.tahunAjaranId === parseInt(filterTahunAjaran)
+              )
+              ?.performa.toFixed(2) || 0}
+            {cpl.performaCPL.length > 0 ? "%" : "-"}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">
             <Button
@@ -158,6 +210,27 @@ const DataCPL = () => {
             <CardTitle>Tabel CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
+          <Select
+            onValueChange={(value) => {
+              setFilterTahunAjaran(value);
+            }}
+            defaultValue={filterTahunAjaran}
+            value={filterTahunAjaran}
+            required
+          >
+            <SelectTrigger className="w-[30%]">
+              <SelectValue placeholder="Pilih Tahun Ajaran" />
+            </SelectTrigger>
+            <SelectContent>
+              {semester.map((semester, index) => {
+                return (
+                  <SelectItem key={index} value={semester.id}>
+                    {semester.tahun} {semester.semester}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
           <Button
             onClick={() => {
               router.push("/dashboard/input/cpl");
@@ -178,11 +251,12 @@ const DataCPL = () => {
                   <TableHead className="w-[12%]">BK</TableHead>
                   <TableHead className="w-[12%]">PL</TableHead>
                   <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
                   <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <SkeletonTable rows={5} cols={8} />
+                <SkeletonTable rows={5} cols={9} />
               </TableBody>
             </Table>
           ) : (
@@ -196,6 +270,7 @@ const DataCPL = () => {
                   <TableHead className="w-[12%]">BK</TableHead>
                   <TableHead className="w-[12%]">PL</TableHead>
                   <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
                   <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>

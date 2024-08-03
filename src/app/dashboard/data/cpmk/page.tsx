@@ -96,6 +96,7 @@ const DataCPMK = () => {
             return false;
           });
         setSemester(filteredSemesters);
+        setFilterTahunAjaran(filteredSemesters[0].id);
       } else {
         alert(response.data.message);
       }
@@ -141,15 +142,12 @@ const DataCPMK = () => {
   }
 
   const renderData = () => {
-    const filteredData =
-      filterTahunAjaran !== "default"
-        ? CPMK.filter((cpmk) =>
-            cpmk.lulusCPMK.some(
-              (lulusCPMK) =>
-                lulusCPMK.tahunAjaranId === Number(filterTahunAjaran)
-            )
-          )
-        : CPMK;
+    const filteredData = CPMK.filter((cpmk) =>
+      cpmk.lulusCPMK.some(
+        (lulusCPMK) => lulusCPMK.tahunAjaranId === Number(filterTahunAjaran)
+      )
+    );
+
     return filteredData.map((cpmk, index) => {
       return (
         <TableRow key={index}>
@@ -165,8 +163,10 @@ const DataCPMK = () => {
           </TableCell>
           <TableCell className="w-[12%]">
             {cpmk.lulusCPMK
-              .filter((lulusCPMK) => lulusCPMK.tahunAjaranId === 5)
-              .map((lulusCPMK) => lulusCPMK.jumlahLulus.toFixed(2))}
+              .find(
+                (item) => item.tahunAjaranId === parseInt(filterTahunAjaran)
+              )
+              ?.jumlahLulus.toFixed(2) || 0}
             {cpmk.lulusCPMK.length > 0 ? "%" : "-"}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">
@@ -206,7 +206,6 @@ const DataCPMK = () => {
               <SelectValue placeholder="Pilih Tahun Ajaran" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">Pilih Tahun Ajaran</SelectItem>
               {semester.map((semester, index) => {
                 return (
                   <SelectItem key={index} value={semester.id}>

@@ -26,6 +26,7 @@ export async function GET(req) {
             MK: true,
           },
         },
+        performaCPL: { include: { tahunAjaran: true } },
       },
     });
 
