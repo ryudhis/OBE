@@ -33,7 +33,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import React, { useEffect, useState } from "react";
 
 const formSchema = z.object({
-  kode: z.string().min(2).max(50),
+  kode: z.string().min(1).max(50),
   deskripsi: z.string().min(1).max(50),
   CPL: z.string({ required_error: "Please select CPL to display." }),
 });
@@ -97,7 +97,7 @@ const CPMKScreen = () => {
         if (response.data.status != 400) {
           toast({
             title: "Berhasil Submit",
-            description: String(new Date()),
+            description: data.kode,
           });
         } else {
           toast({
@@ -154,6 +154,38 @@ const CPMKScreen = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               <FormField
                 control={form.control}
+                name='CPL'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CPL</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Pilih CPL' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <Input
+                          type='text'
+                          className='mb-2'
+                          value={searchCPL}
+                          placeholder='Cari...'
+                          onChange={(e) => setSearchCPL(e.target.value)}
+                        />
+                        {filteredCPL?.map((item) => (
+                          <SelectItem key={item.kode} value={item.kode}>
+                            {item.kode}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name='kode'
                 render={({ field }) => (
                   <FormItem>
@@ -180,38 +212,6 @@ const CPMKScreen = () => {
                     <FormControl>
                       <Input placeholder='Deskripsi' required {...field} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name='CPL'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CPL</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder='Pilih CPL' />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <Input
-                          type='text'
-                          className='mb-2'
-                          value={searchCPL}
-                          placeholder='Cari...'
-                          onChange={(e) => setSearchCPL(e.target.value)}
-                        />
-                        {filteredCPL?.map((item) => (
-                          <SelectItem key={item.kode} value={item.kode}>
-                            {item.kode}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

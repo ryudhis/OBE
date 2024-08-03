@@ -80,7 +80,7 @@ const MKScreen = () => {
         if (response.data.status != 400) {
           toast({
             title: "Berhasil Submit",
-            description: String(new Date()),
+            description: data.kode,
           });
         } else {
           toast({

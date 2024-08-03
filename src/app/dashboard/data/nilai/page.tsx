@@ -43,6 +43,7 @@ export interface mahasiswaItem {
 }
 
 export interface penilaianCPMKItem {
+  kode: string;
   kriteria: kriteriaItem[];
   MKkode: String;
 }
@@ -153,7 +154,7 @@ const DataNilai = () => {
     return filteredNilai?.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
-          <TableCell className='w-[10%]'>{nilai.penilaianCPMKId}</TableCell>
+          <TableCell className='w-[10%]'>{nilai.penilaianCPMK.kode}</TableCell>
           <TableCell className='flex-1'>{nilai.mahasiswaNim}</TableCell>
           <TableCell className='flex-1'>{nilai.mahasiswa.nama}</TableCell>
           <TableCell>

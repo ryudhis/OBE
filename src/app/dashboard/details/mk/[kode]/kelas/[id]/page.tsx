@@ -404,8 +404,8 @@ export default function Page({ params }: { params: { id: string } }) {
     return kelas?.dataCPMK.map((data) => {
       return (
         <TableRow key={data.cpmk}>
-          <TableCell className='w-[8%]'>{data.cpmk}</TableCell>
           <TableCell className='w-[8%]'>{data.cpl}</TableCell>
+          <TableCell className='w-[8%]'>{data.cpmk}</TableCell>
           <TableCell className='w-[8%]'>{data.nilaiMinimal}/100</TableCell>
           <TableCell className='w-[8%]'>
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
@@ -621,8 +621,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[8%]'>CPMK </TableHead>
-                        <TableHead className='w-[8%]'>CPL</TableHead>
+                        <TableHead className='w-[8%]'>CPL </TableHead>
+                        <TableHead className='w-[8%]'>CPMK</TableHead>
                         <TableHead className='w-[8%]'>
                           Total Nilai Minimal
                         </TableHead>
