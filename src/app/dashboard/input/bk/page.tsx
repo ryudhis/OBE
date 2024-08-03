@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
-  kode: z.string().min(2).max(50),
+  kode: z.string().min(1).max(50),
   deskripsi: z.string().min(1).max(50),
   min: z.string().min(0).max(10),
   max: z.string().min(0).max(10),
@@ -65,7 +65,7 @@ const BKScreen = () => {
         if (response.data.status != 400) {
           toast({
             title: "Berhasil Submit",
-            description: String(new Date()),
+            description: data.kode,
           });
         } else {
           toast({
