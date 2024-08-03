@@ -52,7 +52,7 @@ const CPLScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: values.kode,
+      kode: "CPL-" + values.kode,
       deskripsi: values.deskripsi,
       keterangan: values.keterangan,
       deskripsiInggris: values.deskripsiInggris,
@@ -126,7 +126,7 @@ const CPLScreen = () => {
                     <FormControl>
                       <Input
                         placeholder='Kode CPL'
-                        type='text'
+                        type='number'
                         required
                         {...field}
                       />

@@ -47,7 +47,7 @@ const PLScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: values.kode,
+      kode: "PL-" + values.kode,
       deskripsi: values.deskripsi,
       prodiId: accountData?.prodiId,
     };
@@ -116,7 +116,7 @@ const PLScreen = () => {
                   <FormItem>
                     <FormLabel>Kode PL-</FormLabel>
                     <FormControl>
-                      <Input placeholder="Kode" required {...field} />
+                      <Input placeholder="Kode" type="number" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

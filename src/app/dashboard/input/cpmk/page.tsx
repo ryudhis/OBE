@@ -80,8 +80,12 @@ const CPMKScreen = () => {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
+    const extractNumber = (str: string) => str.match(/\d+/)?.[0] || "";
+
+    const cplNumber = extractNumber(values.CPL);
+
     const data = {
-      kode: values.kode,
+      kode: "CPMK-" + cplNumber + values.kode,
       deskripsi: values.deskripsi,
       CPLId: values.CPL,
       prodiId: accountData?.prodiId,
@@ -155,7 +159,12 @@ const CPMKScreen = () => {
                   <FormItem>
                     <FormLabel>Kode CPMK-</FormLabel>
                     <FormControl>
-                      <Input placeholder='Kode' required {...field} />
+                      <Input
+                        placeholder='Kode'
+                        required
+                        type='number'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

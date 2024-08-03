@@ -52,7 +52,7 @@ const BKScreen = () => {
     e.preventDefault();
 
     const data = {
-      kode: values.kode,
+      kode: "BK-" + values.kode,
       deskripsi: values.deskripsi,
       min: parseInt(values.min),
       max: parseInt(values.max),
@@ -123,7 +123,7 @@ const BKScreen = () => {
                   <FormItem>
                     <FormLabel>Kode BK</FormLabel>
                     <FormControl>
-                      <Input placeholder='Kode BK' required {...field} />
+                      <Input placeholder='Kode BK' type="number" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
