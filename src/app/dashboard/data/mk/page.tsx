@@ -148,45 +148,46 @@ const DataMK = () => {
       }
       return (
         <TableRow key={mk.kode}>
-          <TableCell className='w-[8%] text-center'>{mk.kode}</TableCell>
-          <TableCell className='flex-1 text-center'>
+          <TableCell className="w-[8%] text-center">{mk.kode}</TableCell>
+          <TableCell className="flex-1 text-center">
             {mk.deskripsi.length > 20
               ? mk.deskripsi.slice(0, 18) + "..."
               : mk.deskripsi}
           </TableCell>
-          <TableCell className='flex-1 text-center'>
+          <TableCell className="flex-1 text-center">
             {mk.deskripsiInggris.length > 20
               ? mk.deskripsiInggris.slice(0, 18) + "..."
               : mk.deskripsiInggris}
           </TableCell>
-          <TableCell className='w-[15%] text-center'>
+          <TableCell className="w-[15%] text-center">
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">
             {jumlahMahasiswa}
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">
             {mk.lulusMK.find(
               (item) => item.tahunAjaranId === parseInt(selectedTahun)
             )?.jumlahLulus || 0}
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
-            {mk.lulusMK.find(
-              (item) => item.tahunAjaranId === parseInt(selectedTahun)
-            )?.persentaseLulus.toFixed(2) || 0}%
+          <TableCell className="w-[8%] text-center">
+            {mk.lulusMK
+              .find((item) => item.tahunAjaranId === parseInt(selectedTahun))
+              ?.persentaseLulus.toFixed(2) || 0}
+            %
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">
             {mk.batasLulusMK}%
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
-            {mk.lulusMK.find(
+          <TableCell className="w-[8%] text-center">
+            {(mk.lulusMK.find(
               (item) => item.tahunAjaranId === parseInt(selectedTahun)
-            )?.persentaseLulus || 0 >= mk.batasLulusMK
+            )?.persentaseLulus ?? 0) >= mk.batasLulusMK
               ? "Lulus"
               : "Tidak Lulus"}
           </TableCell>
-          <TableCell className='w-[8%] flex gap-2 text-center'>
-            <Button variant='destructive' onClick={() => delMK(mk.kode)}>
+          <TableCell className="w-[8%] flex gap-2 text-center">
+            <Button variant="destructive" onClick={() => delMK(mk.kode)}>
               Hapus
             </Button>
             <Button

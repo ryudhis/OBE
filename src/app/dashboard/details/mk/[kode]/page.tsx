@@ -689,13 +689,21 @@ export default function Page({ params }: { params: { kode: string } }) {
           <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
           {kelas.lulusCPMK
             .filter((lulus) => lulus.tahunAjaranId === parseInt(selectedTahun))
-            .map((lulus) => {
-              return (
-                <TableCell key={lulus.CPMKId} className="w-[8%]">
-                  {lulus.jumlahLulus.toFixed(2)}%
-                </TableCell>
-              );
-            })}
+            .map((lulus) => (
+              <TableCell key={lulus.CPMKId} className="w-[8%]">
+                {lulus.jumlahLulus ? `${lulus.jumlahLulus.toFixed(2)}%` : "-"}
+              </TableCell>
+            ))}
+
+          {kelas.lulusCPMK.filter(
+            (lulus) => lulus.tahunAjaranId === parseInt(selectedTahun)
+          ).length === 0 &&
+            mk?.CPMK.map((_, index) => (
+              <TableCell key={index} className="w-[8%]">
+                -
+              </TableCell>
+            ))}
+
           <TableCell className="w-[8%]">
             {kelas.MK.batasLulusMahasiswa}
           </TableCell>
@@ -923,9 +931,11 @@ export default function Page({ params }: { params: { kode: string } }) {
                       (lulusMK) =>
                         `${cpmk
                           ?.filter((cpmk) => cpmk.id === lulusMK.CPMKId)
-                          .map(
-                            (cpmk) => cpmk.kode
-                          )}: ${lulusMK.jumlahLulus.toFixed(2)}%`
+                          .map((cpmk) => cpmk.kode)}: ${
+                          lulusMK.jumlahLulus
+                            ? `${lulusMK.jumlahLulus.toFixed(2)}%`
+                            : "-"
+                        }`
                     )
                     .join(", ")}
                 </TableCell>
