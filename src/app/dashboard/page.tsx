@@ -222,7 +222,7 @@ const Page = () => {
                 lulusCPMK.jumlahLulus <= 65 && "text-red-500 font-bold"
               }`}
             >
-              {CPMK.kode} - {lulusCPMK.jumlahLulus}%
+              {CPMK.kode} - {lulusCPMK.jumlahLulus.toFixed(2)}%
             </AccordionTrigger>
             <AccordionContent>
               {CPMK.lulusMK_CPMK.map((lulusMK_CPMK) => {
@@ -233,7 +233,7 @@ const Page = () => {
                       lulusMK_CPMK.jumlahLulus <= 65 && "text-red-500 font-bold"
                     }`}
                   >
-                    {lulusMK_CPMK.MKId} - {lulusMK_CPMK.jumlahLulus}%
+                    {lulusMK_CPMK.MKId} - {lulusMK_CPMK.jumlahLulus.toFixed(2)}%
                   </div>
                 );
               })}
@@ -343,13 +343,39 @@ const Page = () => {
                     {semester.map((semester, index) => {
                       return (
                         <SelectItem key={index} value={semester.id}>
-                          {semester.tahun} {semester.semester}
+                          {semester.tahun} - {semester.semester}
                         </SelectItem>
                       );
                     })}
                   </SelectContent>
                 </Select>
               </div>
+              <h1 className="text-center text-xl">
+                Performa {selectedCPL?.kode} pada tahun ajaran{" "}
+                {semester.find((item) => item.id === filterTahunAjaran)?.tahun}{" "}
+                -{" "}
+                {
+                  semester.find((item) => item.id === filterTahunAjaran)
+                    ?.semester
+                }
+                {": "}
+                <span
+                  className={`font-bold ${
+                    (selectedCPL?.performaCPL.find(
+                      (item) =>
+                        item.tahunAjaranId === parseInt(filterTahunAjaran)
+                    )?.performa ?? 0) <= 65 && "text-red-500"
+                  }`}
+                >
+                  {selectedCPL?.performaCPL
+                    .find(
+                      (item) =>
+                        item.tahunAjaranId === parseInt(filterTahunAjaran)
+                    )
+                    ?.performa.toFixed(2) || 0}
+                  %
+                </span>
+              </h1>
               <Card className="w-[800px] mx-auto">
                 <Accordion type="single" collapsible className="w-full px-4">
                   {renderRangkumanPerforma()}
