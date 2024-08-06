@@ -24,6 +24,8 @@ export async function GET(req) {
         CPMK: {
           include: {
             MK: true,
+            lulusCPMK: true,
+            lulusMK_CPMK: true,
           },
         },
         performaCPL: { include: { tahunAjaran: true } },
