@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import axiosConfig from "@utils/axios";
-import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Image from "next/image";
 import {
@@ -122,7 +121,6 @@ export interface lulusMK_CPMKItem {
 }
 
 const Page = () => {
-  const router = useRouter();
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKinterface[]>([]);
