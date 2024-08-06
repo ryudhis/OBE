@@ -11,7 +11,9 @@ export async function GET(req) {
         MK: {
           include: {
             CPMK: true,
-            penilaianCPMK: { include: { inputNilai: true, CPMK: true, CPL: true } },
+            penilaianCPMK: {
+              include: { inputNilai: true, CPMK: true, CPL: true },
+            },
           },
         },
         mahasiswa: {
@@ -24,8 +26,8 @@ export async function GET(req) {
             },
           },
         },
-        dosen : true,
-        tahunAjaran : true,
+        dosen: true,
+        tahunAjaran: true,
       },
     });
 
@@ -43,9 +45,16 @@ export async function GET(req) {
 export async function DELETE(req) {
   try {
     const id = req.url.split("/kelas/")[1];
+
+    await prisma.inputNilai.deleteMany({
+      where: {
+        kelasId: parseInt(id),
+      },
+    });
+
     const kelas = await prisma.kelas.delete({
       where: {
-        id:parseInt(id),
+        id: parseInt(id),
       },
     });
 
@@ -67,7 +76,7 @@ export async function PATCH(req) {
 
     const kelas = await prisma.kelas.update({
       where: {
-        id:parseInt(id),
+        id: parseInt(id),
       },
       data,
     });

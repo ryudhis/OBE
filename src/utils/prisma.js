@@ -392,8 +392,25 @@ const updateMK = async (data) => {
     });
 
     let totalLulusMK = 0;
-    for (const kelas of MK.kelas) {
+
+    const newMK = await prisma.MK.findUnique({
+      where: {
+        kode: MK.kode,
+      },
+      include: {
+        kelas: {
+          include: {
+            tahunAjaran: true,
+          },
+        },
+      },
+    });
+
+    console.log("NEW MK = ", newMK);
+
+    for (const kelas of newMK.kelas) {
       totalLulusMK += kelas.jumlahLulus;
+      console.log("kelas lulus= ", kelas.nama, "=", kelas.jumlahLulus);
     }
 
     console.log("total lulus MK : ", totalLulusMK);
@@ -431,7 +448,7 @@ const updateMK = async (data) => {
       },
     });
 
-    let kelasOfMK = MK.kelas
+    let kelasOfMK = newMK.kelas
       .filter((kelas) => kelas.tahunAjaranId === selectedKelas.tahunAjaranId)
       .map((kelas) => kelas.id);
 
@@ -446,6 +463,8 @@ const updateMK = async (data) => {
         CPMKId: true,
       },
     });
+
+    console.log("lulus kelas CPMK : ", lulusKelas_CPMK);
 
     const dataLulusMK_CPMK = Object.entries(
       lulusKelas_CPMK.reduce((acc, curr) => {
@@ -463,9 +482,13 @@ const updateMK = async (data) => {
       jumlahLulus: jumlahLulusArray,
     }));
 
+    console.log("dataLulusMK_CPMK : ", dataLulusMK_CPMK);
+
     dataLulusMK_CPMK.forEach(async (data) => {
       const totalLulus = data.jumlahLulus.reduce((acc, curr) => acc + curr, 0);
       const averageLulus = totalLulus / data.jumlahLulus.length;
+
+      console.log("average lulus =", averageLulus);
 
       await prisma.lulusMK_CPMK.upsert({
         where: {
@@ -519,6 +542,8 @@ const updateMK = async (data) => {
       CPMKId,
       jumlahLulus: jumlahLulusArray,
     }));
+
+    console.log(dataLulusCPMK);
 
     dataLulusCPMK.forEach(async (data) => {
       const totalLulus = data.jumlahLulus.reduce((acc, curr) => acc + curr, 0);
