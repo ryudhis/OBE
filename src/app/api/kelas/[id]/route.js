@@ -46,12 +46,6 @@ export async function DELETE(req) {
   try {
     const id = req.url.split("/kelas/")[1];
 
-    await prisma.inputNilai.deleteMany({
-      where: {
-        kelasId: parseInt(id),
-      },
-    });
-
     const kelas = await prisma.kelas.delete({
       where: {
         id: parseInt(id),

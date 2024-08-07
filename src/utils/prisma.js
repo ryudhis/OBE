@@ -1,9 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { create } from "domain";
 
 const prismaClient = new PrismaClient();
 
 const prisma = prismaClient.$extends({
-  name: "UpdateMKExtension",
+  name: "UpdateDataExtension",
   query: {
     inputNilai: {
       async create({ args, query }) {
@@ -17,7 +18,7 @@ const prisma = prismaClient.$extends({
         const MKId = inputNilai.penilaianCPMK.MKkode;
         const kelasId = inputNilai.kelasId;
 
-        await updateMK({ MKId, kelasId, context: {} });
+        await updateKelas({ MKId, kelasId, context: {} });
 
         return createdInputNilai;
       },
@@ -36,7 +37,7 @@ const prisma = prismaClient.$extends({
           const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
-          await updateMK({ MKId, kelasId, context: {} });
+          await updateKelas({ MKId, kelasId, context: {} });
         }
 
         return createdInputNilaiArray;
@@ -56,7 +57,7 @@ const prisma = prismaClient.$extends({
         const MKId = inputNilai.penilaianCPMK.MKkode;
         const kelasId = inputNilai.kelasId;
 
-        await updateMK({ MKId, kelasId, context: {} });
+        await updateKelas({ MKId, kelasId, context: {} });
 
         return updatedInputNilai;
       },
@@ -75,9 +76,8 @@ const prisma = prismaClient.$extends({
           const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
-          await updateMK({ MKId, kelasId, context: {} });
+          await updateKelas({ MKId, kelasId, context: {} });
         }
-
         return updatedInputNilaiArray;
       },
       async delete({ args, query }) {
@@ -90,12 +90,13 @@ const prisma = prismaClient.$extends({
         const MKId = penilaianCPMK.MKkode;
         const kelasId = deletedInputNilai.kelasId;
 
-        await updateMK({ MKId, kelasId, context: {} });
+        await updateKelas({ MKId, kelasId, context: {} });
 
         return deletedInputNilai;
       },
       async deleteMany({ args, query }) {
         const deletedInputNilaiArray = await query(args);
+        console.log("deletedInputNilai :", deletedInputNilaiArray);
 
         if (deletedInputNilaiArray.count > 0) {
           const firstInputNilai = await prisma.inputNilai.findFirst({
@@ -109,7 +110,7 @@ const prisma = prismaClient.$extends({
           const MKId = firstInputNilai.penilaianCPMK.MKkode;
           const kelasId = firstInputNilai.kelasId;
 
-          await updateMK({ MKId, kelasId, context: {} });
+          await updateKelas({ MKId, kelasId, context: {} });
         }
 
         return deletedInputNilaiArray;
@@ -122,9 +123,165 @@ const prisma = prismaClient.$extends({
         const MKId = updatedKelas.MKId;
         const kelasId = updatedKelas.id;
 
-        await updateMK({ MKId, kelasId });
+        await updateKelas({ MKId, kelasId });
 
         return updatedKelas;
+      },
+      async delete({ args, query }) {
+        const deletedKelas = await query(args);
+
+        const MKId = deletedKelas.MKId;
+        const tahunAjaranId = deletedKelas.tahunAjaranId;
+
+        await updateMK(MKId, tahunAjaranId);
+
+        return deletedKelas;
+      },
+    },
+    mK: {
+      async delete({ args, query }) {
+        // Fetch the MK record with related kelas before deleting
+        const MKtoDelete = await prisma.MK.findUnique({
+          where: {
+            kode: args.where.kode,
+          },
+          include: {
+            kelas: {
+              include: {
+                tahunAjaran: true,
+              },
+            },
+            CPMK: {
+              include: {
+                CPL: {
+                  include: {
+                    CPMK: true,
+                  },
+                },
+              },
+            },
+            penilaianCPMK: true,
+          },
+        });
+
+        if (!MKtoDelete) {
+          throw new Error(`MK with kode ${args.where.kode} not found`);
+        }
+
+        console.log(MKtoDelete);
+
+        // Extract necessary information from the related kelas
+        const kelasInMK = MKtoDelete.kelas;
+        const tahunAjaranIds = [
+          ...new Set(kelasInMK.map((kelas) => kelas.tahunAjaranId)),
+        ];
+
+        console.log(tahunAjaranIds);
+
+        // Perform the delete operation
+        const deletedMK = await query(args);
+        console.log("deletedMK :", deletedMK);
+
+        //updateCPMK
+        for (const tahunAjaranId of tahunAjaranIds) {
+          await updateCPMK(MKtoDelete, tahunAjaranId);
+        }
+
+        return deletedMK;
+      },
+    },
+    cPMK: {
+      async delete({ args, query }) {
+        // Fetch the CPMK record with related MK before deleting
+        const CPMKtoDelete = await prisma.CPMK.findUnique({
+          where: {
+            kode: args.where.kode,
+          },
+          include: {
+            CPL: {
+              include: {
+                CPMK: true,
+              },
+            },
+          },
+        });
+
+        if (!CPMKtoDelete) {
+          throw new Error(`CPMK with kode ${args.where.kode} not found`);
+        }
+
+        // Perform the delete operation
+        const deletedCPMK = await query(args);
+        console.log("deletedCPMK :", deletedCPMK);
+
+        const CPMKIds = CPMKtoDelete.CPL.CPMK.map((cpmk) => cpmk.id);
+
+        //updatePerformaCPL
+        const lulusCPMK = await prisma.lulusCPMK.findMany({
+          where: {
+            CPMKId: {
+              in: CPMKIds,
+            },
+            tahunAjaranId: tahunAjaranId,
+          },
+          select: {
+            jumlahLulus: true,
+            CPMKId: true,
+          },
+        });
+
+        const cpl = CPMKtoDelete.CPL;
+        const cplId = cpl.id;
+        const relatedLulusCPMK = lulusCPMK.filter((entry) =>
+          cpl.CPMK.some((cpmk) => cpmk.id === entry.CPMKId)
+        );
+
+        console.log("CPL = ", cplId, "relatedLulusCPMK = ", relatedLulusCPMK);
+
+        if (relatedLulusCPMK.length === 0) {
+          await prisma.performaCPL.delete({
+            where: {
+              CPLId_tahunAjaranId: {
+                CPLId: cplId,
+                tahunAjaranId: tahunAjaranId,
+              },
+            },
+          });
+        } else {
+          const totalJumlahLulus = relatedLulusCPMK.reduce(
+            (sum, entry) => sum + entry.jumlahLulus,
+            0
+          );
+
+          console.log("totalJumlahLulus = ", totalJumlahLulus);
+
+          const numberOfCPMK = cpl.CPMK.length;
+
+          const performa =
+            numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
+
+          console.log("performa = ", performa);
+
+          // Upsert operation
+          await prisma.performaCPL.upsert({
+            where: {
+              CPLId_tahunAjaranId: {
+                CPLId: cplId,
+                tahunAjaranId: tahunAjaranId,
+              },
+            },
+            update: {
+              performa: performa,
+            },
+            create: {
+              performa: performa,
+              CPLId: cplId,
+              tahunAjaranId: tahunAjaranId,
+            },
+          });
+        }
+
+        return deletedCPMK;
       },
     },
   },
@@ -132,7 +289,7 @@ const prisma = prismaClient.$extends({
 
 let isUpdatingKelas = false; // Flag to prevent recursive updates
 
-const updateMK = async (data) => {
+const updateKelas = async (data) => {
   if (isUpdatingKelas) {
     return;
   }
@@ -391,11 +548,24 @@ const updateMK = async (data) => {
       },
     });
 
+    //Update MK and PerformaCPL
+    updateMK(MK.kode, selectedKelas.tahunAjaranId);
+  } catch (error) {
+    console.error("Error updating Kelas:", error);
+  } finally {
+    // Reset the flag after the update is complete
+    isUpdatingKelas = false;
+  }
+};
+
+const updateMK = async (MKId, tahunAjaranId) => {
+  try {
+    // Update MK
     let totalLulusMK = 0;
 
-    const newMK = await prisma.MK.findUnique({
+    const updatedMK = await prisma.MK.findUnique({
       where: {
-        kode: MK.kode,
+        kode: MKId,
       },
       include: {
         kelas: {
@@ -403,12 +573,22 @@ const updateMK = async (data) => {
             tahunAjaran: true,
           },
         },
+        CPMK: {
+          include: {
+            CPL: {
+              include: {
+                CPMK: true,
+              },
+            },
+          },
+        },
+        penilaianCPMK: true,
       },
     });
 
-    console.log("NEW MK = ", newMK);
+    console.log("MK to update = ", updatedMK);
 
-    for (const kelas of newMK.kelas) {
+    for (const kelas of updatedMK.kelas) {
       totalLulusMK += kelas.jumlahLulus;
       console.log("kelas lulus= ", kelas.nama, "=", kelas.jumlahLulus);
     }
@@ -419,12 +599,14 @@ const updateMK = async (data) => {
       where: {
         kelas: {
           some: {
-            MKId: MK.kode,
-            tahunAjaranId: selectedKelas.tahunAjaranId,
+            MKId: MKId,
+            tahunAjaranId: tahunAjaranId,
           },
         },
       },
     });
+
+    console.log("total mahasiswa = ", totalMahasiswa);
 
     const persentaseLulus =
       totalMahasiswa > 0 ? totalLulusMK / totalMahasiswa : 0;
@@ -432,13 +614,13 @@ const updateMK = async (data) => {
     await prisma.lulusMK.upsert({
       where: {
         MKId_tahunAjaranId: {
-          MKId: MK.kode,
-          tahunAjaranId: selectedKelas.tahunAjaranId,
+          MKId: MKId,
+          tahunAjaranId: tahunAjaranId,
         },
       },
       create: {
-        MKId: MK.kode,
-        tahunAjaranId: selectedKelas.tahunAjaranId,
+        MKId: MKId,
+        tahunAjaranId: tahunAjaranId,
         jumlahLulus: totalLulusMK,
         persentaseLulus: persentaseLulus * 100,
       },
@@ -448,8 +630,8 @@ const updateMK = async (data) => {
       },
     });
 
-    let kelasOfMK = newMK.kelas
-      .filter((kelas) => kelas.tahunAjaranId === selectedKelas.tahunAjaranId)
+    let kelasOfMK = updatedMK.kelas
+      .filter((kelas) => kelas.tahunAjaranId === tahunAjaranId)
       .map((kelas) => kelas.id);
 
     const lulusKelas_CPMK = await prisma.lulusKelas_CPMK.findMany({
@@ -484,7 +666,41 @@ const updateMK = async (data) => {
 
     console.log("dataLulusMK_CPMK : ", dataLulusMK_CPMK);
 
-    dataLulusMK_CPMK.forEach(async (data) => {
+    const cpmkIds = updatedMK.penilaianCPMK.map((data) => {
+      return data.CPMKkode;
+    });
+
+    console.log("CPMKIds = ", cpmkIds);
+
+    // Extract CPMKIds present in dataLulusMK_CPMK
+    const presentCPMKIds = dataLulusMK_CPMK.map((data) =>
+      parseInt(data.CPMKId)
+    );
+
+    // Find CPMKIds that are in cpmkIds but not in presentCPMKIds
+    const cpmkIdsToDelete = cpmkIds.filter(
+      (id) => !presentCPMKIds.includes(id)
+    );
+
+    console.log("CPMKIds to delete = ", cpmkIdsToDelete);
+
+    if (cpmkIdsToDelete.length > 0) {
+      try {
+        await prisma.lulusMK_CPMK.deleteMany({
+          where: {
+            MKId: MKId,
+            tahunAjaranId: tahunAjaranId,
+            CPMKId: {
+              in: cpmkIdsToDelete,
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error deleting records:", error);
+      }
+    }
+
+    for (const data of dataLulusMK_CPMK) {
       const totalLulus = data.jumlahLulus.reduce((acc, curr) => acc + curr, 0);
       const averageLulus = totalLulus / data.jumlahLulus.length;
 
@@ -493,24 +709,33 @@ const updateMK = async (data) => {
       await prisma.lulusMK_CPMK.upsert({
         where: {
           MKId_CPMKId_tahunAjaranId: {
-            MKId: MK.kode,
+            MKId: MKId,
             CPMKId: parseInt(data.CPMKId),
-            tahunAjaranId: selectedKelas.tahunAjaranId,
+            tahunAjaranId: tahunAjaranId,
           },
         },
         update: {
           jumlahLulus: averageLulus,
         },
         create: {
-          MKId: MK.kode,
+          MKId: MKId,
           CPMKId: parseInt(data.CPMKId),
-          tahunAjaranId: selectedKelas.tahunAjaranId,
+          tahunAjaranId: tahunAjaranId,
           jumlahLulus: averageLulus,
         },
       });
-    });
+    }
 
-    const CPMKinMK = MK.CPMK.map((cpmk) => cpmk.id);
+    updateCPMK(updatedMK, tahunAjaranId);
+  } catch (error) {
+    console.error("Error updating MK:", error);
+  }
+};
+
+const updateCPMK = async (updatedMK, tahunAjaranId) => {
+  // Update CPMK
+  try {
+    const CPMKinMK = updatedMK.penilaianCPMK.map((pcpmk) => pcpmk.CPMKkode);
 
     console.log("CPMK in MK = ", CPMKinMK);
 
@@ -519,7 +744,7 @@ const updateMK = async (data) => {
         CPMKId: {
           in: CPMKinMK,
         },
-        tahunAjaranId: selectedKelas.tahunAjaranId,
+        tahunAjaranId: tahunAjaranId,
       },
       select: {
         jumlahLulus: true,
@@ -543,7 +768,32 @@ const updateMK = async (data) => {
       jumlahLulus: jumlahLulusArray,
     }));
 
-    console.log(dataLulusCPMK);
+    console.log("dataLulusCPMK = ", dataLulusCPMK);
+
+    // Extract CPMKIds present in dataLulusMK_CPMK
+    const presentCPMKIds = dataLulusCPMK.map((data) => parseInt(data.CPMKId));
+
+    // Find CPMKIds that are in cpmkIds but not in presentCPMKIds
+    const cpmkIdsToDelete = CPMKinMK.filter(
+      (id) => !presentCPMKIds.includes(id)
+    );
+
+    console.log("CPMKIds to delete = ", cpmkIdsToDelete);
+
+    if (cpmkIdsToDelete.length > 0) {
+      try {
+        await prisma.lulusCPMK.deleteMany({
+          where: {
+            CPMKId: {
+              in: cpmkIdsToDelete,
+            },
+            tahunAjaranId: tahunAjaranId,
+          },
+        });
+      } catch (error) {
+        console.error("Error deleting records:", error);
+      }
+    }
 
     dataLulusCPMK.forEach(async (data) => {
       const totalLulus = data.jumlahLulus.reduce((acc, curr) => acc + curr, 0);
@@ -552,19 +802,28 @@ const updateMK = async (data) => {
         where: {
           CPMKId_tahunAjaranId: {
             CPMKId: parseInt(data.CPMKId),
-            tahunAjaranId: selectedKelas.tahunAjaranId,
+            tahunAjaranId: tahunAjaranId,
           },
         },
         update: { jumlahLulus: totalLulus / data.jumlahLulus.length },
         create: {
           CPMKId: parseInt(data.CPMKId),
           jumlahLulus: totalLulus / data.jumlahLulus.length,
-          tahunAjaranId: selectedKelas.tahunAjaranId,
+          tahunAjaranId: tahunAjaranId,
         },
       });
     });
 
-    const listCPL = [...new Set(MK.CPMK.map((cpmk) => cpmk.CPL))];
+    updatePerformaCPL(updatedMK, tahunAjaranId);
+  } catch (error) {
+    console.error("Error updating CPMK:", error);
+  }
+};
+
+const updatePerformaCPL = async (updatedMK, tahunAjaranId) => {
+  // Update PerformaCPL
+  try {
+    const listCPL = [...new Set(updatedMK.CPMK.map((cpmk) => cpmk.CPL))];
 
     const CPLtoUpdate = listCPL.reduce((uniqueCPLs, currentCPL) => {
       const isDuplicate = uniqueCPLs.some((cpl) => cpl.id === currentCPL.id);
@@ -585,7 +844,7 @@ const updateMK = async (data) => {
         CPMKId: {
           in: cpmkIds,
         },
-        tahunAjaranId: selectedKelas.tahunAjaranId,
+        tahunAjaranId: tahunAjaranId,
       },
       select: {
         jumlahLulus: true,
@@ -601,40 +860,58 @@ const updateMK = async (data) => {
 
       console.log("CPL =", cplId, "relatedLulusCPMK =", relatedLulusCPMK);
 
-      const totalJumlahLulus = relatedLulusCPMK.reduce(
-        (sum, entry) => sum + entry.jumlahLulus,
-        0
-      );
+      if (relatedLulusCPMK.length === 0) {
+        try {
+          await prisma.performaCPL.delete({
+            where: {
+              CPLId_tahunAjaranId: {
+                CPLId: cplId,
+                tahunAjaranId: tahunAjaranId,
+              },
+            },
+          });
+        } catch (error) {
+          console.error("Error deleting PerformaCPL:", error);
+        }
+      } else {
+        const totalJumlahLulus = relatedLulusCPMK.reduce(
+          (sum, entry) => sum + entry.jumlahLulus,
+          0
+        );
 
-      console.log("totalJumlahLulus = ", totalJumlahLulus);
+        console.log("totalJumlahLulus = ", totalJumlahLulus);
 
-      const numberOfCPMK = cpl.CPMK.length;
+        const numberOfCPMK = cpl.CPMK.length;
 
-      const performa = numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
+        const performa = numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
 
-      // Upsert operation
-      await prisma.performaCPL.upsert({
-        where: {
-          CPLId_tahunAjaranId: {
-            CPLId: cplId,
-            tahunAjaranId: selectedKelas.tahunAjaranId,
-          },
-        },
-        update: {
-          performa: performa,
-        },
-        create: {
-          performa: performa,
-          CPLId: cplId,
-          tahunAjaranId: selectedKelas.tahunAjaranId,
-        },
-      });
+        console.log("performa = ", performa);
+
+        // Upsert operation
+        try {
+          await prisma.performaCPL.upsert({
+            where: {
+              CPLId_tahunAjaranId: {
+                CPLId: cplId,
+                tahunAjaranId: tahunAjaranId,
+              },
+            },
+            update: {
+              performa: performa,
+            },
+            create: {
+              performa: performa,
+              CPLId: cplId,
+              tahunAjaranId: tahunAjaranId,
+            },
+          });
+        } catch (error) {
+          console.error("Error upserting PerformaCPL:", error);
+        }
+      }
     }
   } catch (error) {
-    console.error("Error updating MK:", error);
-  } finally {
-    // Reset the flag after the update is complete
-    isUpdatingKelas = false;
+    console.error("Error updating PerformaCPL:", error);
   }
 };
 
