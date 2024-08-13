@@ -21,6 +21,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
+import Swal from "sweetalert2";
 
 export interface mahasiswa {
   nim: string;
@@ -37,7 +38,7 @@ const DataMahasiswa = () => {
   const [mahasiswa, setMahasiswa] = useState<mahasiswa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(true);
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
 
   const getMahasiswa = async () => {
     setIsLoading(true);
@@ -59,18 +60,31 @@ const DataMahasiswa = () => {
 
   const delPL = async (kode: string) => {
     try {
-      const response = await axiosConfig.delete(`api/mahasiswa/${kode}`);
-      if (response.data.status === 200 || response.data.status === 201) {
-        toast({
-          title: "Berhasil menghapus data Mahasiswa",
-          variant: "default",
-        });
-        setRefresh(!refresh);
-      } else {
-        toast({
-          title: response.data.message,
-          variant: "destructive",
-        });
+      const result = await Swal.fire({
+        title: "Tunggu !..",
+        text: `Kamu yakin ingin hapus data ini?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#0F172A",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axiosConfig.delete(`api/mahasiswa/${kode}`);
+        if (response.data.status === 200 || response.data.status === 201) {
+          toast({
+            title: "Berhasil menghapus data Mahasiswa",
+            variant: "default",
+          });
+          setRefresh(!refresh);
+        } else {
+          toast({
+            title: response.data.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       throw error;

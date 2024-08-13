@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { useAccount } from "@/app/contexts/AccountContext";
+import Swal from "sweetalert2";
 
 export interface akun {
   id: string;
@@ -38,7 +39,7 @@ export interface kelas {
 const DataAkun = () => {
   const router = useRouter();
   const [akun, setAkun] = useState<akun[]>([]);
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
 
   const getAkun = async () => {
@@ -59,18 +60,31 @@ const DataAkun = () => {
 
   const delAkun = async (id: string) => {
     try {
-      const response = await axiosConfig.delete(`api/account/${id}`);
-      if (response.data.status === 200 || response.data.status === 201) {
-        toast({
-          title: "Berhasil menghapus data BK",
-          variant: "default",
-        });
-        getAkun();
-      } else {
-        toast({
-          title: response.data.message,
-          variant: "destructive",
-        });
+      const result = await Swal.fire({
+        title: "Tunggu !..",
+        text: `Kamu yakin ingin hapus data ini?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#0F172A", 
+      });
+
+      if (result.isConfirmed) {
+        const response = await axiosConfig.delete(`api/account/${id}`);
+        if (response.data.status === 200 || response.data.status === 201) {
+          toast({
+            title: "Berhasil menghapus data BK",
+            variant: "default",
+          });
+          getAkun();
+        } else {
+          toast({
+            title: response.data.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       throw error;

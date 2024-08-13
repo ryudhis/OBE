@@ -881,7 +881,7 @@ const updatePerformaCPL = async (updatedMK, tahunAjaranId) => {
 
         console.log("totalJumlahLulus = ", totalJumlahLulus);
 
-        const numberOfCPMK = cpl.CPMK.length;
+        const numberOfCPMK = relatedLulusCPMK.length;
 
         const performa = numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
 

@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import Swal from "sweetalert2";
 
 export interface mk {
   kode: string;
@@ -111,18 +112,31 @@ const DataMK = () => {
 
   const delMK = async (kode: string) => {
     try {
-      const response = await axiosConfig.delete(`api/mk/${kode}`);
-      if (response.data.status === 200 || response.data.status === 201) {
-        toast({
-          title: "Berhasil menghapus data MK",
-          variant: "default",
-        });
-        setRefresh(!refresh);
-      } else {
-        toast({
-          title: response.data.message,
-          variant: "destructive",
-        });
+      const result = await Swal.fire({
+        title: "Tunggu !..",
+        text: `Kamu yakin ingin hapus data ini?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#0F172A",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axiosConfig.delete(`api/mk/${kode}`);
+        if (response.data.status === 200 || response.data.status === 201) {
+          toast({
+            title: "Berhasil menghapus data MK",
+            variant: "default",
+          });
+          setRefresh(!refresh);
+        } else {
+          toast({
+            title: response.data.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       throw error;
@@ -148,46 +162,46 @@ const DataMK = () => {
       }
       return (
         <TableRow key={mk.kode}>
-          <TableCell className="w-[8%] text-center">{mk.kode}</TableCell>
-          <TableCell className="flex-1 text-center">
+          <TableCell className='w-[8%] text-center'>{mk.kode}</TableCell>
+          <TableCell className='flex-1 text-center'>
             {mk.deskripsi.length > 20
               ? mk.deskripsi.slice(0, 18) + "..."
               : mk.deskripsi}
           </TableCell>
-          <TableCell className="flex-1 text-center">
+          <TableCell className='flex-1 text-center'>
             {mk.deskripsiInggris.length > 20
               ? mk.deskripsiInggris.slice(0, 18) + "..."
               : mk.deskripsiInggris}
           </TableCell>
-          <TableCell className="w-[15%] text-center">
+          <TableCell className='w-[15%] text-center'>
             {mk.CPMK.map((item) => item.kode).join(", ")}
           </TableCell>
-          <TableCell className="w-[8%] text-center">
+          <TableCell className='w-[8%] text-center'>
             {jumlahMahasiswa}
           </TableCell>
-          <TableCell className="w-[8%] text-center">
+          <TableCell className='w-[8%] text-center'>
             {mk.lulusMK.find(
               (item) => item.tahunAjaranId === parseInt(selectedTahun)
             )?.jumlahLulus || 0}
           </TableCell>
-          <TableCell className="w-[8%] text-center">
+          <TableCell className='w-[8%] text-center'>
             {mk.lulusMK
               .find((item) => item.tahunAjaranId === parseInt(selectedTahun))
               ?.persentaseLulus.toFixed(2) || 0}
             %
           </TableCell>
-          <TableCell className="w-[8%] text-center">
+          <TableCell className='w-[8%] text-center'>
             {mk.batasLulusMK}%
           </TableCell>
-          <TableCell className="w-[8%] text-center">
+          <TableCell className='w-[8%] text-center'>
             {(mk.lulusMK.find(
               (item) => item.tahunAjaranId === parseInt(selectedTahun)
             )?.persentaseLulus ?? 0) >= mk.batasLulusMK
               ? "Lulus"
               : "Tidak Lulus"}
           </TableCell>
-          <TableCell className="w-[8%] flex gap-2 text-center">
-            <Button variant="destructive" onClick={() => delMK(mk.kode)}>
+          <TableCell className='w-[8%] flex gap-2 text-center'>
+            <Button variant='destructive' onClick={() => delMK(mk.kode)}>
               Hapus
             </Button>
             <Button
@@ -218,10 +232,10 @@ const DataMK = () => {
   }, []);
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1200px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center mt-20'>
+      <Card className='w-[1200px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel MK</CardTitle>
             <CardDescription>Mata Kuliah</CardDescription>
           </div>
@@ -229,8 +243,8 @@ const DataMK = () => {
             onValueChange={(e) => setSelectedTahun(e)}
             value={selectedTahun}
           >
-            <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Tahun Ajaran" />
+            <SelectTrigger className='w-[250px]'>
+              <SelectValue placeholder='Tahun Ajaran' />
             </SelectTrigger>
             <SelectContent>
               {tahunAjaran.map((tahun) => (
@@ -253,30 +267,30 @@ const DataMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%] text-center">Kode</TableHead>
-                  <TableHead className="flex-1 text-center">
+                  <TableHead className='w-[8%] text-center'>Kode</TableHead>
+                  <TableHead className='flex-1 text-center'>
                     Nama Matakuliah
                   </TableHead>
-                  <TableHead className="flex-1 text-center">
+                  <TableHead className='flex-1 text-center'>
                     Nama Matakuliah Inggris
                   </TableHead>
-                  <TableHead className="w-[15%] text-center">CPMK</TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[15%] text-center'>CPMK</TableHead>
+                  <TableHead className='w-[8%] text-center'>
                     Jumlah Mahasiswa
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Jumlah Lulus
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Persentase Lulus
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Batas Lulus MK
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Status MK
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">Aksi</TableHead>
+                  <TableHead className='w-[8%] text-center'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -287,30 +301,30 @@ const DataMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[8%] text-center">Kode</TableHead>
-                  <TableHead className="flex-1 text-center">
+                  <TableHead className='w-[8%] text-center'>Kode</TableHead>
+                  <TableHead className='flex-1 text-center'>
                     Nama Matakuliah
                   </TableHead>
-                  <TableHead className="flex-1 text-center">
+                  <TableHead className='flex-1 text-center'>
                     Nama Matakuliah Inggris
                   </TableHead>
-                  <TableHead className="w-[15%] text-center">CPMK</TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[15%] text-center'>CPMK</TableHead>
+                  <TableHead className='w-[8%] text-center'>
                     Jumlah Mahasiswa
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Jumlah Lulus
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Persentase Lulus
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Batas Lulus MK
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">
+                  <TableHead className='w-[8%] text-center'>
                     Status MK
                   </TableHead>
-                  <TableHead className="w-[8%] text-center">Aksi</TableHead>
+                  <TableHead className='w-[8%] text-center'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

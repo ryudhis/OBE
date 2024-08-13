@@ -28,6 +28,7 @@ import SkeletonTable from "@/components/SkeletonTable";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
+import Swal from "sweetalert2";
 
 export interface inputNilai {
   id: number;
@@ -60,7 +61,7 @@ export interface MKItem {
 
 const DataNilai = () => {
   const router = useRouter();
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [refresh, setRefresh] = useState(false);
   const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,18 +114,31 @@ const DataNilai = () => {
 
   const delInputNilai = async (id: number) => {
     try {
-      const response = await axiosConfig.delete(`api/inputNilai/${id}`);
-      if (response.data.status === 200 || response.data.status === 201) {
-        toast({
-          title: "Berhasil menghapus data inputNilai",
-          variant: "default",
-        });
-        setRefresh(!refresh);
-      } else {
-        toast({
-          title: response.data.message,
-          variant: "destructive",
-        });
+      const result = await Swal.fire({
+        title: "Tunggu !..",
+        text: `Kamu yakin ingin hapus data ini?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#0F172A",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axiosConfig.delete(`api/inputNilai/${id}`);
+        if (response.data.status === 200 || response.data.status === 201) {
+          toast({
+            title: "Berhasil menghapus data inputNilai",
+            variant: "default",
+          });
+          setRefresh(!refresh);
+        } else {
+          toast({
+            title: response.data.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       throw error;
