@@ -203,9 +203,7 @@ const Page = () => {
 
   const renderRangkumanPerforma = () => {
     return CPL.flatMap((cplItem) => {
-      // Generate rows for each CPMK
       const CPMKRows = cplItem.CPMK.map((CPMK) => {
-        // Generate MK content with commas separated
         const MKContent = CPMK.lulusMK_CPMK.map(
           (lulusMK_CPMK, index, array) => {
             const lulusMK_CPMKValue = lulusMK_CPMK.jumlahLulus.toFixed(2);
@@ -231,7 +229,7 @@ const Page = () => {
 
         return (
           <TableRow key={CPMK.id}>
-            <TableCell></TableCell> {/* Empty cell for CPL row */}
+            <TableCell></TableCell>
             <TableCell className={textColorClass}>
               {`${CPMK.kode} (${lulusCPMKValue ? lulusCPMKValue : 0}%)`}
             </TableCell>
@@ -240,7 +238,6 @@ const Page = () => {
         );
       });
 
-      // Combine CPL row with its corresponding CPMK rows
       return [
         <TableRow key={`cpl-${cplItem.id}`}>
           <TableCell rowSpan={cplItem.CPMK.length + 1}>
