@@ -20,19 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { set } from "react-hook-form";
 
 export interface MKinterface {
   kode: string;
@@ -125,7 +118,6 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKinterface[]>([]);
   const [CPL, setCPL] = useState<CPLItem[]>([]);
-  const [selectedCPL, setSelectedCPL] = useState<CPLItem | null>(null!);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("default");
   const [semester, setSemester] = useState<tahunAjaranItem[]>([]);
 
@@ -161,7 +153,6 @@ const Page = () => {
           });
         setSemester(filteredSemesters);
         setFilterTahunAjaran(filteredSemesters[0].id);
-        setSelectedCPL(response.data.data[0]);
       }
     } catch (error: any) {
       throw error;
@@ -211,34 +202,53 @@ const Page = () => {
   };
 
   const renderRangkumanPerforma = () => {
-    return selectedCPL?.CPMK.map((CPMK) => {
-      return CPMK.lulusCPMK.map((lulusCPMK) => {
+    return CPL.flatMap((cplItem) => {
+      // Generate rows for each CPMK
+      const CPMKRows = cplItem.CPMK.map((CPMK) => {
+        // Generate MK content with commas separated
+        const MKContent = CPMK.lulusMK_CPMK.map(
+          (lulusMK_CPMK, index, array) => {
+            const lulusMK_CPMKValue = lulusMK_CPMK.jumlahLulus.toFixed(2);
+            const textColorClass =
+              Number(lulusMK_CPMKValue) < 65 || !lulusMK_CPMKValue
+                ? "text-red-500"
+                : "";
+
+            return (
+              <React.Fragment key={lulusMK_CPMK.id}>
+                <span className={textColorClass}>
+                  {`${lulusMK_CPMK.MKId} (${lulusMK_CPMKValue}%)`}
+                </span>
+                {index < array.length - 1 && ", "}
+              </React.Fragment>
+            );
+          }
+        );
+
+        const lulusCPMKValue = CPMK.lulusCPMK[0]?.jumlahLulus.toFixed(2);
+        const textColorClass =
+          Number(lulusCPMKValue) < 65 || !lulusCPMKValue ? "text-red-500" : "";
+
         return (
-          <AccordionItem value={CPMK.id.toString()} key={CPMK.id.toString()}>
-            <AccordionTrigger
-              className={`${
-                lulusCPMK.jumlahLulus <= 65 && "text-red-500 font-bold"
-              }`}
-            >
-              {CPMK.kode} - {lulusCPMK.jumlahLulus.toFixed(2)}%
-            </AccordionTrigger>
-            <AccordionContent>
-              {CPMK.lulusMK_CPMK.map((lulusMK_CPMK) => {
-                return (
-                  <div
-                    key={lulusMK_CPMK.id}
-                    className={`${
-                      lulusMK_CPMK.jumlahLulus <= 65 && "text-red-500 font-bold"
-                    }`}
-                  >
-                    {lulusMK_CPMK.MKId} - {lulusMK_CPMK.jumlahLulus.toFixed(2)}%
-                  </div>
-                );
-              })}
-            </AccordionContent>
-          </AccordionItem>
+          <TableRow key={CPMK.id}>
+            <TableCell></TableCell> {/* Empty cell for CPL row */}
+            <TableCell className={textColorClass}>
+              {`${CPMK.kode} (${lulusCPMKValue}%)`}
+            </TableCell>
+            <TableCell>{MKContent}</TableCell>
+          </TableRow>
         );
       });
+
+      // Combine CPL row with its corresponding CPMK rows
+      return [
+        <TableRow key={`cpl-${cplItem.id}`}>
+          <TableCell rowSpan={cplItem.CPMK.length + 1}>
+            {cplItem.kode}
+          </TableCell>
+        </TableRow>,
+        ...CPMKRows,
+      ];
     });
   };
 
@@ -294,97 +304,41 @@ const Page = () => {
             <CardHeader className="flex flex-row justify-between items-center">
               <div className="flex flex-col">
                 <CardTitle>Rangkuman Performa CPL</CardTitle>
-                <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
               </div>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-8">
-              <div className="flex gap-8 mx-auto">
+              <div className="flex flex-col">
                 <Select
-                  onValueChange={(value: string) => {
-                    const selected = value
-                      ? CPL.find((cpl) => cpl.id === parseInt(value))
-                      : null;
-                    setSelectedCPL(selected ?? null);
-                  }}
-                  defaultValue={selectedCPL ? selectedCPL.id.toString() : ""}
-                  value={selectedCPL ? selectedCPL.id.toString() : ""}
-                  required
-                >
-                  <SelectTrigger className="w-fit">
-                    <SelectValue placeholder="Pilih CPL" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CPL.map((cpl) => {
-                      return (
-                        <SelectItem
-                          key={cpl.id.toString()}
-                          value={cpl.id.toString()}
-                        >
-                          {cpl.kode} - {cpl.deskripsi}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                <Select
-                  onValueChange={(value) => {
-                    setFilterTahunAjaran(value);
-                  }}
                   defaultValue={filterTahunAjaran}
-                  value={filterTahunAjaran}
-                  required
+                  onValueChange={(value) => setFilterTahunAjaran(value)}
                 >
-                  <SelectTrigger className="w-fit">
+                  <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Pilih Tahun Ajaran" />
                   </SelectTrigger>
                   <SelectContent>
-                    {semester.map((semester, index) => {
-                      return (
-                        <SelectItem key={index} value={semester.id}>
-                          {semester.tahun} - {semester.semester}
-                        </SelectItem>
-                      );
-                    })}
+                    {semester.map((tahun) => (
+                      <SelectItem key={tahun.id} value={tahun.id}>
+                        {tahun.tahun}-{tahun.semester}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <h1 className="text-center text-xl">
-                Performa {selectedCPL?.kode} pada tahun ajaran{" "}
-                {semester.find((item) => item.id === filterTahunAjaran)?.tahun}{" "}
-                -{" "}
-                {
-                  semester.find((item) => item.id === filterTahunAjaran)
-                    ?.semester
-                }
-                {": "}
-                <span
-                  className={`font-bold ${
-                    (selectedCPL?.performaCPL.find(
-                      (item) =>
-                        item.tahunAjaranId === parseInt(filterTahunAjaran)
-                    )?.performa ?? 0) <= 65 && "text-red-500"
-                  }`}
-                >
-                  {selectedCPL?.performaCPL
-                    .find(
-                      (item) =>
-                        item.tahunAjaranId === parseInt(filterTahunAjaran)
-                    )
-                    ?.performa.toFixed(2) || 0}
-                  %
-                </span>
-              </h1>
-              <Card className="w-[800px] mx-auto">
-                <Accordion type="single" collapsible className="w-full px-4">
-                  {renderRangkumanPerforma()}
-                </Accordion>
-              </Card>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="flex-1">CPL</TableHead>
+                    <TableHead className="flex-1"></TableHead>
+                    <TableHead className="flex-1">CPMK</TableHead>
+                    <TableHead className="flex-1">MK</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{renderRangkumanPerforma()}</TableBody>
+              </Table>
             </CardContent>
           </Card>
         </>
-      ) : (
-        <h1>Dashboard Dosen</h1>
-      )}
+      ) : null}
     </main>
   );
 };

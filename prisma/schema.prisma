@@ -83,7 +83,7 @@ model performaCPL {
   id            Int         @id @unique @default(sequence())
   performa      Float
   CPL           CPL         @relation(fields: [CPLId], references: [id], onDelete: Cascade)
-  CPLId         Int
+  CPLId         Int 
   tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
   tahunAjaranId Int
 
