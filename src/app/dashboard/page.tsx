@@ -217,7 +217,7 @@ const Page = () => {
             return (
               <React.Fragment key={lulusMK_CPMK.id}>
                 <span className={textColorClass}>
-                  {`${lulusMK_CPMK.MKId} (${lulusMK_CPMKValue}%)`}
+                  {`${lulusMK_CPMK.MKId} (${lulusMK_CPMKValue ? lulusMK_CPMKValue : 0}%)`}
                 </span>
                 {index < array.length - 1 && ", "}
               </React.Fragment>
@@ -233,7 +233,7 @@ const Page = () => {
           <TableRow key={CPMK.id}>
             <TableCell></TableCell> {/* Empty cell for CPL row */}
             <TableCell className={textColorClass}>
-              {`${CPMK.kode} (${lulusCPMKValue}%)`}
+              {`${CPMK.kode} (${lulusCPMKValue ? lulusCPMKValue : 0}%)`}
             </TableCell>
             <TableCell>{MKContent}</TableCell>
           </TableRow>
