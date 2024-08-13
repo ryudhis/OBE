@@ -203,6 +203,11 @@ const Page = () => {
 
   const renderRangkumanPerforma = () => {
     return CPL.flatMap((cplItem) => {
+      const cplPerforma =
+        cplItem.CPMK.reduce((total, CPMK) => {
+          const lulusCPMKValue = CPMK.lulusCPMK[0]?.jumlahLulus ?? 0;
+          return total + Number(lulusCPMKValue);
+        }, 0) / cplItem.CPMK.length;
       const CPMKRows = cplItem.CPMK.map((CPMK) => {
         const MKContent = CPMK.lulusMK_CPMK.map(
           (lulusMK_CPMK, index, array) => {
@@ -215,7 +220,9 @@ const Page = () => {
             return (
               <React.Fragment key={lulusMK_CPMK.id}>
                 <span className={textColorClass}>
-                  {`${lulusMK_CPMK.MKId} (${lulusMK_CPMKValue ? lulusMK_CPMKValue : 0}%)`}
+                  {`${lulusMK_CPMK.MKId} (${
+                    lulusMK_CPMKValue ? lulusMK_CPMKValue : 0
+                  }%)`}
                 </span>
                 {index < array.length - 1 && ", "}
               </React.Fragment>
@@ -229,7 +236,6 @@ const Page = () => {
 
         return (
           <TableRow key={CPMK.id}>
-            <TableCell></TableCell>
             <TableCell className={textColorClass}>
               {`${CPMK.kode} (${lulusCPMKValue ? lulusCPMKValue : 0}%)`}
             </TableCell>
@@ -240,8 +246,11 @@ const Page = () => {
 
       return [
         <TableRow key={`cpl-${cplItem.id}`}>
-          <TableCell rowSpan={cplItem.CPMK.length + 1}>
-            {cplItem.kode}
+          <TableCell
+            className={`${cplPerforma < 65 && "text-red-500"}`}
+            rowSpan={cplItem.CPMK.length + 1}
+          >
+            {`${cplItem.kode} (${cplPerforma ? cplPerforma.toFixed(2) : 0}%)`}
           </TableCell>
         </TableRow>,
         ...CPMKRows,
@@ -325,7 +334,6 @@ const Page = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="flex-1">CPL</TableHead>
-                    <TableHead className="flex-1"></TableHead>
                     <TableHead className="flex-1">CPMK</TableHead>
                     <TableHead className="flex-1">MK</TableHead>
                   </TableRow>
