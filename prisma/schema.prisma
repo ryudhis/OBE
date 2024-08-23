@@ -25,8 +25,8 @@ model prodi {
   kode      String             @id @unique
   nama      String
   tendik    account[]          @relation(name: "prodi-tendik")
-  kaprodi   account            @relation(name: "prodi-kaprodi", fields: [kaprodiId], references: [id])
-  kaprodiId Int                @unique
+  kaprodi   account?           @relation(name: "prodi-kaprodi", fields: [kaprodiId], references: [id])
+  kaprodiId Int?               @unique
   PL        PL[]
   CPL       CPL[]
   BK        BK[]
@@ -39,11 +39,11 @@ model prodi {
 }
 
 model kelompokKeahlian {
-  id      Int     @id @unique @default(sequence())
+  id      Int      @id @unique @default(sequence())
   nama    String
-  ketua   account @relation(name: "KK-ketua", fields: [ketuaId], references: [id])
-  ketuaId Int     @unique
-  prodi   prodi   @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  ketua   account? @relation(name: "KK-ketua", fields: [ketuaId], references: [id])
+  ketuaId Int?     @unique
+  prodi   prodi    @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId String
   MK      MK[]
 }
@@ -121,7 +121,6 @@ model MK {
   deskripsiInggris    String
   sks                 String
   semester            String
-  rumpun              String
   batasLulusMahasiswa Float
   batasLulusMK        Float
   lulusMK             lulusMK[]
@@ -146,8 +145,8 @@ model rps {
   id               Int     @id @unique @default(sequence())
   MK               MK      @relation(name: "mk-rps", fields: [MKId], references: [kode], onDelete: Cascade)
   MKId             String  @unique
-  pengembang       account @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
-  pengembangId     Int
+  pengembang       account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
+  pengembangId     Int?
   deskripsi        String
   pustakaUtama     String
   pustakaPendukung String

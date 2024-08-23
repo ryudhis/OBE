@@ -83,7 +83,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const { prodiId, ...restData } = data; // Extract prodiId from data
+    const { prodiId, KK, ...restData } = data; // Extract prodiId from data
 
     // Create the PL entry and connect it to the prodi
     const MK = await prisma.MK.create({
@@ -94,6 +94,11 @@ export async function POST(req) {
             kode: prodiId,
           },
         },
+        KK: {
+          connect: {
+            id: KK,
+          },
+        }
       },
     });
 
