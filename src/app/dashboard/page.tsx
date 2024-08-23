@@ -152,6 +152,7 @@ const Page = () => {
             return false;
           });
         setSemester(filteredSemesters);
+        console.log(filteredSemesters);
         setFilterTahunAjaran(filteredSemesters[0].id);
       }
     } catch (error: any) {

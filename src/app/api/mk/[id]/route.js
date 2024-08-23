@@ -10,7 +10,11 @@ export async function GET(req) {
       include: {
         penilaianCPMK: { include: { CPMK: true } },
         BK: { include: { CPL: true } },
-        CPMK: true,
+        CPMK: {
+          include: {
+            CPL: true,
+          },
+        },
         kelas: {
           include: {
             MK: true,

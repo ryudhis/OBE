@@ -53,18 +53,22 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
 import { DataCard } from "@/components/DataCard";
 import Swal from "sweetalert2";
+import Image from "next/image";
+import logo from "/public/Logo1.png";
 
 export interface MKinterface {
   kode: string;
   deskripsi: string;
   sks: string;
   batasLulusMahasiswa: number;
+  batasLulusMK: number;
   BK: BKItem[];
   CPMK: CPMKItem[];
   kelas: KelasItem[];
   penilaianCPMK: penilaianCPMKItem[];
   rencanaPembelajaran: rpItem[];
   lulusMK_CPMK: lulusMK_CPMKItem[];
+  semester: string;
 }
 
 export interface lulusMK_CPMKItem {
@@ -106,6 +110,12 @@ export interface tahunAjaranItem {
 
 export interface CPMKItem {
   id: number;
+  kode: string;
+  deskripsi: string;
+  CPL: CPLItem;
+}
+
+export interface CPLItem {
   kode: string;
   deskripsi: string;
 }
@@ -176,6 +186,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selectedCPMK, setSelectedCPMK] = useState<string[]>([]);
   const [selectedBK, setSelectedBK] = useState<string[]>([]);
   const [selectedRelasi, setSelectedRelasi] = useState<string>("");
+  const [listCPL, setListCPL] = useState<CPLItem[]>([]);
   const router = useRouter();
 
   const filteredCPMK = cpmk?.filter((cpmk) =>
@@ -294,7 +305,12 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
       } else {
         setMK(response.data.data);
-        console.log(response.data.data);
+
+        setListCPL(
+          Array.from(
+            new Set(response.data.data.CPMK.map((cpmk: CPMKItem) => cpmk.CPL))
+          )
+        );
 
         const prevSelectedCPMK = response.data.data.CPMK.map(
           (item: CPMKItem) => item.kode
@@ -689,6 +705,38 @@ export default function Page({ params }: { params: { kode: string } }) {
     (kelas) => kelas.tahunAjaran.id === parseInt(selectedTahun)
   );
 
+  const generateRPS = async () => {
+    if (typeof window !== "undefined") {
+      const html2pdf = (await import("html2pdf.js")).default;
+
+      const element = document.getElementById("RPS");
+
+      if (element) {
+        const options = {
+          margin: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number], // Margins in inches
+          filename: `RPS_MK_${mk?.kode}.pdf`,
+          image: { type: "jpeg", quality: 1.0 }, // Handles image quality if any images are present
+          html2canvas: {
+            scale: 2, // Scale up for higher resolution of all content
+            useCORS: true, // Allow cross-origin images (if any)
+            letterRendering: true, // Improves text rendering quality
+            scrollY: -window.scrollY, // Correct positioning on scrolled pages
+          },
+          jsPDF: {
+            unit: "in",
+            format: "A4",
+            orientation: "landscape",
+            compressPDF: true, // Compress the PDF for smaller file size
+          },
+        };
+
+        html2pdf().from(element).set(options).save();
+      } else {
+        console.error("Element with ID 'RPS' not found.");
+      }
+    }
+  };
+
   useEffect(() => {
     getMK();
     getTahunAjaran();
@@ -759,7 +807,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           <TableCell className='text-center'>{rencana.minggu}</TableCell>
           <TableCell className='text-center'>{rencana.materi}</TableCell>
           <TableCell className='text-center'>{rencana.metode}</TableCell>
-          <TableCell className='text-center flex gap-3'>
+          <TableCell className='text  -center flex gap-3'>
             <Button
               variant='destructive'
               onClick={() => delRencana(rencana.id)}
@@ -872,6 +920,89 @@ export default function Page({ params }: { params: { kode: string } }) {
         </TableRow>
       );
     });
+  };
+
+  const renderDataPenilaian = () => {
+    // Step 1: Gather all unique kriteria
+    const allKriteria = Array.from(
+      new Set(
+        mk?.penilaianCPMK.flatMap((item) =>
+          item.kriteria.map((k) => k.kriteria)
+        )
+      )
+    );
+
+    // Step 2: Initialize the totals object
+    const kriteriaTotals: { [key: string]: number } = {};
+    allKriteria.forEach((kriteria) => {
+      kriteriaTotals[kriteria] = 0;
+    });
+    let totalBobotSum = 0;
+
+    // Step 3: Create table rows with CPMK, corresponding bobot for each kriteria, and total bobot
+    const tableData = mk?.penilaianCPMK.map((pcpmk) => {
+      const row: { [key: string]: number | string } = { kode: pcpmk.CPMK.kode };
+
+      let totalBobot = 0;
+
+      allKriteria.forEach((kriteria) => {
+        const foundKriteria = pcpmk.kriteria.find(
+          (k) => k.kriteria === kriteria
+        );
+        const bobot = foundKriteria ? foundKriteria.bobot : 0;
+        row[kriteria] = bobot;
+        totalBobot += bobot;
+
+        // Add to kriteriaTotals
+        kriteriaTotals[kriteria] += bobot;
+      });
+
+      row["totalBobot"] = totalBobot;
+      totalBobotSum += totalBobot;
+
+      return row;
+    });
+
+    // Step 4: Create the final row for total bobot of each kriteria
+    const totalRow: { [key: string]: number | string } = {
+      kode: "Total Bobot",
+    };
+    allKriteria.forEach((kriteria) => {
+      totalRow[kriteria] = kriteriaTotals[kriteria];
+    });
+    totalRow["totalBobot"] = totalBobotSum;
+
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow className='bg-[#CCCCCC]'>
+            <TableHead>CPMK Code</TableHead>
+            {allKriteria.map((kriteria) => (
+              <TableHead key={kriteria}>{kriteria}</TableHead>
+            ))}
+            <TableHead>Total Bobot</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tableData?.map((row, index) => (
+            <TableRow key={index}>
+              <TableCell>{row.kode}</TableCell>
+              {allKriteria.map((kriteria) => (
+                <TableCell key={kriteria}>{row[kriteria]}</TableCell>
+              ))}
+              <TableCell>{row.totalBobot}</TableCell>
+            </TableRow>
+          ))}
+          <TableRow>
+            <TableCell>Total per penilaian</TableCell>
+            {allKriteria.map((kriteria) => (
+              <TableCell key={kriteria}>{totalRow[kriteria]}</TableCell>
+            ))}
+            <TableCell>{totalRow.totalBobot}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
   };
 
   const renderDataAsesment = () => {
@@ -1094,12 +1225,13 @@ export default function Page({ params }: { params: { kode: string } }) {
         </div>
 
         <Tabs defaultValue='kelas' className='w-full'>
-          <TabsList className='grid w-full grid-cols-4'>
+          <TabsList className='grid w-full grid-cols-5'>
             <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
             <TabsTrigger value='rencana'>Rencana Pembelajaran</TabsTrigger>
             <TabsTrigger value='asesment'>
               Rencana Asesment dan Evaluasi
             </TabsTrigger>
+            <TabsTrigger value='rps'>RPS</TabsTrigger>
             <TabsTrigger value='relasi'>Sambungkan CPMK/BK</TabsTrigger>
           </TabsList>
           <TabsContent value='kelas'>
@@ -1108,9 +1240,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <CardHeader className='flex flex-row justify-between items-center'>
                   <div className='flex flex-col'>
                     <CardTitle>Tabel Kelas</CardTitle>
-                    <CardDescription>
-                      Mata Kuliah {mk.deskripsi}
-                    </CardDescription>
+                    <CardDescription>Mata Kuliah {mk.kode}</CardDescription>
                   </div>
                   <Button
                     variant='destructive'
@@ -1330,9 +1460,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <CardHeader className='flex flex-row justify-between items-center'>
                   <div className='flex flex-col'>
                     <CardTitle>Rencana Pembelajaran</CardTitle>
-                    <CardDescription>
-                      Mata Kuliah {mk.deskripsi}
-                    </CardDescription>
+                    <CardDescription>Mata Kuliah {mk.kode}</CardDescription>
                   </div>
                   <Button
                     variant='destructive'
@@ -1381,6 +1509,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               <p className='self-center'>Belum Ada Rencana Pembelajaran ...</p>
             )}
           </TabsContent>
+
           <TabsContent value='asesment'>
             <Card className='w-[1000px] mx-auto'>
               <CardHeader className='flex flex-row justify-between items-center'>
@@ -1416,6 +1545,245 @@ export default function Page({ params }: { params: { kode: string } }) {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent className='flex flex-col gap-3' value='rps'>
+            <Card className='mx-auto'>
+              <CardHeader className='flex flex-row justify-between items-center'>
+                <div className='flex flex-col'>
+                  <CardTitle>Rencana Pembelajaran Semester</CardTitle>
+                  <CardDescription>Mata Kuliah {mk.kode}</CardDescription>
+                </div>
+
+                <div className='flex gap-3'>
+                  <Button onClick={generateRPS}>Generate RPS</Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table id='RPS'>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={2} className='text-center'>
+                        <div className='flex w-full items-center justify-between'>
+                          <Image
+                            src={logo}
+                            alt='LOGO UNIVERSITAS'
+                            width={100}
+                            height={100}
+                          />
+
+                          <div>
+                            <h2>RENCANA PEMBELAJARAN SEMESTER</h2>
+                            <h3>PROGRAM STUDI S1 TEKNIK INFORMATIKA</h3>
+                            <h4>FAKULTAS TEKNOLOGI INDUSTRI</h4>
+                            <h5>INSTITUT TEKNOLOGI SUMATERA</h5>
+                          </div>
+
+                          <div />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Identitas Mata Kuliah</TableHead>
+                      <TableCell>
+                        <Table>
+                          <TableBody>
+                            <TableRow className='bg-[#CCCCCC]'>
+                              <TableHead>NAMA MK</TableHead>
+                              <TableHead>KODE MK</TableHead>
+                              <TableHead>RUMPUN MATA KULIAH</TableHead>
+                              <TableHead>BOBOT (SKS)</TableHead>
+                              <TableHead>SEMESTER</TableHead>
+                              <TableHead>Direvisi</TableHead>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>{mk.deskripsi}</TableCell>
+                              <TableCell>{mk?.kode}</TableCell>
+                              <TableCell>Teknik</TableCell>
+                              <TableCell>{mk?.sks}</TableCell>
+                              <TableCell>{mk?.semester}</TableCell>
+                              <TableCell>11/17/2022</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Otoritas Pengembang RPS</TableHead>
+                      <TableCell>
+                        <Table>
+                          <TableBody>
+                            <TableRow className='w-[100%] bg-[#CCCCCC]'>
+                              <TableHead>Pengembang RPS</TableHead>
+                              <TableHead>Ketua Kelompok Keahlian</TableHead>
+                              <TableHead>Ka PRODI</TableHead>
+                            </TableRow>
+
+                            <TableRow>
+                              <TableCell>[Nama Koordinator Dosen MK]</TableCell>
+                              <TableCell>[Nama Ketua KK]</TableCell>
+                              <TableCell>[Nama Kepala Program Studi]</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Deskripsi Mata Kuliah</TableHead>
+                      <TableCell>
+                        <p>
+                          Pada mata kuliah ini mahasiswa mempelajari tentang:
+                        </p>
+                        <ul>
+                          <li>
+                            Definisi dan model fundamental Analisis Jaringan
+                            Sosial
+                          </li>
+                          <li>
+                            Tipe jaringan, struktur, model, dan proses dinamis
+                            pada jaringan sosial
+                          </li>
+                          <li>
+                            Metode perhitungan sentralitas jaringan sosial
+                          </li>
+                          <li>
+                            Metode untuk mengidentifikasi komunitas dalam
+                            jaringan sosial
+                          </li>
+                          <li>
+                            Perangkat lunak untuk menerapkan analisis jaringan
+                            sosial
+                          </li>
+                          <li>Visualisasi jaringan sosial</li>
+                        </ul>
+                        <p>
+                          Mata kuliah ini menggunakan studi kasus jaringan
+                          sosial Twitter.
+                        </p>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Capaian Pembelajaran</TableHead>
+                      <TableCell>
+                        <Table>
+                          <TableBody>
+                            <TableRow className='bg-[#CCCCCC]'>
+                              <TableHead colSpan={3}>
+                                Capaian Pembelajaran Lulusan (CPL)
+                              </TableHead>
+                            </TableRow>
+                            {listCPL.map((cpl: CPLItem) => (
+                              <TableRow key={cpl.kode}>
+                                <TableCell className='w-[15%]'>
+                                  {cpl.kode}
+                                </TableCell>
+                                <TableCell>{cpl.deskripsi}</TableCell>
+                              </TableRow>
+                            ))}
+
+                            <TableRow className='bg-[#CCCCCC]'>
+                              <TableHead colSpan={2}>
+                                Capaian Pembelajaran Mata Kuliah (CPMK)
+                              </TableHead>
+                              <TableHead>CPL yang di dukung</TableHead>
+                            </TableRow>
+                            {mk.CPMK.map((cpmk: CPMKItem) => (
+                              <TableRow key={cpmk.kode}>
+                                <TableCell className='w-[15%]'>
+                                  {cpmk.kode}
+                                </TableCell>
+                                <TableCell>{cpmk.deskripsi}</TableCell>
+                                <TableCell className='w-[20%]'>
+                                  {cpmk.CPL.kode}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Penilaian</TableHead>
+                      <TableCell>{mk ? renderDataPenilaian() : null}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Pustaka</TableHead>
+                      <TableCell>
+                        <Table>
+                          <TableBody>
+                            <TableRow className='bg-[#CCCCCC]'>
+                              <TableHead>Utama:</TableHead>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>
+                                [WAS94] Social Network Analysis: Methods and
+                                Applications, Stanley Wasserman and Katherine
+                                Faust. Cambridge University Press. 1994
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>
+                                [MAK11] Social Network Analysis for Start Up,
+                                Maksim Tsvetovat and Alexander Kouznetsov.
+                                OReilly. 2011
+                              </TableCell>
+                            </TableRow>
+                            <TableRow className='bg-[#CCCCCC]'>
+                              <TableHead>Pendukung:</TableHead>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>-</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Media Pembelajaran</TableHead>
+                      <TableCell>
+                        <Table>
+                          <TableBody>
+                            <TableRow className='bg-[#CCCCCC]'>
+                              <TableHead className='w-[70%]'>
+                                Software
+                              </TableHead>
+                              <TableHead className='w-[30%]'>
+                                Hardware
+                              </TableHead>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell>Gephi; NetworkX, Python</TableCell>
+                              <TableCell>Komputer/Laptop; Projector</TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Team Teaching</TableHead>
+                      <TableCell>
+                        <p>[List of Dosen]</p>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Matakuliah Syarat</TableHead>
+                      <TableCell>
+                        <p>[List of Prerequisites]</p>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Ambang Batas Kelulusan Mahasiswa</TableHead>
+                      <TableCell>{mk?.batasLulusMahasiswa}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Ambang Batas Kelulusan MK</TableHead>
+                      <TableCell>{mk?.batasLulusMK}%</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value='relasi'>
             <Card className='w-[1000px] mx-auto'>
               <CardHeader className='flex flex-row justify-between items-center'>
@@ -1427,7 +1795,6 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </div>
               </CardHeader>
               <CardContent>
-                {" "}
                 {/* HEADER */}
                 <Select
                   value={selectedRelasi}

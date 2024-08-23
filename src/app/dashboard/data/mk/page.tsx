@@ -239,28 +239,32 @@ const DataMK = () => {
             <CardTitle>Tabel MK</CardTitle>
             <CardDescription>Mata Kuliah</CardDescription>
           </div>
-          <Select
-            onValueChange={(e) => setSelectedTahun(e)}
-            value={selectedTahun}
-          >
-            <SelectTrigger className='w-[250px]'>
-              <SelectValue placeholder='Tahun Ajaran' />
-            </SelectTrigger>
-            <SelectContent>
-              {tahunAjaran.map((tahun) => (
-                <SelectItem key={tahun.id} value={String(tahun.id)}>
-                  {tahun.tahun} {tahun.semester}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/mk");
-            }}
-          >
-            Tambah
-          </Button>
+          
+          <div className='flex gap-3'>
+            <Select
+              onValueChange={(e) => setSelectedTahun(e)}
+              value={selectedTahun}
+            >
+              <SelectTrigger className='w-[250px]'>
+                <SelectValue placeholder='Tahun Ajaran' />
+              </SelectTrigger>
+              <SelectContent>
+                {tahunAjaran.map((tahun) => (
+                  <SelectItem key={tahun.id} value={String(tahun.id)}>
+                    {tahun.tahun} {tahun.semester}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/mk");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

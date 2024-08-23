@@ -5,8 +5,6 @@ export async function PATCH(req) {
     const kode = req.url.split("/relasiBK/")[1];
     const data = await req.json();
 
-    console.log(data);
-
     const MK = await prisma.MK.update({
       where: {
         kode,
