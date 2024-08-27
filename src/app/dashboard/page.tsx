@@ -118,7 +118,7 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [MK, setMK] = useState<MKinterface[]>([]);
   const [CPL, setCPL] = useState<CPLItem[]>([]);
-  const [filterTahunAjaran, setFilterTahunAjaran] = useState("default");
+  const [filterTahunAjaran, setFilterTahunAjaran] = useState("");
   const [semester, setSemester] = useState<tahunAjaranItem[]>([]);
 
   const getMK = async (prodiId: string) => {
@@ -139,26 +139,25 @@ const Page = () => {
       const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
       if (response.data.status !== 400) {
         setCPL(response.data.data);
-        const uniqueSemesters = new Set<string>();
-        const filteredSemesters = response.data.data
-          .flatMap((cpl: CPLItem) =>
-            cpl.performaCPL.map((tahunAjaran) => tahunAjaran.tahunAjaran)
-          )
-          .filter((tahunAjaran: tahunAjaranItem) => {
-            if (!uniqueSemesters.has(tahunAjaran.id)) {
-              uniqueSemesters.add(tahunAjaran.id);
-              return true;
-            }
-            return false;
-          });
-        setSemester(filteredSemesters);
-        console.log(filteredSemesters);
-        setFilterTahunAjaran(filteredSemesters[0].id);
       }
     } catch (error: any) {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getTahunAjaran = async () => {
+    try {
+      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      if (response.data.status !== 400) {
+        setSemester(response.data.data);
+        setFilterTahunAjaran(response.data.data[0].id);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
     }
   };
 
@@ -172,6 +171,13 @@ const Page = () => {
   useEffect(() => {
     if (accountData) {
       getCPL(accountData.prodiId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (accountData) {
+      getTahunAjaran();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -314,8 +320,8 @@ const Page = () => {
               </div>
               <div className="flex flex-col">
                 <Select
-                  defaultValue={filterTahunAjaran}
-                  onValueChange={(value) => setFilterTahunAjaran(value)}
+                  value={filterTahunAjaran}
+                  onValueChange={(e) => setFilterTahunAjaran(e)}
                 >
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Pilih Tahun Ajaran" />
