@@ -1,7 +1,18 @@
+import prisma from "@/utils/prisma";
+
 export async function PATCH(req) {
   try {
     const kode = req.url.split("/kaprodi/")[1];
     const data = await req.json();
+
+    await prisma.account.update({
+      where: {
+        id: data.oldKaprodi,
+      },
+      data: {
+        role: "Dosen",
+      },
+    });
 
     const prodi = await prisma.prodi.update({
       where: {
@@ -13,6 +24,15 @@ export async function PATCH(req) {
             id: data.kaprodi,
           },
         },
+      },
+    });
+
+    await prisma.account.update({
+      where: {
+        id: data.kaprodi,
+      },
+      data: {
+        role: "Kaprodi",
       },
     });
 

@@ -12,7 +12,7 @@ export async function GET(req, res) {
   }
 
   try {
-    const KK = await prisma.KK.findMany({
+    const KK = await prisma.kelompokKeahlian.findMany({
       where: {
         prodiId: prodi,
       },
@@ -35,7 +35,7 @@ export async function POST(req) {
     const { prodiId, ...restData } = data; // Extract prodiId from data
 
     // Create the KK entry and connect it to the prodi
-    const KK = await prisma.KK.create({
+    const KK = await prisma.kelompokKeahlian.create({
       data: {
         ...restData,
         prodi: {

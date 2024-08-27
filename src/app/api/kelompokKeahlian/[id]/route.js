@@ -3,7 +3,7 @@ import prisma from "@/utils/prisma";
 export async function GET(req) {
   try {
     const id = req.url.split("/kelompokKeahlian/")[1];
-    const KK = await prisma.KK.findUnique({
+    const KK = await prisma.kelompokKeahlian.findUnique({
       where: {
         id: parseInt(id),
       },
@@ -23,7 +23,7 @@ export async function GET(req) {
 export async function DELETE(req) {
   try {
     const id = req.url.split("/kelompokKeahlian/")[1];
-    const KK = await prisma.KK.delete({
+    const KK = await prisma.kelompokKeahlian.delete({
       where: {
         id: parseInt(id),
       },
@@ -45,7 +45,15 @@ export async function PATCH(req) {
     const id = req.url.split("/kelompokKeahlian/")[1];
     const data = await req.json();
 
-    const KK = await prisma.KK.update({
+    if (data.ketua) {
+      data.ketua = {
+        connect: {
+          id: data.ketua,
+        },
+      };
+    }
+
+    const KK = await prisma.kelompokKeahlian.update({
       where: {
         id: parseInt(id),
       },

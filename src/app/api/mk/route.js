@@ -83,23 +83,33 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const data = await req.json();
-    const { prodiId, KK, ...restData } = data; // Extract prodiId from data
+    const { prodiId, KKId, ...restData } = data; // Extract prodiId from data
+
+    const payload = {
+      ...restData,
+      prodi: {
+        connect: {
+          kode: prodiId,
+        },
+      },
+      KK: {
+        connect: {
+          id: KKId,
+        },
+      },
+    };
+
+    if (data.prerequisiteMK) {
+      payload.prerequisiteMK = {
+        connect: data.prerequisiteMK.map((MKId) => ({
+          kode: MKId,
+        })),
+      };
+    }
 
     // Create the PL entry and connect it to the prodi
     const MK = await prisma.MK.create({
-      data: {
-        ...restData,
-        prodi: {
-          connect: {
-            kode: prodiId,
-          },
-        },
-        KK: {
-          connect: {
-            id: KK,
-          },
-        }
-      },
+      payload,
     });
 
     return Response.json({

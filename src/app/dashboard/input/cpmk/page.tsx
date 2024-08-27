@@ -208,7 +208,7 @@ const CPMKScreen = () => {
                 name='deskripsi'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama</FormLabel>
+                    <FormLabel>Deskripsi</FormLabel>
                     <FormControl>
                       <Input placeholder='Deskripsi' required {...field} />
                     </FormControl>

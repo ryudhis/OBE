@@ -7,6 +7,18 @@ export async function GET(req) {
       where: {
         kode,
       },
+      include: {
+        tendik: true,
+        mahasiswa: true,
+        MK: true,
+        KK: {
+          include:{
+            ketua: true,
+            MK: true,
+          }
+        },
+        kaprodi: true,
+      },
     });
 
     return Response.json({
