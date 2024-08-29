@@ -163,13 +163,7 @@ const DataCPMK = () => {
   }
 
   const renderData = () => {
-    const filteredData = CPMK.filter((cpmk) =>
-      cpmk.lulusCPMK.some(
-        (lulusCPMK) => lulusCPMK.tahunAjaranId === Number(filterTahunAjaran)
-      )
-    );
-
-    if (filteredData.length === 0) {
+    if (CPMK.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={10} className="text-center">
@@ -179,7 +173,7 @@ const DataCPMK = () => {
       );
     }
 
-    return filteredData.map((cpmk, index) => {
+    return CPMK.map((cpmk, index) => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{cpmk.kode}</TableCell>
@@ -197,7 +191,7 @@ const DataCPMK = () => {
               .find(
                 (item) => item.tahunAjaranId === parseInt(filterTahunAjaran)
               )
-              ?.jumlahLulus.toFixed(2) || 0}
+              ?.jumlahLulus.toFixed(2)}
             {cpmk.lulusCPMK.length > 0 ? "%" : "-"}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">

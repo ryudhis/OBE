@@ -162,13 +162,7 @@ const DataCPL = () => {
   }
 
   const renderData = () => {
-    const filteredData = CPL.filter((cpl) =>
-      cpl.performaCPL.some(
-        (performaCPL) => performaCPL.tahunAjaranId === Number(filterTahunAjaran)
-      )
-    );
-
-    if (filteredData.length === 0) {
+    if (CPL.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={10} className="text-center">
@@ -178,7 +172,7 @@ const DataCPL = () => {
       );
     }
 
-    return filteredData.map((cpl, index) => {
+    return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
           <TableCell className="w-[8%]">{cpl.kode}</TableCell>
@@ -207,7 +201,7 @@ const DataCPL = () => {
               .find(
                 (item) => item.tahunAjaranId === parseInt(filterTahunAjaran)
               )
-              ?.performa.toFixed(2) || 0}
+              ?.performa.toFixed(2)}
             {cpl.performaCPL.length > 0 ? "%" : "-"}
           </TableCell>
           <TableCell className="w-[8%] flex gap-2">
