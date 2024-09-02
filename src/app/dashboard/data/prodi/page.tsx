@@ -107,16 +107,9 @@ const DataProdi = () => {
               ? prodi.nama.slice(0, 18) + "..."
               : prodi.nama}
           </TableCell>
-          <TableCell className='w-[10%] flex gap-2'>
+          <TableCell className='w-[10%]'>
             <Button variant='destructive' onClick={() => delProdi(prodi.kode)}>
               Hapus
-            </Button>
-            <Button
-              onClick={() => {
-                router.push(`/dashboard/details/prodi/${prodi.kode}/`);
-              }}
-            >
-              Details
             </Button>
           </TableCell>
         </TableRow>

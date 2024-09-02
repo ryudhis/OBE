@@ -112,16 +112,9 @@ const DataAkun = () => {
           <TableCell className='flex-1 text-center'>{akun.nama}</TableCell>
           <TableCell className='w-[18%] text-center'>{akun.email}</TableCell>
           <TableCell className='w-[18%] text-center'>{akun.role}</TableCell>
-          <TableCell className='w-[18%] flex gap-2 text-center'>
+          <TableCell className='w-[18%] text-center'>
             <Button variant='destructive' onClick={() => delAkun(akun.id)}>
               Hapus
-            </Button>
-            <Button
-              onClick={() => {
-                router.push(`/dashboard/details/akun/${akun.id}/`);
-              }}
-            >
-              Details
             </Button>
           </TableCell>
         </TableRow>

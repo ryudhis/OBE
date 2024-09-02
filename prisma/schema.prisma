@@ -148,8 +148,8 @@ model rps {
   pengembang       account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
   pengembangId     Int?
   deskripsi        String
-  pustakaUtama     String
-  pustakaPendukung String
+  pustakaUtama     String[]
+  pustakaPendukung String[]
   software         String
   hardware         String
   revisi           String

@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { array, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Table,
@@ -69,6 +69,22 @@ export interface MKinterface {
   rencanaPembelajaran: rpItem[];
   lulusMK_CPMK: lulusMK_CPMKItem[];
   semester: string;
+  KK: KKItem;
+  prodi: prodiItem;
+  prerequisitesMK: MKinterface[];
+}
+
+export interface prodiItem {
+  kaprodi: accountItem;
+}
+
+export interface KKItem {
+  nama: string;
+  ketua: accountItem;
+}
+
+export interface accountItem {
+  nama: string;
 }
 
 export interface lulusMK_CPMKItem {
@@ -168,6 +184,14 @@ const formSchema = z.object({
   editMetode: z.string(),
 });
 
+const rpsSchema = z.object({
+  deskripsi: z.string(),
+  pustakaUtama: array(z.string()),
+  pustakaPendukung: array(z.string()),
+  hardware: z.string(),
+  software: z.string(),
+});
+
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MKinterface | undefined>();
@@ -211,6 +235,17 @@ export default function Page({ params }: { params: { kode: string } }) {
       editMinggu: "",
       editMateri: "",
       editMetode: "",
+    },
+  });
+
+  const formRPS = useForm<z.infer<typeof rpsSchema>>({
+    resolver: zodResolver(rpsSchema),
+    defaultValues: {
+      deskripsi: "",
+      pustakaUtama: [],
+      pustakaPendukung: [],
+      hardware: "",
+      software: "",
     },
   });
 
@@ -1280,16 +1315,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                             Jumlah Mahasiswa
                           </TableHead>
                           <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
-                          {mk.lulusMK_CPMK.map((CPMK) => {
-                            return cpmk
-                              ?.filter((cpmk) => cpmk.id === CPMK.CPMKId)
-                              .map((cpmk) => {
-                                return (
-                                  <TableHead key={cpmk.id}>
-                                    {cpmk.kode}
-                                  </TableHead>
-                                );
-                              });
+                          {mk.CPMK.map((cpmk) => {
+                            return (
+                              <TableHead key={cpmk.id}>{cpmk.kode}</TableHead>
+                            );
                           })}
                           <TableHead className='w-[8%]'>Batas Lulus</TableHead>
                           <TableHead className='w-[8%]'>Aksi</TableHead>
@@ -1597,10 +1626,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                             </TableRow>
                             <TableRow>
                               <TableCell>{mk.deskripsi}</TableCell>
-                              <TableCell>{mk?.kode}</TableCell>
-                              <TableCell>Teknik</TableCell>
-                              <TableCell>{mk?.sks}</TableCell>
-                              <TableCell>{mk?.semester}</TableCell>
+                              <TableCell>{mk.kode}</TableCell>
+                              <TableCell>{mk.KK.nama}</TableCell>
+                              <TableCell>{mk.sks}</TableCell>
+                              <TableCell>{mk.semester}</TableCell>
                               <TableCell>11/17/2022</TableCell>
                             </TableRow>
                           </TableBody>
@@ -1620,8 +1649,8 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                             <TableRow>
                               <TableCell>[Nama Koordinator Dosen MK]</TableCell>
-                              <TableCell>[Nama Ketua KK]</TableCell>
-                              <TableCell>[Nama Kepala Program Studi]</TableCell>
+                              <TableCell>{mk.KK.ketua.nama}</TableCell>
+                              <TableCell>{mk.prodi.kaprodi.nama}</TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
@@ -1767,7 +1796,13 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <TableRow>
                       <TableHead>Matakuliah Syarat</TableHead>
                       <TableCell>
-                        <p>[List of Prerequisites]</p>
+                        <p>
+                          {mk.prerequisitesMK.length === 0
+                            ? "-"
+                            : mk.prerequisitesMK
+                                .map((prereq) => prereq.kode)
+                                .join(", ")}
+                        </p>
                       </TableCell>
                     </TableRow>
                     <TableRow>

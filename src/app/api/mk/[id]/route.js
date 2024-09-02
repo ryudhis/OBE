@@ -29,6 +29,17 @@ export async function GET(req) {
           },
         },
         lulusMK_CPMK: true,
+        KK: {
+          include: {
+            ketua: true,
+          },
+        },
+        prodi: {
+          include: {
+            kaprodi: true,
+          },
+        },
+        prerequisitesMK: true,
       },
     });
 

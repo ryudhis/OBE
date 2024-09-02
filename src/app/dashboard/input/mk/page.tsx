@@ -1,4 +1,6 @@
 "use client";
+
+import { useState, useEffect } from "react";
 import axiosConfig from "../../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -39,12 +41,28 @@ const formSchema = z.object({
   sks: z.string().min(1).max(50),
   batasLulusMahasiswa: z.string().min(1).max(50),
   batasLulusMK: z.string().min(1).max(50),
+  KK: z.string().min(1).max(50),
 });
+
+export interface mk {
+  kode: string;
+  deskripsi: string;
+  deskripsiInggris: string;
+}
+
+export interface kelompokKeahlian {
+  id: number;
+  nama: string;
+}
 
 const MKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
+  const [MK, setMK] = useState<mk[]>([]);
+  const [KK, setKK] = useState<kelompokKeahlian[]>([]);
+  const [prerequisitesMK, setPrerequisitesMK] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,10 +74,46 @@ const MKScreen = () => {
       semester: "",
       batasLulusMahasiswa: "0",
       batasLulusMK: "0",
+      KK: "",
     },
   });
 
-  // AddMK
+  const getMK = async () => {
+    try {
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${accountData?.prodiId}`
+      );
+      if (response.data.status !== 400) {
+        setMK(response.data.data);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
+    }
+  };
+
+  const getKK = async () => {
+    try {
+      const response = await axiosConfig.get(
+        `api/kelompokKeahlian?prodi=${accountData?.prodiId}`
+      );
+      if (response.data.status !== 400) {
+        setKK(response.data.data);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("There was a problem with the fetch operation:", error);
+    }
+  };
+
+  const handleCheck = (kode: string) => {
+    setPrerequisitesMK((prev) =>
+      prev.includes(kode) ? prev.filter((id) => id !== kode) : [...prev, kode]
+    );
+  };
+
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
@@ -71,7 +125,9 @@ const MKScreen = () => {
       sks: values.sks,
       batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
       batasLulusMK: parseFloat(values.batasLulusMK),
+      KK: values.KK,
       prodiId: accountData?.prodiId,
+      prerequisitesMK, // Include selected prerequisites MKs
     };
 
     axiosConfig
@@ -100,11 +156,22 @@ const MKScreen = () => {
       });
 
     form.reset();
+    setPrerequisitesMK([]); // Reset the prerequisites MK state after submission
   }
+
+  const filteredMK = MK?.filter((mk) =>
+    mk.kode.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    getMK();
+    getKK();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (accountData?.role === "Dosen") {
     toast({
-      title: "Anda tidak memiliki akses untuk page input mk.",
+      title: "Anda tidak memiliki akses untuk page input MK",
       variant: "destructive",
     });
     router.push("/dashboard");
@@ -112,7 +179,7 @@ const MKScreen = () => {
   }
 
   return (
-    <section className='flex h-screen justify-center items-center'>
+    <section className='flex h-screen justify-center items-center mt-[150px]'>
       <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input MK</CardTitle>
@@ -156,8 +223,42 @@ const MKScreen = () => {
                   <FormItem>
                     <FormLabel>Nama Inggris</FormLabel>
                     <FormControl>
-                      <Input placeholder='Deskripsi Inggris' required {...field} />
+                      <Input
+                        placeholder='Deskripsi Inggris'
+                        required
+                        {...field}
+                      />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='KK'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kelompok Keahlian</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Pilih Kelompok Keahlian' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {KK.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.nama}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -206,6 +307,50 @@ const MKScreen = () => {
                   </FormItem>
                 )}
               />
+
+              <div className='space-y-2'>
+                <FormLabel>Prerequisite Mata Kuliah</FormLabel>
+                {MK.length > 0 ? (
+                  <>
+                    <div className='flex flex-row items-center mb-5'>
+                      <input
+                        type='text'
+                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        value={search}
+                        placeholder='Cari...'
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </div>
+                    <div className='grid grid-cols-5 gap-4'>
+                      {filteredMK.map((data) => (
+                        <div
+                          key={data.kode}
+                          onClick={() => handleCheck(data.kode)}
+                          className='p-4 bg-white rounded-lg shadow-sm flex flex-row justify-between items-center cursor-pointer ease-in-out duration-300 hover:shadow-md'
+                        >
+                          <div>
+                            <div className='font-medium text-lg'>
+                              {data.kode}
+                            </div>
+                            <div className='text-sm'>
+                              {data.deskripsi.length > 30
+                                ? data.deskripsi.slice(0, 28) + "..."
+                                : data.deskripsi}
+                            </div>
+                          </div>
+                          <input
+                            readOnly
+                            checked={prerequisitesMK.includes(data.kode)}
+                            type='checkbox'
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className='text-center text-xl animate-pulse'>Belum ada MK ...</div>
+                )}
+              </div>
 
               <FormField
                 control={form.control}

@@ -105,16 +105,9 @@ const DataTahun = () => {
           <TableCell className='w-[10%]'>{index + 1}</TableCell>
           <TableCell className='w-[10%]'>{tahun.tahun}</TableCell>
           <TableCell className='flex-1'>{tahun.semester}</TableCell>
-          <TableCell className='w-[10%] flex gap-2'>
+          <TableCell className='w-[10%]'>
             <Button variant='destructive' onClick={() => delTahun(tahun.id)}>
               Hapus
-            </Button>
-            <Button
-              onClick={() => {
-                router.push(`/dashboard/details/tahun/${tahun.id}/`);
-              }}
-            >
-              Details
             </Button>
           </TableCell>
         </TableRow>
