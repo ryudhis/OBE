@@ -21,6 +21,7 @@ export async function GET(req) {
             mahasiswa: true,
             tahunAjaran: true,
             lulusCPMK: true,
+            dosen: true,
           },
         },
         rencanaPembelajaran: {
@@ -40,6 +41,11 @@ export async function GET(req) {
           },
         },
         prerequisitesMK: true,
+        rps: {
+          include: {
+            pengembang: true,
+          }
+        }
       },
     });
 

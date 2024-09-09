@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import axiosConfig from "../../../../../utils/axios";
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, use } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import SkeletonTable from "@/components/SkeletonTable";
@@ -12,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -28,9 +30,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { array, z } from "zod";
+import { useForm, useFieldArray, set } from "react-hook-form";
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Table,
@@ -72,6 +75,17 @@ export interface MKinterface {
   KK: KKItem;
   prodi: prodiItem;
   prerequisitesMK: MKinterface[];
+  rps: rpsInterface;
+}
+
+export interface rpsInterface {
+  deskripsi: string;
+  pustakaUtama: string[];
+  pustakaPendukung: string[];
+  hardware: string;
+  software: string;
+  revisi: string;
+  pengembang: accountItem;
 }
 
 export interface prodiItem {
@@ -84,6 +98,7 @@ export interface KKItem {
 }
 
 export interface accountItem {
+  id: number;
   nama: string;
 }
 
@@ -116,6 +131,7 @@ export interface KelasItem {
   MK: MKinterface;
   tahunAjaran: tahunAjaranItem;
   lulusCPMK: lulusKelas_CPMKItem[];
+  dosen: accountItem[];
 }
 
 export interface tahunAjaranItem {
@@ -186,8 +202,16 @@ const formSchema = z.object({
 
 const rpsSchema = z.object({
   deskripsi: z.string(),
-  pustakaUtama: array(z.string()),
-  pustakaPendukung: array(z.string()),
+  pustakaUtama: z.array(
+    z.object({
+      name: z.string(),
+    })
+  ),
+  pustakaPendukung: z.array(
+    z.object({
+      name: z.string(),
+    })
+  ),
   hardware: z.string(),
   software: z.string(),
 });
@@ -211,6 +235,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selectedBK, setSelectedBK] = useState<string[]>([]);
   const [selectedRelasi, setSelectedRelasi] = useState<string>("");
   const [listCPL, setListCPL] = useState<CPLItem[]>([]);
+  const [teamTeaching, setTeamTeaching] = useState<string[]>([]);
   const router = useRouter();
 
   const filteredCPMK = cpmk?.filter((cpmk) =>
@@ -238,7 +263,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     },
   });
 
-  const formRPS = useForm<z.infer<typeof rpsSchema>>({
+  const rpsForm = useForm<z.infer<typeof rpsSchema>>({
     resolver: zodResolver(rpsSchema),
     defaultValues: {
       deskripsi: "",
@@ -247,6 +272,24 @@ export default function Page({ params }: { params: { kode: string } }) {
       hardware: "",
       software: "",
     },
+  });
+
+  const {
+    fields: pustakaUtamaFields,
+    append: appendPustakaUtama,
+    remove: removePustakaUtama,
+  } = useFieldArray({
+    control: rpsForm.control,
+    name: "pustakaUtama",
+  });
+
+  const {
+    fields: pustakaPendukungFields,
+    append: appendPustakaPendukung,
+    remove: removePustakaPendukung,
+  } = useFieldArray({
+    control: rpsForm.control,
+    name: "pustakaPendukung",
   });
 
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
@@ -361,6 +404,7 @@ export default function Page({ params }: { params: { kode: string } }) {
         setSelectedBK(prevSelectedBK);
         setPrevSelectedBK(prevSelectedBK);
 
+        //form edit data mk
         form.setValue("deskripsi", response.data.data.deskripsi);
         form.setValue("sks", response.data.data.sks);
         form.setValue(
@@ -368,6 +412,24 @@ export default function Page({ params }: { params: { kode: string } }) {
           String(response.data.data.batasLulusMahasiswa)
         );
         form.setValue("batasLulusMK", String(response.data.data.batasLulusMK));
+
+        //form revisi rps
+        if (response.data.data.rps) {
+          rpsForm.setValue("deskripsi", response.data.data.rps.deskripsi);
+          rpsForm.setValue("hardware", response.data.data.rps.hardware);
+          rpsForm.setValue("software", response.data.data.rps.software);
+
+          rpsForm.setValue("pustakaUtama", []);
+          response.data.data.rps.pustakaUtama.map((item: string) => {
+            console.log(item);
+            appendPustakaUtama({ name: item });
+          });
+
+          rpsForm.setValue("pustakaPendukung", []);
+          response.data.data.rps.pustakaPendukung.map((item: string) => {
+            appendPustakaPendukung({ name: item });
+          });
+        }
       }
     } catch (error: any) {
       throw error;
@@ -651,34 +713,47 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const delRencana = (id: number) => {
-    axiosConfig
-      .delete(`api/rencanaPembelajaran/${id}`)
-      .then(function (response) {
-        if (response.status === 200) {
+  const delRencana = async (id: number) => {
+    const result = await Swal.fire({
+      title: "Tunggu !..",
+      text: `Kamu yakin ingin hapus rencana pembelajaran ini?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Tidak",
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#0F172A",
+    });
+
+    if (result.isConfirmed) {
+      axiosConfig
+        .delete(`api/rencanaPembelajaran/${id}`)
+        .then(function (response) {
+          if (response.status === 200) {
+            toast({
+              title: "Berhasil hapus rencana pembelajaran",
+              description: String(new Date()),
+            });
+          } else {
+            toast({
+              title: "Tidak ada rencana pembelajaran!",
+              description: String(new Date()),
+              variant: "destructive",
+            });
+          }
+        })
+        .catch(function (error) {
           toast({
-            title: "Berhasil hapus rencana pembelajaran",
-            description: String(new Date()),
-          });
-        } else {
-          toast({
-            title: "Tidak ada rencana pembelajaran!",
+            title: "Gagal hapus rencana pembelajaran",
             description: String(new Date()),
             variant: "destructive",
           });
-        }
-      })
-      .catch(function (error) {
-        toast({
-          title: "Gagal hapus rencana pembelajaran",
-          description: String(new Date()),
-          variant: "destructive",
+          console.log(error);
+        })
+        .finally(() => {
+          setRefresh(!refresh);
         });
-        console.log(error);
-      })
-      .finally(() => {
-        setRefresh(!refresh);
-      });
+    }
   };
 
   function editRencana(values: z.infer<typeof formSchema>, e: any) {
@@ -736,6 +811,84 @@ export default function Page({ params }: { params: { kode: string } }) {
     setSelectedTahun(value);
   };
 
+  const revisiRPS = async (values: z.infer<typeof rpsSchema>, e: any) => {
+    e.preventDefault();
+    const result = await Swal.fire({
+      title: "Tunggu !..",
+      text: `Kamu yakin ingin revisi RPS ini?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Tidak",
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#0F172A",
+    });
+
+    if (result.isConfirmed) {
+      const currentDate = new Date();
+
+      const formattedDate = new Intl.DateTimeFormat("id-ID", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }).format(currentDate);
+
+      const payload = {
+        ...values,
+        pustakaUtama: values.pustakaUtama.map((item) => item.name),
+        pustakaPendukung: values.pustakaPendukung.map((item) => item.name),
+        dosenId: accountData?.id,
+        MKId: kode,
+        revisi: formattedDate,
+      };
+
+      axiosConfig
+        .post(`api/rps`, payload)
+        .then(function (response) {
+          if (response.data.status !== 400) {
+            toast({
+              title: "Berhasil Revisi RPS",
+              description: `MK ${kode}`,
+            });
+          } else {
+            toast({
+              title: "Kode Sudah Ada!",
+              description: String(new Date()),
+              variant: "destructive",
+            });
+          }
+        })
+        .catch(function (error) {
+          toast({
+            title: "Gagal Submit",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+          console.log(error);
+        })
+        .finally(() => {
+          setRefresh(!refresh);
+        });
+    }
+  };
+
+  const getTeamTeaching = () => {
+    const allDosen: string[] = [];
+
+    if (mk) {
+      // Iterate through each kelas in the MKData to collect dosen
+      mk.kelas.forEach((kelas) => {
+        kelas.dosen.forEach((dosen) => {
+          // Check if the dosen is already added
+          if (!allDosen.some((existingDosen) => existingDosen === dosen.nama)) {
+            allDosen.push(dosen.nama);
+          }
+        });
+      });
+      setTeamTeaching(allDosen);
+    }
+  };
+
   const filteredKelas = mk?.kelas.filter(
     (kelas) => kelas.tahunAjaran.id === parseInt(selectedTahun)
   );
@@ -775,14 +928,16 @@ export default function Page({ params }: { params: { kode: string } }) {
   useEffect(() => {
     getMK();
     getTahunAjaran();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   useEffect(() => {
     getAllCPMK();
     getAllBK();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Trigger useEffect only on initial mount
+
+  useEffect(() => {
+    getTeamTeaching();
+  }, [mk]);
 
   const renderData = () => {
     return filteredKelas?.map((kelas) => {
@@ -940,12 +1095,14 @@ export default function Page({ params }: { params: { kode: string } }) {
                       )}
                     />
                     <DialogFooter>
-                      <Button
-                        className='bg-blue-500 hover:bg-blue-600'
-                        type='submit'
-                      >
-                        Submit
-                      </Button>
+                      <DialogClose asChild>
+                        <Button
+                          className='bg-blue-500 hover:bg-blue-600'
+                          type='submit'
+                        >
+                          Submit
+                        </Button>
+                      </DialogClose>
                     </DialogFooter>
                   </form>
                 </Form>
@@ -1246,12 +1403,14 @@ export default function Page({ params }: { params: { kode: string } }) {
                     )}
                   />
                   <DialogFooter>
-                    <Button
-                      className='bg-blue-500 hover:bg-blue-600'
-                      type='submit'
-                    >
-                      Submit
-                    </Button>
+                    <DialogClose asChild>
+                      <Button
+                        className='bg-blue-500 hover:bg-blue-600'
+                        type='submit'
+                      >
+                        Submit
+                      </Button>
+                    </DialogClose>
                   </DialogFooter>
                 </form>
               </Form>
@@ -1472,12 +1631,14 @@ export default function Page({ params }: { params: { kode: string } }) {
                       )}
                     />
                     <DialogFooter>
-                      <Button
-                        className='bg-blue-500 hover:bg-blue-600'
-                        type='submit'
-                      >
-                        Submit
-                      </Button>
+                      <DialogClose asChild>
+                        <Button
+                          className='bg-blue-500 hover:bg-blue-600'
+                          type='submit'
+                        >
+                          Submit
+                        </Button>
+                      </DialogClose>
                     </DialogFooter>
                   </form>
                 </Form>
@@ -1576,7 +1737,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           </TabsContent>
 
           <TabsContent className='flex flex-col gap-3' value='rps'>
-            <Card className='mx-auto'>
+            <Card className='mx-auto w-[100%]'>
               <CardHeader className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>
                   <CardTitle>Rencana Pembelajaran Semester</CardTitle>
@@ -1584,6 +1745,176 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </div>
 
                 <div className='flex gap-3'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant='outline'>Revisi RPS</Button>
+                    </DialogTrigger>
+                    <DialogContent className='max-w-[600px] max-h-[800px] overflow-auto'>
+                      <DialogHeader>
+                        <DialogTitle>
+                          Revisi Rencana Pembelajaran Semester
+                        </DialogTitle>
+                        <DialogDescription>
+                          Mata Kuliah {mk.kode}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Form {...rpsForm}>
+                        <form
+                          onSubmit={rpsForm.handleSubmit(revisiRPS)}
+                          className='space-y-8'
+                        >
+                          <FormField
+                            control={rpsForm.control}
+                            name='deskripsi'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Deskripsi MK</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder='Deskripsi...'
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Pustaka Utama Fields */}
+                          <div>
+                            <div className='flex justify-between items-center mb-3'>
+                              <FormLabel>Pustaka Utama</FormLabel>
+                              <Button
+                                type='button'
+                                variant={"outline"}
+                                className='h-50'
+                                onClick={() => appendPustakaUtama({ name: "" })}
+                              >
+                                Tambah
+                              </Button>
+                            </div>
+
+                            {pustakaUtamaFields.map((item, index) => (
+                              <FormItem key={item.id} className='mb-3'>
+                                <FormControl>
+                                  <FormField
+                                    name={`pustakaUtama.${index}.name` as const} // Type assertion to ensure correct type
+                                    control={rpsForm.control}
+                                    render={({ field }) => (
+                                      <Input
+                                        placeholder='Pustaka Utama...'
+                                        {...field}
+                                      />
+                                    )}
+                                  />
+                                </FormControl>
+                                {index === pustakaUtamaFields.length - 1 && (
+                                  <Button
+                                    type='button'
+                                    onClick={() => removePustakaUtama(index)}
+                                    className='mt-2'
+                                  >
+                                    Hapus
+                                  </Button>
+                                )}
+                                <FormMessage />
+                              </FormItem>
+                            ))}
+                          </div>
+
+                          {/* Pustaka Pendukung Fields */}
+                          <div>
+                            <div className='flex justify-between items-center mb-3'>
+                              <FormLabel>Pustaka Pendukung</FormLabel>
+                              <Button
+                                type='button'
+                                variant={"outline"}
+                                className='h-50'
+                                onClick={() =>
+                                  appendPustakaPendukung({ name: "" })
+                                }
+                              >
+                                Tambah
+                              </Button>
+                            </div>
+
+                            {pustakaPendukungFields.map((item, index) => (
+                              <FormItem key={item.id} className='mb-3'>
+                                <FormControl>
+                                  <FormField
+                                    name={
+                                      `pustakaPendukung.${index}.name` as const
+                                    } // Type assertion to ensure correct type
+                                    control={rpsForm.control}
+                                    render={({ field }) => (
+                                      <Input
+                                        placeholder='Pustaka Pendukung...'
+                                        {...field}
+                                      />
+                                    )}
+                                  />
+                                </FormControl>
+                                {index ===
+                                  pustakaPendukungFields.length - 1 && (
+                                  <Button
+                                    type='button'
+                                    onClick={() =>
+                                      removePustakaPendukung(index)
+                                    }
+                                    className='mt-2'
+                                  >
+                                    Hapus
+                                  </Button>
+                                )}
+                                <FormMessage />
+                              </FormItem>
+                            ))}
+                          </div>
+
+                          {/* Additional Fields */}
+                          <FormField
+                            name='hardware'
+                            control={rpsForm.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Hardware</FormLabel>
+                                <FormControl>
+                                  <Input placeholder='Hardware...' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            name='software'
+                            control={rpsForm.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Software</FormLabel>
+                                <FormControl>
+                                  <Input placeholder='Software...' {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button
+                                className='bg-blue-500 hover:bg-blue-600'
+                                type='submit'
+                              >
+                                Submit
+                              </Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </form>
+                      </Form>
+                    </DialogContent>
+                  </Dialog>
+
                   <Button onClick={generateRPS}>Generate RPS</Button>
                 </div>
               </CardHeader>
@@ -1630,7 +1961,9 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <TableCell>{mk.KK.nama}</TableCell>
                               <TableCell>{mk.sks}</TableCell>
                               <TableCell>{mk.semester}</TableCell>
-                              <TableCell>11/17/2022</TableCell>
+                              <TableCell>
+                                {mk.rps && mk.rps.revisi ? mk.rps.revisi : "-"}
+                              </TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
@@ -1648,7 +1981,11 @@ export default function Page({ params }: { params: { kode: string } }) {
                             </TableRow>
 
                             <TableRow>
-                              <TableCell>[Nama Koordinator Dosen MK]</TableCell>
+                              <TableCell>
+                                {mk.rps && mk.rps.pengembang
+                                  ? mk.rps.pengembang.nama
+                                  : "-"}
+                              </TableCell>
                               <TableCell>{mk.KK.ketua.nama}</TableCell>
                               <TableCell>{mk.prodi.kaprodi.nama}</TableCell>
                             </TableRow>
@@ -1659,35 +1996,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <TableRow>
                       <TableHead>Deskripsi Mata Kuliah</TableHead>
                       <TableCell>
-                        <p>
-                          Pada mata kuliah ini mahasiswa mempelajari tentang:
-                        </p>
-                        <ul>
-                          <li>
-                            Definisi dan model fundamental Analisis Jaringan
-                            Sosial
-                          </li>
-                          <li>
-                            Tipe jaringan, struktur, model, dan proses dinamis
-                            pada jaringan sosial
-                          </li>
-                          <li>
-                            Metode perhitungan sentralitas jaringan sosial
-                          </li>
-                          <li>
-                            Metode untuk mengidentifikasi komunitas dalam
-                            jaringan sosial
-                          </li>
-                          <li>
-                            Perangkat lunak untuk menerapkan analisis jaringan
-                            sosial
-                          </li>
-                          <li>Visualisasi jaringan sosial</li>
-                        </ul>
-                        <p>
-                          Mata kuliah ini menggunakan studi kasus jaringan
-                          sosial Twitter.
-                        </p>
+                        {mk.rps && mk.rps.deskripsi ? mk.rps.deskripsi : "-"}
                       </TableCell>
                     </TableRow>
                     <TableRow>
@@ -1742,26 +2051,31 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <TableRow className='bg-[#CCCCCC]'>
                               <TableHead>Utama:</TableHead>
                             </TableRow>
-                            <TableRow>
-                              <TableCell>
-                                [WAS94] Social Network Analysis: Methods and
-                                Applications, Stanley Wasserman and Katherine
-                                Faust. Cambridge University Press. 1994
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>
-                                [MAK11] Social Network Analysis for Start Up,
-                                Maksim Tsvetovat and Alexander Kouznetsov.
-                                OReilly. 2011
-                              </TableCell>
-                            </TableRow>
+                            {mk.rps && mk.rps.pustakaUtama.length > 0 ? (
+                              mk.rps.pustakaUtama.map((pustaka, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>{pustaka}</TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell>-</TableCell>
+                              </TableRow>
+                            )}
                             <TableRow className='bg-[#CCCCCC]'>
                               <TableHead>Pendukung:</TableHead>
                             </TableRow>
-                            <TableRow>
-                              <TableCell>-</TableCell>
-                            </TableRow>
+                            {mk.rps && mk.rps.pustakaPendukung.length > 0 ? (
+                              mk.rps.pustakaPendukung.map((pustaka, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>{pustaka}</TableCell>
+                                </TableRow>
+                              ))
+                            ) : (
+                              <TableRow>
+                                <TableCell>-</TableCell>
+                              </TableRow>
+                            )}
                           </TableBody>
                         </Table>
                       </TableCell>
@@ -1780,8 +2094,16 @@ export default function Page({ params }: { params: { kode: string } }) {
                               </TableHead>
                             </TableRow>
                             <TableRow>
-                              <TableCell>Gephi; NetworkX, Python</TableCell>
-                              <TableCell>Komputer/Laptop; Projector</TableCell>
+                              <TableCell>
+                                {mk.rps && mk.rps.software
+                                  ? mk.rps.software
+                                  : "-"}
+                              </TableCell>
+                              <TableCell>
+                                {mk.rps && mk.rps.hardware
+                                  ? mk.rps.hardware
+                                  : "-"}
+                              </TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
@@ -1790,7 +2112,16 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <TableRow>
                       <TableHead>Team Teaching</TableHead>
                       <TableCell>
-                        <p>[List of Dosen]</p>
+                        <p>
+                          {mk.rps && teamTeaching.length > 0
+                            ? teamTeaching.map((dosen, index) => (
+                                <span key={index}>
+                                  {dosen}{" "}
+                                  {index < teamTeaching.length - 1 ? ", " : ""}
+                                </span>
+                              ))
+                            : "-"}
+                        </p>
                       </TableCell>
                     </TableRow>
                     <TableRow>

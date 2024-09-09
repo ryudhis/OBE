@@ -3,18 +3,30 @@ import prisma from "@/utils/prisma";
 export async function POST(req) {
   try {
     const data = await req.json();
-    const { MKId, ...restData } = data;
+    const { MKId, dosenId, ...restData } = data;
 
     const PL = await prisma.rps.upsert({
       where: {
-        MKId: parseInt(MKId),
+        MKId: MKId,
       },
-      update: { ...restData },
+      update: {
+        ...restData,
+        pengembang: {
+          connect: {
+            id: parseInt(dosenId),
+          },
+        },
+      },
       create: {
         ...restData,
         MK: {
           connect: {
-            id: parseInt(MKId),
+            kode: MKId,
+          },
+        },
+        pengembang: {
+          connect: {
+            id: parseInt(dosenId),
           },
         },
       },
