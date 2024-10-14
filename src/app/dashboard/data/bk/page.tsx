@@ -112,6 +112,16 @@ const DataBK = () => {
   }
 
   const renderData = () => {
+    if (BK.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
     return BK.map((bk, index) => {
       return (
         <TableRow key={index}>

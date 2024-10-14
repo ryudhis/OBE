@@ -99,6 +99,16 @@ const DataTahun = () => {
   }
 
   const renderData = () => {
+    if (tahun.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
     return tahun.map((tahun, index) => {
       return (
         <TableRow key={index}>

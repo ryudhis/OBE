@@ -107,6 +107,16 @@ const DataPL = () => {
   }
 
   const renderData = () => {
+    if (PL.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+    }
+    
     return PL.map((pl, index) => {
       return (
         <TableRow key={index}>

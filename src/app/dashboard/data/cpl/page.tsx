@@ -166,7 +166,7 @@ const DataCPL = () => {
       return (
         <TableRow>
           <TableCell colSpan={10} className="text-center">
-            Tidak ada data
+            Belum ada data
           </TableCell>
         </TableRow>
       );

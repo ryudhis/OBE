@@ -106,6 +106,17 @@ const DataMahasiswa = () => {
   }
 
   const renderData = () => {
+    if (mahasiswa.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+
     return mahasiswa.map((mhs) => {
       return (
         <TableRow key={mhs.nim}>

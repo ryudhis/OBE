@@ -98,6 +98,17 @@ const DataProdi = () => {
   }
 
   const renderData = () => {
+    if (prodi.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+
     return prodi.map((prodi, index) => {
       return (
         <TableRow key={index}>

@@ -163,7 +163,7 @@ const DataPenilaianCPMK = () => {
       return (
         <TableRow>
           <TableCell colSpan={11} className='text-center font-semibold'>
-            Belum ada Penilaian CPMK
+            Belum ada data
           </TableCell>
         </TableRow>
       );

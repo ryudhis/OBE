@@ -165,6 +165,16 @@ const DataNilai = () => {
   }
 
   const renderData = () => {
+    if (filteredNilai.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
     return filteredNilai?.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
