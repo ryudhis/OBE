@@ -166,8 +166,8 @@ const DataCPMK = () => {
     if (CPMK.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={10} className="text-center">
-            Tidak ada data
+          <TableCell colSpan={10} className="text-center font-semibold">
+            Belum ada data
           </TableCell>
         </TableRow>
       );

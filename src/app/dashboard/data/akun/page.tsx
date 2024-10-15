@@ -106,6 +106,16 @@ const DataAkun = () => {
   }
 
   const renderData = () => {
+    if (akun.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={11} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+    }
+
     return akun.map((akun) => {
       return (
         <TableRow key={akun.id}>
