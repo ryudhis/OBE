@@ -1,21 +1,22 @@
 import prisma from "@/utils/prisma";
 import { validateToken } from "@/utils/auth"; // Import the token validation function
 
-export async function GET(req) {
+export async function GET(req, { params }) {
+  // Validate the token
   const tokenValidation = validateToken(req);
   
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401 }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
-    const id = req.url.split("/account/")[1]; // Extract the id from the URL
+    const { id } = params; // Get the id directly from params
     const account = await prisma.account.findUnique({
       where: {
-        id: parseInt(id), // Ensure id is an integer
+        id: parseInt(id), 
       },
     });
 
@@ -30,21 +31,22 @@ export async function GET(req) {
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req, { params }) {
+  // Validate the token
   const tokenValidation = validateToken(req);
   
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401 }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
-    const id = req.url.split("/account/")[1]; // Extract the id from the URL
+    const { id } = params; // Get the id directly from params
     const account = await prisma.account.delete({
       where: {
-        id: parseInt(id), // Ensure id is an integer
+        id: parseInt(id), 
       },
     });
 
@@ -59,23 +61,24 @@ export async function DELETE(req) {
   }
 }
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
+  // Validate the token
   const tokenValidation = validateToken(req);
   
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401 }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
-    const id = req.url.split("/account/")[1]; // Extract the id from the URL
+    const { id } = params; // Get the id directly from params
     const data = await req.json();
 
     const account = await prisma.account.update({
       where: {
-        id: parseInt(id), // Ensure id is an integer
+        id: parseInt(id), 
       },
       data,
     });
