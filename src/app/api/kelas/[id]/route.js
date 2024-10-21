@@ -1,8 +1,18 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; 
 
-export async function GET(req) {
+export async function GET(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
-    const id = req.url.split("/kelas/")[1];
+    const id = params.id; // Get the kelas ID from the route parameters
     const kelas = await prisma.kelas.findUnique({
       where: {
         id: parseInt(id),
@@ -31,41 +41,77 @@ export async function GET(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil data!",
-      data: kelas,
-    });
+    if (!kelas) {
+      return new Response(
+        JSON.stringify({ status: 404, message: "Kelas not found!" }),
+        { status: 404 }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil data!",
+        data: kelas,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error); // Improved error logging
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400 }
+    );
   }
 }
 
-export async function DELETE(req) {
-  try {
-    const id = req.url.split("/kelas/")[1];
+export async function DELETE(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
+  try {
+    const id = params.id; // Get the kelas ID from the route parameters
     const kelas = await prisma.kelas.delete({
       where: {
         id: parseInt(id),
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil hapus data!",
-      data: kelas,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil hapus data!",
+        data: kelas,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error); // Improved error logging
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400 }
+    );
   }
 }
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
-    const id = req.url.split("/kelas/")[1];
+    const id = params.id; // Get the kelas ID from the route parameters
     const data = await req.json();
 
     const kelas = await prisma.kelas.update({
@@ -75,13 +121,19 @@ export async function PATCH(req) {
       data,
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
-      data: kelas,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ubah data!",
+        data: kelas,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error); // Improved error logging
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400 }
+    );
   }
 }

@@ -1,4 +1,3 @@
-// utils/api.js
 import axiosConfig from "./axios";
 
 export const getAccountData = async () => {

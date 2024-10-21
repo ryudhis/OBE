@@ -1,20 +1,24 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; 
 
-export async function GET(req) {
+export async function GET(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
-    const kode = req.url.split("/mk/")[1];
+    const { id: kode } = params; 
     const MK = await prisma.MK.findUnique({
-      where: {
-        kode: kode,
-      },
+      where: { kode: kode },
       include: {
         penilaianCPMK: { include: { CPMK: true } },
         BK: { include: { CPL: true } },
-        CPMK: {
-          include: {
-            CPL: true,
-          },
-        },
+        CPMK: { include: { CPL: true } },
         kelas: {
           include: {
             MK: true,
@@ -25,80 +29,105 @@ export async function GET(req) {
           },
         },
         rencanaPembelajaran: {
-          orderBy: {
-            minggu: "asc",
-          },
+          orderBy: { minggu: "asc" },
         },
         lulusMK_CPMK: true,
-        KK: {
-          include: {
-            ketua: true,
-          },
-        },
-        prodi: {
-          include: {
-            kaprodi: true,
-          },
-        },
+        KK: { include: { ketua: true } },
+        prodi: { include: { kaprodi: true } },
         prerequisitesMK: true,
-        rps: {
-          include: {
-            pengembang: true,
-          }
-        }
+        rps: { include: { pengembang: true } },
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil data!",
-      data: MK,
-    });
+    if (!MK) {
+      return new Response(
+        JSON.stringify({ status: 404, message: "MK not found" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil data!",
+        data: MK,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 400, message: error.message || "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
-    const kode = req.url.split("/mk/")[1];
+    const { id: kode } = params; 
     const MK = await prisma.MK.delete({
-      where: {
-        kode: kode,
-      },
+      where: { kode: kode },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil hapus data!",
-      data: MK,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil hapus data!",
+        data: MK,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 400, message: error.message || "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
-    const kode = req.url.split("/mk/")[1];
+    const { id: kode } = params; 
     const data = await req.json();
 
     const MK = await prisma.MK.update({
-      where: {
-        kode: kode,
-      },
+      where: { kode: kode },
       data,
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
-      data: MK,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ubah data!",
+        data: MK,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 400, message: error.message || "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }

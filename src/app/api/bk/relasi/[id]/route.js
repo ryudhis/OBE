@@ -1,6 +1,16 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import the token validation function
 
 export async function PATCH(req) {
+  const tokenValidation = validateToken(req);
+  
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const id = req.url.split("/relasi/")[1];
     const body = await req.json();
@@ -21,13 +31,19 @@ export async function PATCH(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
-      data: BK,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ubah data!",
+        data: BK,
+      }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

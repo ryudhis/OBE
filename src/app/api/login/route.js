@@ -6,7 +6,7 @@ const signToken = async (account) => {
   const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
   const payload = {
-    id: account.id,  // Include user ID in the payload
+    id: account.id,  
     nama: account.nama,
     prodi: account.prodiKode,
     role: account.role,

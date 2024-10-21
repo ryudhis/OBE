@@ -1,6 +1,17 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import the token validation function
 
 export async function PATCH(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const body = await req.json();
 
@@ -52,13 +63,13 @@ export async function PATCH(req) {
         status: 200,
         message: "Berhasil ubah data!",
       }),
-      { status: 200 }
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.log(error);
     return new Response(
       JSON.stringify({ status: 400, message: "Gagal ubah data!" }),
-      { status: 400 }
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }

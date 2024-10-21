@@ -1,10 +1,18 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; 
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
-    // Extract kelas ID from URL
-    const urlParts = req.url.split("/kelas/");
-    const id = urlParts[1]?.split("/")[0];
+    const id = params.id; // Get the kelas ID from the route parameters
     if (!id) {
       throw new Error("Kelas ID is missing");
     }
@@ -57,7 +65,7 @@ export async function PATCH(req) {
       data: updatedKelas,
     }), { status: 200 });
   } catch (error) {
-    console.log(error);
+    console.error(error); // Improved logging for errors
     return new Response(JSON.stringify({ status: 400, message: "Something went wrong!" }), { status: 400 });
   }
 }

@@ -1,6 +1,16 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import the token validation function
 
 export async function PATCH(req) {
+  const tokenValidation = validateToken(req);
+
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const id = req.url.split("/relasi/")[1];
     const body = await req.json();

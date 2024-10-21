@@ -1,6 +1,15 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import your token validation utility
 
 export async function GET(req, res) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return res
+      .status(401)
+      .json({ status: 401, message: tokenValidation.message });
+  }
+
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
 
@@ -26,18 +35,27 @@ export async function GET(req, res) {
       },
     });
 
-    return Response.json({
+    return res.json({
       status: 200,
       message: "Berhasil ambil semua data!",
       data: PL,
     });
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return res.status(400).json({ status: 400, message: "Something went wrong!" });
   }
 }
 
 export async function POST(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
     const data = await req.json();
     const { prodiId, ...restData } = data; // Extract prodiId from data
@@ -54,13 +72,19 @@ export async function POST(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil buat data!",
-      data: PL,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil buat data!",
+        data: PL,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   }
 }

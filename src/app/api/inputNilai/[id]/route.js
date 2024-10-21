@@ -1,55 +1,133 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; 
 
 export async function GET(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const id = req.url.split("/inputNilai/")[1];
+    
+    // Validate ID parameter
+    if (!id || isNaN(parseInt(id))) {
+      return new Response(
+        JSON.stringify({ status: 400, message: "Invalid ID parameter" }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const inputNilai = await prisma.inputNilai.findUnique({
       where: {
         id: parseInt(id),
       },
       include: {
-        penilaianCPMK:{
+        penilaianCPMK: {
           include: {
-            MK: true, CPMK: true, CPL:true,
-          }
-        }, mahasiswa:true, kelas:true,
-      }
+            MK: true,
+            CPMK: true,
+            CPL: true,
+          },
+        },
+        mahasiswa: true,
+        kelas: true,
+      },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil data!",
-      data: inputNilai,
-    });
+    if (!inputNilai) {
+      return new Response(
+        JSON.stringify({ status: 404, message: "Data not found!" }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil data!",
+        data: inputNilai,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error("GET inputNilai Error: ", error); // More informative error logging
+    return new Response(
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }
 
 export async function DELETE(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const id = req.url.split("/inputNilai/")[1];
+
+    // Validate ID parameter
+    if (!id || isNaN(parseInt(id))) {
+      return new Response(
+        JSON.stringify({ status: 400, message: "Invalid ID parameter" }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const inputNilai = await prisma.inputNilai.delete({
       where: {
         id: parseInt(id),
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil hapus data!",
-      data: inputNilai,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil hapus data!",
+        data: inputNilai,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error("DELETE inputNilai Error: ", error); // More informative error logging
+    return new Response(
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }
 
 export async function PATCH(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const id = req.url.split("/inputNilai/")[1];
+
+    // Validate ID parameter
+    if (!id || isNaN(parseInt(id))) {
+      return new Response(
+        JSON.stringify({ status: 400, message: "Invalid ID parameter" }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     const data = await req.json();
 
     const inputNilai = await prisma.inputNilai.update({
@@ -59,13 +137,19 @@ export async function PATCH(req) {
       data,
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
-      data: inputNilai,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ubah data!",
+        data: inputNilai,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error("PATCH inputNilai Error: ", error); // More informative error logging
+    return new Response(
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

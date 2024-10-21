@@ -1,12 +1,25 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Assuming you have a token validation function
 
 export async function GET(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
 
   // Validate prodi parameter if necessary
   if (!prodi) {
-    return Response.json({ status: 400, message: "Missing prodi parameter" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -20,18 +33,33 @@ export async function GET(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil semua data!",
-      data: penilaianCPMK,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil semua data!",
+        data: penilaianCPMK,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
 export async function POST(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
     const data = await req.json();
     const { prodiId, ...restData } = data; // Extract prodiId from data
@@ -94,22 +122,31 @@ export async function POST(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil buat data!",
-      data: penilaianCPMK,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil buat data!",
+        data: penilaianCPMK,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     if (error.code === "P2002") {
-      return Response.json({
-        status: 400,
-        message: "Kombinasi MK dan CPMK sudah ada",
-      });
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          message: "Kombinasi MK dan CPMK sudah ada",
+        }),
+        { headers: { "Content-Type": "application/json" } }
+      );
     }
     console.log(error.message);
-    return Response.json({
-      status: 400,
-      message: error.message || "Something went wrong!",
-    });
+    return new Response(
+      JSON.stringify({
+        status: 400,
+        message: error.message || "Something went wrong!",
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   }
 }

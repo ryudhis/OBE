@@ -1,11 +1,21 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import the token validation function
 
 export async function GET(req) {
+  const tokenValidation = validateToken(req);
+  
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401 }
+    );
+  }
+
   try {
-    const id = req.url.split("/account/")[1];
+    const id = req.url.split("/account/")[1]; // Extract the id from the URL
     const account = await prisma.account.findUnique({
       where: {
-        id: parseInt(id),
+        id: parseInt(id), // Ensure id is an integer
       },
     });
 
@@ -21,11 +31,20 @@ export async function GET(req) {
 }
 
 export async function DELETE(req) {
+  const tokenValidation = validateToken(req);
+  
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401 }
+    );
+  }
+
   try {
-    const id = req.url.split("/account/")[1];
+    const id = req.url.split("/account/")[1]; // Extract the id from the URL
     const account = await prisma.account.delete({
       where: {
-        id: parseInt(id),
+        id: parseInt(id), // Ensure id is an integer
       },
     });
 
@@ -41,13 +60,22 @@ export async function DELETE(req) {
 }
 
 export async function PATCH(req) {
+  const tokenValidation = validateToken(req);
+  
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401 }
+    );
+  }
+
   try {
-    const id = req.url.split("/account/")[1];
+    const id = req.url.split("/account/")[1]; // Extract the id from the URL
     const data = await req.json();
 
     const account = await prisma.account.update({
       where: {
-        id,
+        id: parseInt(id), // Ensure id is an integer
       },
       data,
     });

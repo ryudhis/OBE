@@ -6,9 +6,6 @@ const instance = axios.create({
 });
 
 // Where you would set stuff like your 'Authorization' header, etc ...
-// instance.defaults.headers.common["Authorization"] = `Bearer ${Cookies.get(
-//   "token"
-// )}`;
 
 instance.defaults.headers.common["Content-Type"] = "application/json";
 

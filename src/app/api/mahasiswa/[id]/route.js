@@ -1,48 +1,101 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; 
 
-export async function GET(req) {
+export async function GET(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const nim = params.id; 
+
   try {
-    const nim = req.url.split("/mahasiswa/")[1];
     const mahasiswa = await prisma.mahasiswa.findUnique({
       where: {
         nim,
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil data!",
-      data: mahasiswa,
-    });
+    if (!mahasiswa) {
+      return new Response(
+        JSON.stringify({ status: 404, message: "Mahasiswa not found!" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil data!",
+        data: mahasiswa,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // Extract NIM from params.id
+  const nim = params.id; 
+
   try {
-    const nim = req.url.split("/mahasiswa/")[1];
     const mahasiswa = await prisma.mahasiswa.delete({
       where: {
         nim,
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil hapus data!",
-      data: mahasiswa,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil hapus data!",
+        data: mahasiswa,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
-export async function PATCH(req) {
+// PATCH (update) a mahasiswa by NIM
+export async function PATCH(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  // Extract NIM from params.id
+  const nim = params.id; 
+
   try {
-    const nim = req.url.split("/mahasiswa/")[1];
     const data = await req.json();
 
     const mahasiswa = await prisma.mahasiswa.update({
@@ -52,13 +105,19 @@ export async function PATCH(req) {
       data,
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
-      data: mahasiswa,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ubah data!",
+        data: mahasiswa,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }

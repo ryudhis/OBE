@@ -1,14 +1,27 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth";
 
 export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
-
-  // Validate prodi parameter if necessary
-  if (!prodi) {
-    return Response.json({ status: 400, message: "Missing prodi parameter" });
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
   }
-  
+
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || "";
+
+  // Validate prodi parameter
+  if (!prodi) {
+    return new Response(
+      JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const inputNilai = await prisma.inputNilai.findMany({
       where: {
@@ -24,25 +37,34 @@ export async function GET(req) {
         message: "Berhasil ambil semua data!",
         data: inputNilai,
       }),
-      { status: 200 }
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.log(error);
+    console.error("GET inputNilai Error: ", error); // More informative logging
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400 }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
 
 export async function POST(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const data = await req.json();
 
     const inputNilaiData = data.map((mahasiswa) => ({
-      penilaianCPMKId: parseInt(mahasiswa.PCPMKId), // Assuming PCPMKId is the ID for penilaianCPMK
-      mahasiswaNim: mahasiswa.MahasiswaId, // Assuming MahasiswaId is the NIM for mahasiswa
-      kelasId: mahasiswa.kelasId, // Assuming kelasId is the ID for kelas
+      penilaianCPMKId: parseInt(mahasiswa.PCPMKId),
+      mahasiswaNim: mahasiswa.MahasiswaId,
+      kelasId: mahasiswa.kelasId,
       nilai: mahasiswa.nilai,
       prodiId: mahasiswa.prodiId,
     }));
@@ -50,7 +72,7 @@ export async function POST(req) {
     // Use createMany to insert all entries at once
     const inputNilai = await prisma.inputNilai.createMany({
       data: inputNilaiData,
-      skipDuplicates: true, // Optional: skips duplicates if any
+      skipDuplicates: true,
     });
 
     return new Response(
@@ -59,13 +81,13 @@ export async function POST(req) {
         message: "Berhasil buat data!",
         data: inputNilai,
       }),
-      { status: 200 }
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.log(error);
+    console.error("POST inputNilai Error: ", error); // More informative logging
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400 }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }

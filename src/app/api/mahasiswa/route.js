@@ -1,14 +1,24 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; 
 
-export async function GET(req, res) {
+export async function GET(req) {
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
 
-  // Validate prodi parameter if necessary
+  // Validate prodi parameter
   if (!prodi) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "Missing prodi parameter" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -19,41 +29,75 @@ export async function GET(req, res) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil semua data!",
-      data: mahasiswa,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil semua data!",
+        data: mahasiswa,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
 export async function POST(req) {
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
     const data = await req.json();
-    const { prodiId, ...restData } = data; // Extract prodiId from data
+    
+    // Validate that necessary fields are present
+    if (!data.prodiId) {
+      return new Response(
+        JSON.stringify({ status: 400, message: "Missing prodiId parameter" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    
+    if (!data.nama || !data.nim) {
+      return new Response(
+        JSON.stringify({ status: 400, message: "Missing nama or nim in data" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-    // Create the PL entry and connect it to the prodi
+    // Create the mahasiswa entry
     const mahasiswa = await prisma.mahasiswa.create({
       data: {
-        ...restData,
+        ...data,
         prodi: {
           connect: {
-            kode: prodiId,
+            kode: data.prodiId, // Use the correct identifier based on your model
           },
         },
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil buat data!",
-      data: mahasiswa,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil buat data!",
+        data: mahasiswa,
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }

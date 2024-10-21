@@ -1,14 +1,13 @@
 import prisma from "@/utils/prisma";
-import { cookies } from "next/headers";
-import { jwtDecode } from "jwt-decode";
+import { validateToken } from "@/utils/auth"; 
 
 export async function GET(req) {
   try {
-    const token = cookies().get("token")?.value;
+    const tokenValidation = validateToken(req);
 
-    if (!token) {
+    if (!tokenValidation.valid) {
       return new Response(
-        JSON.stringify({ status: 401, message: "Token not found!" }),
+        JSON.stringify({ status: 401, message: tokenValidation.message }),
         {
           status: 401,
           headers: { "Content-Type": "application/json" },
@@ -16,20 +15,7 @@ export async function GET(req) {
       );
     }
 
-    let decodedToken;
-    try {
-      decodedToken = jwtDecode(token);
-    } catch (error) {
-      return new Response(
-        JSON.stringify({ status: 401, message: "Invalid token!" }),
-        {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const userId = decodedToken.id;
+    const userId = tokenValidation.decoded.id;
 
     if (!userId) {
       return new Response(
@@ -55,9 +41,9 @@ export async function GET(req) {
         kelas: {
           include: {
             tahunAjaran: true,
-          }
+          },
         },
-        password: false,
+        password: false, 
       },
     });
 

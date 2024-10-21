@@ -1,6 +1,17 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import the token validation function
 
 export async function PATCH(req) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const id = req.url.split("/relasi/")[1];
     const body = await req.json();
@@ -10,7 +21,7 @@ export async function PATCH(req) {
         id: parseInt(id),
       },
       data: {
-        id: body.id,
+        // Assuming the ID in the body is for something else and not needed for the update
         deskripsi: body.deskripsi,
         MK: {
           disconnect: body.removedMKId.map((mkId) => ({ kode: mkId })),
@@ -19,13 +30,19 @@ export async function PATCH(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ubah data!",
-      data: CPMK,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ubah data!",
+        data: CPMK,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

@@ -1,12 +1,24 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth";
 
 export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+  const tokenValidation = validateToken(req);
 
-  // Validate prodi parameter if necessary
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401 }
+    );
+  }
+
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || "";
+
   if (!prodi) {
-    return Response.json({ status: 400, message: "Missing prodi parameter" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
+      { status: 400 }
+    );
   }
 
   try {
@@ -19,13 +31,19 @@ export async function GET(req) {
       },
     });
 
-    return Response.json({
-      status: 200,
-      message: "Berhasil ambil semua data!",
-      data: account,
-    });
+    return new Response(
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil semua data!",
+        data: account,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      { status: 400 }
+    );
   }
 }

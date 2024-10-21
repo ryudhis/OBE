@@ -1,10 +1,19 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Import the token validation function
 
 export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+  const tokenValidation = validateToken(req);
 
-  // Validate prodi parameter if necessary
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  const { searchParams } = new URL(req.url);
+  const prodi = searchParams.get("prodi") || "";
+
   if (!prodi) {
     return Response.json({ status: 400, message: "Missing prodi parameter" });
   }
@@ -44,11 +53,19 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  const tokenValidation = validateToken(req);
+
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const data = await req.json();
-    const { prodiId, ...restData } = data; // Extract prodiId from data
+    const { prodiId, ...restData } = data;
 
-    // Create the PL entry and connect it to the prodi
     const CPL = await prisma.CPL.create({
       data: {
         ...restData,

@@ -1,8 +1,18 @@
 import prisma from "@/utils/prisma";
+import { validateToken } from "@/utils/auth"; // Ensure this path is correct
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
+  // Validate the token
+  const tokenValidation = validateToken(req);
+  if (!tokenValidation.valid) {
+    return new Response(
+      JSON.stringify({ status: 401, message: tokenValidation.message }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   try {
-    const id = req.url.split("/tambahMahasiswa/")[1];
+    const id = params.id; // Get the kelas ID from the route parameters
     const body = await req.json();
 
     // Fetch the MKId and tahunAjaran of the current kelas
