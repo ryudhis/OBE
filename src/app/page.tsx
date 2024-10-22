@@ -15,7 +15,7 @@ const Page = () => {
     }
   }, [router]); 
 
-  return <p>please wait...</p>;
+  return <p>Please Wait...</p>;
 };
 
 export default Page;
