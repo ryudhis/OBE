@@ -972,7 +972,11 @@ export default function Page({ params }: { params: { kode: string } }) {
             {kelas.MK.batasLulusMahasiswa}
           </TableCell>
           <TableCell className='w-[8%] flex gap-2'>
-            <Button variant='destructive' onClick={() => delKelas(kelas.id)}>
+            <Button
+              className={accountData?.role === "Dosen" ? "hidden" : ""}
+              variant='destructive'
+              onClick={() => delKelas(kelas.id)}
+            >
               Hapus
             </Button>
             <Button
@@ -1419,14 +1423,23 @@ export default function Page({ params }: { params: { kode: string } }) {
         </div>
 
         <Tabs defaultValue='kelas' className='w-full'>
-          <TabsList className='grid w-full grid-cols-5'>
+          <TabsList
+            className={`grid w-full ${
+              accountData?.role === "Dosen" ? "grid-cols-4" : "grid-cols-5"
+            }`}
+          >
             <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
             <TabsTrigger value='rencana'>Rencana Pembelajaran</TabsTrigger>
             <TabsTrigger value='asesment'>
               Rencana Asesment dan Evaluasi
             </TabsTrigger>
             <TabsTrigger value='rps'>RPS</TabsTrigger>
-            <TabsTrigger value='relasi'>Sambungkan CPMK/BK</TabsTrigger>
+            <TabsTrigger
+              className={accountData?.role === "Dosen" ? "hidden" : ""}
+              value='relasi'
+            >
+              Sambungkan CPMK/BK
+            </TabsTrigger>
           </TabsList>
           <TabsContent value='kelas'>
             {filteredKelas?.length != 0 ? (
@@ -1437,6 +1450,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <CardDescription>Mata Kuliah {mk.kode}</CardDescription>
                   </div>
                   <Button
+                    className={accountData?.role === "Dosen" ? "hidden" : ""}
                     variant='destructive'
                     onClick={() => {
                       onDeleteAllKelas();

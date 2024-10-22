@@ -135,7 +135,7 @@ const DataTahun = () => {
           </div>
           <Button
             onClick={() => {
-              router.push("/dashboard/input/prodi");
+              router.push("/dashboard/input/tahunAjaran");
             }}
           >
             Tambah

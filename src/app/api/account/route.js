@@ -15,13 +15,25 @@ export async function GET(req) {
   const userRole = tokenValidation.decoded.role;
   if (userRole !== "Super Admin") {
     return new Response(
-      JSON.stringify({ status: 403, message: "Access forbidden: insufficient permissions." }),
+      JSON.stringify({
+        status: 403,
+        message: "Access forbidden: insufficient permissions.",
+      }),
       { status: 403 }
     );
   }
 
   try {
-    const account = await prisma.account.findMany();
+    const account = await prisma.account.findMany({
+      include: {
+        prodi: {
+          select: {
+            id: true,
+            nama: true,
+          },
+        },
+      },
+    });
 
     return new Response(
       JSON.stringify({

@@ -152,7 +152,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [selectedDosen, setSelectedDosen] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const {accountData, fetchData} = useAccount();
+  const { accountData, fetchData } = useAccount();
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -426,7 +426,10 @@ export default function Page({ params }: { params: { id: string } }) {
         <Card className='w-[1200px] mx-auto'>
           <CardHeader className='flex justify-center'>
             <CardTitle>Data Kelas {kelas.nama} </CardTitle>
-            <CardDescription>Kelas {kelas.MK.deskripsi} - {kelas.tahunAjaran.tahun} {kelas.tahunAjaran.semester} </CardDescription>
+            <CardDescription>
+              Kelas {kelas.MK.deskripsi} - {kelas.tahunAjaran.tahun}{" "}
+              {kelas.tahunAjaran.semester}{" "}
+            </CardDescription>
             <Table className='w-[350px]'>
               <TableBody>
                 <TableRow>

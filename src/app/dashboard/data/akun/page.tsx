@@ -29,6 +29,11 @@ export interface akun {
   email: string;
   role: string;
   kelas: kelas[];
+  prodi: prodi;
+}
+
+export interface prodi {
+  nama: string;
 }
 
 export interface kelas {
@@ -122,6 +127,7 @@ const DataAkun = () => {
           <TableCell className='flex-1 text-center'>{akun.nama}</TableCell>
           <TableCell className='w-[18%] text-center'>{akun.email}</TableCell>
           <TableCell className='w-[18%] text-center'>{akun.role}</TableCell>
+          <TableCell className='w-[18%] text-center'>{akun.prodi.nama}</TableCell>
           <TableCell className='w-[18%] text-center'>
             <Button variant='destructive' onClick={() => delAkun(akun.id)}>
               Hapus
@@ -156,6 +162,7 @@ const DataAkun = () => {
                   <TableHead className='flex-1 text-center'>Nama</TableHead>
                   <TableHead className='w-[18%] text-center'>Email</TableHead>
                   <TableHead className='w-[18%] text-center'>Role</TableHead>
+                  <TableHead className='w-[18%] text-center'>Prodi</TableHead>
                   <TableHead className='w-[18%] text-center'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -170,6 +177,7 @@ const DataAkun = () => {
                   <TableHead className='flex-1 text-center'>Nama</TableHead>
                   <TableHead className='w-[18%] text-center'>Email</TableHead>
                   <TableHead className='w-[18%] text-center'>Role</TableHead>
+                  <TableHead className='w-[18%] text-center'>Prodi</TableHead>
                   <TableHead className='w-[18%] text-center'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>

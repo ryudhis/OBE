@@ -201,7 +201,7 @@ const DataMK = () => {
               : "Tidak Lulus"}
           </TableCell>
           <TableCell className='w-[8%] flex gap-2 text-center'>
-            <Button variant='destructive' onClick={() => delMK(mk.kode)}>
+            <Button className={accountData?.role === "Dosen" ? "hidden" : ""} variant='destructive' onClick={() => delMK(mk.kode)}>
               Hapus
             </Button>
             <Button
@@ -224,7 +224,7 @@ const DataMK = () => {
       getMK(accountData?.prodiId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh]);
 
   useEffect(() => {
     getTahunAjaran();
@@ -239,7 +239,7 @@ const DataMK = () => {
             <CardTitle>Tabel MK</CardTitle>
             <CardDescription>Mata Kuliah</CardDescription>
           </div>
-          
+
           <div className='flex gap-3'>
             <Select
               onValueChange={(e) => setSelectedTahun(e)}
