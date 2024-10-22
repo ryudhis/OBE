@@ -1,8 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 
-const prismaClient = new PrismaClient();
+let prisma;
 
-const prisma = prismaClient.$extends({
+if (process.env.NODE_ENV === "development") {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient();
+  }
+  prisma = global.prisma;
+} else {
+  prisma = new PrismaClient();
+}
+
+const prismaExtended = prisma.$extends({
   name: "UpdateDataExtension",
   query: {
     inputNilai: {
@@ -914,4 +923,4 @@ const updatePerformaCPL = async (updatedMK, tahunAjaranId) => {
   }
 };
 
-export default prisma;
+export default prismaExtended;

@@ -175,7 +175,6 @@ const MKScreen = () => {
       variant: "destructive",
     });
     router.push("/dashboard");
-    return null;
   }
 
   return (

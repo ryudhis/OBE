@@ -86,7 +86,7 @@ export interface mahasiswaItem {
 const InputNilai: React.FC = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [MK, setMK] = useState<MKItem[]>([]);
   const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
   const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
@@ -107,6 +107,8 @@ const InputNilai: React.FC = () => {
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
   );
+
+  console.log(MK);
 
   if (PCPMK.length !== 0) {
     filteredPCPMK = PCPMK.filter((pcpmk) =>

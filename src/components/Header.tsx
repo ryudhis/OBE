@@ -19,7 +19,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import ProdiIcon from '@mui/icons-material/CorporateFare';
+import ProdiIcon from "@mui/icons-material/CorporateFare";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import InputIcon from "@mui/icons-material/Input";
@@ -256,19 +256,21 @@ const Header = () => {
             {openNestedInput ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
           <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
-            {linkList.map((item) => (
-              <ListItemButton
-                key={item}
-                onClick={() =>
-                  handleItemClick(
-                    `/dashboard/input/${item.replace(/\s+/g, "")}`
-                  )
-                }
-                sx={{ pl: 4 }}
-              >
-                <ListItemText primary={item.toLocaleUpperCase()} />
-              </ListItemButton>
-            ))}
+            {linkList.map((item) =>
+              item === "mk" && accountData?.role === "Dosen" ? null : (
+                <ListItemButton
+                  key={item}
+                  onClick={() =>
+                    handleItemClick(
+                      `/dashboard/data/${item.replace(/\s+/g, "")}`
+                    )
+                  }
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemText primary={item.toLocaleUpperCase()} />
+                </ListItemButton>
+              )
+            )}
           </Collapse>
           <ListItemButton onClick={handleClickData}>
             <ListItemIcon>
@@ -292,14 +294,17 @@ const Header = () => {
           </Collapse>
 
           {accountData?.role !== "Dosen" && (
-            <ListItemButton onClick={()=>{router.push("/dashboard/prodi")}} >
+            <ListItemButton
+              onClick={() => {
+                router.push("/dashboard/prodi");
+              }}
+            >
               <ListItemIcon>
                 <ProdiIcon />
               </ListItemIcon>
               <ListItemText primary='Data Prodi' />
             </ListItemButton>
           )}
-
         </List>
         <Button
           size='medium'
