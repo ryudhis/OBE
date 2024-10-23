@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { validateToken } from "@/utils/auth"; // Import your token validation utility
 
-export async function PATCH(req) {
+export async function PATCH(req, { params }) {
   // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
@@ -12,7 +12,7 @@ export async function PATCH(req) {
   }
 
   try {
-    const id = req.url.split("/relasi/")[1];
+    const id = params.id
     const body = await req.json();
 
     console.log(body);

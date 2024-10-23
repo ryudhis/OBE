@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { validateToken } from "@/utils/auth"; 
 
-export async function GET(req) {
+export async function GET(req, { params }) {
   // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
@@ -12,7 +12,7 @@ export async function GET(req) {
   }
 
   try {
-    const id = req.url.split("/inputNilai/")[1];
+    const id = params.id
     
     // Validate ID parameter
     if (!id || isNaN(parseInt(id))) {
@@ -63,7 +63,7 @@ export async function GET(req) {
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req, { params } ) {
   // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
@@ -74,7 +74,9 @@ export async function DELETE(req) {
   }
 
   try {
-    const id = req.url.split("/inputNilai/")[1];
+    const id = params.id;
+
+    console.log(id);
 
     // Validate ID parameter
     if (!id || isNaN(parseInt(id))) {
@@ -107,7 +109,7 @@ export async function DELETE(req) {
   }
 }
 
-export async function PATCH(req) {
+export async function PATCH(req, { params } ) {
   // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
@@ -118,7 +120,7 @@ export async function PATCH(req) {
   }
 
   try {
-    const id = req.url.split("/inputNilai/")[1];
+    const id = params.id;
 
     // Validate ID parameter
     if (!id || isNaN(parseInt(id))) {
