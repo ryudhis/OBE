@@ -200,10 +200,10 @@ const prismaExtended = prisma.$extends({
     },
     cPMK: {
       async delete({ args, query }) {
-        // Fetch the CPMK record with related MK before deleting
+        // Fetch the CPMK record with related CPL before deleting
         const CPMKtoDelete = await prisma.CPMK.findUnique({
           where: {
-            kode: args.where.kode,
+            id: args.where.id,
           },
           include: {
             CPL: {
@@ -215,7 +215,7 @@ const prismaExtended = prisma.$extends({
         });
 
         if (!CPMKtoDelete) {
-          throw new Error(`CPMK with kode ${args.where.kode} not found`);
+          throw new Error(`CPMK with id ${args.where.id} not found`);
         }
 
         // Perform the delete operation
@@ -224,71 +224,107 @@ const prismaExtended = prisma.$extends({
 
         const CPMKIds = CPMKtoDelete.CPL.CPMK.map((cpmk) => cpmk.id);
 
-        //updatePerformaCPL
+        // Fetch all related lulusCPMK records
         const lulusCPMK = await prisma.lulusCPMK.findMany({
           where: {
             CPMKId: {
               in: CPMKIds,
             },
-            tahunAjaranId: tahunAjaranId,
           },
           select: {
             jumlahLulus: true,
             CPMKId: true,
+            tahunAjaranId: true,
           },
         });
 
+        // Group the lulusCPMK records by tahunAjaranId
+        const groupedLulusCPMK = lulusCPMK.reduce((groups, entry) => {
+          const { tahunAjaranId } = entry;
+          if (!groups[tahunAjaranId]) {
+            groups[tahunAjaranId] = [];
+          }
+          groups[tahunAjaranId].push(entry);
+          return groups;
+        }, {});
+
         const cpl = CPMKtoDelete.CPL;
         const cplId = cpl.id;
-        const relatedLulusCPMK = lulusCPMK.filter((entry) =>
-          cpl.CPMK.some((cpmk) => cpmk.id === entry.CPMKId)
-        );
 
-        console.log("CPL = ", cplId, "relatedLulusCPMK = ", relatedLulusCPMK);
+        // Iterate over each tahunAjaranId group to handle performaCPL updates
+        for (const tahunAjaranId in groupedLulusCPMK) {
+          const lulusCPMKGroup = groupedLulusCPMK[tahunAjaranId];
 
-        if (relatedLulusCPMK.length === 0) {
-          await prisma.performaCPL.delete({
-            where: {
-              CPLId_tahunAjaranId: {
-                CPLId: cplId,
-                tahunAjaranId: tahunAjaranId,
-              },
-            },
-          });
-        } else {
-          const totalJumlahLulus = relatedLulusCPMK.reduce(
-            (sum, entry) => sum + entry.jumlahLulus,
-            0
+          // Filter relatedLulusCPMK for this tahunAjaranId group
+          const relatedLulusCPMK = lulusCPMKGroup.filter((entry) =>
+            cpl.CPMK.some((cpmk) => cpmk.id === entry.CPMKId)
           );
 
-          console.log("totalJumlahLulus = ", totalJumlahLulus);
+          console.log(
+            "CPL = ",
+            cplId,
+            "tahunAjaranId = ",
+            tahunAjaranId,
+            "relatedLulusCPMK = ",
+            relatedLulusCPMK
+          );
 
-          const numberOfCPMK = cpl.CPMK.length;
-
-          const performa =
-            numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
-
-          console.log("performa = ", performa);
-
-          // Upsert operation
-          await prisma.performaCPL.upsert({
-            where: {
-              CPLId_tahunAjaranId: {
-                CPLId: cplId,
-                tahunAjaranId: tahunAjaranId,
+          if (relatedLulusCPMK.length === 0) {
+            // If no related lulusCPMK for this tahunAjaranId, delete the performaCPL for that year
+            await prisma.performaCPL.delete({
+              where: {
+                CPLId_tahunAjaranId: {
+                  CPLId: cplId,
+                  tahunAjaranId: parseInt(tahunAjaranId), // Ensure tahunAjaranId is an integer
+                },
               },
-            },
-            update: {
-              performa: performa,
-            },
-            create: {
-              performa: performa,
-              CPLId: cplId,
-              tahunAjaranId: tahunAjaranId,
-            },
-          });
-        }
+            });
+          } else {
+            // Calculate totalJumlahLulus for this tahunAjaranId group
+            const totalJumlahLulus = relatedLulusCPMK.reduce(
+              (sum, entry) => sum + entry.jumlahLulus,
+              0
+            );
 
+            console.log(
+              "totalJumlahLulus for tahunAjaranId = ",
+              tahunAjaranId,
+              " = ",
+              totalJumlahLulus
+            );
+
+            const numberOfCPMK = cpl.CPMK.length;
+
+            // Calculate performa
+            const performa =
+              numberOfCPMK > 0 ? totalJumlahLulus / numberOfCPMK : 0;
+
+            console.log(
+              "performa for tahunAjaranId = ",
+              tahunAjaranId,
+              " = ",
+              performa
+            );
+
+            // Upsert performaCPL for this tahunAjaranId
+            await prisma.performaCPL.upsert({
+              where: {
+                CPLId_tahunAjaranId: {
+                  CPLId: cplId,
+                  tahunAjaranId: parseInt(tahunAjaranId),
+                },
+              },
+              update: {
+                performa: performa,
+              },
+              create: {
+                performa: performa,
+                CPLId: cplId,
+                tahunAjaranId: parseInt(tahunAjaranId),
+              },
+            });
+          }
+        }
         return deletedCPMK;
       },
     },
