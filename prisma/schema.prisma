@@ -28,7 +28,7 @@ model prodi {
   kaprodi   account?           @relation(name: "prodi-kaprodi", fields: [kaprodiId], references: [id])
   kaprodiId Int?               @unique
   PL        PL[]
-  CPL       CPL[]
+  CPL       CPL[] 
   BK        BK[]
   MK        MK[]
   CPMK      CPMK[]
@@ -44,8 +44,10 @@ model kelompokKeahlian {
   ketua   account? @relation(name: "KK-ketua", fields: [ketuaId], references: [id])
   ketuaId Int?     @unique
   prodi   prodi    @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId String
+  prodiId String   
   MK      MK[]
+
+  @@index([prodiId])
 }
 
 model account {
@@ -60,6 +62,8 @@ model account {
   ketuaProdi prodi?            @relation(name: "prodi-kaprodi")
   KK         kelompokKeahlian? @relation(name: "KK-ketua")
   rps        rps[]
+
+  @@index([prodiId])
 }
 
 model PL {
@@ -71,6 +75,7 @@ model PL {
   prodiId   String?
 
   @@unique([kode, prodiId])
+  @@index([prodiId])
 }
 
 model CPL {
@@ -88,6 +93,7 @@ model CPL {
   performaCPL      performaCPL[]
 
   @@unique([kode, prodiId])
+  @@index([prodiId])
 }
 
 model performaCPL {
@@ -99,6 +105,8 @@ model performaCPL {
   tahunAjaranId Int
 
   @@unique([CPLId, tahunAjaranId])
+  @@index([CPLId])
+  @@index([tahunAjaranId])
 }
 
 model BK {
@@ -113,6 +121,7 @@ model BK {
   prodiId   String
 
   @@unique([kode, prodiId])
+  @@index([prodiId])
 }
 
 model MK {
@@ -139,6 +148,9 @@ model MK {
   // self relation
   prerequisitesMK   MK[] @relation("Prerequisites")
   isPrerequisiteFor MK[] @relation("Prerequisites")
+  
+  @@index([KKId])
+  @@index([prodiId])
 }
 
 model rps {
@@ -166,6 +178,9 @@ model lulusMK_CPMK {
   jumlahLulus   Float
 
   @@unique([MKId, CPMKId, tahunAjaranId])
+  @@index([MKId])
+  @@index([CPMKId])
+  @@index([tahunAjaranId])
 }
 
 model lulusMK {
@@ -178,6 +193,8 @@ model lulusMK {
   persentaseLulus Float
 
   @@unique([MKId, tahunAjaranId])
+  @@index([MKId])
+  @@index([tahunAjaranId])
 }
 
 model rencanaPembelajaran {
@@ -205,6 +222,8 @@ model kelas {
   lulusCPMK      lulusKelas_CPMK[]
 
   @@unique([nama, MKId, tahunAjaranId])
+  @@index([MKId])
+  @@index([tahunAjaranId])
 }
 
 model lulusKelas_CPMK {
@@ -218,6 +237,9 @@ model lulusKelas_CPMK {
   jumlahLulus   Float
 
   @@unique([kelasId, CPMKId, tahunAjaranId])
+  @@index([kelasId])
+  @@index([CPMKId])
+  @@index([tahunAjaranId])
 }
 
 model CPMK {
@@ -235,6 +257,8 @@ model CPMK {
   lulusMK_CPMK   lulusMK_CPMK[]
 
   @@unique([kode, prodiId])
+  @@index([prodiId])
+  @@index([CPLKode])
 }
 
 model lulusCPMK {
@@ -246,6 +270,8 @@ model lulusCPMK {
   jumlahLulus   Float
 
   @@unique([CPMKId, tahunAjaranId])
+  @@index([CPMKId])
+  @@index([tahunAjaranId])
 }
 
 model penilaianCPMK {
@@ -267,6 +293,9 @@ model penilaianCPMK {
   prodiId         String
 
   @@unique([kode, prodiId])
+  @@index([CPLkode])
+  @@index([CPMKkode])
+  @@index([prodiId])
 }
 
 model mahasiswa {
@@ -285,8 +314,10 @@ model inputNilai {
   mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim    String
   kelas           kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)
-  kelasId         Int
+  kelasId         Int   
   nilai           Float[]
   prodi           prodi         @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId         String
+
+  @@index([prodiId])
 }
