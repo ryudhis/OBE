@@ -165,6 +165,8 @@ model rps {
   software         String
   hardware         String
   revisi           String
+
+  @@index([MKId])
 }
 
 model lulusMK_CPMK {
@@ -204,6 +206,8 @@ model rencanaPembelajaran {
   metode String
   MK     MK     @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId   String
+
+  @@index([MKId])
 }
 
 model kelas {
