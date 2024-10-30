@@ -28,7 +28,6 @@ export async function GET(req) {
       include: {
         prodi: {
           select: {
-            id: true,
             nama: true,
           },
         },

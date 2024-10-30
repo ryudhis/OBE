@@ -5,19 +5,21 @@ export async function GET(req, res) {
   // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
-    return res
-      .status(401)
-      .json({ status: 401, message: tokenValidation.message });
+    return new Response(
+      JSON.stringify({ status: 400, message: tokenValidation.message }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+  const prodi = searchParams.get("prodi") || "";
 
   // Validate prodi parameter if necessary
   if (!prodi) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "Missing prodi parameter" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   try {
@@ -35,14 +37,16 @@ export async function GET(req, res) {
       },
     });
 
-    return res.json({
-      status: 200,
-      message: "Berhasil ambil semua data!",
-      data: PL,
-    });
+    return new Response(
+      JSON.stringify({ status: 200, message: "Berhasil ambil data", data: PL }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.log(error);
-    return res.status(400).json({ status: 400, message: "Something went wrong!" });
+    return new Response(
+      JSON.stringify({ status: 400, message: "Something went wrong" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 }
 
@@ -84,7 +88,7 @@ export async function POST(req) {
     console.log(error);
     return new Response(
       JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { headers: { "Content-Type": "application/json" } }
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 }
