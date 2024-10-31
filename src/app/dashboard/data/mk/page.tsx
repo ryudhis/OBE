@@ -85,7 +85,6 @@ const DataMK = () => {
       );
       if (response.data.status !== 400) {
         setMK(response.data.data);
-        console.log(response.data.data);
       } else {
         alert(response.data.message);
       }
