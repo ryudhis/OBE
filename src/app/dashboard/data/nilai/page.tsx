@@ -30,42 +30,13 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface inputNilai {
-  id: number;
-  penilaianCPMKId: string;
-  mahasiswaNim: string;
-  nilai: number[];
-  penilaianCPMK: penilaianCPMKItem;
-  mahasiswa: mahasiswaItem;
-}
-
-export interface mahasiswaItem {
-  nama: string;
-}
-
-export interface penilaianCPMKItem {
-  kode: string;
-  kriteria: kriteriaItem[];
-  MKkode: String;
-}
-
-export interface kriteriaItem {
-  bobot: number;
-  kriteria: string;
-}
-
-export interface MKItem {
-  kode: string;
-  deskripsi: string;
-}
-
 const DataNilai = () => {
   const router = useRouter();
   const { accountData } = useAccount();
   const [refresh, setRefresh] = useState(false);
-  const [inputNilai, setInputNilai] = useState<inputNilai[]>([]);
+  const [inputNilai, setInputNilai] = useState<InputNilai[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [MK, setMK] = useState<MKItem[]>([]);
+  const [MK, setMK] = useState<MK[]>([]);
   const [filterMK, setFilterMK] = useState("default");
 
   let filteredNilai = inputNilai;

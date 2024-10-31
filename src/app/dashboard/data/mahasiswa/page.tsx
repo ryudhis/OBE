@@ -23,19 +23,9 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface mahasiswa {
-  nim: string;
-  nama: string;
-  inputNilai: inputNilaiItem[];
-}
-
-export interface inputNilaiItem {
-  nilai: number;
-}
-
 const DataMahasiswa = () => {
   const router = useRouter();
-  const [mahasiswa, setMahasiswa] = useState<mahasiswa[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(true);
   const { accountData } = useAccount();

@@ -23,15 +23,10 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface prodi {
-  kode: string;
-  nama: string;
-}
-
 const DataProdi = () => {
   const router = useRouter();
   const { accountData } = useAccount();
-  const [prodi, setProdi] = useState<prodi[]>([]);
+  const [prodi, setProdi] = useState<Prodi[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 

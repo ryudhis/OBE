@@ -32,110 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
-import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
-
-export interface MKinterface {
-  kode: string;
-  deskripsi: string;
-  sks: string;
-  batasLulusMahasiswa: number;
-  BK: BKItem[];
-  CPMK: CPMKItem[];
-  kelas: KelasItem[];
-  penilaianCPMK: penilaianCPMKItem[];
-}
-
-export interface KelasItem {
-  id: number;
-  nama: string;
-  mahasiswa: mahasiswaItem[];
-  jumlahLulus: number;
-  mahasiswaLulus: mahasiswaLulusItem[];
-  dataCPMK: dataCPMKItem[];
-  MK: MKinterface;
-  dosen: dosenItem[];
-  tahunAjaran: tahunAjaran;
-}
-
-export interface dosenItem {
-  id: number;
-  nama: string;
-  role: string;
-}
-
-export interface dataCPMKItem {
-  cpmk: string;
-  cpl: string;
-  nilaiMinimal: number;
-  nilaiMasuk: number;
-  jumlahLulus: number;
-  persenLulus: number;
-  rataNilai: number;
-}
-
-export interface mahasiswaLulusItem {
-  nim: string;
-  totalNilai: number;
-  statusLulus: string;
-  statusCPMK: statusCPMKItem[];
-  nilaiMahasiswa: nilaiMahasiswaItem[];
-  indexNilai: string;
-}
-
-export interface nilaiMahasiswaItem {
-  nilai: number[];
-  namaCPMK: string;
-  batasNilai: number;
-}
-
-export interface statusCPMKItem {
-  namaCPMK: string;
-  nilaiCPMK: number;
-  statusLulus: string;
-}
-
-export interface CPMKItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface BKItem {
-  kode: string;
-  deskripsi: string;
-  min: number;
-  max: number;
-}
-
-export interface mahasiswaItem {
-  nim: string;
-  nama: string;
-  kelas: KelasItem[];
-  inputNilai: inputNilaiItem[];
-}
-
-export interface inputNilaiItem {
-  id: number;
-  penilaianCPMK: penilaianCPMKItem[];
-  mahasiswaNim: string;
-  nilai: number[];
-  kelasId: number;
-}
-
-export interface penilaianCPMKItem {
-  kode: string;
-  inputNilai: inputNilaiItem[];
-  kriteria: kriteriaItem[];
-  CPMK: CPMKItem;
-  CPMKkode: string;
-  batasNilai: number;
-}
-
-export interface kriteriaItem {
-  kriteria: string;
-  bobot: number;
-}
-
-export interface mahasiswaExcel {
+interface mahasiswaExcel {
   NIM: string;
   Nama: string;
 }
@@ -143,12 +40,12 @@ export interface mahasiswaExcel {
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const [kelas, setKelas] = useState<KelasItem | undefined>();
+  const [kelas, setKelas] = useState<Kelas | undefined>();
   const [dataMahasiswaLulus, setDataMahasiswaLulus] = useState<
-    mahasiswaLulusItem[]
+    mahasiswaLulus[]
   >([]);
   const [mahasiswa, setMahasiswa] = useState<mahasiswaExcel[]>([]);
-  const [allDosen, setAllDosen] = useState<dosenItem[]>([]);
+  const [allDosen, setAllDosen] = useState<Account[]>([]);
   const [selectedDosen, setSelectedDosen] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
@@ -226,13 +123,13 @@ export default function Page({ params }: { params: { id: string } }) {
           });
         } else {
           const kelasData = response.data.data;
-          const mahasiswaLulusData: mahasiswaLulusItem[] = [];
+          const mahasiswaLulusData: mahasiswaLulus[] = [];
 
-          kelasData.mahasiswa.forEach((mahasiswa: mahasiswaItem) => {
-            mahasiswa.kelas.forEach((kelasMahasiswa: KelasItem) => {
+          kelasData.mahasiswa.forEach((mahasiswa: Mahasiswa) => {
+            mahasiswa.kelas.forEach((kelasMahasiswa: Kelas) => {
               if (kelasMahasiswa.id === kelasData.id) {
-                kelasMahasiswa.mahasiswaLulus.forEach(
-                  (mahasiswaLulus: mahasiswaLulusItem) => {
+                kelasMahasiswa.mahasiswaLulus?.forEach(
+                  (mahasiswaLulus: mahasiswaLulus) => {
                     if (mahasiswaLulus.nim === mahasiswa.nim) {
                       mahasiswaLulusData.push(mahasiswaLulus);
                     }
@@ -245,7 +142,7 @@ export default function Page({ params }: { params: { id: string } }) {
           setDataMahasiswaLulus(mahasiswaLulusData);
           setKelas(kelasData);
 
-          const dosenIds = kelasData.dosen.map((dosen: dosenItem) => dosen.id);
+          const dosenIds = kelasData.dosen.map((dosen: Account) => dosen.id);
           setSelectedDosen(new Set(dosenIds));
         }
       }
@@ -401,7 +298,7 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   const renderDataRangkuman = () => {
-    return kelas?.dataCPMK.map((data) => {
+    return kelas?.dataCPMK?.map((data) => {
       return (
         <TableRow key={data.cpmk}>
           <TableCell className='w-[8%]'>{data.cpl}</TableCell>

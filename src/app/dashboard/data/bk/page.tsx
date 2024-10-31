@@ -23,27 +23,9 @@ import { toast } from "@/components/ui/use-toast";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface bk {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  min: number;
-  max: number;
-  CPL: CPLItem[];
-  MK: MKItem[];
-}
-
-export interface MKItem {
-  kode: string;
-}
-
-export interface CPLItem {
-  kode: string;
-}
-
 const DataBK = () => {
   const router = useRouter();
-  const [BK, setBK] = useState<bk[]>([]);
+  const [BK, setBK] = useState<BK[]>([]);
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);

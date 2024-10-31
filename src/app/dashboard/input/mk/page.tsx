@@ -44,23 +44,12 @@ const formSchema = z.object({
   KK: z.string().min(1).max(50),
 });
 
-export interface mk {
-  kode: string;
-  deskripsi: string;
-  deskripsiInggris: string;
-}
-
-export interface kelompokKeahlian {
-  id: number;
-  nama: string;
-}
-
 const MKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { accountData } = useAccount();
-  const [MK, setMK] = useState<mk[]>([]);
-  const [KK, setKK] = useState<kelompokKeahlian[]>([]);
+  const [MK, setMK] = useState<MK[]>([]);
+  const [KK, setKK] = useState<KelompokKeahlian[]>([]);
   const [prerequisitesMK, setPrerequisitesMK] = useState<string[]>([]);
   const [search, setSearch] = useState("");
 

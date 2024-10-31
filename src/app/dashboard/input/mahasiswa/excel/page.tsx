@@ -24,14 +24,14 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/app/contexts/AccountContext";
 
-interface mahasiswaItem {
+interface mahasiswaInput {
   Nama: string;
   NIM: string;
 }
 
 const MahasiswaExcel = () => {
   const router = useRouter();
-  const [mahasiswa, setMahasiswa] = useState<mahasiswaItem[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<mahasiswaInput[]>([]);
   const { accountData }  = useAccount();
   const { toast } = useToast();
 
@@ -67,7 +67,7 @@ const MahasiswaExcel = () => {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: mahasiswaItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: mahasiswaInput[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({

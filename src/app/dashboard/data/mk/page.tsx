@@ -30,55 +30,16 @@ import {
 } from "@/components/ui/select";
 import Swal from "sweetalert2";
 
-export interface mk {
-  kode: string;
-  deskripsi: string;
-  deskripsiInggris: string;
-  CPMK: CPMKItem[];
-  jumlahLulus: number;
-  batasLulusMK: number;
-  kelas: kelasItem[];
-  lulusMK: lulusMKItem[];
-  // mahasiswa: MahasiswaItem[];
-}
-
-export interface tahunAjaran {
-  id: number;
-  tahun: string;
-  semester: string;
-}
-
-export interface lulusMKItem {
-  id: number;
-  tahunAjaranId: number;
-  jumlahLulus: number;
-  persentaseLulus: number;
-}
-
-export interface MahasiswaItem {
-  nim: string;
-  nama: string;
-}
-
-export interface kelasItem {
-  nama: string;
-  mahasiswa: MahasiswaItem[];
-}
-
-export interface CPMKItem {
-  kode: string;
-}
-
 const DataMK = () => {
   const router = useRouter();
   const { accountData } = useAccount();
-  const [MK, setMK] = useState<mk[]>([]);
+  const [MK, setMK] = useState<MK[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
+  const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
   const [selectedTahun, setSelectedTahun] = useState("");
   const [refresh, setRefresh] = useState(false);
 
-  const getMK = async (prodiId: string = "", dosenId: string = "") => {
+  const getMK = async (prodiId: string = "", dosenId: number = 0) => {
     try {
       const response = await axiosConfig.get(
         `api/mk?prodi=${prodiId}${dosenId ? `&dosen=${dosenId}` : ""}`

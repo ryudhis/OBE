@@ -23,27 +23,9 @@ import { toast } from "@/components/ui/use-toast";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface akun {
-  id: string;
-  nama: string;
-  email: string;
-  role: string;
-  kelas: kelas[];
-  prodi: prodi;
-}
-
-export interface prodi {
-  nama: string;
-}
-
-export interface kelas {
-  id: string;
-  nama: string;
-}
-
 const DataAkun = () => {
   const router = useRouter();
-  const [akun, setAkun] = useState<akun[]>([]);
+  const [akun, setAkun] = useState<Account[]>([]);
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,7 +45,7 @@ const DataAkun = () => {
     }
   };
 
-  const delAkun = async (id: string) => {
+  const delAkun = async (id: number) => {
     try {
       const result = await Swal.fire({
         title: "Tunggu !..",

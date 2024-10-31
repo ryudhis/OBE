@@ -27,99 +27,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export interface MKinterface {
-  kode: string;
-  deskripsi: string;
-  sks: string;
-  batasLulusMahasiswa: number;
-  kelas: KelasItem[];
-}
-
-export interface KelasItem {
-  id: number;
-  nama: string;
-  jumlahLulus: number;
-  dataCPMK: dataCPMKItem[];
-  MK: MKinterface;
-  dosen: dosenItem[];
-  mahasiswa: mahasiswaItem[];
-}
-
-export interface mahasiswaItem {
-  nim: string;
-  nama: string;
-  kelas: KelasItem[];
-}
-
-export interface dosenItem {
-  id: number;
-  nama: string;
-}
-
-export interface dataCPMKItem {
-  cpmk: string;
-  cpl: string;
-  nilaiMinimal: number;
-  nilaiMasuk: number;
-  jumlahLulus: number;
-  persenLulus: number;
-  rataNilai: number;
-}
-
-export interface CPLItem {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  deskripsiInggris: string;
-  keterangan: string;
-  CPMK: CPMKItem[];
-  performaCPL: performaCPLItem[];
-}
-
-export interface CPMKItem {
-  id: number;
-  kode: string;
-  CPLId: number;
-  lulusCPMK: lulusCPMKItem[];
-  lulusMK_CPMK: lulusMK_CPMKItem[];
-}
-
-export interface performaCPLItem {
-  id: number;
-  CPLId: number;
-  tahunAjaranId: number;
-  performa: number;
-  tahunAjaran: tahunAjaranItem[];
-}
-
-export interface tahunAjaranItem {
-  id: string;
-  tahun: string;
-  semester: string;
-}
-
-export interface lulusCPMKItem {
-  id: number;
-  CPMKId: number;
-  tahunAjaranId: number;
-  jumlahLulus: number;
-}
-
-export interface lulusMK_CPMKItem {
-  id: number;
-  MKId: number;
-  CPMKId: number;
-  tahunAjaranId: number;
-  jumlahLulus: number;
-}
-
 const Page = () => {
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
-  const [MK, setMK] = useState<MKinterface[]>([]);
-  const [CPL, setCPL] = useState<CPLItem[]>([]);
+  const [MK, setMK] = useState<MK[]>([]);
+  const [CPL, setCPL] = useState<CPL[]>([]);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("");
-  const [semester, setSemester] = useState<tahunAjaranItem[]>([]);
+  const [semester, setSemester] = useState<TahunAjaran[]>([]);
 
   const getMK = async (prodiId: string) => {
     try {
@@ -348,7 +262,7 @@ const Page = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {semester.map((tahun) => (
-                      <SelectItem key={tahun.id} value={tahun.id}>
+                      <SelectItem key={tahun.id} value={String(tahun.id)}>
                         {tahun.tahun}-{tahun.semester}
                       </SelectItem>
                     ))}

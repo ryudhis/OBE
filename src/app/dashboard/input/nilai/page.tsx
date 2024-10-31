@@ -32,9 +32,6 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
-import { accountProdi } from "@/app/interface/input";
-import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
-import { CPMKItem } from "../penilaianCPMK/page";
 
 const formSchema = z.object({
   MK: z.string({
@@ -54,49 +51,20 @@ const formSchema = z.object({
   ),
 });
 
-export interface PCPMKItem {
-  id: number;
-  kode: string;
-  MKkode: string;
-  CPMK: CPMKItem;
-  kriteria: { kriteria: string; bobot: number }[];
-}
-
-export interface MKItem {
-  kode: string;
-  deskripsi: string;
-  penilaianCPMK: PCPMKItem[];
-  kelas: kelasItem[];
-}
-
-export interface kelasItem {
-  id: number;
-  nama: string;
-  MK: MKItem;
-  MKId: string;
-  mahasiswa: mahasiswaItem[];
-  tahunAjaran: tahunAjaran;
-}
-
-export interface mahasiswaItem {
-  nim: string;
-  nama: string;
-}
-
 const InputNilai: React.FC = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { accountData } = useAccount();
-  const [MK, setMK] = useState<MKItem[]>([]);
-  const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
-  const [selectedMK, setSelectedMK] = useState<MKItem | undefined>();
-  const [selectedKelas, setSelectedKelas] = useState<kelasItem | undefined>();
-  const [selectedPCPMK, setSelectedPCPMK] = useState<PCPMKItem | undefined>();
+  const [MK, setMK] = useState<MK[]>([]);
+  const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
+  const [selectedMK, setSelectedMK] = useState<MK | undefined>();
+  const [selectedKelas, setSelectedKelas] = useState<Kelas | undefined>();
+  const [selectedPCPMK, setSelectedPCPMK] = useState<PenilaianCPMK | undefined>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchPCPMK, setSearchPCPMK] = useState<string>("");
   const [selectedTahun, setSelectedTahun] = useState("");
-  let PCPMK: PCPMKItem[] = [];
-  let filteredPCPMK: PCPMKItem[] = [];
+  let PCPMK: PenilaianCPMK[] = [];
+  let filteredPCPMK: PenilaianCPMK[] = [];
 
   if (selectedMK) {
     console.log(selectedMK);
@@ -116,7 +84,7 @@ const InputNilai: React.FC = () => {
     );
   }
 
-  const getMK = async (accountData: accountProdi, tahunId: string) => {
+  const getMK = async (accountData: Account, tahunId: string) => {
     try {
       // Filter the MKIds based on the matching tahunId
       const userMKIds: string[] = accountData.kelas
@@ -127,7 +95,7 @@ const InputNilai: React.FC = () => {
         `api/mk?prodi=${accountData.prodiId}`
       );
       if (response.data.status !== 400) {
-        const filteredMK = response.data.data.filter((mk: MKItem) =>
+        const filteredMK = response.data.data.filter((mk: MK) =>
           userMKIds.includes(mk.kode)
         );
 

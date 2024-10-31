@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/app/contexts/AccountContext";
 
-interface CPMKItem {
+interface CPMKInput {
   kode: string;
   deskripsi: string;
 }
@@ -32,7 +32,7 @@ interface CPMKItem {
 const CPMKExcel = () => {
   const router = useRouter();
   const { accountData }  = useAccount();
-  const [cpmk, setCpmk] = useState<CPMKItem[]>([]);
+  const [cpmk, setCpmk] = useState<CPMKInput[]>([]);
   const { toast } = useToast();
 
   const exportTemplate = () => {
@@ -67,7 +67,7 @@ const CPMKExcel = () => {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: CPMKItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: CPMKInput[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({

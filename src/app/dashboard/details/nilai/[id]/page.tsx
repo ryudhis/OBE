@@ -27,30 +27,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
-import { MKItem } from "@/app/interface/input";
-
-export interface InputNilaiInterface {
-  id: string;
-  mahasiswa: mahasiswaItem;
-  penilaianCPMK: penilaianCPMKItem;
-  kelas: kelasItem;
-  nilai: number[];
-}
-
-export interface penilaianCPMKItem {
-  MK: MKItem;
-  kode: string;
-  kriteria: { kriteria: string; bobot: number }[];
-}
-
-export interface mahasiswaItem {
-  nim: string;
-  nama: string;
-}
-
-export interface kelasItem {
-  nama: string;
-}
 
 const formSchema = z.object({
   nilai: z.array(z.string()),
@@ -61,7 +37,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { accountData }  = useAccount();
   const [inputNilai, setInputNilai] = useState<
-    InputNilaiInterface | undefined
+    InputNilai| undefined
   >();
   const [refresh, setRefresh] = useState<boolean>(false);
   const defaultValues = {

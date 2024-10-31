@@ -38,16 +38,11 @@ const formSchema = z.object({
   CPL: z.string({ required_error: "Please select CPL to display." }),
 });
 
-export interface CPLItem {
-  id: string;
-  kode: string;
-}
-
 const CPMKScreen = () => {
   const { toast } = useToast();
   const router = useRouter();
   const { accountData } = useAccount();
-  const [CPL, setCPL] = useState<CPLItem[]>([]);
+  const [CPL, setCPL] = useState<CPL[]>([]);
   const [searchCPL, setSearchCPL] = useState<string>("");
 
   const filteredCPL = CPL.filter((cpl) =>

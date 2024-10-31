@@ -30,52 +30,14 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface cpl {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  deskripsiInggris: string;
-  keterangan: string;
-  BK: BKItem[];
-  PL: PLItem[];
-  CPMK: CPMKItem[];
-  performaCPL: performaCPLItem[];
-}
-
-export interface performaCPLItem {
-  id: number;
-  CPLId: number;
-  tahunAjaranId: number;
-  performa: number;
-  tahunAjaran: tahunAjaran[];
-}
-
-export interface tahunAjaran {
-  id: string;
-  tahun: string;
-  semester: string;
-}
-
-export interface BKItem {
-  kode: string;
-}
-
-export interface PLItem {
-  kode: string;
-}
-
-export interface CPMKItem {
-  kode: string;
-}
-
 const DataCPL = () => {
   const router = useRouter();
-  const [CPL, setCPL] = useState<cpl[]>([]);
+  const [CPL, setCPL] = useState<CPL[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("default");
   const { accountData } = useAccount();
-  const [semester, setSemester] = useState<tahunAjaran[]>([]);
+  const [semester, setSemester] = useState<TahunAjaran[]>([]);
 
   const getCPL = async () => {
     setIsLoading(true);
@@ -247,7 +209,7 @@ const DataCPL = () => {
             <SelectContent>
               {semester.map((semester, index) => {
                 return (
-                  <SelectItem key={index} value={semester.id}>
+                  <SelectItem key={index} value={String(semester.id)}>
                     {semester.tahun} {semester.semester}
                   </SelectItem>
                 );

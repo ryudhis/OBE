@@ -2,11 +2,10 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { getAccountData } from "@/utils/api";
-import { accountProdi } from "../interface/input";
 import Image from "next/image";
 
 interface AccountContextType {
-  accountData: accountProdi | null;
+  accountData: Account | null;
   fetchData: () => Promise<void>;
 }
 
@@ -21,8 +20,8 @@ export const useAccount = () => {
 };
 
 export const AccountProvider = ({ children }: { children: ReactNode }) => {
-  const [accountData, setAccountData] = useState<accountProdi | null>(
-    {} as accountProdi
+  const [accountData, setAccountData] = useState<Account | null>(
+    {} as Account
   );
   const [loading, setLoading] = useState(true);
 

@@ -53,41 +53,6 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-export interface ProdiInterface {
-  kode: string;
-  nama: string;
-  tendik: accountItem[];
-  kaprodi: accountItem;
-  MK: MKItem[];
-  mahasiswa: mahasiswaItem[];
-  KK: KKItem[];
-}
-
-export interface accountItem {
-  id: number;
-  nama: string;
-  email: string;
-  role: string;
-  prodiId: string;
-}
-
-export interface MKItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface mahasiswaItem {
-  nama: string;
-  nim: string;
-}
-
-export interface KKItem {
-  id: number;
-  nama: string;
-  ketua: accountItem;
-  MK: MKItem[];
-}
-
 const formTambahKKSchema = z.object({
   nama: z.string().min(1).max(50),
 });
@@ -101,9 +66,9 @@ export default function ProdiPage() {
   const router = useRouter();
   const { accountData, fetchData } = useAccount();
   const [searchDosen, setSearchDosen] = useState<string>("");
-  const [dosen, setDosen] = useState<accountItem[]>();
-  const [filteredDosen, setFilteredDosen] = useState<accountItem[]>();
-  const [prodi, setProdi] = useState<ProdiInterface>();
+  const [dosen, setDosen] = useState<Account[]>();
+  const [filteredDosen, setFilteredDosen] = useState<Account[]>();
+  const [prodi, setProdi] = useState<Prodi>();
   const [selectedKaprodi, setSelectedKaprodi] = useState<string>();
   const [selectedKKId, setSelectedKKId] = useState<number>();
   const [search, setSearch] = useState<string>("");
@@ -259,7 +224,7 @@ export default function ProdiPage() {
       });
   };
 
-  const handleEditKK = (item: KKItem) => {
+  const handleEditKK = (item: KelompokKeahlian) => {
     setSelectedKKId(item.id);
     formEditKK.setValue("nama", item.nama);
     formEditKK.setValue("ketua", item.ketua ? String(item.ketua.id) : "");

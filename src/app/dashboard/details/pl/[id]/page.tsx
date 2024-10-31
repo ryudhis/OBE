@@ -23,19 +23,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
-export interface PLinterface {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  CPL: CPLItem[];
-}
-
-export interface CPLItem {
-  id: number;
-  kode: string;
-  deskripsi: string;
-}
-
 const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
 });
@@ -44,8 +31,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
   const { accountData }  = useAccount();
-  const [pl, setPl] = useState<PLinterface | undefined>();
-  const [cpl, setCPL] = useState<CPLItem[] | undefined>([]);
+  const [pl, setPl] = useState<PL | undefined>();
+  const [cpl, setCPL] = useState<CPL[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -113,7 +100,7 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         setPl(response.data.data);
         const prevSelected = response.data.data.CPL.map(
-          (item: CPLItem) => item.kode
+          (item: CPL) => item.kode
         );
 
         setSelected(prevSelected);
@@ -281,7 +268,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {filteredCPL && filteredCPL.length > 0 ? (
             filteredCPL?.map((cpl, index) => {
               return (
-                <DataCard<CPLItem>
+                <DataCard<CPL>
                   key={index}
                   selected={selected}
                   handleCheck={handleCheck}

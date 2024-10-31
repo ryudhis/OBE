@@ -23,16 +23,10 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface tahunAjaran {
-  id: number;
-  tahun: string;
-  semester: string;
-}
-
 const DataTahun = () => {
   const router = useRouter();
   const { accountData } = useAccount();
-  const [tahun, setTahun] = useState<tahunAjaran[]>([]);
+  const [tahun, setTahun] = useState<TahunAjaran[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 

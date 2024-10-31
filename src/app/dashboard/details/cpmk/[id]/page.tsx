@@ -23,30 +23,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
-export interface CPMKInterface {
-  kode: string;
-  deskripsi: string;
-  MK: MKItem[];
-  CPL: CPLItem;
-}
-
-export interface CPLItem {
-  kode: string;
-}
-
-export interface MKItem {
-  kode: string;
-  deskripsi: string;
-}
-
 const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
 });
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const { accountData } = useAccount();
-  const [cpmk, setCpmk] = useState<CPMKInterface | undefined>();
-  const [mk, setMk] = useState<MKItem[] | undefined>([]);
+  const [cpmk, setCpmk] = useState<CPMK | undefined>();
+  const [mk, setMk] = useState<MK[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -119,7 +103,7 @@ export default function Page({ params }: { params: { id: string } }) {
       } else {
         setCpmk(response.data.data);
         const prevSelected = response.data.data.MK.map(
-          (item: MKItem) => item.kode
+          (item: MK) => item.kode
         );
 
         setSelected(prevSelected);
@@ -288,7 +272,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {filteredMK && filteredMK.length > 0 ? (
             filteredMK?.map((mk, index) => {
               return (
-                <DataCard<MKItem>
+                <DataCard<MK>
                   key={index}
                   selected={selected}
                   handleCheck={handleCheck}

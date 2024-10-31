@@ -40,15 +40,10 @@ const formSchema = z.object({
   prodi: z.string().min(0).max(30),
 });
 
-export interface prodi {
-  kode: string;
-  nama: string;
-}
-
 const InputAkun = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const [prodi, setProdi] = useState<prodi[]>([]);
+  const [prodi, setProdi] = useState<Prodi[]>([]);
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
 

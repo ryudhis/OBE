@@ -43,30 +43,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
-export interface PCPMKinterface {
-  id: number;
-  kode: string;
-  CPLkode: string;
-  MKkode: string;
-  CPMKkode: string;
-  tahapPenilaian: string;
-  teknikPenilaian: string;
-  instrumen: string;
-  kriteria: kriteriaItem[];
-  batasNilai: number;
-  inputNilai: inputNilaiItem[];
-}
-
-export interface kriteriaItem {
-  bobot: number;
-  kriteria: string;
-}
-
-export interface inputNilaiItem {
-  mahasiswaNim: string;
-  nilai: number[];
-}
-
 const formSchema = z.object({
   tahapPenilaian: z
     .array(z.string())
@@ -89,8 +65,8 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const { accountData }  = useAccount();
-  const [PCPMK, setPCPMK] = useState<PCPMKinterface | undefined>();
+  const { accountData } = useAccount();
+  const [PCPMK, setPCPMK] = useState<PenilaianCPMK | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
 
   const tahapPenilaian = [
@@ -260,13 +236,13 @@ export default function Page({ params }: { params: { id: string } }) {
                 <TableCell>
                   <strong>CPL</strong>{" "}
                 </TableCell>
-                <TableCell>: {PCPMK.CPLkode}</TableCell>
+                <TableCell>: {PCPMK.CPL.kode}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>
                   <strong>CPMK</strong>{" "}
                 </TableCell>
-                <TableCell>: {PCPMK.CPMKkode}</TableCell>
+                <TableCell>: {PCPMK.CPMK.kode}</TableCell>
               </TableRow>
               {PCPMK.kriteria.map((kriteria, index) => (
                 <TableRow key={index}>

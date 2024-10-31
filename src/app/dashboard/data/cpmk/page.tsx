@@ -30,51 +30,14 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface cpmk {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  CPL: CPLItem;
-  MK: MKItem[];
-  subCPMK: subCPMKItem[];
-  CPLKode: string;
-  lulusCPMK: lulusCPMKItem[];
-}
-
-export interface lulusCPMKItem {
-  id: number;
-  CPMKId: number;
-  tahunAjaranId: number;
-  jumlahLulus: number;
-  tahunAjaran: tahunAjaran[];
-}
-
-export interface tahunAjaran {
-  id: string;
-  tahun: string;
-  semester: string;
-}
-
-export interface CPLItem {
-  kode: string;
-}
-
-export interface MKItem {
-  kode: string;
-}
-
-export interface subCPMKItem {
-  kode: string;
-}
-
 const DataCPMK = () => {
   const router = useRouter();
   const { accountData } = useAccount();
-  const [CPMK, setCPMK] = useState<cpmk[]>([]);
+  const [CPMK, setCPMK] = useState<CPMK[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("");
-  const [semester, setSemester] = useState<tahunAjaran[]>([]);
+  const [semester, setSemester] = useState<TahunAjaran[]>([]);
 
   const getCPMK = async () => {
     setIsLoading(true);
@@ -232,7 +195,7 @@ const DataCPMK = () => {
             <SelectContent>
               {semester.map((semester, index) => {
                 return (
-                  <SelectItem key={index} value={semester.id}>
+                  <SelectItem key={index} value={String(semester.id)}>
                     {semester.tahun} {semester.semester}
                   </SelectItem>
                 );

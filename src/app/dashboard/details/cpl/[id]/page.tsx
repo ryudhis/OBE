@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
@@ -23,26 +24,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
-export interface CPLinterface {
-  kode: string;
-  deskripsi: string;
-  keterangan: string;
-  BK: BKItem[];
-  CPMK: CPMKItem[];
-}
-
-export interface CPMKItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface BKItem {
-  kode: string;
-  deskripsi: string;
-  min: number;
-  max: number;
-}
-
 const formSchema = z.object({
   deskripsi: z.string().min(1).max(50),
   keterangan: z.string().min(1).max(50),
@@ -51,9 +32,9 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const { accountData }  = useAccount();
-  const [cpl, setCPl] = useState<CPLinterface | undefined>();
-  const [bk, setBK] = useState<BKItem[] | undefined>([]);
-  const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);
+  const [cpl, setCPl] = useState<CPL | undefined>();
+  const [bk, setBK] = useState<BK[] | undefined>([]);
+  const [cpmk, setCPMK] = useState<CPMK[] | undefined>([]);
   const [prevSelected1, setPrevSelected1] = useState<string[]>([]);
   const [selected1, setSelected1] = useState<string[]>([]);
   const [prevSelected2, setPrevSelected2] = useState<string[]>([]);
@@ -134,11 +115,11 @@ export default function Page({ params }: { params: { id: string } }) {
         setCPl(response.data.data);
 
         const prevSelected1 = response.data.data.BK.map(
-          (item: BKItem) => item.kode
+          (item: BK) => item.kode
         );
 
         const prevSelected2 = response.data.data.CPMK.map(
-          (item: CPMKItem) => item.kode
+          (item: CPMK) => item.kode
         );
 
         setSelected1(prevSelected1);
@@ -255,11 +236,10 @@ export default function Page({ params }: { params: { id: string } }) {
   useEffect(() => {
     getAllBK();
     getAllCPMK();
-  }, []); // Trigger useEffect only on initial mount
+  }, []);
 
   useEffect(() => {
     getCPL();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   if (cpl) {
@@ -356,7 +336,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {filteredBK && filteredBK.length > 0 ? (
             filteredBK?.map((bk, index) => {
               return (
-                <DataCard<BKItem>
+                <DataCard<BK>
                   key={index}
                   selected={selected1}
                   handleCheck={handleCheck1}
@@ -385,7 +365,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {filteredCPMK && filteredCPMK.length > 0 ? (
             filteredCPMK?.map((cpmk, index) => {
               return (
-                <DataCard<CPMKItem>
+                <DataCard<CPMK>
                   key={index}
                   selected={selected2}
                   handleCheck={handleCheck2}

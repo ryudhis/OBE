@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/app/contexts/AccountContext";
 
-interface BKItem {
+interface BKInput {
   kode: string;
   deskripsi: string;
   min: string;
@@ -33,7 +33,7 @@ interface BKItem {
 
 const BKExcel = () => {
   const router = useRouter();
-  const [bk, setBk] = useState<BKItem[]>([]);
+  const [bk, setBk] = useState<BKInput[]>([]);
   const { accountData } = useAccount();
   const { toast } = useToast();
 
@@ -71,7 +71,7 @@ const BKExcel = () => {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: BKItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: BKInput[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({

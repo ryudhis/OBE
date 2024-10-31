@@ -53,138 +53,10 @@ import {
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccount } from "@/app/contexts/AccountContext";
-import { tahunAjaran } from "@/app/dashboard/data/tahunAjaran/page";
 import { DataCard } from "@/components/DataCard";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import logo from "/public/Logo1.png";
-
-export interface MKinterface {
-  kode: string;
-  deskripsi: string;
-  sks: string;
-  batasLulusMahasiswa: number;
-  batasLulusMK: number;
-  BK: BKItem[];
-  CPMK: CPMKItem[];
-  kelas: KelasItem[];
-  penilaianCPMK: penilaianCPMKItem[];
-  rencanaPembelajaran: rpItem[];
-  lulusMK_CPMK: lulusMK_CPMKItem[];
-  semester: string;
-  KK: KKItem;
-  prodi: prodiItem;
-  prerequisitesMK: MKinterface[];
-  rps: rpsInterface;
-}
-
-export interface rpsInterface {
-  deskripsi: string;
-  pustakaUtama: string[];
-  pustakaPendukung: string[];
-  hardware: string;
-  software: string;
-  revisi: string;
-  pengembang: accountItem;
-}
-
-export interface prodiItem {
-  kaprodi: accountItem;
-}
-
-export interface KKItem {
-  nama: string;
-  ketua: accountItem;
-}
-
-export interface accountItem {
-  id: number;
-  nama: string;
-}
-
-export interface lulusMK_CPMKItem {
-  id: number;
-  CPMKId: number;
-  tahunAjaranId: number;
-  jumlahLulus: number;
-}
-
-export interface lulusKelas_CPMKItem {
-  id: number;
-  CPMKId: number;
-  tahunAjaranId: number;
-  jumlahLulus: number;
-}
-
-export interface rpItem {
-  id: number;
-  minggu: string;
-  materi: string;
-  metode: string;
-}
-
-export interface KelasItem {
-  id: number;
-  nama: string;
-  mahasiswa: mahasiswaItem[];
-  jumlahLulus: number;
-  MK: MKinterface;
-  tahunAjaran: tahunAjaranItem;
-  lulusCPMK: lulusKelas_CPMKItem[];
-  dosen: accountItem[];
-}
-
-export interface tahunAjaranItem {
-  id: number;
-  tahun: string;
-  semester: string;
-}
-
-export interface CPMKItem {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  CPL: CPLItem;
-}
-
-export interface CPLItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface BKItem {
-  kode: string;
-  deskripsi: string;
-  min: number;
-  max: number;
-}
-
-export interface mahasiswaItem {
-  nim: string;
-  nama: string;
-}
-
-export interface penilaianCPMKItem {
-  kode: string;
-  inputNilai: inputNilaiItem[];
-  kriteria: kriteriaItem[];
-  CPMK: CPMKItem;
-  CPMKkode: string;
-  batasNilai: number;
-}
-
-export interface inputNilaiItem {
-  id: number;
-  penilaianCPMK: penilaianCPMKItem[];
-  mahasiswaNim: string;
-  nilai: number[];
-  kelasId: number;
-}
-
-export interface kriteriaItem {
-  kriteria: string;
-  bobot: number;
-}
 
 const formSchema = z.object({
   deskripsi: z.string(),
@@ -218,15 +90,15 @@ const rpsSchema = z.object({
 
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
-  const [mk, setMK] = useState<MKinterface | undefined>();
-  const [tahunAjaran, setTahunAjaran] = useState<tahunAjaran[]>([]);
+  const [mk, setMK] = useState<MK | undefined>();
+  const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [selectedRencana, setSelectedRencana] = useState<rpItem | null>(null);
+  const [selectedRencana, setSelectedRencana] = useState<RencanaPembelajaran | null>(null);
   const [selectedTahun, setSelectedTahun] = useState("");
-  const [cpmk, setCPMK] = useState<CPMKItem[] | undefined>([]);
-  const [bk, setBK] = useState<BKItem[] | undefined>([]);
+  const [cpmk, setCPMK] = useState<CPMK[] | undefined>([]);
+  const [bk, setBK] = useState<BK[] | undefined>([]);
   const [prevSelectedCPMK, setPrevSelectedCPMK] = useState<string[]>([]);
   const [prevSelectedBK, setPrevSelectedBK] = useState<string[]>([]);
   const [searchCPMK, setSearchCPMK] = useState<string>("");
@@ -234,7 +106,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selectedCPMK, setSelectedCPMK] = useState<string[]>([]);
   const [selectedBK, setSelectedBK] = useState<string[]>([]);
   const [selectedRelasi, setSelectedRelasi] = useState<string>("");
-  const [listCPL, setListCPL] = useState<CPLItem[]>([]);
+  const [listCPL, setListCPL] = useState<CPL[]>([]);
   const [teamTeaching, setTeamTeaching] = useState<string[]>([]);
   const router = useRouter();
 
@@ -386,16 +258,16 @@ export default function Page({ params }: { params: { kode: string } }) {
 
         setListCPL(
           Array.from(
-            new Set(response.data.data.CPMK.map((cpmk: CPMKItem) => cpmk.CPL))
+            new Set(response.data.data.CPMK.map((cpmk: CPMK) => cpmk.CPL))
           )
         );
 
         const prevSelectedCPMK = response.data.data.CPMK.map(
-          (item: CPMKItem) => item.kode
+          (item: CPMK) => item.kode
         );
 
         const prevSelectedBK = response.data.data.BK.map(
-          (item: BKItem) => item.kode
+          (item: BK) => item.kode
         );
 
         setSelectedCPMK(prevSelectedCPMK);
@@ -2000,8 +1872,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                                   ? mk.rps.pengembang.nama
                                   : "-"}
                               </TableCell>
-                              <TableCell>{mk.KK.ketua.nama}</TableCell>
-                              <TableCell>{mk.prodi.kaprodi.nama}</TableCell>
+                              <TableCell>{mk.KK.ketua?.nama}</TableCell>
+                              <TableCell>{mk.prodi.kaprodi?.nama}</TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
@@ -2023,7 +1895,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                                 Capaian Pembelajaran Lulusan (CPL)
                               </TableHead>
                             </TableRow>
-                            {listCPL.map((cpl: CPLItem) => (
+                            {listCPL.map((cpl: CPL) => (
                               <TableRow key={cpl.kode}>
                                 <TableCell className='w-[15%]'>
                                   {cpl.kode}
@@ -2038,7 +1910,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                               </TableHead>
                               <TableHead>CPL yang di dukung</TableHead>
                             </TableRow>
-                            {mk.CPMK.map((cpmk: CPMKItem) => (
+                            {mk.CPMK.map((cpmk: CPMK) => (
                               <TableRow key={cpmk.kode}>
                                 <TableCell className='w-[15%]'>
                                   {cpmk.kode}
@@ -2204,7 +2076,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       {filteredCPMK && filteredCPMK.length > 0 ? (
                         filteredCPMK?.map((cpmk, index) => {
                           return (
-                            <DataCard<CPMKItem>
+                            <DataCard<CPMK>
                               key={index}
                               selected={selectedCPMK}
                               handleCheck={handleCheckCPMK}
@@ -2241,7 +2113,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       {filteredBK && filteredBK.length > 0 ? (
                         filteredBK?.map((bk, index) => {
                           return (
-                            <DataCard<BKItem>
+                            <DataCard<BK>
                               key={index}
                               selected={selectedBK}
                               handleCheck={handleCheckBK}

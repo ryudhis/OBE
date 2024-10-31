@@ -30,46 +30,11 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface penilaianCPMK {
-  id: number;
-  kode: string;
-  CPLkode: string;
-  MKkode: string;
-  CPMKkode: string;
-  tahapPenilaian: string;
-  teknikPenilaian: string;
-  instrumen: string;
-  kriteria: kriteriaItem[];
-  batasNilai: number;
-  CPL: CPLItem;
-  CPMK: CPMKItem;
-}
-
-export interface CPLItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface CPMKItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface MKItem {
-  kode: string;
-  deskripsi: string;
-}
-
-export interface kriteriaItem {
-  bobot: number;
-  kriteria: string;
-}
-
 const DataPenilaianCPMK = () => {
   const router = useRouter();
   const { accountData } = useAccount();
-  const [penilaianCPMK, setPenilaianCPMK] = useState<penilaianCPMK[]>([]);
-  const [MK, setMK] = useState<MKItem[]>([]);
+  const [penilaianCPMK, setPenilaianCPMK] = useState<PenilaianCPMK[]>([]);
+  const [MK, setMK] = useState<MK[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterMK, setFilterMK] = useState("default");
   const [refresh, setRefresh] = useState(true);

@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { validateToken } from "@/utils/auth"; 
+import { validateToken } from "@/utils/auth";
 
 export async function GET(req, { params }) {
   // Validate the token
@@ -18,7 +18,19 @@ export async function GET(req, { params }) {
       where: {
         id,
       },
-      include: { inputNilai: true },
+      include: {
+        inputNilai: true,
+        CPL: {
+          select: {
+            kode:true
+          }
+        },
+        CPMK: {
+          select:{
+            kode:true
+          }
+        },
+      },
     });
 
     return new Response(

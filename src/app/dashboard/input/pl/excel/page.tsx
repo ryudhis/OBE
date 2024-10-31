@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/app/contexts/AccountContext";
 
-interface PLItem {
+interface PLInput {
   kode: string;
   deskripsi: string;
 }
@@ -32,7 +32,7 @@ interface PLItem {
 const PLExcel = () => {
   const router = useRouter();
   const { accountData }  = useAccount();
-  const [pl, setPl] = useState<PLItem[]>([]);
+  const [pl, setPl] = useState<PLInput[]>([]);
   const { toast } = useToast();
 
   const exportTemplate = () => {
@@ -67,7 +67,7 @@ const PLExcel = () => {
       const workbook = XLSX.read(dataWorkbook, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      let parsedData: PLItem[] = XLSX.utils.sheet_to_json(sheet);
+      let parsedData: PLInput[] = XLSX.utils.sheet_to_json(sheet);
 
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({

@@ -23,21 +23,10 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 
-export interface pl {
-  id: number;
-  kode: string;
-  deskripsi: string;
-  CPL: CPLItem[];
-}
-
-export interface CPLItem {
-  kode: string;
-}
-
 const DataPL = () => {
   const router = useRouter();
   const { accountData } = useAccount();
-  const [PL, setPL] = useState<pl[]>([]);
+  const [PL, setPL] = useState<PL[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
 

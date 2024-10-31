@@ -62,26 +62,11 @@ const formSchema = z.object({
   ),
 });
 
-export interface MKItem {
-  kode: string;
-  deskripsi: string;
-  CPMK: CPMKItem[];
-}
-
-export interface CPMKItem {
-  kode: string;
-  CPL: CPLItem;
-}
-
-export interface CPLItem {
-  kode: string;
-}
-
 const InputPenilaianCPMK = () => {
   const { toast } = useToast();
   const { accountData } = useAccount();
-  const [MK, setMK] = useState<MKItem[]>([]);
-  const [selectedMK, setSelectedMK] = useState<MKItem>();
+  const [MK, setMK] = useState<MK[]>([]);
+  const [selectedMK, setSelectedMK] = useState<MK>();
   const [searchMK, setSearchMK] = useState<string>("");
   const [searchCPMK, setSearchCPMK] = useState<string>("");
 
