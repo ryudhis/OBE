@@ -365,7 +365,7 @@ export default function Page({ params }: { params: { id: string } }) {
               );
             })
           ) : (
-            <div className='text-sm'>PL Tidak Ditemukan</div>
+            <div className='text-sm'>BK Tidak Ditemukan</div>
           )}
         </div>
 

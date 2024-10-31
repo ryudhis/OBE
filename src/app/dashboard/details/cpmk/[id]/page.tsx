@@ -197,11 +197,10 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  // ONLY FIRST TIME
   useEffect(() => {
     getAllMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Trigger useEffect only on initial mount
+  }, []);
 
   useEffect(() => {
     getCPMK();

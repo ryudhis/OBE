@@ -183,6 +183,16 @@ const Page = () => {
   }, []);
 
   const renderDataRangkuman = () => {
+    if (MK.length === 0)
+      return (
+        <TableRow>
+          {" "}
+          <TableCell colSpan={9} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+
     return MK.map((item) => {
       return item.kelas?.map((kelas) => {
         return kelas.dataCPMK?.map((data) => {
@@ -209,6 +219,16 @@ const Page = () => {
   };
 
   const renderRangkumanPerforma = () => {
+    if (CPL.length === 0)
+      return (
+        <TableRow>
+          {" "}
+          <TableCell colSpan={3} className='text-center font-semibold'>
+            Belum ada Data
+          </TableCell>
+        </TableRow>
+      );
+
     return CPL.flatMap((cplItem) => {
       const cplPerforma =
         cplItem.CPMK.reduce((total, CPMK) => {
@@ -266,15 +286,15 @@ const Page = () => {
   };
 
   return (
-    <main className="py-12 flex flex-col gap-4 justify-center items-center">
+    <main className='py-12 flex flex-col gap-4 justify-center items-center'>
       {isLoading ? (
-        <div className="flex items-center justify-center h-screen">
+        <div className='flex items-center justify-center h-screen'>
           <Image
-            src="/Logo2.png"
-            alt="loading"
+            src='/Logo2.png'
+            alt='loading'
             width={100}
             height={100}
-            className="animate-pulse"
+            className='animate-pulse'
           />
         </div>
       ) : accountData?.role === "Super Admin" ? (
@@ -283,9 +303,9 @@ const Page = () => {
         <h1>Dashboard Admin Prodi</h1>
       ) : accountData?.role === "Kaprodi" ? (
         <>
-          <Card className="w-[1200px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
+          <Card className='w-[1200px] mx-auto'>
+            <CardHeader className='flex flex-row justify-between items-center'>
+              <div className='flex flex-col'>
                 <CardTitle>Tabel Rangkuman Evaluasi </CardTitle>
                 <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
               </div>
@@ -294,37 +314,37 @@ const Page = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[8%]">MK </TableHead>
-                    <TableHead className="w-[8%]">Kelas </TableHead>
-                    <TableHead className="w-[8%]">CPMK </TableHead>
-                    <TableHead className="w-[8%]">CPL</TableHead>
-                    <TableHead className="w-[8%]">
+                    <TableHead className='w-[8%]'>MK </TableHead>
+                    <TableHead className='w-[8%]'>Kelas </TableHead>
+                    <TableHead className='w-[8%]'>CPMK </TableHead>
+                    <TableHead className='w-[8%]'>CPL</TableHead>
+                    <TableHead className='w-[8%]'>
                       Total Nilai Minimal
                     </TableHead>
-                    <TableHead className="w-[8%]">Nilai Masuk</TableHead>
-                    <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                    <TableHead className="w-[16%]">
+                    <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
+                    <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                    <TableHead className='w-[16%]'>
                       Persen Mencapai Nilai Minimal
                     </TableHead>
-                    <TableHead className="w-[8%]">Rata-Rata</TableHead>
+                    <TableHead className='w-[8%]'>Rata-Rata</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{renderDataRangkuman()}</TableBody>
               </Table>
             </CardContent>
           </Card>
-          <Card className="w-[1200px]">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
+          <Card className='w-[1200px]'>
+            <CardHeader className='flex flex-row justify-between items-center'>
+              <div className='flex flex-col'>
                 <CardTitle>Rangkuman Performa CPL</CardTitle>
               </div>
-              <div className="flex flex-col">
+              <div className='flex flex-col'>
                 <Select
                   value={filterTahunAjaran}
                   onValueChange={(e) => setFilterTahunAjaran(e)}
                 >
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Pilih Tahun Ajaran" />
+                  <SelectTrigger className='w-[200px]'>
+                    <SelectValue placeholder='Pilih Tahun Ajaran' />
                   </SelectTrigger>
                   <SelectContent>
                     {semester.map((tahun) => (
@@ -340,9 +360,9 @@ const Page = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="flex-1">CPL</TableHead>
-                    <TableHead className="flex-1">CPMK</TableHead>
-                    <TableHead className="flex-1">MK</TableHead>
+                    <TableHead className='flex-1'>CPL</TableHead>
+                    <TableHead className='flex-1'>CPMK</TableHead>
+                    <TableHead className='flex-1'>MK</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{renderRangkumanPerforma()}</TableBody>
