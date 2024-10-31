@@ -262,7 +262,7 @@ const Header = () => {
                   key={item}
                   onClick={() =>
                     handleItemClick(
-                      `/dashboard/data/${item.replace(/\s+/g, "")}`
+                      `/dashboard/input/${item.replace(/\s+/g, "")}`
                     )
                   }
                   sx={{ pl: 4 }}
