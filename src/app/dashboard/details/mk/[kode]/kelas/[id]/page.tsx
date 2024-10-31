@@ -237,14 +237,14 @@ export default function Page({ params }: { params: { id: string } }) {
           {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
         </TableCell>
         <TableCell
-          className={`w-[8%] ${
+          className={`w-[8%] border-x-2  ${
             lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-300"
           }`}
         >
           {lulusData.totalNilai}
         </TableCell>
         <TableCell
-          className={`w-[8%] ${
+          className={`w-[8%] text-center border-x-2 ${
             lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-300"
           }`}
         >
@@ -269,7 +269,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     return (
                       <TableCell
                         key={index}
-                        className={`w-[16%] text-center ${cellClassName}`}
+                        className={`w-[16%] border-x-2 text-center ${cellClassName}`}
                       >
                         {nilai}
                       </TableCell>
@@ -301,17 +301,17 @@ export default function Page({ params }: { params: { id: string } }) {
     return kelas?.dataCPMK?.map((data) => {
       return (
         <TableRow key={data.cpmk}>
-          <TableCell className='w-[8%]'>{data.cpl}</TableCell>
-          <TableCell className='w-[8%]'>{data.cpmk}</TableCell>
-          <TableCell className='w-[8%]'>{data.nilaiMinimal}/100</TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className='w-[8%] text-center'>{data.cpl}</TableCell>
+          <TableCell className='w-[8%] text-center'>{data.cpmk}</TableCell>
+          <TableCell className='w-[8%] text-center'>{data.nilaiMinimal}/100</TableCell>
+          <TableCell className='w-[8%] text-center'>
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className='w-[8%] text-center'>
             {data.jumlahLulus}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%]'>{data.persenLulus}%</TableCell>
-          <TableCell className='w-[8%]'>{data.rataNilai}</TableCell>
+          <TableCell className='w-[8%] text-center'>{data.persenLulus}%</TableCell>
+          <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
         </TableRow>
       );
     });
@@ -394,7 +394,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </Dialog>
             <Dialog>
               <DialogTrigger asChild>
-                <Button className='w-[200px] self-center' variant='outline'>
+                <Button className={`w-[200px] self-center ${accountData?.role==="Dosen"?"hidden":null}`} variant='outline'>
                   Dosen Pengampu
                 </Button>
               </DialogTrigger>
@@ -464,19 +464,19 @@ export default function Page({ params }: { params: { id: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className='w-[8%] text-center '>
                             No
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className='w-[8%] text-center '>
                             NIM
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className='w-[8%] text-center '>
                             Nama
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className='w-[8%] text-center '>
                             Total Nilai
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center'>
+                          <TableHead rowSpan={2} className='w-[8%] text-center '>
                             Indeks Nilai
                           </TableHead>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
@@ -494,7 +494,7 @@ export default function Page({ params }: { params: { id: string } }) {
                             <React.Fragment key={CPMK.CPMK.kode}>
                               {CPMK.kriteria.map((kriteria, index) => (
                                 <TableHead
-                                  className='text-center w-[16%]'
+                                  className='text-center w-[16%] border-x-2'
                                   key={index}
                                 >
                                   {kriteria.kriteria} <br />{" "}
@@ -504,7 +504,7 @@ export default function Page({ params }: { params: { id: string } }) {
                                 </TableHead>
                               ))}
                               <TableHead
-                                className='text-center w-[16%]'
+                                className='text-center w-[16%] border-x-2'
                                 key={`status-${CPMK.CPMK.kode}`}
                               >
                                 Status
@@ -521,17 +521,17 @@ export default function Page({ params }: { params: { id: string } }) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[8%]'>CPL </TableHead>
-                        <TableHead className='w-[8%]'>CPMK</TableHead>
-                        <TableHead className='w-[8%]'>
+                        <TableHead className='w-[8%] text-center border-x-2'>CPL </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>CPMK</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
                           Total Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
-                        <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
-                        <TableHead className='w-[8%]'>
+                        <TableHead className='w-[8%] text-center border-x-2'>Nilai Masuk</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>Jumlah Lulus</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
                           Persen Mencapai Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%]'>Rata-Rata</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>Rata-Rata</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderDataRangkuman()}</TableBody>

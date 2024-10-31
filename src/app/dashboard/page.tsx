@@ -284,7 +284,9 @@ const Page = () => {
             </CardContent>
           </Card>
         </>
-      ) : null}
+      ) : (
+        <h1>Dashboard Dosen</h1>
+      )}
     </main>
   );
 };
