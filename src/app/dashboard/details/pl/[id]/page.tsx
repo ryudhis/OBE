@@ -30,7 +30,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [pl, setPl] = useState<PL | undefined>();
   const [cpl, setCPL] = useState<CPL[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
@@ -198,6 +198,7 @@ export default function Page({ params }: { params: { id: string } }) {
   if (pl) {
     return (
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <p className='ml-2 font-bold text-2xl'>Detail Profil Lulusan</p>
         <div className='flex'>
           <Table className='w-[400px] mb-5'>
             <TableBody>

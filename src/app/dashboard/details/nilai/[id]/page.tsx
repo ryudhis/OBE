@@ -35,10 +35,8 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const { accountData }  = useAccount();
-  const [inputNilai, setInputNilai] = useState<
-    InputNilai| undefined
-  >();
+  const { accountData } = useAccount();
+  const [inputNilai, setInputNilai] = useState<InputNilai | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
   const defaultValues = {
     nilai: [],
@@ -124,6 +122,7 @@ export default function Page({ params }: { params: { id: string } }) {
   if (inputNilai) {
     return (
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <p className='ml-2 font-bold text-2xl'>Detail Nilai Mahasiswa</p>
         <div className='flex'>
           <Table className='w-[300px] mb-5'>
             <TableBody>

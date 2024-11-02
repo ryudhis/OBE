@@ -1120,6 +1120,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (mk) {
     return (
       <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
+        <p className="ml-2 font-bold text-2xl">Detail Mata Kuliah</p>
         <div className='flex gap-3'>
           <Table className='w-[400px] mb-5'>
             <TableBody>

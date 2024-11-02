@@ -102,9 +102,7 @@ export default function Page({ params }: { params: { id: string } }) {
         });
       } else {
         setCpmk(response.data.data);
-        const prevSelected = response.data.data.MK.map(
-          (item: MK) => item.kode
-        );
+        const prevSelected = response.data.data.MK.map((item: MK) => item.kode);
 
         setSelected(prevSelected);
         setPrevSelected(prevSelected);
@@ -194,6 +192,7 @@ export default function Page({ params }: { params: { id: string } }) {
   if (cpmk) {
     return (
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <p className='ml-2 font-bold text-2xl'>Detail Capaian Pembelajaran Mata Kuliah</p>
         <div className='flex'>
           <Table className='w-[200px] mb-5'>
             <TableBody>

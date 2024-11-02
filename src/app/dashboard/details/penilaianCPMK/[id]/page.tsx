@@ -217,6 +217,7 @@ export default function Page({ params }: { params: { id: string } }) {
   if (PCPMK) {
     return (
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <p className='ml-2 font-bold text-2xl'>Detail Penilaian CPMK</p>
         <div className='flex'>
           <Table className='w-[400px] mb-5'>
             <TableBody>

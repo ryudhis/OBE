@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
-  const { accountData }  = useAccount();
+  const { accountData } = useAccount();
   const [cpl, setCPl] = useState<CPL | undefined>();
   const [bk, setBK] = useState<BK[] | undefined>([]);
   const [cpmk, setCPMK] = useState<CPMK[] | undefined>([]);
@@ -245,6 +245,7 @@ export default function Page({ params }: { params: { id: string } }) {
   if (cpl) {
     return (
       <main className='flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+        <p className='ml-2 font-bold text-2xl'>Detail Capaian Pembelajaran Lulusan</p>
         <div className='flex'>
           <Table className='w-[300px] mb-5'>
             <TableBody>

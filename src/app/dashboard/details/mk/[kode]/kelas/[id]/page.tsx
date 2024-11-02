@@ -237,9 +237,7 @@ export default function Page({ params }: { params: { id: string } }) {
           {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
         </TableCell>
         <TableCell
-          className={`w-[8%] border-x-2  ${
-            lulusData.statusLulus === "Lulus" ? "bg-green-300" : "bg-red-300"
-          }`}
+          className={`w-[8%]`}
         >
           {lulusData.totalNilai}
         </TableCell>
