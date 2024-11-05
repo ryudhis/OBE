@@ -403,7 +403,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </DialogTrigger>
               <DialogContent className='sm:max-w-[425px]'>
                 <DialogHeader>
-                  <DialogTitle>Update Data</DialogTitle>
+                  <DialogTitle>Dosen Pengampu</DialogTitle>
                 </DialogHeader>
                 <Card className='mx-auto'>
                   <CardHeader>

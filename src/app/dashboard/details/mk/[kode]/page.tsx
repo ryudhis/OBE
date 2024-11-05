@@ -293,7 +293,6 @@ export default function Page({ params }: { params: { kode: string } }) {
 
           rpsForm.setValue("pustakaUtama", []);
           response.data.data.rps.pustakaUtama.map((item: string) => {
-            console.log(item);
             appendPustakaUtama({ name: item });
           });
 
@@ -321,7 +320,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         alert(response.data.message);
       }
       setCPMK(response.data.data);
-      console.log(response.data.data);
     } catch (error: any) {
       throw error;
     }
@@ -394,7 +392,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
         setRefresh(!refresh);
       } else {
-        console.log(response.data);
         toast({
           title: response.data.message,
           variant: "destructive",
@@ -432,7 +429,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
         setRefresh(!refresh);
       } else {
-        console.log(response.data);
         toast({
           title: response.data.message,
           variant: "destructive",
@@ -757,6 +753,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           }
         });
       });
+      console.log(allDosen);
       setTeamTeaching(allDosen);
     }
   };
@@ -2000,7 +1997,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHead>Team Teaching</TableHead>
                       <TableCell>
                         <p>
-                          {mk.rps && teamTeaching.length > 0
+                          {teamTeaching.length > 0
                             ? teamTeaching.map((dosen, index) => (
                                 <span key={index}>
                                   {dosen}{" "}

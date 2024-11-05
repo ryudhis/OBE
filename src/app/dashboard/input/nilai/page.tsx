@@ -202,7 +202,7 @@ const InputNilai: React.FC = () => {
   }
 
   return (
-    <section className='flex my-[50px] justify-center items-center'>
+    <section className='flex justify-center items-center mt-20'>
       <Card className='w-[1000px]'>
         <CardHeader className='flex flex-row justify-between'>
           <div>

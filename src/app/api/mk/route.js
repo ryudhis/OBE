@@ -95,7 +95,7 @@ export async function POST(req) {
       },
       KK: {
         connect: {
-          id: KK,
+          id: parseInt(KK),
         },
       },
     };

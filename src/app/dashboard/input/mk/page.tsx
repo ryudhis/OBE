@@ -114,7 +114,7 @@ const MKScreen = () => {
       sks: values.sks,
       batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
       batasLulusMK: parseFloat(values.batasLulusMK),
-      KK: values.KK,
+      KK: parseInt(values.KK),
       prodiId: accountData?.prodiId,
       prerequisitesMK, // Include selected prerequisites MKs
     };
@@ -167,7 +167,7 @@ const MKScreen = () => {
   }
 
   return (
-    <section className='flex h-screen justify-center items-center mt-[150px]'>
+    <section className='flex justify-center items-center mt-20'>
       <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input MK</CardTitle>
@@ -240,6 +240,11 @@ const MKScreen = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        {KK.length === 0 && (
+                          <p className='text-center font-semibold text-sm'>
+                            Belum ada KK
+                          </p>
+                        )}
                         {KK.map((item) => (
                           <SelectItem key={item.id} value={String(item.id)}>
                             {item.nama}
@@ -258,9 +263,25 @@ const MKScreen = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>SKS</FormLabel>
-                    <FormControl>
-                      <Input placeholder='SKS' required {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Pilih Jumlah SKS' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {[1, 2, 3, 4].map((item) => (
+                          <SelectItem key={item} value={String(item)}>
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -336,7 +357,9 @@ const MKScreen = () => {
                     </div>
                   </>
                 ) : (
-                  <div className='text-center text-xl animate-pulse'>Belum ada MK ...</div>
+                  <div className='text-center text-xl animate-pulse'>
+                    Belum ada MK ...
+                  </div>
                 )}
               </div>
 

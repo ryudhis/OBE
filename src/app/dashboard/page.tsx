@@ -66,7 +66,7 @@ const Page = () => {
       const response = await axiosConfig.get(`api/tahun-ajaran`);
       if (response.data.status !== 400) {
         setSemester(response.data.data);
-        setFilterTahunAjaran(response.data.data[0].id);
+        setFilterTahunAjaran(String(response.data.data[0].id));
       } else {
         alert(response.data.message);
       }

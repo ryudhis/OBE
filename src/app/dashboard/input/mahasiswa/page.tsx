@@ -91,7 +91,7 @@ const MahasiswaScreen = () => {
   }
 
   return (
-    <section className="flex h-screen mt-[-100px] justify-center items-center">
+    <section className="flex justify-center items-center mt-20">
       <Card className="w-[1000px]">
         <CardHeader className="flex flex-row justify-between">
           <div>
