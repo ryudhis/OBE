@@ -40,6 +40,7 @@ const CPLExcel = () => {
     const headers = [
       { header: "Kode", key: "Kode" },
       { header: "Deskripsi", key: "Deskripsi" },
+      { header: "Deskripsi Inggris", key: "DeskripsiInggris" },
       { header: "Keterangan", key: "Keterangan" },
     ];
 
@@ -74,6 +75,7 @@ const CPLExcel = () => {
       parsedData = parsedData.map((item: any) => ({
         kode: item.Kode,
         deskripsi: item.Deskripsi,
+        deskripsiInggris: item.DeskripsiInggris,
         keterangan: item.Keterangan,
       }));
       setCpl(parsedData);

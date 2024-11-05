@@ -39,6 +39,7 @@ const CPMKExcel = () => {
     // Define headers
     const headers = [
       { header: "Kode", key: "Kode" },
+      { header: "Kode CPL", key: "KodeCPL" },
       { header: "Deskripsi", key: "Deskripsi" },
     ];
 
@@ -72,6 +73,7 @@ const CPMKExcel = () => {
       // Filter parsedData to only include Nama and NIM data
       parsedData = parsedData.map((item: any) => ({
         kode: item.Kode,
+        kodeCPL: item.KodeCPL,
         deskripsi: item.Deskripsi,
       }));
       setCpmk(parsedData);

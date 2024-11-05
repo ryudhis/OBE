@@ -18,6 +18,7 @@ export async function POST(req) {
       data: dataArray.CPL.map((data) => ({
         kode: data.kode,
         deskripsi: data.deskripsi,
+        deskripsiInggris: data.deskripsiInggris,
         keterangan: data.keterangan,
         prodiId: dataArray.prodiId,
       })),
