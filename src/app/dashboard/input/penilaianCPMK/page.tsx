@@ -229,7 +229,7 @@ const InputPenilaianCPMK = () => {
   }, [form.watch("teknikPenilaian")]);
 
   return (
-    <section className='flex justify-center items-center mt-20'>
+    <section className='flex justify-center items-center mt-20 mb-10'>
       <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input</CardTitle>
