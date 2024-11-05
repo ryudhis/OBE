@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import {
   Table,
@@ -42,7 +43,9 @@ const DataMK = () => {
   const getMK = async (prodiId: string = "", dosenId: number = 0) => {
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${prodiId}${dosenId ? `&dosen=${dosenId}` : ""}`
+        `api/mk?prodi=${prodiId}${
+          dosenId ? `&dosen=${dosenId}` : ""
+        }&tahunAjaran=${selectedTahun}`
       );
       if (response.data.status !== 400) {
         setMK(response.data.data);
@@ -161,7 +164,11 @@ const DataMK = () => {
               : "Tidak Lulus"}
           </TableCell>
           <TableCell className='w-[8%] flex gap-2 text-center'>
-            <Button className={accountData?.role === "Dosen" ? "hidden" : ""} variant='destructive' onClick={() => delMK(mk.kode)}>
+            <Button
+              className={accountData?.role === "Dosen" ? "hidden" : ""}
+              variant='destructive'
+              onClick={() => delMK(mk.kode)}
+            >
               Hapus
             </Button>
             <Button
@@ -178,17 +185,17 @@ const DataMK = () => {
   };
 
   useEffect(() => {
-    if (accountData?.role === "Dosen") {
-      getMK(accountData.prodiId, accountData.id);
-    } else {
-      getMK(accountData?.prodiId);
+    if (selectedTahun) {
+      if (accountData?.role === "Dosen") {
+        getMK(accountData.prodiId, accountData.id);
+      } else {
+        getMK(accountData?.prodiId);
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]);
+  }, [refresh, selectedTahun]);
 
   useEffect(() => {
     getTahunAjaran();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

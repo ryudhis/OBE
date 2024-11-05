@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { validateToken } from "@/utils/auth"; 
+import { validateToken } from "@/utils/auth";
 
 export async function GET(req) {
   // Validate the token
@@ -12,8 +12,9 @@ export async function GET(req) {
   }
 
   const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; 
-  const dosenId = parseInt(searchParams.get("dosen")) || ""; 
+  const prodi = searchParams.get("prodi") || "";
+  const dosenId = parseInt(searchParams.get("dosen")) || null;
+  const tahunAjaranId = parseInt(searchParams.get("tahunAjaran")) || null;
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -32,7 +33,10 @@ export async function GET(req) {
         include: { kelas: true },
       });
 
-      const kelasArray = account?.kelas || [];
+      const kelasArray = (account?.kelas || []).filter(
+        (kelas) => kelas.tahunAjaranId === tahunAjaranId
+      );
+
       // Extract MKId from kelasArray and remove duplicates
       const MKidArray = [...new Set(kelasArray.map((kelas) => kelas.MKId))];
 
@@ -84,7 +88,7 @@ export async function POST(req) {
 
   try {
     const data = await req.json();
-    const { prodiId, KK, prerequisitesMK, ...restData } = data; 
+    const { prodiId, KK, prerequisitesMK, ...restData } = data;
 
     const payload = {
       ...restData,
