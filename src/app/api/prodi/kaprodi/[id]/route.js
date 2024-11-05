@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { validateToken } from "@/utils/auth"; 
+import { validateToken } from "@/utils/auth";
 
 export async function PATCH(req, { params }) {
   // Validate the token
@@ -13,19 +13,21 @@ export async function PATCH(req, { params }) {
 
   // Get kode from params.id
   const { id: kode } = params;
-  
+
   try {
     const data = await req.json();
 
-    // Update the old Kaprodi's role to "Dosen"
-    await prisma.account.update({
-      where: {
-        id: data.oldKaprodi,
-      },
-      data: {
-        role: "Dosen",
-      },
-    });
+    if (data.oldKaprodi) {
+      // Update the old Kaprodi's role to "Dosen" if it exists
+      await prisma.account.update({
+        where: {
+          id: data.oldKaprodi,
+        },
+        data: {
+          role: "Dosen",
+        },
+      });
+    }
 
     // Update the Prodi with the new Kaprodi
     const prodi = await prisma.prodi.update({
@@ -42,7 +44,7 @@ export async function PATCH(req, { params }) {
     });
 
     // Update the new Kaprodi's role to "Kaprodi"
-    await prisma.account.update({
+    await prisma.account.update({ 
       where: {
         id: data.kaprodi,
       },
