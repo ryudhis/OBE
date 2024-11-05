@@ -236,13 +236,9 @@ export default function Page({ params }: { params: { id: string } }) {
         <TableCell className='w-[8%]'>
           {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
         </TableCell>
+        <TableCell className={`w-[8%]`}>{lulusData.totalNilai}</TableCell>
         <TableCell
-          className={`w-[8%]`}
-        >
-          {lulusData.totalNilai}
-        </TableCell>
-        <TableCell
-          className={`w-[8%] text-center border-x-2 ${
+          className={`w-[8%] text-center ${
             lulusData.indexNilai <= "C" ? "bg-green-300" : "bg-red-300"
           }`}
         >
@@ -301,14 +297,18 @@ export default function Page({ params }: { params: { id: string } }) {
         <TableRow key={data.cpmk}>
           <TableCell className='w-[8%] text-center'>{data.cpl}</TableCell>
           <TableCell className='w-[8%] text-center'>{data.cpmk}</TableCell>
-          <TableCell className='w-[8%] text-center'>{data.nilaiMinimal}/100</TableCell>
+          <TableCell className='w-[8%] text-center'>
+            {data.nilaiMinimal}/100
+          </TableCell>
           <TableCell className='w-[8%] text-center'>
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
           <TableCell className='w-[8%] text-center'>
             {data.jumlahLulus}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%] text-center'>{data.persenLulus}%</TableCell>
+          <TableCell className='w-[8%] text-center'>
+            {data.persenLulus}%
+          </TableCell>
           <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
         </TableRow>
       );
@@ -392,7 +392,12 @@ export default function Page({ params }: { params: { id: string } }) {
             </Dialog>
             <Dialog>
               <DialogTrigger asChild>
-                <Button className={`w-[200px] self-center ${accountData?.role==="Dosen"?"hidden":null}`} variant='outline'>
+                <Button
+                  className={`w-[200px] self-center ${
+                    accountData?.role === "Dosen" ? "hidden" : null
+                  }`}
+                  variant='outline'
+                >
                   Dosen Pengampu
                 </Button>
               </DialogTrigger>
@@ -462,19 +467,34 @@ export default function Page({ params }: { params: { id: string } }) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead rowSpan={2} className='w-[8%] text-center '>
+                          <TableHead
+                            rowSpan={2}
+                            className='w-[8%] text-center '
+                          >
                             No
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center '>
+                          <TableHead
+                            rowSpan={2}
+                            className='w-[8%] text-center '
+                          >
                             NIM
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center '>
+                          <TableHead
+                            rowSpan={2}
+                            className='w-[8%] text-center '
+                          >
                             Nama
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center '>
+                          <TableHead
+                            rowSpan={2}
+                            className='w-[8%] text-center '
+                          >
                             Total Nilai
                           </TableHead>
-                          <TableHead rowSpan={2} className='w-[8%] text-center '>
+                          <TableHead
+                            rowSpan={2}
+                            className='w-[8%] text-center '
+                          >
                             Indeks Nilai
                           </TableHead>
                           {kelas.MK.penilaianCPMK.map((CPMK) => (
@@ -519,17 +539,27 @@ export default function Page({ params }: { params: { id: string } }) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[8%] text-center border-x-2'>CPL </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>CPMK</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          CPL{" "}
+                        </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          CPMK
+                        </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
                           Total Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>Nilai Masuk</TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>Jumlah Lulus</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Nilai Masuk
+                        </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Jumlah Lulus
+                        </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
                           Persen Mencapai Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>Rata-Rata</TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Rata-Rata
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderDataRangkuman()}</TableBody>
