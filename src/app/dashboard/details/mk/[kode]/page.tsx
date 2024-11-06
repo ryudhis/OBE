@@ -1120,7 +1120,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
         <p className='ml-2 font-bold text-2xl'>Detail Mata Kuliah</p>
         <div className='flex gap-3'>
-          <Table className='w-[1000px] table-fixed mb-5'>
+          <Table className='w-[950px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
                 <TableCell className='w-[20%] p-2'>
