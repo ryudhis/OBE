@@ -223,6 +223,7 @@ model kelas {
   jumlahLulus    Int
   mahasiswaLulus Json?
   dataCPMK       Json?
+  dataCPL        Json?
   lulusCPMK      lulusKelas_CPMK[]
 
   @@unique([nama, MKId, tahunAjaranId])

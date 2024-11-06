@@ -115,7 +115,7 @@ async function main() {
 
   } catch (e) {
     console.error("Error during seeding:", e);
-    throw e; // Rethrow the error to be caught in the main error handler
+    throw e; 
   }
 }
 
