@@ -1118,77 +1118,9 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (mk) {
     return (
       <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
-        <p className='ml-2 font-bold text-2xl'>Detail Mata Kuliah</p>
-        <div className='flex gap-3'>
-          <Table className='w-[950px] table-fixed mb-5'>
-            <TableBody>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>Kode</strong>
-                </TableCell>
-                <TableCell className='p-2'>: {mk.kode}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>Nama</strong>
-                </TableCell>
-                <TableCell className='p-2'>: {mk.deskripsi}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>Nama Inggris</strong>
-                </TableCell>
-                <TableCell className='p-2'>: {mk.deskripsiInggris}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>Jumlah SKS</strong>
-                </TableCell>
-                <TableCell className='p-2'>: {mk.sks}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>Performa</strong>
-                </TableCell>
-                <TableCell className='p-2'>
-                  :{" "}
-                  {mk.lulusMK_CPMK
-                    .filter(
-                      (lulusMK) =>
-                        lulusMK.tahunAjaranId === parseInt(selectedTahun)
-                    )
-                    .map(
-                      (lulusMK) =>
-                        `${cpmk
-                          ?.filter((cpmk) => cpmk.id === lulusMK.CPMKId)
-                          .map((cpmk) => cpmk.kode)}: ${
-                          lulusMK.jumlahLulus
-                            ? `${lulusMK.jumlahLulus.toFixed(2)}%`
-                            : "-"
-                        }`
-                    )
-                    .join(", ")}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>CPMK</strong>
-                </TableCell>
-                <TableCell className='p-2'>
-                  : {mk.CPMK.map((cpmk) => cpmk.kode).join(", ")}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className='w-[20%] p-2'>
-                  <strong>BK</strong>
-                </TableCell>
-                <TableCell className='p-2'>
-                  : {mk.BK.map((bk) => bk.kode).join(", ")}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-
+        <div className='flex justify-between'>
+          <p className='ml-2 font-bold text-2xl'>Detail Mata Kuliah</p>
+          <div className="flex gap-3">
           <Select onValueChange={handleTahunChange} value={selectedTahun}>
             <SelectTrigger className='w-[250px]'>
               <SelectValue placeholder='Tahun Ajaran' />
@@ -1302,7 +1234,78 @@ export default function Page({ params }: { params: { kode: string } }) {
               </Form>
             </DialogContent>
           </Dialog>
+          </div>
+          
         </div>
+
+        <Table className='w-full table-fixed mb-5'>
+          <TableBody>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Kode</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {mk.kode}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Nama</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {mk.deskripsi}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Nama Inggris</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {mk.deskripsiInggris}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Jumlah SKS</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {mk.sks}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Performa</strong>
+              </TableCell>
+              <TableCell className='p-2'>
+                :{" "}
+                {mk.lulusMK_CPMK
+                  .filter(
+                    (lulusMK) =>
+                      lulusMK.tahunAjaranId === parseInt(selectedTahun)
+                  )
+                  .map(
+                    (lulusMK) =>
+                      `${cpmk
+                        ?.filter((cpmk) => cpmk.id === lulusMK.CPMKId)
+                        .map((cpmk) => cpmk.kode)}: ${
+                        lulusMK.jumlahLulus
+                          ? `${lulusMK.jumlahLulus.toFixed(2)}%`
+                          : "-"
+                      }`
+                  )
+                  .join(", ")}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>CPMK</strong>
+              </TableCell>
+              <TableCell className='p-2'>
+                : {mk.CPMK.map((cpmk) => cpmk.kode).join(", ")}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>BK</strong>
+              </TableCell>
+              <TableCell className='p-2'>
+                : {mk.BK.map((bk) => bk.kode).join(", ")}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
 
         <Tabs defaultValue='kelas' className='w-full'>
           <TabsList
