@@ -1870,7 +1870,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                                   ? mk.rps.pengembang.nama
                                   : "-"}
                               </TableCell>
-                              <TableCell>{mk.KK.ketua?.nama}</TableCell>
+                              <TableCell>{mk.KK.ketua? mk.KK.ketua.nama : "-"}</TableCell>
                               <TableCell>{mk.prodi.kaprodi?.nama}</TableCell>
                             </TableRow>
                           </TableBody>

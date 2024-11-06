@@ -517,7 +517,7 @@ export default function ProdiPage() {
                       <TableCell>
                         {item.ketua ? item.ketua.nama : "-"}
                       </TableCell>
-                      <TableCell className="space-x-3">
+                      <TableCell className='space-x-3'>
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button onClick={() => handleEditKK(item)}>
