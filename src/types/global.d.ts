@@ -180,11 +180,21 @@ declare global {
     jumlahLulus: number;
     mahasiswaLulus?: mahasiswaLulus[];
     dataCPMK?: dataCPMK[];
+    dataCPL?: dataCPL[];
     lulusCPMK: LulusKelas_CPMK[];
   }
 
   export interface dataCPMK {
     cpmk: string;
+    cpl: string;
+    nilaiMinimal: number;
+    nilaiMasuk: number;
+    jumlahLulus: number;
+    persenLulus: number;
+    rataNilai: number;
+  }
+  
+  export interface dataCPL {  
     cpl: string;
     nilaiMinimal: number;
     nilaiMasuk: number;

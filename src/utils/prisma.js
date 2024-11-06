@@ -581,6 +581,35 @@ const updateKelas = async (data) => {
 
     console.log("Mahasiswa Lulus = ", mahasiswaLulus);
 
+    const cplMap = {};
+
+    dataCPMK.forEach((item) => {
+      if (!cplMap[item.cpl]) {
+        cplMap[item.cpl] = {
+          cpl: item.cpl,
+          persenLulusTotal: 0,
+          rataNilaiTotal: 0,
+          count: 0,
+        };
+      }
+
+      // Ensure `persenLulus` and `rataNilai` are numbers and add them to totals
+      cplMap[item.cpl].persenLulusTotal += Number(item.persenLulus) || 0;
+      cplMap[item.cpl].rataNilaiTotal += Number(item.rataNilai) || 0;
+      cplMap[item.cpl].count += 1;
+    });
+
+    // Calculate the average for `persenLulus` and `rataNilai` for each unique `cpl`
+    const dataCPL = Object.values(cplMap).map((cplEntry) => ({
+      cpl: cplEntry.cpl,
+      persenLulus:
+        cplEntry.count > 0 ? (cplEntry.persenLulusTotal / cplEntry.count).toFixed(2) : 0,
+      rataNilai:
+        cplEntry.count > 0 ? (cplEntry.rataNilaiTotal / cplEntry.count).toFixed(2) : 0,
+    }));
+
+    console.log("dataCPL = ", dataCPL);
+
     await prisma.kelas.update({
       where: {
         id: selectedKelas.id,
@@ -589,6 +618,7 @@ const updateKelas = async (data) => {
         jumlahLulus: totalLulusKelas,
         mahasiswaLulus: mahasiswaLulus,
         dataCPMK: dataCPMK,
+        dataCPL: dataCPL,
       },
     });
 

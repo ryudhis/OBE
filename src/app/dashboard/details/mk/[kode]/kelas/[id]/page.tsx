@@ -291,7 +291,7 @@ export default function Page({ params }: { params: { id: string } }) {
     ));
   };
 
-  const renderDataRangkuman = () => {
+  const renderDataRangkumanCPMK = () => {
     return kelas?.dataCPMK?.map((data) => {
       return (
         <TableRow key={data.cpmk}>
@@ -306,6 +306,20 @@ export default function Page({ params }: { params: { id: string } }) {
           <TableCell className='w-[8%] text-center'>
             {data.jumlahLulus}/{kelas.mahasiswa.length}
           </TableCell>
+          <TableCell className='w-[8%] text-center'>
+            {data.persenLulus}%
+          </TableCell>
+          <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
+        </TableRow>
+      );
+    });
+  };
+
+  const renderDataRangkumanCPL = () => {
+    return kelas?.dataCPL?.map((data) => {
+      return (
+        <TableRow key={data.cpl}>
+          <TableCell className='w-[8%] text-center'>{data.cpl}</TableCell>
           <TableCell className='w-[8%] text-center'>
             {data.persenLulus}%
           </TableCell>
@@ -434,10 +448,13 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue='nilai' className='w-full'>
-                <TabsList className='grid w-full grid-cols-2'>
+                <TabsList className='grid w-full grid-cols-3'>
                   <TabsTrigger value='nilai'>Nilai Mahasiswa</TabsTrigger>
-                  <TabsTrigger value='rangkuman'>
+                  <TabsTrigger value='rangkumanCPMK'>
                     Rangkuman Evaluasi CPMK
+                  </TabsTrigger>
+                  <TabsTrigger value='rangkumanCPL'>
+                    Rangkuman Evaluasi CPL
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value='nilai'>
@@ -535,7 +552,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     </Table>
                   )}
                 </TabsContent>
-                <TabsContent value='rangkuman'>
+                <TabsContent value='rangkumanCPMK'>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -555,14 +572,32 @@ export default function Page({ params }: { params: { id: string } }) {
                           Jumlah Lulus
                         </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
-                          Persen Mencapai Nilai Minimal
+                          Persentase Lulus 
                         </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
-                          Rata-Rata
+                          Rata-Rata Nilai
                         </TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>{renderDataRangkuman()}</TableBody>
+                    <TableBody>{renderDataRangkumanCPMK()}</TableBody>
+                  </Table>
+                </TabsContent>
+                <TabsContent value='rangkumanCPL'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          CPL
+                        </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Persentase Lulus 
+                        </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Rata-Rata Nilai
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>{renderDataRangkumanCPL()}</TableBody>
                   </Table>
                 </TabsContent>
               </Tabs>
