@@ -1325,7 +1325,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           </TabsList>
           <TabsContent value='kelas'>
             {filteredKelas?.length != 0 ? (
-              <Card className='w-[1000px] mx-auto'>
+              <Card className='w-[1200px] mx-auto'>
                 <CardHeader className='flex flex-row justify-between items-center'>
                   <div className='flex flex-col'>
                     <CardTitle>Tabel Kelas</CardTitle>
