@@ -34,7 +34,7 @@ import React, { useEffect, useState } from "react";
 
 const formSchema = z.object({
   kode: z.string().min(1).max(50),
-  deskripsi: z.string().min(1).max(50),
+  deskripsi: z.string().min(1),
   CPL: z.string({ required_error: "Please select CPL to display." }),
 });
 

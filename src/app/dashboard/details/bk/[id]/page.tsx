@@ -24,7 +24,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  deskripsi: z.string().min(1).max(50),
+  deskripsi: z.string().min(1),
   min: z.string().min(0).max(10),
   max: z.string().min(0).max(10),
 });
@@ -220,31 +220,31 @@ export default function Page({ params }: { params: { id: string } }) {
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
         <p className='ml-2 font-bold text-2xl'>Detail Bahan Kajian</p>
         <div className='flex'>
-          <Table className='w-[300px] mb-5'>
+          <Table className='w-[1000px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Kode</strong>
                 </TableCell>
-                <TableCell>: {bk.kode} </TableCell>
+                <TableCell className='p-2'>: {bk.kode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Deskripsi</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Deskripsi</strong>
                 </TableCell>
-                <TableCell>: {bk.deskripsi}</TableCell>
+                <TableCell className='p-2'>: {bk.deskripsi}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Minimal MK</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Minimal MK</strong>
                 </TableCell>
-                <TableCell>: {bk.min}</TableCell>
+                <TableCell className='p-2'>: {bk.min}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Maksimal MK</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Maksimal MK</strong>
                 </TableCell>
-                <TableCell>: {bk.max}</TableCell>
+                <TableCell className='p-2'>: {bk.max}</TableCell>
               </TableRow>
             </TableBody>
           </Table>

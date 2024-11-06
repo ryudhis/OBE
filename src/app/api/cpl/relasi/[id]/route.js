@@ -36,20 +36,6 @@ export async function PATCH(req) {
             },
           })),
         },
-        CPMK: {
-          disconnect: body.removedCPMKId.map((cpmkId) => ({
-            kode_prodiId: {
-              kode: cpmkId,
-              prodiId: body.prodiId,
-            },
-          })),
-          connect: body.addedCPMKId.map((cpmkId) => ({
-            kode_prodiId: {
-              kode: cpmkId,
-              prodiId: body.prodiId,
-            },
-          })),
-        },
       },
     });
 

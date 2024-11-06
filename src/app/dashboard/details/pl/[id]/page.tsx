@@ -200,19 +200,19 @@ export default function Page({ params }: { params: { id: string } }) {
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
         <p className='ml-2 font-bold text-2xl'>Detail Profil Lulusan</p>
         <div className='flex'>
-          <Table className='w-[400px] mb-5'>
+          <Table className='w-[1000px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Kode</strong>
                 </TableCell>
-                <TableCell>: {pl.kode} </TableCell>
+                <TableCell className='p-2'>: {pl.kode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Deskripsi</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Deskripsi</strong>
                 </TableCell>
-                <TableCell>: {pl.deskripsi}</TableCell>
+                <TableCell className='p-2'>: {pl.deskripsi}</TableCell>
               </TableRow>
             </TableBody>
           </Table>

@@ -206,8 +206,6 @@ export default function Page({ params }: { params: { id: string } }) {
       deskripsi: cpl?.deskripsi,
       addedBKId: addedBKId,
       removedBKId: removedBKId,
-      addedCPMKId: addedCPMKId,
-      removedCPMKId: removedCPMKId,
       prodiId: accountData?.prodiId,
     };
 
@@ -245,27 +243,35 @@ export default function Page({ params }: { params: { id: string } }) {
   if (cpl) {
     return (
       <main className='flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <p className='ml-2 font-bold text-2xl'>Detail Capaian Pembelajaran Lulusan</p>
+        <p className='ml-2 font-bold text-2xl'>
+          Detail Capaian Pembelajaran Lulusan
+        </p>
         <div className='flex'>
-          <Table className='w-[300px] mb-5'>
+          <Table className='w-[1000px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Kode</strong>
                 </TableCell>
-                <TableCell>: {cpl.kode} </TableCell>
+                <TableCell className='p-2'>: {cpl.kode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Deskripsi</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Deskripsi</strong>
                 </TableCell>
-                <TableCell>: {cpl.deskripsi}</TableCell>
+                <TableCell className='p-2'>: {cpl.deskripsi}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Keterangan</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Deskripsi Inggris</strong>
+                </TableCell>  
+                <TableCell className='p-2'>: {cpl.deskripsiInggris}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Keterangan</strong>
                 </TableCell>
-                <TableCell>: {cpl.keterangan}</TableCell>
+                <TableCell className='p-2'>: {cpl.keterangan}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -347,35 +353,6 @@ export default function Page({ params }: { params: { id: string } }) {
             })
           ) : (
             <div className='text-sm'>BK Tidak Ditemukan</div>
-          )}
-        </div>
-
-        <div className='flex flex-row justify-between items-center mb-5'>
-          <div className=' font-bold text-xl'>Sambungkan CPMK</div>
-          <input
-            type='text'
-            className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
-            value={searchCPMK}
-            placeholder='Cari...'
-            onChange={(e) => setSearchCPMK(e.target.value)}
-          />
-        </div>
-
-        {/* LIST OF CPMK */}
-        <div className='grid grid-cols-4 gap-4'>
-          {filteredCPMK && filteredCPMK.length > 0 ? (
-            filteredCPMK?.map((cpmk, index) => {
-              return (
-                <DataCard<CPMK>
-                  key={index}
-                  selected={selected2}
-                  handleCheck={handleCheck2}
-                  data={cpmk}
-                />
-              );
-            })
-          ) : (
-            <div className='text-sm'>CPMK Tidak Ditemukan</div>
           )}
         </div>
 

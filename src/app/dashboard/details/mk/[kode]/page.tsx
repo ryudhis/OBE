@@ -95,7 +95,8 @@ export default function Page({ params }: { params: { kode: string } }) {
   const { accountData } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [selectedRencana, setSelectedRencana] = useState<RencanaPembelajaran | null>(null);
+  const [selectedRencana, setSelectedRencana] =
+    useState<RencanaPembelajaran | null>(null);
   const [selectedTahun, setSelectedTahun] = useState("");
   const [cpmk, setCPMK] = useState<CPMK[] | undefined>([]);
   const [bk, setBK] = useState<BK[] | undefined>([]);
@@ -1117,33 +1118,39 @@ export default function Page({ params }: { params: { kode: string } }) {
   if (mk) {
     return (
       <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
-        <p className="ml-2 font-bold text-2xl">Detail Mata Kuliah</p>
+        <p className='ml-2 font-bold text-2xl'>Detail Mata Kuliah</p>
         <div className='flex gap-3'>
-          <Table className='w-[400px] mb-5'>
+          <Table className='w-[1000px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Kode</strong>
                 </TableCell>
-                <TableCell>: {mk.kode} </TableCell>
+                <TableCell className='p-2'>: {mk.kode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Deskripsi</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Nama</strong>
                 </TableCell>
-                <TableCell>: {mk.deskripsi}</TableCell>
+                <TableCell className='p-2'>: {mk.deskripsi}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Jumlah SKS</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Nama Inggris</strong>
                 </TableCell>
-                <TableCell>: {mk.sks}</TableCell>
+                <TableCell className='p-2'>: {mk.deskripsiInggris}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>Performa</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Jumlah SKS</strong>
                 </TableCell>
-                <TableCell>
+                <TableCell className='p-2'>: {mk.sks}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Performa</strong>
+                </TableCell>
+                <TableCell className='p-2'>
                   :{" "}
                   {mk.lulusMK_CPMK
                     .filter(
@@ -1164,18 +1171,20 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>CPMK</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>CPMK</strong>
                 </TableCell>
-                <TableCell>
+                <TableCell className='p-2'>
                   : {mk.CPMK.map((cpmk) => cpmk.kode).join(", ")}
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>BK</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>BK</strong>
                 </TableCell>
-                <TableCell>: {mk.BK.map((bk) => bk.kode).join(", ")}</TableCell>
+                <TableCell className='p-2'>
+                  : {mk.BK.map((bk) => bk.kode).join(", ")}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -1194,7 +1203,10 @@ export default function Page({ params }: { params: { kode: string } }) {
           </Select>
 
           <Dialog>
-            <DialogTrigger asChild>
+            <DialogTrigger
+              className={accountData?.role === "Dosen" ? "hidden" : ""}
+              asChild
+            >
               <Button variant='outline'>Edit Data</Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
@@ -1870,7 +1882,9 @@ export default function Page({ params }: { params: { kode: string } }) {
                                   ? mk.rps.pengembang.nama
                                   : "-"}
                               </TableCell>
-                              <TableCell>{mk.KK.ketua? mk.KK.ketua.nama : "-"}</TableCell>
+                              <TableCell>
+                                {mk.KK.ketua ? mk.KK.ketua.nama : "-"}
+                              </TableCell>
                               <TableCell>{mk.prodi.kaprodi?.nama}</TableCell>
                             </TableRow>
                           </TableBody>

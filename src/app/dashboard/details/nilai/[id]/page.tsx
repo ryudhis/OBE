@@ -124,43 +124,51 @@ export default function Page({ params }: { params: { id: string } }) {
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
         <p className='ml-2 font-bold text-2xl'>Detail Nilai Mahasiswa</p>
         <div className='flex'>
-          <Table className='w-[300px] mb-5'>
+          <Table className='w-[1000px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Nama</strong>{" "}
                 </TableCell>
-                <TableCell>: {inputNilai.mahasiswa.nama} </TableCell>
+                <TableCell className='p-2'>
+                  : {inputNilai.mahasiswa.nama}{" "}
+                </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>NIM</strong>{" "}
                 </TableCell>
-                <TableCell>: {inputNilai.mahasiswa.nim}</TableCell>
+                <TableCell className='p-2'>
+                  : {inputNilai.mahasiswa.nim}
+                </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>MK</strong>{" "}
                 </TableCell>
-                <TableCell>: {inputNilai.penilaianCPMK.MK.kode}</TableCell>
+                <TableCell className='p-2'>
+                  : {inputNilai.penilaianCPMK.MK.kode}
+                </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Kelas</strong>{" "}
                 </TableCell>
-                <TableCell>: {inputNilai.kelas.nama}</TableCell>
+                <TableCell className='p-2'>: {inputNilai.kelas.nama}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>PenilaianCPMK</strong>{" "}
                 </TableCell>
-                <TableCell>: {inputNilai.penilaianCPMK.kode}</TableCell>
+                <TableCell className='p-2'>
+                  : {inputNilai.penilaianCPMK.kode}
+                </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Nilai</strong>{" "}
                 </TableCell>
-                <TableCell>
+                <TableCell className='p-2'>
                   : {inputNilai.nilai.map((nilai) => nilai).join(", ")}
                 </TableCell>
               </TableRow>

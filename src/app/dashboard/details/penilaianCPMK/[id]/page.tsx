@@ -219,38 +219,38 @@ export default function Page({ params }: { params: { id: string } }) {
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
         <p className='ml-2 font-bold text-2xl'>Detail Penilaian CPMK</p>
         <div className='flex'>
-          <Table className='w-[400px] mb-5'>
+          <Table className='w-[1000px] table-fixed mb-5'>
             <TableBody>
               <TableRow>
-                <TableCell>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Kode</strong>
                 </TableCell>
-                <TableCell>: {PCPMK.kode} </TableCell>
+                <TableCell className='p-2'>: {PCPMK.kode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>MK</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>MK</strong>
                 </TableCell>
-                <TableCell>: {PCPMK.MKkode}</TableCell>
+                <TableCell className='p-2'>: {PCPMK.MKkode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>CPL</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>CPL</strong>
                 </TableCell>
-                <TableCell>: {PCPMK.CPL.kode}</TableCell>
+                <TableCell className='p-2'>: {PCPMK.CPL.kode}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>
-                  <strong>CPMK</strong>{" "}
+                <TableCell className='w-[20%] p-2'>
+                  <strong>CPMK</strong>
                 </TableCell>
-                <TableCell>: {PCPMK.CPMK.kode}</TableCell>
+                <TableCell className='p-2'>: {PCPMK.CPMK.kode}</TableCell>
               </TableRow>
               {PCPMK.kriteria.map((kriteria, index) => (
                 <TableRow key={index}>
-                  <TableCell>
-                    <strong>Kriteria {index + 1}</strong>{" "}
+                  <TableCell className='w-[20%] p-2'>
+                    <strong>Kriteria {index + 1}</strong>
                   </TableCell>
-                  <TableCell>: {kriteria.kriteria}</TableCell>
+                  <TableCell className='p-2'>: {kriteria.kriteria}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

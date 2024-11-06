@@ -325,13 +325,13 @@ export default function Page({ params }: { params: { id: string } }) {
               Kelas {kelas.MK.deskripsi} - {kelas.tahunAjaran.tahun}{" "}
               {kelas.tahunAjaran.semester}{" "}
             </CardDescription>
-            <Table className='w-[350px]'>
+            <Table className='w-[1000px] table-fixed mb-5'>
               <TableBody>
                 <TableRow>
-                  <TableCell>
+                  <TableCell className='w-[20%] p-2'>
                     <strong>Dosen Pengampu</strong>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className='p-2'>
                     {": "}
                     {kelas.dosen.length > 0
                       ? kelas.dosen.map((dosen) => dosen.nama).join(", ")
