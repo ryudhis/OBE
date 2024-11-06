@@ -75,12 +75,12 @@ const CPMKScreen = () => {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
-    const extractNumber = (str: string) => str.match(/\d+/)?.[0] || "";
+    const extractAfterHyphen = (str: string) => str.split("-")[1] || "";
 
-    const cplNumber = extractNumber(values.CPL);
+    const cplKode = extractAfterHyphen(values.CPL);
 
     const data = {
-      kode: "CPMK-" + cplNumber + values.kode,
+      kode: "CPMK-" + cplKode + values.kode,
       deskripsi: values.deskripsi,
       CPLId: values.CPL,
       prodiId: accountData?.prodiId,

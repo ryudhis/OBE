@@ -20,6 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -51,8 +58,18 @@ const CPLScreen = () => {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
+    const keteranganKode =
+      values.keterangan === "Sikap"
+        ? "S"
+        : values.keterangan === "Pengetahuan"
+        ? "P"
+        : values.keterangan === "Keterampilan Umum"
+        ? "KU"
+        : values.keterangan === "Keterampilan Khusus"
+        ? "KK"
+        : "";
     const data = {
-      kode: "CPL-" + values.kode,
+      kode: "CPL-" + keteranganKode + values.kode,
       deskripsi: values.deskripsi,
       keterangan: values.keterangan,
       deskripsiInggris: values.deskripsiInggris,
@@ -159,7 +176,7 @@ const CPLScreen = () => {
                     <FormControl>
                       <Input
                         placeholder='Deskripsi dalam Bahasa Inggris'
-                        required 
+                        required
                         {...field}
                       />
                     </FormControl>
@@ -174,9 +191,30 @@ const CPLScreen = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Keterangan</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Keterangan' required {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Pilih Keterangan' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {[
+                          "Sikap",
+                          "Pengetahuan",
+                          "Keterampilan Umum",
+                          "Keterampilan Khusus",
+                        ].map((item) => (
+                          <SelectItem key={item} value={item}>
+                            {item}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

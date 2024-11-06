@@ -165,12 +165,12 @@ const InputPenilaianCPMK = () => {
 
     const concat = (data: string[]) => data.join(", ");
 
-    const extractNumber = (str: string) => str.match(/\d+/)?.[0] || "";
+    const extractAfterHyphen = (str: string) => str.split("-")[1] || "";
 
-    const mkNumber = extractNumber(values.MK);
-    const cpmkNumber = extractNumber(values.CPMK);
+    const mkKode = extractAfterHyphen(values.MK);
+    const cpmkKode = extractAfterHyphen(values.CPMK);
 
-    const kode = `PCPMK-${mkNumber}-${cpmkNumber}`;
+    const kode = `PCPMK-${mkKode}-${cpmkKode}`;
 
     const data = {
       kode: kode,
