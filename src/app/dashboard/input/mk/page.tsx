@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -52,6 +53,7 @@ const MKScreen = () => {
   const [KK, setKK] = useState<KelompokKeahlian[]>([]);
   const [prerequisitesMK, setPrerequisitesMK] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [refresh, setRefresh] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -116,7 +118,7 @@ const MKScreen = () => {
       batasLulusMK: parseFloat(values.batasLulusMK),
       KK: parseInt(values.KK),
       prodiId: accountData?.prodiId,
-      prerequisitesMK, // Include selected prerequisites MKs
+      prerequisitesMK,  
     };
 
     axiosConfig
@@ -145,6 +147,7 @@ const MKScreen = () => {
       });
 
     form.reset();
+    setRefresh(!refresh);
     setPrerequisitesMK([]); // Reset the prerequisites MK state after submission
   }
 
@@ -155,8 +158,7 @@ const MKScreen = () => {
   useEffect(() => {
     getMK();
     getKK();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refresh]);
 
   if (accountData?.role === "Dosen") {
     toast({
