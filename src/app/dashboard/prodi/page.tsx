@@ -334,50 +334,8 @@ export default function ProdiPage() {
   if (prodi) {
     return (
       <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <div className='flex'>
-          <Table className='w-[400px] mb-5'>
-            <TableBody>
-              <TableRow>
-                <TableCell>
-                  <strong>Kode Prodi</strong>
-                </TableCell>
-                <TableCell>: {prodi.kode} </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <strong>Nama Prodi</strong>{" "}
-                </TableCell>
-                <TableCell>: {prodi.nama}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <strong>Kaprodi</strong>{" "}
-                </TableCell>
-                <TableCell>
-                  : {prodi.kaprodi ? prodi.kaprodi.nama : "-"}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <strong>Jumlah Tendik</strong>{" "}
-                </TableCell>
-                <TableCell>: {prodi.tendik.length}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <strong>Jumlah Mahasiswa</strong>{" "}
-                </TableCell>
-                <TableCell>: {prodi.mahasiswa.length}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  <strong>Jumlah MK</strong>{" "}
-                </TableCell>
-                <TableCell>: {prodi.MK.length}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-
+        <div className='flex justify-between'>
+          <p className='ml-2 mb-3 font-bold text-2xl'>Detail Prodi</p>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant='outline'>Ubah Kaprodi</Button>
@@ -424,6 +382,49 @@ export default function ProdiPage() {
             </DialogContent>
           </Dialog>
         </div>
+
+        <Table className='table-fixed mb-5'>
+          <TableBody>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Kode Prodi</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {prodi.kode}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Nama Prodi</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {prodi.nama}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Kaprodi</strong>
+              </TableCell>
+              <TableCell className='p-2'>
+                : {prodi.kaprodi ? prodi.kaprodi.nama : "-"}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Jumlah Tendik</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {prodi.tendik.length}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Jumlah Mahasiswa</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {prodi.mahasiswa.length}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Jumlah MK</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {prodi.MK.length}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
 
         <Card className='w-[1000px] mx-auto'>
           <CardHeader className='flex flex-row justify-between items-center'>
