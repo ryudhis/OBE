@@ -60,7 +60,9 @@ import logo from "/public/Logo1.png";
 
 const formSchema = z.object({
   deskripsi: z.string(),
+  deskripsiInggris: z.string(),
   sks: z.string(),
+  semester: z.string(),
   batasLulusMahasiswa: z.string(),
   batasLulusMK: z.string(),
   jumlahKelas: z.string(),
@@ -98,6 +100,20 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [selectedRencana, setSelectedRencana] =
     useState<RencanaPembelajaran | null>(null);
   const [selectedTahun, setSelectedTahun] = useState("");
+
+  // edit prerequisite
+  const [allMK, setAllMK] = useState<MK[]>([]);
+  const [selectedPrerequisite, setSelectedPrerequisite] = useState<string[]>(
+    []
+  );
+  const [prevPrerequisite, setPrevPrerequisite] = useState<string[]>([]);
+  const [searchPrerequisite, setSearchPrerequisite] = useState<string>("");
+
+  const filteredMK = allMK?.filter((mk) =>
+    mk.kode.toLowerCase().includes(searchPrerequisite.toLowerCase())
+  );
+
+  //Relasi CPMK & BK
   const [cpmk, setCPMK] = useState<CPMK[] | undefined>([]);
   const [bk, setBK] = useState<BK[] | undefined>([]);
   const [prevSelectedCPMK, setPrevSelectedCPMK] = useState<string[]>([]);
@@ -168,16 +184,25 @@ export default function Page({ params }: { params: { kode: string } }) {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.preventDefault();
 
+    const addedPrerequisiteId = selectedPrerequisite.filter(
+      (item) => !prevPrerequisite.includes(item)
+    );
+    const removedPrerequisiteId = prevPrerequisite.filter(
+      (item) => !selectedPrerequisite.includes(item)
+    );
+
     const data = {
       deskripsi: values.deskripsi,
       sks: values.sks,
       batasLulusMahasiswa: parseFloat(values.batasLulusMahasiswa),
       batasLulusMK: parseFloat(values.batasLulusMK),
+      addedPrerequisiteId,
+      removedPrerequisiteId,
     };
 
     axiosConfig
       .patch(`api/mk/${kode}`, data)
-      .then(function (response) {
+      .then((response) => {
         if (response.data.status != 400) {
           toast({
             title: "Berhasil Submit",
@@ -192,7 +217,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           });
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         toast({
           title: "Gagal Submit",
           description: String(new Date()),
@@ -271,15 +296,24 @@ export default function Page({ params }: { params: { kode: string } }) {
           (item: BK) => item.kode
         );
 
+        const prevPrerequisite = response.data.data.prerequisitesMK.map(
+          (item: MK) => item.kode
+        );
+
         setSelectedCPMK(prevSelectedCPMK);
         setPrevSelectedCPMK(prevSelectedCPMK);
 
         setSelectedBK(prevSelectedBK);
         setPrevSelectedBK(prevSelectedBK);
 
+        setSelectedPrerequisite(prevPrerequisite);
+        setPrevPrerequisite(prevPrerequisite);
+
         //form edit data mk
         form.setValue("deskripsi", response.data.data.deskripsi);
+        form.setValue("deskripsiInggris", response.data.data.deskripsiInggris);
         form.setValue("sks", response.data.data.sks);
+        form.setValue("semester", response.data.data.semester);
         form.setValue(
           "batasLulusMahasiswa",
           String(response.data.data.batasLulusMahasiswa)
@@ -307,6 +341,34 @@ export default function Page({ params }: { params: { kode: string } }) {
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getAllMK = async () => {
+    try {
+      if (mk) {
+        const response = await axiosConfig.get(
+          `api/mk?prodi=${accountData?.prodiId}`
+        );
+        if (response.data.status !== 400) {
+          const filteredMK = response.data.data.filter((item: MK) => {
+            return (
+              item.kode !== mk.kode &&
+              !mk.isPrerequisiteFor.some(
+                (prerequisite) => prerequisite.kode === item.kode
+              )
+            );
+          });
+
+          console.log(filteredMK);
+
+          setAllMK(filteredMK);
+        } else {
+          alert(response.data.message);
+        }
+      }
+    } catch (error: any) {
+      throw error;
     }
   };
 
@@ -362,14 +424,21 @@ export default function Page({ params }: { params: { kode: string } }) {
     });
   };
 
-  const updateCPMK = async () => {
-    let addedCPMKId: string[] = [];
-    let removedCPMKId: string[] = [];
+  const handleCheckPrerequisite = (kode: string) => {
+    setSelectedPrerequisite((prevPrerequisite) => {
+      if (!prevPrerequisite.includes(kode)) {
+        return [...prevPrerequisite, kode];
+      } else {
+        return prevPrerequisite.filter((item) => item !== kode);
+      }
+    });
+  };
 
-    addedCPMKId = selectedCPMK.filter(
+  const updateCPMK = async () => {
+    const addedCPMKId: string[] = selectedCPMK.filter(
       (item) => !prevSelectedCPMK.includes(item)
     );
-    removedCPMKId = prevSelectedCPMK.filter(
+    const removedCPMKId: string[] = prevSelectedCPMK.filter(
       (item) => !selectedCPMK.includes(item)
     );
 
@@ -404,11 +473,12 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   const updateBK = async () => {
-    let addedBKId: string[] = [];
-    let removedBKId: string[] = [];
-
-    addedBKId = selectedBK.filter((item) => !prevSelectedBK.includes(item));
-    removedBKId = prevSelectedBK.filter((item) => !selectedBK.includes(item));
+    const addedBKId: string[] = selectedBK.filter(
+      (item) => !prevSelectedBK.includes(item)
+    );
+    const removedBKId: string[] = prevSelectedBK.filter(
+      (item) => !selectedBK.includes(item)
+    );
 
     const payload = {
       ...mk,
@@ -806,6 +876,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   }, []); // Trigger useEffect only on initial mount
 
   useEffect(() => {
+    getAllMK();
     getTeamTeaching();
   }, [mk]);
 
@@ -1120,122 +1191,210 @@ export default function Page({ params }: { params: { kode: string } }) {
       <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
         <div className='flex justify-between'>
           <p className='ml-2 font-bold text-2xl'>Detail Mata Kuliah</p>
-          <div className="flex gap-3">
-          <Select onValueChange={handleTahunChange} value={selectedTahun}>
-            <SelectTrigger className='w-[250px]'>
-              <SelectValue placeholder='Tahun Ajaran' />
-            </SelectTrigger>
-            <SelectContent>
-              {tahunAjaran.map((tahun) => (
-                <SelectItem key={tahun.id} value={String(tahun.id)}>
-                  {tahun.tahun} {tahun.semester}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className='flex gap-3'>
+            <Select onValueChange={handleTahunChange} value={selectedTahun}>
+              <SelectTrigger className='w-[250px]'>
+                <SelectValue placeholder='Tahun Ajaran' />
+              </SelectTrigger>
+              <SelectContent>
+                {tahunAjaran.map((tahun) => (
+                  <SelectItem key={tahun.id} value={String(tahun.id)}>
+                    {tahun.tahun} {tahun.semester}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Dialog>
-            <DialogTrigger
-              className={accountData?.role === "Dosen" ? "hidden" : ""}
-              asChild
-            >
-              <Button variant='outline'>Edit Data</Button>
-            </DialogTrigger>
-            <DialogContent className='sm:max-w-[425px]'>
-              <DialogHeader>
-                <DialogTitle>Edit MK</DialogTitle>
-                <DialogDescription>{mk.kode}</DialogDescription>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className='space-y-8'
-                >
-                  <FormField
-                    control={form.control}
-                    name='deskripsi'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nama</FormLabel>
-                        <FormControl>
-                          <Input placeholder='Deskripsi' required {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+            <Dialog>
+              <DialogTrigger
+                className={accountData?.role === "Dosen" ? "hidden" : ""}
+                asChild
+              >
+                <Button variant='outline'>Edit Data</Button>
+              </DialogTrigger>
+              <DialogContent className='max-w-[800px]'>
+                <DialogHeader>
+                  <DialogTitle>Edit MK</DialogTitle>
+                  <DialogDescription>{mk.kode}</DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className='space-y-8'
+                  >
+                    <FormField
+                      control={form.control}
+                      name='deskripsi'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='Deskripsi'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name='sks'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>SKS</FormLabel>
-                        <FormControl>
-                          <Input placeholder='SKS' required {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name='deskripsiInggris'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nama Inggris</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder='Deskripsi Inggris'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name='batasLulusMahasiswa'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Batas Lulus Mahasiswa</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            min={0}
-                            max={100}
-                            placeholder='Batas Lulus Mahasiswa'
-                            required
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name='sks'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>SKS</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                            }}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder='Pilih Jumlah SKS' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {[1, 2, 3, 4].map((item) => (
+                                <SelectItem key={item} value={String(item)}>
+                                  {item}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name='batasLulusMK'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
-                        <FormControl>
-                          <Input
-                            type='number'
-                            min={0}
-                            max={100}
-                            placeholder='Batas Lulus MK'
-                            required
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button
-                        className='bg-blue-500 hover:bg-blue-600'
-                        type='submit'
-                      >
-                        Submit
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+                    <FormField
+                      control={form.control}
+                      name='semester'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Semester</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                            }}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder='Pilih Semester' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value={"Ganjil"}>Ganjil</SelectItem>
+                              <SelectItem value={"Genap"}>Genap</SelectItem>
+                              <SelectItem value={"Ganjil/Genap"}>
+                                Ganjil/Genap
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name='batasLulusMahasiswa'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Batas Lulus Mahasiswa</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              min={0}
+                              max={100}
+                              placeholder='Batas Lulus Mahasiswa'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name='batasLulusMK'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type='number'
+                              min={0}
+                              max={100}
+                              placeholder='Batas Lulus MK'
+                              required
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className='space-y-2'>
+                      <FormLabel>Prerequisite Mata Kuliah</FormLabel>
+                      <div className='grid grid-cols-3 gap-3'>
+                        {allMK.length > 0 ? (
+                          allMK.map((mk, index) => (
+                            <DataCard<MK>
+                              key={index}
+                              selected={selectedPrerequisite}
+                              handleCheck={handleCheckPrerequisite}
+                              data={mk}
+                            />
+                          ))
+                        ) : (
+                          <div className='text-center text-xl animate-pulse'>
+                            Belum ada MK ...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button
+                          className='bg-blue-500 hover:bg-blue-600'
+                          type='submit'
+                        >
+                          Submit
+                        </Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
-          
         </div>
 
         <Table className='w-full table-fixed mb-5'>
@@ -1257,6 +1416,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <strong>Nama Inggris</strong>
               </TableCell>
               <TableCell className='p-2'>: {mk.deskripsiInggris}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>Kelompok Keahlian</strong>
+              </TableCell>
+              <TableCell className='p-2'>: {mk.KK.nama}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell className='w-[20%] p-2'>

@@ -71,7 +71,6 @@ export default function ProdiPage() {
   const [prodi, setProdi] = useState<Prodi>();
   const [selectedKaprodi, setSelectedKaprodi] = useState<string>();
   const [selectedKKId, setSelectedKKId] = useState<number>();
-  const [search, setSearch] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
 
   const formTambahKK = useForm<z.infer<typeof formTambahKKSchema>>({

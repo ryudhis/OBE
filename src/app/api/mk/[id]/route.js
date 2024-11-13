@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { validateToken } from "@/utils/auth"; 
+import { validateToken } from "@/utils/auth";
 
 export async function GET(req, { params }) {
   // Validate the token
@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
   }
 
   try {
-    const { id: kode } = params; 
+    const { id: kode } = params;
     const MK = await prisma.MK.findUnique({
       where: { kode: kode },
       include: {
@@ -32,9 +32,18 @@ export async function GET(req, { params }) {
           orderBy: { minggu: "asc" },
         },
         lulusMK_CPMK: true,
-        KK: { include: { ketua: true } },
+        KK: {
+          include: {
+            ketua: {
+              select: {
+                nama: true,
+              },
+            },
+          },
+        },
         prodi: { include: { kaprodi: true } },
         prerequisitesMK: true,
+        isPrerequisiteFor: true,
         rps: { include: { pengembang: true } },
       },
     });
@@ -57,7 +66,10 @@ export async function GET(req, { params }) {
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: error.message || "Something went wrong!" }),
+      JSON.stringify({
+        status: 400,
+        message: error.message || "Something went wrong!",
+      }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
@@ -74,7 +86,7 @@ export async function DELETE(req, { params }) {
   }
 
   try {
-    const { id: kode } = params; 
+    const { id: kode } = params;
     const MK = await prisma.MK.delete({
       where: { kode: kode },
     });
@@ -90,7 +102,10 @@ export async function DELETE(req, { params }) {
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: error.message || "Something went wrong!" }),
+      JSON.stringify({
+        status: 400,
+        message: error.message || "Something went wrong!",
+      }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
@@ -107,12 +122,25 @@ export async function PATCH(req, { params }) {
   }
 
   try {
-    const { id: kode } = params; 
+    const { id: kode } = params;
     const data = await req.json();
+
+    // Extract and remove `addedPrerequisiteId` and `removedPrerequisiteId` from `data`
+    const {
+      addedPrerequisiteId = [],
+      removedPrerequisiteId = [],
+      ...updateData
+    } = data;
 
     const MK = await prisma.MK.update({
       where: { kode: kode },
-      data,
+      data: {
+        ...updateData, // Only include relevant data
+        prerequisitesMK: {
+          connect: addedPrerequisiteId.map((id) => ({ kode: id })),
+          disconnect: removedPrerequisiteId.map((id) => ({ kode: id })),
+        },
+      },
     });
 
     return new Response(
@@ -126,7 +154,10 @@ export async function PATCH(req, { params }) {
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: error.message || "Something went wrong!" }),
+      JSON.stringify({
+        status: 400,
+        message: error.message || "Something went wrong!",
+      }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
