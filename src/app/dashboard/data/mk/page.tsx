@@ -121,7 +121,9 @@ const DataMK = () => {
     return MK.map((mk) => {
       jumlahMahasiswa = 0;
       {
-        mk.kelas.map((kelas) => (jumlahMahasiswa += kelas.mahasiswa.length));
+        mk.kelas
+          .filter((kelas) => kelas.tahunAjaranId === parseInt(selectedTahun))
+          .map((kelas) => (jumlahMahasiswa += kelas.mahasiswa.length));
       }
       return (
         <TableRow key={mk.kode}>
