@@ -1212,7 +1212,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               >
                 <Button variant='outline'>Edit Data</Button>
               </DialogTrigger>
-              <DialogContent className='max-w-[800px]'>
+              <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Edit MK</DialogTitle>
                   <DialogDescription>{mk.kode}</DialogDescription>
