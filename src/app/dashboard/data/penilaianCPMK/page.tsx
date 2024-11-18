@@ -180,7 +180,7 @@ const DataPenilaianCPMK = () => {
   };
 
   return (
-    <section className='flex justify-center items-center my-20 flex-col'>
+    <section className='flex justify-center items-center mt-20 mb-10 flex-col'>
       <Card className='w-[1200px]'>
         <CardHeader className='flex flex-row justify-between items-center'>
           <div className='flex flex-col'>

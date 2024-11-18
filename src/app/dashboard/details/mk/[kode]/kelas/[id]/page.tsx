@@ -331,7 +331,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (kelas) {
     return (
-      <main className='w-screen mx-auto pt-20 flex flex-col gap-12'>
+      <main className='mx-auto pt-20 mb-10 flex flex-col gap-12 '>
         <Card className='w-[1200px] mx-auto'>
           <CardHeader className='flex justify-center'>
             <CardTitle>Data Kelas {kelas.nama} </CardTitle>

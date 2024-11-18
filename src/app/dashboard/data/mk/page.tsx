@@ -201,7 +201,7 @@ const DataMK = () => {
   }, []);
 
   return (
-    <section className='flex justify-center items-center mt-20'>
+    <section className='flex justify-center items-center mt-20 mb-10'>
       <Card className='w-[1200px]'>
         <CardHeader className='flex flex-row justify-between items-center'>
           <div className='flex flex-col'>

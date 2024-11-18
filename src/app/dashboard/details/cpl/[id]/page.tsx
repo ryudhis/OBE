@@ -242,7 +242,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (cpl) {
     return (
-      <main className='flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+      <main className='flex flex-col gap-5 w-screen max-w-7xl mx-auto pt-20 bg-[#ffffff] p-5'>
         <p className='ml-2 font-bold text-2xl'>
           Detail Capaian Pembelajaran Lulusan
         </p>

@@ -217,7 +217,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (bk) {
     return (
-      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
+      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 p-5'>
         <p className='ml-2 font-bold text-2xl'>Detail Bahan Kajian</p>
         <div className='flex'>
           <Table className='w-[1000px] table-fixed mb-5'>
