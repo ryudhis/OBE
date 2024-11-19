@@ -311,7 +311,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         {/* HEADER */}
-        <div className='flex flex-row justify-between items-center mb-5'>
+        <div className='flex flex-row justify-between items-center'>
           <div className=' font-bold text-xl'>Sambungkan MK</div>
           <input
             type='text'
@@ -323,7 +323,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         {/* LIST OF MK */}
-        <div className='grid grid-cols-4 gap-4'>
+        <div className='flex overflow-x-auto space-x-4 p-2'>
           {filteredMK && filteredMK.length > 0 ? (
             filteredMK?.map((mk, index) => {
               return (

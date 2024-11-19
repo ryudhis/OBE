@@ -69,51 +69,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [PCPMK, setPCPMK] = useState<PenilaianCPMK | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
 
-  const tahapPenilaian = [
-    {
-      id: "Perkuliahan",
-      label: "Perkuliahan",
-    },
-    {
-      id: "Tengah Semester",
-      label: "Tengah Semester",
-    },
-    {
-      id: "Akhir Semester",
-      label: "Akhir Semester",
-    },
-  ] as const;
-
-  const teknikPenilaian = [
-    {
-      id: "Observasi (Praktik)",
-      label: "Observasi (Praktik)",
-    },
-    {
-      id: "Unjuk Kerja (Presentasi)",
-      label: "Unjuk Kerja (Presentasi)",
-    },
-    {
-      id: "Tes Lisan (Tugas Kelompok)",
-      label: "Tes Lisan (Tugas Kelompok)",
-    },
-    {
-      id: "Tes Tulis (UTS)",
-      label: "Tes Tulis (UTS)",
-    },
-    {
-      id: "Tes Tulis (UAS)",
-      label: "Tes Tulis (UAS)",
-    },
-    {
-      id: "Partisipasi (Quiz)",
-      label: "Partisipasi (Quiz)",
-    },
-  ] as const;
-
   const defaultValues = {
-    tahapPenilaian: [],
-    teknikPenilaian: [],
     instrumen: "",
     batasNilai: "",
   };
@@ -126,13 +82,7 @@ export default function Page({ params }: { params: { id: string } }) {
   function onSubmit(values: z.infer<typeof formSchema>, e: any) {
     e.stopPropagation();
 
-    const concat = (data: string[]) => {
-      return data.join(", ");
-    };
-
     const data = {
-      tahapPenilaian: concat(values.tahapPenilaian),
-      teknikPenilaian: concat(values.teknikPenilaian),
       instrumen: values.instrumen,
       batasNilai: parseFloat(values.batasNilai),
     };
@@ -194,21 +144,6 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  const renderData = () => {
-    return PCPMK?.inputNilai.map((mahasiswa, index) => {
-      return (
-        <TableRow key={index}>
-          <TableCell className='w-[10%]'>{mahasiswa.mahasiswaNim}</TableCell>
-          {mahasiswa.nilai.map((nilai, index) => (
-            <TableCell className='w-[10%]' key={index}>
-              {nilai}
-            </TableCell>
-          ))}
-        </TableRow>
-      );
-    });
-  };
-
   useEffect(() => {
     getPCPMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -262,7 +197,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
-                <DialogTitle>Edit MK</DialogTitle>
+                <DialogTitle>Edit PCPMK</DialogTitle>
                 <DialogDescription>{PCPMK.kode}</DialogDescription>
               </DialogHeader>
               <Form {...form}>
@@ -271,108 +206,6 @@ export default function Page({ params }: { params: { id: string } }) {
                   className='space-y-8'
                 >
                   <div className='grid gap-4 py-4'>
-                    <FormField
-                      control={form.control}
-                      name='tahapPenilaian'
-                      render={() => (
-                        <FormItem>
-                          <div className='mb-4'>
-                            <FormLabel className='text-base'>
-                              Tahap Penilaian :
-                            </FormLabel>
-                          </div>
-                          {tahapPenilaian.map((item) => (
-                            <FormField
-                              key={item.id}
-                              control={form.control}
-                              name='tahapPenilaian'
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={item.id}
-                                    className='flex flex-row items-start space-x-3 space-y-0'
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(item.id)}
-                                        onCheckedChange={(checked) => {
-                                          return checked
-                                            ? field.onChange([
-                                                ...field.value,
-                                                item.id,
-                                              ])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                  (value) => value !== item.id
-                                                )
-                                              );
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className='font-normal'>
-                                      {item.label}
-                                    </FormLabel>
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          ))}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name='teknikPenilaian'
-                      render={() => (
-                        <FormItem>
-                          <div className='mb-4'>
-                            <FormLabel className='text-base'>
-                              Teknik Penilaian :
-                            </FormLabel>
-                          </div>
-                          {teknikPenilaian.map((item) => (
-                            <FormField
-                              key={item.id}
-                              control={form.control}
-                              name='teknikPenilaian'
-                              render={({ field }) => {
-                                return (
-                                  <FormItem
-                                    key={item.id}
-                                    className='flex flex-row items-start space-x-3 space-y-0'
-                                  >
-                                    <FormControl>
-                                      <Checkbox
-                                        checked={field.value?.includes(item.id)}
-                                        onCheckedChange={(checked) => {
-                                          return checked
-                                            ? field.onChange([
-                                                ...field.value,
-                                                item.id,
-                                              ])
-                                            : field.onChange(
-                                                field.value?.filter(
-                                                  (value) => value !== item.id
-                                                )
-                                              );
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormLabel className='font-normal'>
-                                      {item.label}
-                                    </FormLabel>
-                                  </FormItem>
-                                );
-                              }}
-                            />
-                          ))}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
                     <FormField
                       control={form.control}
                       name='instrumen'
@@ -435,22 +268,6 @@ export default function Page({ params }: { params: { id: string } }) {
             </DialogContent>
           </Dialog>
         </div>
-
-        <div className=' font-bold text-xl'>Data Nilai Mahasiswa</div>
-
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className='w-[10%]'>NIM</TableHead>
-              {PCPMK.kriteria.map((nilai, index) => (
-                <TableHead className='w-[10%]' key={index}>
-                  Kriteria {index + 1}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>{renderData()}</TableBody>
-        </Table>
       </main>
     );
   }

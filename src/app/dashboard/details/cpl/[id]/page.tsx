@@ -264,7 +264,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <TableRow>
                 <TableCell className='w-[20%] p-2'>
                   <strong>Deskripsi Inggris</strong>
-                </TableCell>  
+                </TableCell>
                 <TableCell className='p-2'>: {cpl.deskripsiInggris}</TableCell>
               </TableRow>
               <TableRow>
@@ -327,7 +327,7 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         {/* HEADER */}
-        <div className='flex flex-row justify-between items-center mb-5'>
+        <div className='flex justify-between items-center'>
           <div className=' font-bold text-xl'>Sambungkan BK</div>
           <input
             type='text'
@@ -339,18 +339,16 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         {/* LIST OF BK */}
-        <div className='grid grid-cols-4 gap-4'>
+        <div className='flex overflow-x-auto space-x-4 p-2'>
           {filteredBK && filteredBK.length > 0 ? (
-            filteredBK?.map((bk, index) => {
-              return (
-                <DataCard<BK>
-                  key={index}
-                  selected={selected1}
-                  handleCheck={handleCheck1}
-                  data={bk}
-                />
-              );
-            })
+            filteredBK.map((bk, index) => (
+              <DataCard<BK>
+                key={index}
+                selected={selected1}
+                handleCheck={handleCheck1}
+                data={bk}
+              />
+            ))
           ) : (
             <div className='text-sm'>BK Tidak Ditemukan</div>
           )}

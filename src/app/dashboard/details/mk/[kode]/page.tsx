@@ -2252,7 +2252,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       />
                     </div>
                     {/* LIST OF MK */}
-                    <div className='grid grid-cols-4 gap-4'>
+                    <div className='flex overflow-x-auto space-x-4 p-2'>
                       {filteredCPMK && filteredCPMK.length > 0 ? (
                         filteredCPMK?.map((cpmk, index) => {
                           return (
@@ -2289,7 +2289,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       />
                     </div>
                     {/* LIST OF BK */}
-                    <div className='grid grid-cols-4 gap-4'>
+                    <div className='flex overflow-x-auto space-x-4 p-2'>
                       {filteredBK && filteredBK.length > 0 ? (
                         filteredBK?.map((bk, index) => {
                           return (

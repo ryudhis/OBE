@@ -16,9 +16,9 @@ export const DataCard = <T extends { kode: string; deskripsi: string }>({
       onClick={() => {
         handleCheck(data?.kode);
       }}
-      className="p-4 bg-white rounded-lg shadow-sm flex flex-row justify-between items-center cursor-pointer ease-in-out duration-300 hover:shadow-md"
+      className="p-4 bg-white rounded-lg shadow-sm flex flex-row justify-between items-center cursor-pointer ease-in-out duration-300 hover:shadow-md border-slate-200 border-[1px]"
     >
-      <div>
+      <div className='w-[200px]'>
         <div className="font-medium text-lg">{data?.kode}</div>
         <div className="text-sm">
           {data?.deskripsi.length > 30
