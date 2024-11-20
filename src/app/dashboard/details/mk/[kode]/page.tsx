@@ -1405,30 +1405,53 @@ export default function Page({ params }: { params: { kode: string } }) {
               </TableCell>
               <TableCell className='p-2'>: {mk.kode}</TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className='w-[20%] p-2'>
                 <strong>Nama</strong>
               </TableCell>
               <TableCell className='p-2'>: {mk.deskripsi}</TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className='w-[20%] p-2'>
                 <strong>Nama Inggris</strong>
               </TableCell>
               <TableCell className='p-2'>: {mk.deskripsiInggris}</TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className='w-[20%] p-2'>
                 <strong>Kelompok Keahlian</strong>
               </TableCell>
               <TableCell className='p-2'>: {mk.KK.nama}</TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className='w-[20%] p-2'>
                 <strong>Jumlah SKS</strong>
               </TableCell>
               <TableCell className='p-2'>: {mk.sks}</TableCell>
             </TableRow>
+
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>CPMK</strong>
+              </TableCell>
+              <TableCell className='p-2'>
+                : {mk.CPMK.map((cpmk) => cpmk.kode).join(", ")}
+              </TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell className='w-[20%] p-2'>
+                <strong>BK</strong>
+              </TableCell>
+              <TableCell className='p-2'>
+                : {mk.BK.map((bk) => bk.kode).join(", ")}
+              </TableCell>
+            </TableRow>
+
             <TableRow>
               <TableCell className='w-[20%] p-2'>
                 <strong>Performa</strong>
@@ -1451,22 +1474,6 @@ export default function Page({ params }: { params: { kode: string } }) {
                       }`
                   )
                   .join(", ")}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className='w-[20%] p-2'>
-                <strong>CPMK</strong>
-              </TableCell>
-              <TableCell className='p-2'>
-                : {mk.CPMK.map((cpmk) => cpmk.kode).join(", ")}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className='w-[20%] p-2'>
-                <strong>BK</strong>
-              </TableCell>
-              <TableCell className='p-2'>
-                : {mk.BK.map((bk) => bk.kode).join(", ")}
               </TableCell>
             </TableRow>
           </TableBody>

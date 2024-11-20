@@ -207,6 +207,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
               <TableRow>
                 <TableCell className='w-[20%] p-2'>
+                  <strong>Deskripsi</strong>{" "}
+                </TableCell>
+                <TableCell className='p-2'>: {cpmk.deskripsi}</TableCell>
+              </TableRow>
+
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
                   <strong>CPL</strong>
                 </TableCell>
                 <TableCell className='p-2'>: {cpmk.CPL.kode} </TableCell>
@@ -214,9 +221,11 @@ export default function Page({ params }: { params: { id: string } }) {
 
               <TableRow>
                 <TableCell className='w-[20%] p-2'>
-                  <strong>Deskripsi</strong>{" "}
+                  <strong>Mata Kuliah</strong>
                 </TableCell>
-                <TableCell className='p-2'>: {cpmk.deskripsi}</TableCell>
+                <TableCell className='p-2'>
+                  : {cpmk.MK.length > 0 ? cpmk.MK.map((mk: MK) => mk.kode).join(", "): " - "}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -249,11 +258,6 @@ export default function Page({ params }: { params: { id: string } }) {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi MK</div>
-          <RelationData data={cpmk.MK} jenisData='MK' />
         </div>
 
         {/* HEADER */}

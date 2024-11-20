@@ -7,7 +7,7 @@ export async function PATCH(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 

@@ -3,7 +3,6 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
-import { RelationData } from "@/components/RelationData";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -214,6 +213,14 @@ export default function Page({ params }: { params: { id: string } }) {
                 </TableCell>
                 <TableCell className='p-2'>: {pl.deskripsi}</TableCell>
               </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
+                  <strong>CPL</strong>
+                </TableCell>
+                <TableCell className='p-2'>
+                  : {pl.CPL.map((cpl) => cpl.kode).join(", ")}
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
 
@@ -234,7 +241,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     </Label>
                     <Input
                       id='deskripsi'
-                      {...form.register("deskripsi")} // Register the input with react-hook-form
+                      {...form.register("deskripsi")}
                       className='col-span-3'
                     />
                   </div>
@@ -245,11 +252,6 @@ export default function Page({ params }: { params: { id: string } }) {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi CPL</div>
-          <RelationData data={pl.CPL} jenisData='CPL' />
         </div>
 
         {/* HEADER */}

@@ -3,7 +3,6 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
-import { RelationData } from "@/components/RelationData";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -236,6 +235,22 @@ export default function Page({ params }: { params: { id: string } }) {
               </TableRow>
               <TableRow>
                 <TableCell className='w-[20%] p-2'>
+                  <strong>CPL</strong>
+                </TableCell>
+                <TableCell className='p-2'>
+                  : {bk.CPL.length > 0 ? bk.CPL.map((cpl) => cpl.kode).join(", "): " - " }
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
+                  <strong>Mata Kuliah</strong>
+                </TableCell>
+                <TableCell className='p-2'>
+                  : {bk.MK.length > 0 ? bk.MK.map((mk) => mk.kode).join(", "): " - "}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
                   <strong>Minimal MK</strong>
                 </TableCell>
                 <TableCell className='p-2'>: {bk.min}</TableCell>
@@ -303,11 +318,6 @@ export default function Page({ params }: { params: { id: string } }) {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi MK</div>
-          <RelationData data={bk.MK} jenisData='MK' />
         </div>
 
         {/* HEADER */}

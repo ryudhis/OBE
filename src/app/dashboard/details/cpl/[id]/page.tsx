@@ -4,7 +4,6 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
-import { RelationData } from "@/components/RelationData";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,13 +33,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const { accountData } = useAccount();
   const [cpl, setCPl] = useState<CPL | undefined>();
   const [bk, setBK] = useState<BK[] | undefined>([]);
-  const [cpmk, setCPMK] = useState<CPMK[] | undefined>([]);
   const [prevSelected1, setPrevSelected1] = useState<string[]>([]);
   const [selected1, setSelected1] = useState<string[]>([]);
-  const [prevSelected2, setPrevSelected2] = useState<string[]>([]);
-  const [selected2, setSelected2] = useState<string[]>([]);
   const [searchBK, setSearchBK] = useState<string>("");
-  const [searchCPMK, setSearchCPMK] = useState<string>("");
   const [refresh, setRefresh] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -92,10 +87,6 @@ export default function Page({ params }: { params: { id: string } }) {
     bk.kode.toLowerCase().includes(searchBK.toLowerCase())
   );
 
-  const filteredCPMK = cpmk?.filter((cpmk) =>
-    cpmk.kode.toLowerCase().includes(searchCPMK.toLowerCase())
-  );
-
   const getCPL = async () => {
     try {
       const response = await axiosConfig.get(`api/cpl/${id}`);
@@ -125,9 +116,6 @@ export default function Page({ params }: { params: { id: string } }) {
         setSelected1(prevSelected1);
         setPrevSelected1(prevSelected1);
 
-        setSelected2(prevSelected2);
-        setPrevSelected2(prevSelected2);
-
         form.reset({
           deskripsi: response.data.data.deskripsi,
           keterangan: response.data.data.keterangan,
@@ -154,22 +142,6 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  const getAllCPMK = async () => {
-    try {
-      const response = await axiosConfig.get(
-        `api/cpmk?prodi=${accountData?.prodiId}`
-      );
-
-      if (response.data.status !== 400) {
-      } else {
-        alert(response.data.message);
-      }
-      setCPMK(response.data.data);
-    } catch (error: any) {
-      throw error;
-    }
-  };
-
   const handleCheck1 = (kode: string) => {
     setSelected1((prevSelected1) => {
       if (!prevSelected1.includes(kode)) {
@@ -180,26 +152,12 @@ export default function Page({ params }: { params: { id: string } }) {
     });
   };
 
-  const handleCheck2 = (kode: string) => {
-    setSelected2((prevSelected2) => {
-      if (!prevSelected2.includes(kode)) {
-        return [...prevSelected2, kode];
-      } else {
-        return prevSelected2.filter((item) => item !== kode);
-      }
-    });
-  };
-
   const updateRelation = async () => {
     let addedBKId: string[] = [];
     let removedBKId: string[] = [];
-    let addedCPMKId: string[] = [];
-    let removedCPMKId: string[] = [];
 
     addedBKId = selected1.filter((item) => !prevSelected1.includes(item));
     removedBKId = prevSelected1.filter((item) => !selected1.includes(item));
-    addedCPMKId = selected2.filter((item) => !prevSelected2.includes(item));
-    removedCPMKId = prevSelected2.filter((item) => !selected2.includes(item));
 
     const payload = {
       kode: cpl?.kode,
@@ -230,10 +188,8 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  // ONLY FIRST TIME
   useEffect(() => {
     getAllBK();
-    getAllCPMK();
   }, []);
 
   useEffect(() => {
@@ -272,6 +228,22 @@ export default function Page({ params }: { params: { id: string } }) {
                   <strong>Keterangan</strong>
                 </TableCell>
                 <TableCell className='p-2'>: {cpl.keterangan}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
+                  <strong>CPMK</strong>
+                </TableCell>
+                <TableCell className='p-2'>
+                  : {cpl.CPMK.length > 0 ?cpl.CPMK.map((cpmk) => cpmk.kode).join(", "): " - "}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
+                  <strong>BK</strong>
+                </TableCell>
+                <TableCell className='p-2'>
+                  : {cpl.BK.length > 0 ? cpl.BK.map((bk) => bk.kode).join(", "): " - "}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -314,16 +286,6 @@ export default function Page({ params }: { params: { id: string } }) {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi BK</div>
-          <RelationData data={cpl.BK} jenisData='BK' />
-        </div>
-
-        <div className='mb-5'>
-          <div className=' font-bold text-xl'>Data Relasi CPMK</div>
-          <RelationData data={cpl.CPMK} jenisData='CPMK' />
         </div>
 
         {/* HEADER */}
