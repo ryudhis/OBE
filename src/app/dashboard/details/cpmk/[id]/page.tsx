@@ -3,7 +3,6 @@ import axiosConfig from "../../../../../utils/axios";
 import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { DataCard } from "@/components/DataCard";
-import { RelationData } from "@/components/RelationData";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -224,7 +223,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   <strong>Mata Kuliah</strong>
                 </TableCell>
                 <TableCell className='p-2'>
-                  : {cpmk.MK.length > 0 ? cpmk.MK.map((mk: MK) => mk.kode).join(", "): " - "}
+                  :{" "}
+                  {cpmk.MK.length > 0
+                    ? cpmk.MK.map((mk: MK) => mk.kode).join(", ")
+                    : " - "}
                 </TableCell>
               </TableRow>
             </TableBody>

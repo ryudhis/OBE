@@ -139,7 +139,7 @@ const DataMK = () => {
               : mk.deskripsiInggris}
           </TableCell>
           <TableCell className='w-[15%] text-center'>
-            {mk.CPMK.map((item) => item.kode).join(", ")}
+            {mk.CPMK.length > 0 ? mk.CPMK.map((item) => item.kode).join(", "): " - "}
           </TableCell>
           <TableCell className='w-[8%] text-center'>
             {jumlahMahasiswa}

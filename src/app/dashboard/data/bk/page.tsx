@@ -116,10 +116,10 @@ const DataBK = () => {
           <TableCell className='w-[4%]'>{bk.min}</TableCell>
           <TableCell className='w-[4%]'>{bk.max}</TableCell>
           <TableCell className='w-[18%]'>
-            {bk.CPL.map((item) => item.kode).join(", ")}
+            {bk.CPL.length > 0 ?bk.CPL.map((item) => item.kode).join(", "): " - "}
           </TableCell>
           <TableCell className='w-[18%]'>
-            {bk.MK.map((item) => item.kode).join(", ")}
+            {bk.MK.length > 0 ? bk.MK.map((item) => item.kode).join(", "): " - "}
           </TableCell>
           <TableCell className='w-[8%] flex gap-2'>
             <Button variant='destructive' onClick={() => delBK(bk.id)}>

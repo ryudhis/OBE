@@ -141,13 +141,6 @@ const DataCPL = () => {
           <TableCell className='text-center'>{cpl.kode}</TableCell>
           <TableCell className='text-center'>{cpl.keterangan}</TableCell>
           <TableCell className='text-center'>
-            <span>
-              {cpl.BK.length > 0
-                ? cpl.BK.map((item) => item.kode).join(", ")
-                : "-"}
-            </span>
-          </TableCell>
-          <TableCell className='text-center'>
             {cpl.PL.length > 0
               ? cpl.PL.map((item) => item.kode).join(", ")
               : "-"}
@@ -156,6 +149,13 @@ const DataCPL = () => {
             {cpl.CPMK.length > 0
               ? cpl.CPMK.map((item) => item.kode).join(", ")
               : "-"}
+          </TableCell>
+          <TableCell className='text-center'>
+            <span>
+              {cpl.BK.length > 0
+                ? cpl.BK.map((item) => item.kode).join(", ")
+                : "-"}
+            </span>
           </TableCell>
           <TableCell className='text-center'>
             {cpl.performaCPL
@@ -230,9 +230,9 @@ const DataCPL = () => {
                 <TableRow>
                   <TableHead className='w-[8%]'>Kode</TableHead>
                   <TableHead className='w-[8%]'>Keterangan</TableHead>
-                  <TableHead className='w-[12%]'>BK</TableHead>
                   <TableHead className='w-[12%]'>PL</TableHead>
                   <TableHead className='w-[12%]'>CPMK</TableHead>
+                  <TableHead className='w-[12%]'>BK</TableHead>
                   <TableHead className='w-[12%]'>Performa</TableHead>
                   <TableHead className='w-[8%]'>Aksi</TableHead>
                 </TableRow>
@@ -249,9 +249,10 @@ const DataCPL = () => {
                   <TableHead className='flex-1 text-center'>
                     Keterangan
                   </TableHead>
-                  <TableHead className='flex-1 text-center'>BK</TableHead>
                   <TableHead className='flex-1 text-center'>PL</TableHead>
                   <TableHead className='flex-1 text-center'>CPMK</TableHead>
+                  <TableHead className='flex-1 text-center'>BK</TableHead>
+
                   <TableHead className='flex-1 text-center'>Performa</TableHead>
                   <TableHead className='flex-1 text-center'>Aksi</TableHead>
                 </TableRow>

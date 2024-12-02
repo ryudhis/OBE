@@ -28,7 +28,7 @@ model prodi {
   kaprodi   account?           @relation(name: "prodi-kaprodi", fields: [kaprodiId], references: [id])
   kaprodiId Int?               @unique
   PL        PL[]
-  CPL       CPL[] 
+  CPL       CPL[]
   BK        BK[]
   MK        MK[]
   CPMK      CPMK[]
@@ -44,7 +44,7 @@ model kelompokKeahlian {
   ketua   account? @relation(name: "KK-ketua", fields: [ketuaId], references: [id])
   ketuaId Int?     @unique
   prodi   prodi    @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId String   
+  prodiId String
   MK      MK[]
 
   @@index([prodiId])
@@ -148,15 +148,15 @@ model MK {
   // self relation
   prerequisitesMK   MK[] @relation("Prerequisites")
   isPrerequisiteFor MK[] @relation("Prerequisites")
-  
+
   @@index([KKId])
   @@index([prodiId])
 }
 
 model rps {
-  id               Int     @id @unique @default(sequence())
-  MK               MK      @relation(name: "mk-rps", fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId             String  @unique
+  id               Int      @id @unique @default(sequence())
+  MK               MK       @relation(name: "mk-rps", fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId             String   @unique
   pengembang       account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
   pengembangId     Int?
   deskripsi        String
@@ -319,7 +319,7 @@ model inputNilai {
   mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim    String
   kelas           kelas         @relation(fields: [kelasId], references: [id], onDelete: Cascade)
-  kelasId         Int   
+  kelasId         Int
   nilai           Float[]
   prodi           prodi         @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId         String

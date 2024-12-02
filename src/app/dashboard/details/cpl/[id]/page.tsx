@@ -231,6 +231,14 @@ export default function Page({ params }: { params: { id: string } }) {
               </TableRow>
               <TableRow>
                 <TableCell className='w-[20%] p-2'>
+                  <strong>PL</strong>
+                </TableCell>
+                <TableCell className='p-2'>
+                  : {cpl.PL.length > 0 ?cpl.PL.map((pl) => pl.kode).join(", "): " - "}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className='w-[20%] p-2'>
                   <strong>CPMK</strong>
                 </TableCell>
                 <TableCell className='p-2'>

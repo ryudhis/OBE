@@ -116,7 +116,7 @@ const DataPL = () => {
               : pl.deskripsi}
           </TableCell>
           <TableCell className='w-[20%]'>
-            {pl.CPL.map((item) => item.kode).join(", ")}
+            {pl.CPL.length > 0 ? pl.CPL.map((item) => item.kode).join(", "): " - "}
           </TableCell>
           <TableCell className='w-[10%] flex gap-2'>
             <Button variant='destructive' onClick={() => delPL(pl.id)}>
