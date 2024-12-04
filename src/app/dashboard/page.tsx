@@ -253,7 +253,7 @@ const Page = () => {
                 <CardTitle>Rangkuman Performa CPL</CardTitle>
               </div>
               <div className='flex flex-col'>
-                <Select
+                {/* <Select
                   value={filterTahunAjaran}
                   onValueChange={(e) => setFilterTahunAjaran(e)}
                 >
@@ -267,7 +267,7 @@ const Page = () => {
                       </SelectItem>
                     ))}
                   </SelectContent>
-                </Select>
+                </Select> */}
               </div>
             </CardHeader>
             <CardContent>
