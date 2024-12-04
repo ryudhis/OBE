@@ -940,7 +940,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       return (
         <TableRow key={rencana.id}>
           <TableCell className='text-center'>{rencana.minggu}</TableCell>
-          <TableCell className='text-center'>{rencana.materi}</TableCell>
+          <TableCell>{rencana.materi}</TableCell>
           <TableCell className='text-center'>{rencana.metode}</TableCell>
           <TableCell className='text  -center flex gap-3'>
             <Button
@@ -995,7 +995,17 @@ export default function Page({ params }: { params: { kode: string } }) {
                         <FormItem>
                           <FormLabel>Materi</FormLabel>
                           <FormControl>
-                            <Input placeholder='Materi' required {...field} />
+                            <FormItem>
+                              <FormLabel>Materi</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder='Materi...'
+                                  required
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1653,7 +1663,11 @@ export default function Page({ params }: { params: { kode: string } }) {
                         <FormItem>
                           <FormLabel>Materi</FormLabel>
                           <FormControl>
-                            <Input placeholder='Materi' required {...field} />
+                            <Textarea
+                              placeholder='Materi...'
+                              required
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
