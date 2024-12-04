@@ -195,33 +195,36 @@ const DataCPL = () => {
             <CardTitle>Tabel CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
-          <Select
-            onValueChange={(e) => {
-              setFilterTahunAjaran(e);
-            }}
-            value={filterTahunAjaran}
-            required
-          >
-            <SelectTrigger className='w-[30%]'>
-              <SelectValue placeholder='Pilih Tahun Ajaran' />
-            </SelectTrigger>
-            <SelectContent>
-              {semester.map((semester, index) => {
-                return (
-                  <SelectItem key={index} value={String(semester.id)}>
-                    {semester.tahun} {semester.semester}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/cpl");
-            }}
-          >
-            Tambah
-          </Button>
+
+          <div className='flex gap-5'>
+            <Select
+              onValueChange={(e) => {
+                setFilterTahunAjaran(e);
+              }}
+              value={filterTahunAjaran}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder='Pilih Tahun Ajaran' />
+              </SelectTrigger>
+              <SelectContent>
+                {semester.map((semester, index) => {
+                  return (
+                    <SelectItem key={index} value={String(semester.id)}>
+                      {semester.tahun} {semester.semester}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/cpl");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

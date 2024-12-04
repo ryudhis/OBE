@@ -184,14 +184,16 @@ const DataCPMK = () => {
             <CardTitle>Tabel CPMK</CardTitle>
             <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
           </div>
-          <Select
+        
+        <div className="flex gap-5">
+        <Select
             onValueChange={(e) => {
               setFilterTahunAjaran(e);
             }}
             value={filterTahunAjaran}
             required
           >
-            <SelectTrigger className='w-[30%]'>
+            <SelectTrigger>
               <SelectValue placeholder='Pilih Tahun Ajaran' />
             </SelectTrigger>
             <SelectContent>
@@ -204,6 +206,7 @@ const DataCPMK = () => {
               })}
             </SelectContent>
           </Select>
+
           <Button
             onClick={() => {
               router.push("/dashboard/input/cpmk");
@@ -211,6 +214,8 @@ const DataCPMK = () => {
           >
             Tambah
           </Button>
+        </div>
+         
         </CardHeader>
         <CardContent>
           {isLoading ? (
