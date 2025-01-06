@@ -15,6 +15,8 @@ export async function GET(req) {
   const prodi = searchParams.get("prodi") || "";
   const dosenId = parseInt(searchParams.get("dosen")) || null;
   const tahunAjaranId = parseInt(searchParams.get("tahunAjaran")) || null;
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -47,6 +49,15 @@ export async function GET(req) {
       whereCondition = { prodiId: prodi };
     }
 
+    // Calculate total items
+    const totalItems = await prisma.MK.count({ where: whereCondition });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
     const MK = await prisma.MK.findMany({
       where: whereCondition,
       include: {
@@ -57,6 +68,8 @@ export async function GET(req) {
         lulusMK: true,
         lulusMK_CPMK: true,
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return new Response(
@@ -64,14 +77,19 @@ export async function GET(req) {
         status: 200,
         message: "Berhasil ambil semua data!",
         data: MK,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

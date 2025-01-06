@@ -13,6 +13,8 @@ export async function GET(req, res) {
 
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || "";
+  const page = parseInt(searchParams.get("page")) || 1; 
+  const limit = parseInt(searchParams.get("limit")) || 10; 
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -23,6 +25,20 @@ export async function GET(req, res) {
   }
 
   try {
+    // Calculate total items
+    const totalItems = await prisma.PL.count({
+      where: {
+        prodiId: prodi,
+      },
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
+    // Fetch paginated data
     const PL = await prisma.PL.findMany({
       where: {
         prodiId: prodi,
@@ -35,17 +51,28 @@ export async function GET(req, res) {
           },
         },
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return new Response(
-      JSON.stringify({ status: 200, message: "Berhasil ambil data", data: PL }),
+      JSON.stringify({
+        status: 200,
+        message: "Berhasil ambil data",
+        data: PL,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
+      }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.log(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ status: 500, message: "Something went wrong" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

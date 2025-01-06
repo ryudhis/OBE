@@ -11,10 +11,25 @@ export async function GET(req) {
     );
   }
 
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+
   try {
+    // Calculate total items
+    const totalItems = await prisma.tahunAjaran.count();
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
     const tahunAjaran = await prisma.tahunAjaran.findMany({
+      take: limit,
+      skip: (currentPage - 1) * limit,
       orderBy: {
-        id: "desc",
+        id: "desc", // Ordering by ID in descending order
       },
     });
 
@@ -23,14 +38,19 @@ export async function GET(req) {
         status: 200,
         message: "Berhasil ambil semua data!",
         data: tahunAjaran,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

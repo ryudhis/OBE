@@ -12,6 +12,8 @@ export async function GET(req) {
 
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
 
   // Validate prodi parameter
   if (!prodi) {
@@ -22,11 +24,27 @@ export async function GET(req) {
   }
 
   try {
+    // Calculate total items
+    const totalItems = await prisma.mahasiswa.count({
+      where: {
+        prodiId: prodi,
+      },
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
+    // Fetch paginated data
     const mahasiswa = await prisma.mahasiswa.findMany({
       orderBy: { nim: "asc" },
       where: {
         prodiId: prodi,
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return new Response(
@@ -34,6 +52,11 @@ export async function GET(req) {
         status: 200,
         message: "Berhasil ambil semua data!",
         data: mahasiswa,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
       { headers: { "Content-Type": "application/json" } }
     );

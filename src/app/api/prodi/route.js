@@ -11,21 +11,42 @@ export async function GET(req) {
     );
   }
 
+  const { searchParams } = new URL(req.url);
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+
   try {
-    const prodi = await prisma.prodi.findMany();
+    // Calculate total items
+    const totalItems = await prisma.prodi.count();
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
+    const prodi = await prisma.prodi.findMany({
+      take: limit,
+      skip: (currentPage - 1) * limit,
+    });
 
     return new Response(
       JSON.stringify({
         status: 200,
         message: "Berhasil ambil semua data!",
         data: prodi,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.log(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
       { headers: { "Content-Type": "application/json" } }
     );
   }
