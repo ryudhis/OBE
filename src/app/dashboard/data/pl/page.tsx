@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
+import Pagination from "@/components/Pagination";
 
 const DataPL = () => {
   const router = useRouter();
@@ -29,15 +30,24 @@ const DataPL = () => {
   const [PL, setPL] = useState<PL[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   const getPL = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/pl?prodi=${accountData?.prodiId}`
+        `api/pl?prodi=${accountData?.prodiId}&page=${currentPage}`
       );
       if (response.data.status !== 400) {
         setPL(response.data.data);
+        setMeta({
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages,
+        });
       } else {
         alert(response.data.message);
       }
@@ -57,8 +67,8 @@ const DataPL = () => {
         showCancelButton: true,
         confirmButtonText: "Ya",
         cancelButtonText: "Tidak",
-        confirmButtonColor: '#EF4444',
-        cancelButtonColor: '#0F172A', 
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#0F172A",
       });
 
       if (result.isConfirmed) {
@@ -84,7 +94,7 @@ const DataPL = () => {
   useEffect(() => {
     getPL();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
 
   if (accountData?.role === "Dosen") {
     toast({
@@ -99,27 +109,29 @@ const DataPL = () => {
     if (PL.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={11} className='text-center font-semibold'>
+          <TableCell colSpan={11} className="text-center font-semibold">
             Belum ada Data
           </TableCell>
         </TableRow>
       );
     }
-    
+
     return PL.map((pl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[10%]'>{pl.kode}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[10%]">{pl.kode}</TableCell>
+          <TableCell className="flex-1">
             {pl.deskripsi.length > 20
               ? pl.deskripsi.slice(0, 18) + "..."
               : pl.deskripsi}
           </TableCell>
-          <TableCell className='w-[20%]'>
-            {pl.CPL.length > 0 ? pl.CPL.map((item) => item.kode).join(", "): " - "}
+          <TableCell className="w-[20%]">
+            {pl.CPL.length > 0
+              ? pl.CPL.map((item) => item.kode).join(", ")
+              : " - "}
           </TableCell>
-          <TableCell className='w-[10%] flex gap-2'>
-            <Button variant='destructive' onClick={() => delPL(pl.id)}>
+          <TableCell className="w-[10%] flex gap-2">
+            <Button variant="destructive" onClick={() => delPL(pl.id)}>
               Hapus
             </Button>
             <Button
@@ -136,10 +148,10 @@ const DataPL = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20 mb-10">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel PL</CardTitle>
             <CardDescription>Profil Lulusan</CardDescription>
           </div>
@@ -156,10 +168,10 @@ const DataPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[10%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[20%]'>CPL</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[10%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[20%]">CPL</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -170,15 +182,20 @@ const DataPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[10%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[20%]'>CPL</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[10%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[20%]">CPL</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
             </Table>
           )}
+          <Pagination
+            meta={meta}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </CardContent>
       </Card>
     </section>

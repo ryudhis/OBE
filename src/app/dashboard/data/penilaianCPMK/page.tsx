@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
+import Pagination from "@/components/Pagination";
 
 const DataPenilaianCPMK = () => {
   const router = useRouter();
@@ -38,6 +39,11 @@ const DataPenilaianCPMK = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [filterMK, setFilterMK] = useState("default");
   const [refresh, setRefresh] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   let filteredPCPMK = penilaianCPMK;
   let totalBobot = 0;
@@ -56,10 +62,14 @@ const DataPenilaianCPMK = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/penilaianCPMK?prodi=${accountData?.prodiId}`
+        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}`
       );
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);
+        setMeta({
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages,
+        });
       } else {
         alert(response.data.message);
       }
@@ -121,13 +131,13 @@ const DataPenilaianCPMK = () => {
     getPenilaianCPMK();
     getMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     if (filteredPCPMK.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={11} className='text-center font-semibold'>
+          <TableCell colSpan={11} className="text-center font-semibold">
             Belum ada data
           </TableCell>
         </TableRow>
@@ -137,31 +147,31 @@ const DataPenilaianCPMK = () => {
     return filteredPCPMK.map((pCPMK) => {
       return (
         <TableRow key={pCPMK.kode}>
-          <TableCell className='w-[2%]'>{pCPMK.kode}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.MKkode}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.CPL.kode}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.CPMK.kode}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.tahapPenilaian}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.teknikPenilaian}</TableCell>
-          <TableCell className='w-[7%]'>{pCPMK.instrumen}</TableCell>
+          <TableCell className="w-[2%]">{pCPMK.kode}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.MKkode}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.CPL.kode}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.CPMK.kode}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.tahapPenilaian}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.teknikPenilaian}</TableCell>
+          <TableCell className="w-[7%]">{pCPMK.instrumen}</TableCell>
           <TableCell>
             {pCPMK.kriteria.map((item, index) => (
-              <TableRow key={index} className='flex-1'>
+              <TableRow key={index} className="flex-1">
                 {item.kriteria}
               </TableRow>
             ))}
           </TableCell>
           <TableCell>
             {pCPMK.kriteria.map((item, index) => (
-              <TableRow key={index} className='flex-1'>
+              <TableRow key={index} className="flex-1">
                 {item.bobot}
               </TableRow>
             ))}
           </TableCell>
           <TableCell>{pCPMK.batasNilai}</TableCell>
-          <TableCell className='w-[7%] flex gap-2'>
+          <TableCell className="w-[7%] flex gap-2">
             <Button
-              variant='destructive'
+              variant="destructive"
               onClick={() => delPenilaianCPMK(pCPMK.id)}
             >
               Hapus
@@ -180,10 +190,10 @@ const DataPenilaianCPMK = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10 flex-col'>
-      <Card className='w-[1200px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20 mb-10 flex-col">
+      <Card className="w-[1200px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel Penilaian CPMK</CardTitle>
             <CardDescription>
               Penilaian Capaian Pembelajaran Mata Kuliah
@@ -198,11 +208,11 @@ const DataPenilaianCPMK = () => {
             value={filterMK}
             required
           >
-            <SelectTrigger className='w-[30%]'>
-              <SelectValue placeholder='Pilih MK' />
+            <SelectTrigger className="w-[30%]">
+              <SelectValue placeholder="Pilih MK" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value='default'>Pilih MK</SelectItem>
+              <SelectItem value="default">Pilih MK</SelectItem>
               {MK.map((mk, index) => {
                 return (
                   <SelectItem key={index} value={mk.kode}>
@@ -226,17 +236,17 @@ const DataPenilaianCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[2%]'>ID</TableHead>
-                  <TableHead className='w-[7%]'>MK</TableHead>
-                  <TableHead className='w-[7%]'>CPL</TableHead>
-                  <TableHead className='w-[7%]'>CPMK</TableHead>
-                  <TableHead className='w-[7%]'>Tahap Penilaian</TableHead>
-                  <TableHead className='w-[7%]'>Teknik Penilaian</TableHead>
-                  <TableHead className='w-[7%]'>Instrumen</TableHead>
-                  <TableHead className='w-[20%]'>Kriteria</TableHead>
-                  <TableHead className='flex-1'>Bobot</TableHead>
-                  <TableHead className='flex-1'>Batas Nilai</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[2%]">ID</TableHead>
+                  <TableHead className="w-[7%]">MK</TableHead>
+                  <TableHead className="w-[7%]">CPL</TableHead>
+                  <TableHead className="w-[7%]">CPMK</TableHead>
+                  <TableHead className="w-[7%]">Tahap Penilaian</TableHead>
+                  <TableHead className="w-[7%]">Teknik Penilaian</TableHead>
+                  <TableHead className="w-[7%]">Instrumen</TableHead>
+                  <TableHead className="w-[20%]">Kriteria</TableHead>
+                  <TableHead className="flex-1">Bobot</TableHead>
+                  <TableHead className="flex-1">Batas Nilai</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -247,22 +257,27 @@ const DataPenilaianCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[2%]'>ID</TableHead>
-                  <TableHead className='w-[7%]'>MK</TableHead>
-                  <TableHead className='w-[7%]'>CPL</TableHead>
-                  <TableHead className='w-[7%]'>CPMK</TableHead>
-                  <TableHead className='w-[7%]'>Tahap Penilaian</TableHead>
-                  <TableHead className='w-[7%]'>Teknik Penilaian</TableHead>
-                  <TableHead className='w-[7%]'>Instrumen</TableHead>
-                  <TableHead className='flex-1'>Kriteria</TableHead>
-                  <TableHead className='flex-1'>Bobot</TableHead>
-                  <TableHead className='flex-1'>Batas Nilai</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[2%]">ID</TableHead>
+                  <TableHead className="w-[7%]">MK</TableHead>
+                  <TableHead className="w-[7%]">CPL</TableHead>
+                  <TableHead className="w-[7%]">CPMK</TableHead>
+                  <TableHead className="w-[7%]">Tahap Penilaian</TableHead>
+                  <TableHead className="w-[7%]">Teknik Penilaian</TableHead>
+                  <TableHead className="w-[7%]">Instrumen</TableHead>
+                  <TableHead className="flex-1">Kriteria</TableHead>
+                  <TableHead className="flex-1">Bobot</TableHead>
+                  <TableHead className="flex-1">Batas Nilai</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
             </Table>
           )}
+          <Pagination
+            meta={meta}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </CardContent>
         {filterMK !== "default" && filteredPCPMK.length !== 0 && (
           <p

@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
+import Pagination from "@/components/Pagination";
 
 const DataCPL = () => {
   const router = useRouter();
@@ -39,18 +40,27 @@ const DataCPL = () => {
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("default");
   const { accountData } = useAccount();
   const [semester, setSemester] = useState<TahunAjaran[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   const getCPL = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/cpl?prodi=${accountData?.prodiId}`
+        `api/cpl?prodi=${accountData?.prodiId}&page=${currentPage}`
       );
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);
       }
       setCPL(response.data.data);
+      setMeta({
+        totalItems: response.data.meta.totalItems,
+        totalPages: response.data.meta.totalPages,
+      });
     } catch (error) {
       console.log(error);
     } finally {
@@ -107,7 +117,7 @@ const DataCPL = () => {
 
   useEffect(() => {
     getCPL();
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
 
   useEffect(() => {
     if (accountData) {
@@ -128,7 +138,7 @@ const DataCPL = () => {
     if (CPL.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={10} className='text-center'>
+          <TableCell colSpan={10} className="text-center">
             Belum ada data
           </TableCell>
         </TableRow>
@@ -138,36 +148,36 @@ const DataCPL = () => {
     return CPL.map((cpl, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='text-center'>{cpl.kode}</TableCell>
-          <TableCell className='text-center'>{cpl.keterangan}</TableCell>
-          <TableCell className='text-center'>
+          <TableCell className="text-center">{cpl.kode}</TableCell>
+          <TableCell className="text-center">{cpl.keterangan}</TableCell>
+          <TableCell className="text-center">
             {cpl.PL.length > 0
               ? cpl.PL.map((item) => item.kode).join(", ")
               : "-"}
           </TableCell>
-          <TableCell className='text-center'>
+          <TableCell className="text-center">
             {cpl.CPMK.length > 0
               ? cpl.CPMK.map((item) => item.kode).join(", ")
               : "-"}
           </TableCell>
-          <TableCell className='text-center'>
+          <TableCell className="text-center">
             <span>
               {cpl.BK.length > 0
                 ? cpl.BK.map((item) => item.kode).join(", ")
                 : "-"}
             </span>
           </TableCell>
-          <TableCell className='text-center'>
+          <TableCell className="text-center">
             {cpl.performaCPL
               .find(
                 (item) => item.tahunAjaranId === parseInt(filterTahunAjaran)
               )
-              ?.performa.toFixed(2)}
-            {cpl.performaCPL.length > 0 ? "%" : "-"}
+              ?.performa.toFixed(2) || 0}
+            %
           </TableCell>
-          <TableCell className='w-[8%] flex gap-2'>
+          <TableCell className="w-[8%] flex gap-2">
             <Button
-              variant='destructive'
+              variant="destructive"
               onClick={() => {
                 delCPL(cpl.id);
               }}
@@ -188,15 +198,15 @@ const DataCPL = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10'>
-      <Card className='w-[1300px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20 mb-10">
+      <Card className="w-[1300px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
 
-          <div className='flex gap-5'>
+          <div className="flex gap-5">
             <Select
               onValueChange={(e) => {
                 setFilterTahunAjaran(e);
@@ -205,7 +215,7 @@ const DataCPL = () => {
               required
             >
               <SelectTrigger>
-                <SelectValue placeholder='Pilih Tahun Ajaran' />
+                <SelectValue placeholder="Pilih Tahun Ajaran" />
               </SelectTrigger>
               <SelectContent>
                 {semester.map((semester, index) => {
@@ -231,13 +241,13 @@ const DataCPL = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='w-[8%]'>Keterangan</TableHead>
-                  <TableHead className='w-[12%]'>PL</TableHead>
-                  <TableHead className='w-[12%]'>CPMK</TableHead>
-                  <TableHead className='w-[12%]'>BK</TableHead>
-                  <TableHead className='w-[12%]'>Performa</TableHead>
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="w-[8%]">Keterangan</TableHead>
+                  <TableHead className="w-[12%]">PL</TableHead>
+                  <TableHead className="w-[12%]">CPMK</TableHead>
+                  <TableHead className="w-[12%]">BK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -245,24 +255,29 @@ const DataCPL = () => {
               </TableBody>
             </Table>
           ) : (
-            <Table className='table-fixed'>
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead className='flex-1 text-center'>Kode</TableHead>
-                  <TableHead className='flex-1 text-center'>
+                  <TableHead className="flex-1 text-center">Kode</TableHead>
+                  <TableHead className="flex-1 text-center">
                     Keterangan
                   </TableHead>
-                  <TableHead className='flex-1 text-center'>PL</TableHead>
-                  <TableHead className='flex-1 text-center'>CPMK</TableHead>
-                  <TableHead className='flex-1 text-center'>BK</TableHead>
+                  <TableHead className="flex-1 text-center">PL</TableHead>
+                  <TableHead className="flex-1 text-center">CPMK</TableHead>
+                  <TableHead className="flex-1 text-center">BK</TableHead>
 
-                  <TableHead className='flex-1 text-center'>Performa</TableHead>
-                  <TableHead className='flex-1 text-center'>Aksi</TableHead>
+                  <TableHead className="flex-1 text-center">Performa</TableHead>
+                  <TableHead className="flex-1 text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
             </Table>
           )}
+          <Pagination
+            meta={meta}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </CardContent>
       </Card>
     </section>
