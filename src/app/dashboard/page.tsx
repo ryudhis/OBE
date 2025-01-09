@@ -101,34 +101,36 @@ const Page = () => {
       return (
         <TableRow>
           {" "}
-          <TableCell colSpan={9} className='text-center font-semibold'>
+          <TableCell colSpan={9} className="text-center font-semibold">
             Belum ada Data
           </TableCell>
         </TableRow>
       );
 
     return MK.map((item) => {
-      return item.kelas?.map((kelas) => {
-        return kelas.dataCPMK?.map((data) => {
-          return (
-            <TableRow key={data?.cpmk}>
-              <TableCell>{item?.kode}</TableCell>
-              <TableCell>{kelas?.nama}</TableCell>
-              <TableCell>{data?.cpmk}</TableCell>
-              <TableCell>{data?.cpl}</TableCell>
-              <TableCell>{data?.nilaiMinimal}</TableCell>
-              <TableCell>
-                {data?.nilaiMasuk}/{kelas.mahasiswa.length}
-              </TableCell>
-              <TableCell>
-                {data?.jumlahLulus}/{kelas.mahasiswa.length}
-              </TableCell>
-              <TableCell>{data?.persenLulus}</TableCell>
-              <TableCell>{data?.rataNilai}</TableCell>
-            </TableRow>
-          );
+      return item.kelas
+        ?.filter((item) => item.tahunAjaranId === Number(filterTahunAjaran))
+        .map((kelas) => {
+          return kelas.dataCPMK?.map((data) => {
+            return (
+              <TableRow key={data?.cpmk}>
+                <TableCell>{item?.kode}</TableCell>
+                <TableCell>{kelas?.nama}</TableCell>
+                <TableCell>{data?.cpmk}</TableCell>
+                <TableCell>{data?.cpl}</TableCell>
+                <TableCell>{data?.nilaiMinimal}</TableCell>
+                <TableCell>
+                  {data?.nilaiMasuk}/{kelas.mahasiswa.length}
+                </TableCell>
+                <TableCell>
+                  {data?.jumlahLulus}/{kelas.mahasiswa.length}
+                </TableCell>
+                <TableCell>{data?.persenLulus}</TableCell>
+                <TableCell>{data?.rataNilai}</TableCell>
+              </TableRow>
+            );
+          });
         });
-      });
     });
   };
 
@@ -137,7 +139,7 @@ const Page = () => {
       return (
         <TableRow>
           {" "}
-          <TableCell colSpan={3} className='text-center font-semibold'>
+          <TableCell colSpan={3} className="text-center font-semibold">
             Belum ada Data
           </TableCell>
         </TableRow>
@@ -146,12 +148,18 @@ const Page = () => {
     return CPL.flatMap((cplItem) => {
       const cplPerforma =
         cplItem.CPMK.reduce((total, CPMK) => {
-          const lulusCPMKValue = CPMK.lulusCPMK[0]?.jumlahLulus ?? 0;
+          const lulusCPMKValue =
+            CPMK.lulusCPMK
+              .filter(
+                (item) => item.tahunAjaranId === Number(filterTahunAjaran)
+              )
+              .map((item) => item.jumlahLulus)[0] ?? 0;
           return total + Number(lulusCPMKValue);
         }, 0) / cplItem.CPMK.length;
       const CPMKRows = cplItem.CPMK.map((CPMK) => {
-        const MKContent = CPMK.lulusMK_CPMK.map(
-          (lulusMK_CPMK, index, array) => {
+        const MKContent = CPMK.lulusMK_CPMK
+          .filter((item) => item.tahunAjaranId === Number(filterTahunAjaran))
+          .map((lulusMK_CPMK, index, array) => {
             const lulusMK_CPMKValue = lulusMK_CPMK.jumlahLulus.toFixed(2);
             const textColorClass =
               Number(lulusMK_CPMKValue) < 65 || !lulusMK_CPMKValue
@@ -168,10 +176,11 @@ const Page = () => {
                 {index < array.length - 1 && ", "}
               </React.Fragment>
             );
-          }
-        );
+          });
 
-        const lulusCPMKValue = CPMK.lulusCPMK[0]?.jumlahLulus.toFixed(2);
+        const lulusCPMKValue = CPMK.lulusCPMK
+          .filter((item) => item.tahunAjaranId === Number(filterTahunAjaran))[0]
+          ?.jumlahLulus.toFixed(2);
         const textColorClass =
           Number(lulusCPMKValue) < 65 || !lulusCPMKValue ? "text-red-500" : "";
 
@@ -200,15 +209,15 @@ const Page = () => {
   };
 
   return (
-    <main className='py-12 flex flex-col gap-4 justify-center items-center'>
+    <main className="py-12 flex flex-col gap-4 justify-center items-center">
       {isLoading ? (
-        <div className='flex items-center justify-center h-screen'>
+        <div className="flex items-center justify-center h-screen">
           <Image
-            src='/Logo2.png'
-            alt='loading'
+            src="/Logo2.png"
+            alt="loading"
             width={100}
             height={100}
-            className='animate-pulse'
+            className="animate-pulse"
           />
         </div>
       ) : accountData?.role === "Super Admin" ? (
@@ -217,9 +226,26 @@ const Page = () => {
         <h1>Dashboard Admin Prodi</h1>
       ) : accountData?.role === "Kaprodi" ? (
         <>
-          <Card className='w-[1200px] mx-auto'>
-            <CardHeader className='flex flex-row justify-between items-center'>
-              <div className='flex flex-col'>
+          <div className="flex flex-col items-start">
+            <Select
+              value={filterTahunAjaran}
+              onValueChange={(e) => setFilterTahunAjaran(e)}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Pilih Tahun Ajaran" />
+              </SelectTrigger>
+              <SelectContent>
+                {semester.map((tahun) => (
+                  <SelectItem key={tahun.id} value={String(tahun.id)}>
+                    {tahun.tahun}-{tahun.semester}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Card className="w-[1200px] mx-auto">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
                 <CardTitle>Tabel Rangkuman Evaluasi </CardTitle>
                 <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
               </div>
@@ -228,55 +254,38 @@ const Page = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className='w-[8%]'>MK </TableHead>
-                    <TableHead className='w-[8%]'>Kelas </TableHead>
-                    <TableHead className='w-[8%]'>CPMK </TableHead>
-                    <TableHead className='w-[8%]'>CPL</TableHead>
-                    <TableHead className='w-[8%]'>
+                    <TableHead className="w-[8%]">MK </TableHead>
+                    <TableHead className="w-[8%]">Kelas </TableHead>
+                    <TableHead className="w-[8%]">CPMK </TableHead>
+                    <TableHead className="w-[8%]">CPL</TableHead>
+                    <TableHead className="w-[8%]">
                       Total Nilai Minimal
                     </TableHead>
-                    <TableHead className='w-[8%]'>Nilai Masuk</TableHead>
-                    <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
-                    <TableHead className='w-[16%]'>
+                    <TableHead className="w-[8%]">Nilai Masuk</TableHead>
+                    <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                    <TableHead className="w-[16%]">
                       Persen Mencapai Nilai Minimal
                     </TableHead>
-                    <TableHead className='w-[8%]'>Rata-Rata</TableHead>
+                    <TableHead className="w-[8%]">Rata-Rata</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{renderDataRangkuman()}</TableBody>
               </Table>
             </CardContent>
           </Card>
-          <Card className='w-[1200px]'>
-            <CardHeader className='flex flex-row justify-between items-center'>
-              <div className='flex flex-col'>
+          <Card className="w-[1200px]">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
                 <CardTitle>Rangkuman Performa CPL</CardTitle>
-              </div>
-              <div className='flex flex-col'>
-                {/* <Select
-                  value={filterTahunAjaran}
-                  onValueChange={(e) => setFilterTahunAjaran(e)}
-                >
-                  <SelectTrigger className='w-[200px]'>
-                    <SelectValue placeholder='Pilih Tahun Ajaran' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {semester.map((tahun) => (
-                      <SelectItem key={tahun.id} value={String(tahun.id)}>
-                        {tahun.tahun}-{tahun.semester}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select> */}
               </div>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className='flex-1'>CPL</TableHead>
-                    <TableHead className='flex-1'>CPMK</TableHead>
-                    <TableHead className='flex-1'>MK</TableHead>
+                    <TableHead className="flex-1">CPL</TableHead>
+                    <TableHead className="flex-1">CPMK</TableHead>
+                    <TableHead className="flex-1">MK</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>{renderRangkumanPerforma()}</TableBody>
