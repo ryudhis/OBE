@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
+import Pagination from "@/components/Pagination";
+import { set } from "react-hook-form";
 
 const DataCPMK = () => {
   const router = useRouter();
@@ -38,15 +40,24 @@ const DataCPMK = () => {
   const [refresh, setRefresh] = useState(false);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("");
   const [semester, setSemester] = useState<TahunAjaran[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 0,
+  });
 
   const getCPMK = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/cpmk?prodi=${accountData?.prodiId}`
+        `api/cpmk?prodi=${accountData?.prodiId}&page=${currentPage}`
       );
       if (response.data.status !== 400) {
         setCPMK(response.data.data);
+        setMeta({
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages,
+        });
       } else {
         alert(response.data.message);
       }
@@ -107,7 +118,7 @@ const DataCPMK = () => {
   useEffect(() => {
     getCPMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
 
   useEffect(() => {
     if (accountData) {
@@ -129,7 +140,7 @@ const DataCPMK = () => {
     if (CPMK.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={10} className='text-center font-semibold'>
+          <TableCell colSpan={10} className="text-center font-semibold">
             Belum ada data
           </TableCell>
         </TableRow>
@@ -139,28 +150,28 @@ const DataCPMK = () => {
     return CPMK.map((cpmk, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[8%]'>{cpmk.kode}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[8%]">{cpmk.kode}</TableCell>
+          <TableCell className="flex-1">
             {cpmk.deskripsi.length > 20
               ? cpmk.deskripsi.slice(0, 18) + "..."
               : cpmk.deskripsi}
           </TableCell>
-          <TableCell className='w-[12%]'>{cpmk.CPL.kode}</TableCell>
-          <TableCell className='w-[12%]'>
+          <TableCell className="w-[12%]">{cpmk.CPL.kode}</TableCell>
+          <TableCell className="w-[12%]">
             {cpmk.MK.length > 0
               ? cpmk.MK.map((item) => item.kode).join(", ")
               : " - "}
           </TableCell>
-          <TableCell className='w-[12%]'>
+          <TableCell className="w-[12%]">
             {cpmk.lulusCPMK
               .find(
                 (item) => item.tahunAjaranId === parseInt(filterTahunAjaran)
               )
-              ?.jumlahLulus.toFixed(2)}
-            {cpmk.lulusCPMK.length > 0 ? "%" : "-"}
+              ?.jumlahLulus.toFixed(2) || 0}
+            %
           </TableCell>
-          <TableCell className='w-[8%] flex gap-2'>
-            <Button variant='destructive' onClick={() => delCPMK(cpmk.id)}>
+          <TableCell className="w-[8%] flex gap-2">
+            <Button variant="destructive" onClick={() => delCPMK(cpmk.id)}>
               Hapus
             </Button>
             <Button
@@ -177,57 +188,56 @@ const DataCPMK = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20 mb-10">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel CPMK</CardTitle>
             <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
           </div>
-        
-        <div className="flex gap-5">
-        <Select
-            onValueChange={(e) => {
-              setFilterTahunAjaran(e);
-            }}
-            value={filterTahunAjaran}
-            required
-          >
-            <SelectTrigger>
-              <SelectValue placeholder='Pilih Tahun Ajaran' />
-            </SelectTrigger>
-            <SelectContent>
-              {semester.map((semester, index) => {
-                return (
-                  <SelectItem key={index} value={String(semester.id)}>
-                    {semester.tahun} {semester.semester}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
 
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/cpmk");
-            }}
-          >
-            Tambah
-          </Button>
-        </div>
-         
+          <div className="flex gap-5">
+            <Select
+              onValueChange={(e) => {
+                setFilterTahunAjaran(e);
+              }}
+              value={filterTahunAjaran}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih Tahun Ajaran" />
+              </SelectTrigger>
+              <SelectContent>
+                {semester.map((semester, index) => {
+                  return (
+                    <SelectItem key={index} value={String(semester.id)}>
+                      {semester.tahun} {semester.semester}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/cpmk");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[12%]'>CPL</TableHead>
-                  <TableHead className='w-[12%]'>MK</TableHead>
-                  <TableHead className='w-[12%]'>Performa</TableHead>
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[12%]">CPL</TableHead>
+                  <TableHead className="w-[12%]">MK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -238,17 +248,22 @@ const DataCPMK = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[8%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Deskripsi</TableHead>
-                  <TableHead className='w-[12%]'>CPL</TableHead>
-                  <TableHead className='w-[12%]'>MK</TableHead>
-                  <TableHead className='w-[12%]'>Performa</TableHead>
-                  <TableHead className='w-[8%]'>Aksi</TableHead>
+                  <TableHead className="w-[8%]">Kode</TableHead>
+                  <TableHead className="flex-1">Deskripsi</TableHead>
+                  <TableHead className="w-[12%]">CPL</TableHead>
+                  <TableHead className="w-[12%]">MK</TableHead>
+                  <TableHead className="w-[12%]">Performa</TableHead>
+                  <TableHead className="w-[8%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
             </Table>
           )}
+          <Pagination
+            meta={meta}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </CardContent>
       </Card>
     </section>
