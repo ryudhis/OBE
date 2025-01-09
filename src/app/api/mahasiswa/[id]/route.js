@@ -18,6 +18,12 @@ export async function GET(req, { params }) {
       where: {
         nim,
       },
+      include: {
+        kelas: {
+          include: { MK: true },
+        },
+        prodi: true,
+      },
     });
 
     if (!mahasiswa) {
