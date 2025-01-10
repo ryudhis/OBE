@@ -20,7 +20,7 @@ export async function GET(req) {
     const totalItems = await prisma.prodi.count();
 
     // Calculate total pages
-    const totalPages = Math.ceil(totalItems / limit);
+    const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
 
     // Ensure the page number is within the valid range
     const currentPage = Math.min(Math.max(page, 1), totalPages);
