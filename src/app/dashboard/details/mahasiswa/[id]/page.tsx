@@ -12,17 +12,10 @@ export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { accountData } = useAccount();
   const [mahasiswa, setMahasiswa] = useState<Mahasiswa | undefined>();
-
-  const placeHolderData = [
-    { subject: "CPL-01", percentage: 100 },
-    { subject: "CPL-02", percentage: 80 },
-    { subject: "CPL-03", percentage: 50 },
-    { subject: "CPL-04", percentage: 70 },
-    { subject: "CPL-05", percentage: 60 },
-    { subject: "CPL-06", percentage: 80 },
-    { subject: "CPL-07", percentage: 90 },
-    { subject: "CPL-08", percentage: 40 },
-  ];
+  const [cpl, setCPL] = useState<CPL[]>([]);
+  const [data, setData] = useState<{ subject: string; percentage: number }[]>(
+    []
+  );
 
   const countTotalSKS = (mahasiswa: Mahasiswa): number => {
     return mahasiswa.kelas.reduce((total, kelasItem) => {
@@ -52,10 +45,47 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
+  const getCPL = async () => {
+    try {
+      const response = await axiosConfig.get(
+        `api/cpl?prodi=${accountData?.prodiId}`
+      );
+      if (response.data.status !== 400) {
+      } else {
+        alert(response.data.message);
+      }
+      setCPL(response.data.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+    }
+  };
+
   useEffect(() => {
     getMahasiswa();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    getCPL();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (mahasiswa && cpl) {
+      const performaMahasiswa = mahasiswa.performaMahasiswa || [];
+      const result = cpl.map((cpl) => {
+        const match = performaMahasiswa.find(
+          (performance) => performance.CPLId === cpl.id
+        );
+        return {
+          subject: cpl.kode,
+          percentage: match ? match.nilai : 0,
+        };
+      });
+      setData(result);
+    }
+  }, [mahasiswa, cpl]);
 
   if (accountData?.role === "Dosen") {
     toast({
@@ -115,7 +145,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
         <div className="flex flex-col gap-8 items-center">
           <h3 className="text-2xl font-bold">Performa Mahasiswa</h3>
-          <RadarChartComponent data={placeHolderData} />
+          <RadarChartComponent data={data} />
         </div>
       </main>
     );
