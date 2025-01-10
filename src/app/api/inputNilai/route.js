@@ -7,7 +7,7 @@ export async function GET(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -15,21 +15,27 @@ export async function GET(req) {
   const prodi = searchParams.get("prodi") || "";
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const MK = searchParams.get("MK") === "default" ? "" : searchParams.get("MK");
 
   // Validate prodi parameter
   if (!prodi) {
     return new Response(
       JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
+    const where = {
+      prodiId: prodi,
+      ...(MK && {
+        penilaianCPMK: { MKkode: MK }, // Apply filter on related `kelas.MKId`
+      }),
+    };
+
     // Calculate total items
     const totalItems = await prisma.inputNilai.count({
-      where: {
-        prodiId: prodi,
-      },
+      where,
     });
 
     // Calculate total pages
@@ -40,9 +46,7 @@ export async function GET(req) {
 
     // Fetch paginated data
     const inputNilai = await prisma.inputNilai.findMany({
-      where: {
-        prodiId: prodi,
-      },
+      where,
       orderBy: [{ penilaianCPMKId: "asc" }, { mahasiswaNim: "asc" }],
       include: { penilaianCPMK: true, mahasiswa: true },
       take: limit,
@@ -60,13 +64,13 @@ export async function GET(req) {
           totalItems,
         },
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("GET inputNilai Error: ", error); // More informative logging
     return new Response(
       JSON.stringify({ status: 500, message: "Something went wrong!" }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
@@ -77,7 +81,7 @@ export async function POST(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -104,13 +108,13 @@ export async function POST(req) {
         message: "Berhasil buat data!",
         data: inputNilai,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("POST inputNilai Error: ", error); // More informative logging
     return new Response(
       JSON.stringify({ status: 500, message: "Something went wrong!" }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

@@ -15,6 +15,7 @@ export async function GET(req) {
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const MK = searchParams.get("MK") === "default" ? "" : searchParams.get("MK"); // Access MK query parameter
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -25,12 +26,17 @@ export async function GET(req) {
   }
 
   try {
+    const where = {
+      prodiId: prodi,
+      ...(MK && { MKkode: MK }),
+    };
+
     // Calculate total items
     const totalItems = await prisma.penilaianCPMK.count({
-      where: {
-        prodiId: prodi,
-      },
+      where
     });
+
+    console.log(MK);
 
     // Calculate total pages
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
@@ -39,9 +45,7 @@ export async function GET(req) {
     const currentPage = Math.min(Math.max(page, 1), totalPages);
 
     const penilaianCPMK = await prisma.penilaianCPMK.findMany({
-      where: {
-        prodiId: prodi,
-      },
+      where,
       include: {
         CPMK: true,
         CPL: true,

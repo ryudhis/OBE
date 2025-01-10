@@ -45,19 +45,11 @@ const DataNilai = () => {
     totalPages: 0,
   });
 
-  let filteredNilai = inputNilai;
-
-  if (filterMK !== "default") {
-    filteredNilai = inputNilai.filter(
-      (nilai) => nilai.penilaianCPMK.MKkode === filterMK
-    );
-  }
-
   const getInputNilai = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/inputNilai?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/inputNilai?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}`
       );
       if (response.data.status !== 400) {
         setInputNilai(response.data.data);
@@ -134,7 +126,7 @@ const DataNilai = () => {
   useEffect(() => {
     getInputNilai();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, filterMK]); // Trigger useEffect only on initial mount
 
   if (accountData?.role === "Admin Prodi") {
     toast({
@@ -146,7 +138,7 @@ const DataNilai = () => {
   }
 
   const renderData = () => {
-    if (filteredNilai.length === 0) {
+    if (inputNilai.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={11} className="text-center font-semibold">
@@ -156,7 +148,7 @@ const DataNilai = () => {
       );
     }
 
-    return filteredNilai?.map((nilai) => {
+    return inputNilai?.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
           <TableCell className="w-[10%]">{nilai.penilaianCPMK.kode}</TableCell>

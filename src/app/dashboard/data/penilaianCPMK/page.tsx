@@ -45,13 +45,10 @@ const DataPenilaianCPMK = () => {
     totalPages: 0,
   });
 
-  let filteredPCPMK = penilaianCPMK;
   let totalBobot = 0;
 
   if (filterMK !== "default") {
-    filteredPCPMK = penilaianCPMK.filter((pcpmk) => pcpmk.MKkode === filterMK);
-
-    filteredPCPMK.map((pcpmk) => {
+    penilaianCPMK.map((pcpmk) => {
       pcpmk.kriteria.map((kriteria) => {
         totalBobot += kriteria.bobot;
       });
@@ -62,7 +59,7 @@ const DataPenilaianCPMK = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}`
       );
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);
@@ -131,10 +128,10 @@ const DataPenilaianCPMK = () => {
     getPenilaianCPMK();
     getMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, filterMK]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
-    if (filteredPCPMK.length === 0) {
+    if (penilaianCPMK.length === 0) {
       return (
         <TableRow>
           <TableCell colSpan={11} className="text-center font-semibold">
@@ -144,7 +141,7 @@ const DataPenilaianCPMK = () => {
       );
     }
 
-    return filteredPCPMK.map((pCPMK) => {
+    return penilaianCPMK.map((pCPMK) => {
       return (
         <TableRow key={pCPMK.kode}>
           <TableCell className="w-[2%]">{pCPMK.kode}</TableCell>
@@ -279,7 +276,7 @@ const DataPenilaianCPMK = () => {
             setCurrentPage={setCurrentPage}
           />
         </CardContent>
-        {filterMK !== "default" && filteredPCPMK.length !== 0 && (
+        {filterMK !== "default" && penilaianCPMK.length !== 0 && (
           <p
             className={`ml-[800px] font-semibold mb-2 ${
               totalBobot !== 100 ? "text-red-500" : "text-green-500"
