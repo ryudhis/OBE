@@ -23,6 +23,11 @@ export async function GET(req, { params }) {
           include: { MK: true },
         },
         prodi: true,
+        performaMahasiswa: {
+          include: {
+            CPL: true,
+          },
+        },
       },
     });
 
