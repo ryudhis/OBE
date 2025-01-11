@@ -15,6 +15,7 @@ export async function GET(req) {
   const prodi = searchParams.get("prodi") || "";
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   if (!prodi) {
     return Response.json({ status: 400, message: "Missing prodi parameter" });
@@ -25,6 +26,9 @@ export async function GET(req) {
     const totalItems = await prisma.CPL.count({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
     });
 
