@@ -15,6 +15,7 @@ export async function GET(req) {
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -29,6 +30,9 @@ export async function GET(req) {
     const totalItems = await prisma.CPMK.count({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
     });
 
@@ -42,6 +46,9 @@ export async function GET(req) {
     const CPMK = await prisma.CPMK.findMany({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
       include: {
         CPL: {

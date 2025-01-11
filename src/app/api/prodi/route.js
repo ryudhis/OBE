@@ -14,6 +14,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   try {
     // Calculate total items
@@ -28,6 +29,12 @@ export async function GET(req) {
     const prodi = await prisma.prodi.findMany({
       take: limit,
       skip: (currentPage - 1) * limit,
+      where: {
+        OR: [
+          { kode: { contains: search } },
+          { nama: { contains: search } },
+        ],
+      },
     });
 
     return new Response(

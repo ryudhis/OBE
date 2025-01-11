@@ -30,6 +30,9 @@ export async function GET(req, res) {
     const totalItems = await prisma.PL.count({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
     });
 

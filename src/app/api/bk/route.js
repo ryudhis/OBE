@@ -15,6 +15,7 @@ export async function GET(req) {
   const prodi = searchParams.get("prodi") || "";
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   if (!prodi) {
     return new Response(
@@ -28,6 +29,9 @@ export async function GET(req) {
     const totalItems = await prisma.BK.count({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },  
       },
     });
 
@@ -41,6 +45,9 @@ export async function GET(req) {
     const BK = await prisma.BK.findMany({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
       include: {
         CPL: {

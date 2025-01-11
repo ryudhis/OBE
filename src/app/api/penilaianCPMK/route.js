@@ -16,6 +16,7 @@ export async function GET(req) {
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
   const MK = searchParams.get("MK") === "default" ? "" : searchParams.get("MK"); // Access MK query parameter
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -29,6 +30,9 @@ export async function GET(req) {
     const where = {
       prodiId: prodi,
       ...(MK && { MKkode: MK }),
+      kode: {
+        contains: search,
+      },
     };
 
     // Calculate total items

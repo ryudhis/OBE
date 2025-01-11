@@ -17,6 +17,7 @@ export async function GET(req) {
   const tahunAjaranId = parseInt(searchParams.get("tahunAjaran")) || null;
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -43,10 +44,24 @@ export async function GET(req) {
       const MKidArray = [...new Set(kelasArray.map((kelas) => kelas.MKId))];
 
       // Set the where condition based on the found MKidArray
-      whereCondition = { kode: { in: MKidArray } };
+      whereCondition = {
+        kode: { in: MKidArray },
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+          { deskripsiInggris: { contains: search } },
+        ],
+      };
     } else {
       // Set the where condition to filter by prodiId
-      whereCondition = { prodiId: prodi };
+      whereCondition = {
+        prodiId: prodi,
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+          { deskripsiInggris: { contains: search } },
+        ],
+      };
     }
 
     // Calculate total items
