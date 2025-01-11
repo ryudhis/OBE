@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataPenilaianCPMK = () => {
   const router = useRouter();
@@ -44,6 +45,7 @@ const DataPenilaianCPMK = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   let totalBobot = 0;
 
@@ -124,11 +126,16 @@ const DataPenilaianCPMK = () => {
       throw error;
     }
   };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getPenilaianCPMK();
     getMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, currentPage, filterMK]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, filterMK, searchQuery]); // Trigger useEffect only on initial mount
 
   const renderData = () => {
     if (penilaianCPMK.length === 0) {
@@ -196,37 +203,38 @@ const DataPenilaianCPMK = () => {
               Penilaian Capaian Pembelajaran Mata Kuliah
             </CardDescription>
           </div>
-
-          <Select
-            onValueChange={(value) => {
-              setFilterMK(value);
-            }}
-            defaultValue={filterMK}
-            value={filterMK}
-            required
-          >
-            <SelectTrigger className="w-[30%]">
-              <SelectValue placeholder="Pilih MK" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Pilih MK</SelectItem>
-              {MK.map((mk, index) => {
-                return (
-                  <SelectItem key={index} value={mk.kode}>
-                    {mk.kode}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/penilaianCPMK");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Select
+              onValueChange={(value) => {
+                setFilterMK(value);
+              }}
+              defaultValue={filterMK}
+              value={filterMK}
+              required
+            >
+              <SelectTrigger className="w-[30%]">
+                <SelectValue placeholder="Pilih MK" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Pilih MK</SelectItem>
+                {MK.map((mk, index) => {
+                  return (
+                    <SelectItem key={index} value={mk.kode}>
+                      {mk.kode}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/penilaianCPMK");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

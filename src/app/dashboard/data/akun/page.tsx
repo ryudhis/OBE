@@ -23,6 +23,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataAkun = () => {
   const router = useRouter();
@@ -34,6 +35,7 @@ const DataAkun = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getAkun = async () => {
     setIsLoading(true);
@@ -88,10 +90,14 @@ const DataAkun = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getAkun();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  }, [currentPage, searchQuery]);
 
   if (accountData?.role !== "Super Admin") {
     toast({
@@ -140,13 +146,16 @@ const DataAkun = () => {
             <CardTitle>Tabel Akun</CardTitle>
             <CardDescription>Akun</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/akun");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/akun");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

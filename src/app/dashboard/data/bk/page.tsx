@@ -23,6 +23,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataBK = () => {
   const router = useRouter();
@@ -35,12 +36,13 @@ const DataBK = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getBK = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/bk?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/bk?prodi=${accountData?.prodiId}&page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
       } else {
@@ -90,9 +92,13 @@ const DataBK = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getBK();
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role === "Dosen") {
     toast({
@@ -160,13 +166,16 @@ const DataBK = () => {
             <CardTitle>Tabel BK</CardTitle>
             <CardDescription>Bahan Kajian</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/bk");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/bk");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

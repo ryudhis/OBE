@@ -31,6 +31,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataCPL = () => {
   const router = useRouter();
@@ -45,12 +46,13 @@ const DataCPL = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getCPL = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/cpl?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/cpl?prodi=${accountData?.prodiId}&page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
       } else {
@@ -115,9 +117,13 @@ const DataCPL = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getCPL();
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]);
 
   useEffect(() => {
     if (accountData) {
@@ -205,8 +211,8 @@ const DataCPL = () => {
             <CardTitle>Tabel CPL</CardTitle>
             <CardDescription>Capaian Pembelajaran</CardDescription>
           </div>
-
-          <div className="flex gap-5">
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
             <Select
               onValueChange={(e) => {
                 setFilterTahunAjaran(e);

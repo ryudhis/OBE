@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataPL = () => {
   const router = useRouter();
@@ -35,12 +36,13 @@ const DataPL = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getPL = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/pl?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/pl?prodi=${accountData?.prodiId}&page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setPL(response.data.data);
@@ -91,10 +93,14 @@ const DataPL = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getPL();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role === "Dosen") {
     toast({
@@ -155,13 +161,16 @@ const DataPL = () => {
             <CardTitle>Tabel PL</CardTitle>
             <CardDescription>Profil Lulusan</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/pl");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/pl");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
