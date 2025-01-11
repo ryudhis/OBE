@@ -42,6 +42,9 @@ export async function GET(req) {
     const CPL = await prisma.CPL.findMany({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
       include: {
         PL: true,
