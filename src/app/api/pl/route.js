@@ -13,8 +13,9 @@ export async function GET(req, res) {
 
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || "";
-  const page = parseInt(searchParams.get("page")) || 1; 
-  const limit = parseInt(searchParams.get("limit")) || 10; 
+  const page = parseInt(searchParams.get("page")) || 1;
+  const limit = parseInt(searchParams.get("limit")) || 10;
+  const search = searchParams.get("search") || "";
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -42,6 +43,9 @@ export async function GET(req, res) {
     const PL = await prisma.PL.findMany({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
       include: {
         CPL: {
