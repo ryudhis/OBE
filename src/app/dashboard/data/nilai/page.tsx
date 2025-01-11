@@ -71,7 +71,7 @@ const DataNilai = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData?.prodiId}`
+        `api/mk?prodi=${accountData?.prodiId}?limit=99999`
       );
       if (response.data.status !== 400) {
       } else {
@@ -141,7 +141,7 @@ const DataNilai = () => {
     if (inputNilai.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={11} className="text-center font-semibold">
+          <TableCell colSpan={11} className='text-center font-semibold'>
             Belum ada Data
           </TableCell>
         </TableRow>
@@ -151,19 +151,19 @@ const DataNilai = () => {
     return inputNilai?.map((nilai) => {
       return (
         <TableRow key={nilai.id}>
-          <TableCell className="w-[10%]">{nilai.penilaianCPMK.kode}</TableCell>
-          <TableCell className="flex-1">{nilai.mahasiswaNim}</TableCell>
-          <TableCell className="flex-1">{nilai.mahasiswa.nama}</TableCell>
+          <TableCell className='w-[10%]'>{nilai.penilaianCPMK.kode}</TableCell>
+          <TableCell className='flex-1'>{nilai.mahasiswaNim}</TableCell>
+          <TableCell className='flex-1'>{nilai.mahasiswa.nama}</TableCell>
           <TableCell>
             {nilai.nilai.map((item, index) => (
-              <TableRow key={index} className="flex-1">
+              <TableRow key={index} className='flex-1'>
                 {item}
               </TableRow>
             ))}
           </TableCell>
           <TableCell>
             {nilai.nilai.map((item, index) => (
-              <TableRow key={index} className="flex-1">
+              <TableRow key={index} className='flex-1'>
                 {(
                   item *
                   (nilai.penilaianCPMK.kriteria[index].bobot * 0.01)
@@ -171,9 +171,9 @@ const DataNilai = () => {
               </TableRow>
             ))}
           </TableCell>
-          <TableCell className="w-[10%] flex gap-2">
+          <TableCell className='w-[10%] flex gap-2'>
             <Button
-              variant="destructive"
+              variant='destructive'
               onClick={() => delInputNilai(nilai.id)}
             >
               Hapus
@@ -192,10 +192,10 @@ const DataNilai = () => {
   };
 
   return (
-    <section className="flex justify-center items-center my-20 mb-10">
-      <Card className="w-[1000px]">
-        <CardHeader className="flex flex-row justify-between items-center">
-          <div className="flex flex-col">
+    <section className='flex justify-center items-center my-20 mb-10'>
+      <Card className='w-[1000px]'>
+        <CardHeader className='flex flex-row justify-between items-center'>
+          <div className='flex flex-col'>
             <CardTitle>Tabel Nilai Mahasiswa</CardTitle>
             <CardDescription>Nilai Mahasiswa</CardDescription>
           </div>
@@ -208,11 +208,11 @@ const DataNilai = () => {
             value={filterMK}
             required
           >
-            <SelectTrigger className="w-[30%]">
-              <SelectValue placeholder="Pilih MK" />
+            <SelectTrigger className='w-[30%]'>
+              <SelectValue placeholder='Pilih MK' />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="default">Pilih MK</SelectItem>
+              <SelectItem value='default'>Pilih MK</SelectItem>
               {MK.map((mk, index) => {
                 return (
                   <SelectItem key={index} value={mk.kode}>
@@ -236,12 +236,12 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">PCPMK ID</TableHead>
-                  <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="flex-1">Nama</TableHead>
-                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
-                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[10%]'>PCPMK ID</TableHead>
+                  <TableHead className='flex-1'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Asli</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Pembobotan</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -252,12 +252,12 @@ const DataNilai = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[10%]">PCPMK ID</TableHead>
-                  <TableHead className="flex-1">NIM</TableHead>
-                  <TableHead className="flex-1">Nama</TableHead>
-                  <TableHead className="w-[10%]">Nilai Asli</TableHead>
-                  <TableHead className="w-[10%]">Nilai Pembobotan</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
+                  <TableHead className='w-[10%]'>PCPMK ID</TableHead>
+                  <TableHead className='flex-1'>NIM</TableHead>
+                  <TableHead className='flex-1'>Nama</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Asli</TableHead>
+                  <TableHead className='w-[10%]'>Nilai Pembobotan</TableHead>
+                  <TableHead className='w-[10%]'>Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>

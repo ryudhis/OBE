@@ -87,7 +87,7 @@ const InputPenilaianCPMK = () => {
 
   const getMK = async (prodiId: string = "") => {
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}&limit=99999`);
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {

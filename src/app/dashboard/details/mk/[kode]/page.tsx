@@ -348,7 +348,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     try {
       if (mk) {
         const response = await axiosConfig.get(
-          `api/mk?prodi=${accountData?.prodiId}`
+          `api/mk?prodi=${accountData?.prodiId}&limit=99999`
         );
         if (response.data.status !== 400) {
           const filteredMK = response.data.data.filter((item: MK) => {
@@ -375,7 +375,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const getAllCPMK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/cpmk?prodi=${accountData?.prodiId}`
+        `api/cpmk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {
@@ -391,7 +391,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const getAllBK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/bk?prodi=${accountData?.prodiId}`
+        `api/bk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {
@@ -512,7 +512,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   const getTahunAjaran = async () => {
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       if (response.data.status !== 400) {
         setTahunAjaran(response.data.data);
         setSelectedTahun(String(response.data.data[0].id));

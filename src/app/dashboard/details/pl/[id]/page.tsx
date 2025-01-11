@@ -116,7 +116,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const getAllCPL = async (prodiId: string | undefined) => {
     try {
-      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId || ""}`);
+      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}&limit=99999`);
 
       if (response.data.status !== 400) {
       } else {

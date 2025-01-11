@@ -30,7 +30,6 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
-import { set } from "react-hook-form";
 
 const DataCPMK = () => {
   const router = useRouter();
@@ -70,7 +69,7 @@ const DataCPMK = () => {
 
   const getTahunAjaran = async () => {
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       if (response.data.status !== 400) {
         setSemester(response.data.data);
         setFilterTahunAjaran(String(response.data.data[0].id));

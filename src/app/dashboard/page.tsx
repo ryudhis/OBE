@@ -37,7 +37,7 @@ const Page = () => {
 
   const getMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}&limit=99999`);
       if (response.data.status !== 400) {
         setMK(response.data.data);
       }
@@ -50,7 +50,7 @@ const Page = () => {
 
   const getCPL = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}&limit=99999`);
       if (response.data.status !== 400) {
         setCPL(response.data.data);
       }
@@ -63,7 +63,7 @@ const Page = () => {
 
   const getTahunAjaran = async () => {
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       if (response.data.status !== 400) {
         setSemester(response.data.data);
         setFilterTahunAjaran(String(response.data.data[0].id));

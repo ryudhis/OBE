@@ -70,7 +70,7 @@ const DataCPL = () => {
 
   const getTahunAjaran = async () => {
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       if (response.data.status !== 400) {
         setSemester(response.data.data);
         setFilterTahunAjaran(String(response.data.data[0].id));

@@ -72,7 +72,7 @@ const MKScreen = () => {
   const getMK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData?.prodiId}`
+        `api/mk?prodi=${accountData?.prodiId}&limit=99999`
       );
       if (response.data.status !== 400) {
         setMK(response.data.data);

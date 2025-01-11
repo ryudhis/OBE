@@ -92,7 +92,7 @@ const InputNilai: React.FC = () => {
         .map((kelas) => kelas.MKId);
 
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData.prodiId}`
+        `api/mk?prodi=${accountData.prodiId}&limit=99999`
       );
       if (response.data.status !== 400) {
         const filteredMK = response.data.data.filter((mk: MK) =>
@@ -110,7 +110,7 @@ const InputNilai: React.FC = () => {
 
   const getTahunAjaran = async () => {
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       if (response.data.status !== 400) {
         setTahunAjaran(response.data.data);
         setSelectedTahun(String(response.data.data[0].id));

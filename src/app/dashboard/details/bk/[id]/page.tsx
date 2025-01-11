@@ -122,7 +122,7 @@ export default function Page({ params }: { params: { id: string } }) {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData?.prodiId}`
+        `api/mk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {
