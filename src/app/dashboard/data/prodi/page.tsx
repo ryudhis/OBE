@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataProdi = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const DataProdi = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getProdi = async () => {
     setIsLoading(true);
@@ -89,9 +91,13 @@ const DataProdi = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getProdi();
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role !== "Super Admin") {
     toast({
@@ -140,13 +146,16 @@ const DataProdi = () => {
             <CardTitle>Tabel Prodi</CardTitle>
             <CardDescription>Program Studi</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/prodi");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex items-center gap-5">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/prodi");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

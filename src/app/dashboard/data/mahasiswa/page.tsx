@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
-import { set } from "react-hook-form";
+import { SearchInput } from "@/components/Search";
 
 const DataMahasiswa = () => {
   const router = useRouter();
@@ -36,6 +36,7 @@ const DataMahasiswa = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getMahasiswa = async () => {
     setIsLoading(true);
@@ -92,10 +93,14 @@ const DataMahasiswa = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getMahasiswa();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role === "Dosen") {
     toast({
@@ -147,13 +152,16 @@ const DataMahasiswa = () => {
             <CardTitle>Tabel Mahasiswa</CardTitle>
             <CardDescription>Mahasiswa</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/mahasiswa");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/mahasiswa");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (

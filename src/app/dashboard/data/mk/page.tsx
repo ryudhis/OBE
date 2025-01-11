@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataMK = () => {
   const router = useRouter();
@@ -45,6 +46,7 @@ const DataMK = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getMK = async (prodiId: string = "", dosenId: number = 0) => {
     try {
@@ -114,6 +116,10 @@ const DataMK = () => {
     } catch (error) {
       throw error;
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
   };
 
   let jumlahMahasiswa: number = 0;
@@ -206,7 +212,7 @@ const DataMK = () => {
         getMK(accountData?.prodiId);
       }
     }
-  }, [refresh, selectedTahun, currentPage]);
+  }, [refresh, selectedTahun, currentPage, searchQuery]);
 
   useEffect(() => {
     getTahunAjaran();
@@ -220,8 +226,8 @@ const DataMK = () => {
             <CardTitle>Tabel MK</CardTitle>
             <CardDescription>Mata Kuliah</CardDescription>
           </div>
-
-          <div className="flex gap-3">
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
             <Select
               onValueChange={(e) => setSelectedTahun(e)}
               value={selectedTahun}

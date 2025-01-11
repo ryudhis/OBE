@@ -30,6 +30,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataCPMK = () => {
   const router = useRouter();
@@ -44,6 +45,7 @@ const DataCPMK = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getCPMK = async () => {
     setIsLoading(true);
@@ -113,11 +115,14 @@ const DataCPMK = () => {
       throw error;
     }
   };
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
 
   useEffect(() => {
     getCPMK();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   useEffect(() => {
     if (accountData) {
@@ -194,8 +199,8 @@ const DataCPMK = () => {
             <CardTitle>Tabel CPMK</CardTitle>
             <CardDescription>Capaian Pembelajaran Mata Kuliah</CardDescription>
           </div>
-
-          <div className="flex gap-5">
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
             <Select
               onValueChange={(e) => {
                 setFilterTahunAjaran(e);

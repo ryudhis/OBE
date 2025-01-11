@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
 import Pagination from "@/components/Pagination";
-import { set } from "react-hook-form";
+import { SearchInput } from "@/components/Search";
 
 const DataTahun = () => {
   const router = useRouter();
@@ -36,6 +36,7 @@ const DataTahun = () => {
     totalItems: 0,
     totalPages: 0,
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getTahun = async () => {
     setIsLoading(true);
@@ -92,9 +93,13 @@ const DataTahun = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getTahun();
-  }, [refresh, currentPage]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role !== "Super Admin") {
     toast({
@@ -140,13 +145,16 @@ const DataTahun = () => {
             <CardTitle>Tabel Tahun Ajaran</CardTitle>
             <CardDescription>Semester Ganjil/Genap</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/tahunAjaran");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/tahunAjaran");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
