@@ -335,7 +335,7 @@ const Page = () => {
         <Card className='w-[1200px] mx-auto shadow-lg'>
           <CardHeader className='flex flex-row justify-between items-center'>
             <div className='flex flex-col'>
-              <CardTitle>Tabel Data Prodi</CardTitle>
+              <CardTitle>Data Prodi</CardTitle>
               <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
             </div>
           </CardHeader>
@@ -343,7 +343,7 @@ const Page = () => {
             {dataCount.map((item) => (
               <Card
                 key={item.name}
-                className='flex items-center justify-between p-6 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-64 active:scale-95'
+                className='flex items-center justify-between p-6 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-64 active:scale-95 text-white bg-[#1976D2] hover:opacity-90 h-[100px]'
                 onClick={() => router.push(getAdminRoutes(item.name))}
               >
                 <p className='font-semibold text-xl'>{item.name}</p>
