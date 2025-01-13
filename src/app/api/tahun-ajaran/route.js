@@ -18,7 +18,13 @@ export async function GET(req) {
 
   try {
     // Calculate total items
-    const totalItems = await prisma.tahunAjaran.count();
+    const totalItems = await prisma.tahunAjaran.count({
+      where: {
+        tahun: {
+          contains: search,
+        },
+      },
+    });
 
     // Calculate total pages
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);

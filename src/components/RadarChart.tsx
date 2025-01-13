@@ -10,7 +10,7 @@ import {
 
 const chartConfig = {
   percentage: {
-    label: "Percentage: ",
+    label: "Performa: ",
     color: "#1976D2",
   },
 } satisfies ChartConfig;

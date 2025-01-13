@@ -51,7 +51,7 @@ const DataNilai = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/inputNilai?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}`
+        `api/inputNilai?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setInputNilai(response.data.data);
@@ -73,7 +73,7 @@ const DataNilai = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData?.prodiId}?limit=99999`
+        `api/mk?prodi=${accountData?.prodiId}&limit=99999`
       );
       if (response.data.status !== 400) {
       } else {

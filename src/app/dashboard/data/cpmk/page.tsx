@@ -51,7 +51,7 @@ const DataCPMK = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/cpmk?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/cpmk?prodi=${accountData?.prodiId}&page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setCPMK(response.data.data);

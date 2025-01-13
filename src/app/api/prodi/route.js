@@ -18,7 +18,11 @@ export async function GET(req) {
 
   try {
     // Calculate total items
-    const totalItems = await prisma.prodi.count();
+    const totalItems = await prisma.prodi.count({
+      where: {
+        OR: [{ kode: { contains: search } }, { nama: { contains: search } }],
+      },
+    });
 
     // Calculate total pages
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
@@ -30,10 +34,7 @@ export async function GET(req) {
       take: limit,
       skip: (currentPage - 1) * limit,
       where: {
-        OR: [
-          { kode: { contains: search } },
-          { nama: { contains: search } },
-        ],
+        OR: [{ kode: { contains: search } }, { nama: { contains: search } }],
       },
     });
 

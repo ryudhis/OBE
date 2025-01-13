@@ -53,7 +53,7 @@ const DataMK = () => {
       const response = await axiosConfig.get(
         `api/mk?prodi=${prodiId}${
           dosenId ? `&dosen=${dosenId}` : ""
-        }&tahunAjaran=${selectedTahun}&page=${currentPage}`
+        }&tahunAjaran=${selectedTahun}&page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setMK(response.data.data);
@@ -228,11 +228,12 @@ const DataMK = () => {
           </div>
           <div className="flex gap-5 items-center">
             <SearchInput onSearch={handleSearch} />
+            
             <Select
               onValueChange={(e) => setSelectedTahun(e)}
               value={selectedTahun}
             >
-              <SelectTrigger className="w-[250px]">
+              <SelectTrigger className="w-[300px]">
                 <SelectValue placeholder="Tahun Ajaran" />
               </SelectTrigger>
               <SelectContent>

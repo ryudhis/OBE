@@ -42,7 +42,7 @@ const DataMahasiswa = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/mahasiswa?prodi=${accountData?.prodiId}&page=${currentPage}`
+        `api/mahasiswa?prodi=${accountData?.prodiId}&page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setMahasiswa(response.data.data);

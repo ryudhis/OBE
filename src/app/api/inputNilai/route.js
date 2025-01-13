@@ -34,7 +34,11 @@ export async function GET(req) {
       }),
       OR: [
         { mahasiswaNim: { contains: search } },
-        { mahasiswaNama: { contains: search } },
+        {
+          mahasiswa: {
+            nama: { contains: search },
+          },
+        },
       ],
     };
 

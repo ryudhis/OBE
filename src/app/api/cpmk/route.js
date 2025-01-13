@@ -30,9 +30,10 @@ export async function GET(req) {
     const totalItems = await prisma.CPMK.count({
       where: {
         prodiId: prodi,
-        kode: {
-          contains: search,
-        },
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+        ],
       },
     });
 
@@ -46,9 +47,10 @@ export async function GET(req) {
     const CPMK = await prisma.CPMK.findMany({
       where: {
         prodiId: prodi,
-        kode: {
-          contains: search,
-        },
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+        ],
       },
       include: {
         CPL: {

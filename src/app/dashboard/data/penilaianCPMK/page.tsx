@@ -61,7 +61,7 @@ const DataPenilaianCPMK = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}`
+        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);
@@ -82,7 +82,7 @@ const DataPenilaianCPMK = () => {
   const getMK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData?.prodiId}?limit=99999`
+        `api/mk?prodi=${accountData?.prodiId}&limit=99999`
       );
       if (response.data.status !== 400) {
         setMK(response.data.data);
@@ -284,7 +284,7 @@ const DataPenilaianCPMK = () => {
             setCurrentPage={setCurrentPage}
           />
         </CardContent>
-        {filterMK !== "default" && penilaianCPMK.length !== 0 && (
+        {filterMK !== "default" && penilaianCPMK.length !== 0 && searchQuery==="" && (
           <p
             className={`ml-[800px] font-semibold mb-2 ${
               totalBobot !== 100 ? "text-red-500" : "text-green-500"

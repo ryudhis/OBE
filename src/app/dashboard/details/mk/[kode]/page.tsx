@@ -1372,9 +1372,18 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                     <div className='space-y-2'>
                       <FormLabel>Prerequisite Mata Kuliah</FormLabel>
+                      <div className='flex flex-row items-center mb-5'>
+                      <input
+                        type='text'
+                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        value={searchPrerequisite}
+                        placeholder='Cari...'
+                        onChange={(e) => setSearchPrerequisite(e.target.value)}
+                      />
+                    </div>
                       <div className='grid grid-cols-3 gap-3'>
                         {allMK.length > 0 ? (
-                          allMK.map((mk, index) => (
+                          filteredMK.map((mk, index) => (
                             <DataCard<MK>
                               key={index}
                               selected={selectedPrerequisite}

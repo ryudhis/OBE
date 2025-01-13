@@ -30,7 +30,13 @@ export async function GET(req) {
 
   try {
     // Calculate total items
-    const totalItems = await prisma.account.count();
+    const totalItems = await prisma.account.count({
+      where: {
+        nama: {
+          contains: search,
+        },
+      },
+    });
 
     // Calculate total pages
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);

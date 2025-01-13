@@ -32,14 +32,14 @@ export const SearchInput = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex items-center gap-4 w-full"
+        className="flex items-center gap-4"
       >
         <FormField
           control={form.control}
           name="searchQuery"
           render={({ field }) => (
             <FormItem>
-              <Input placeholder="Cari" {...field} />
+              <Input className="w-[150px]" placeholder="Cari" {...field} />
               <FormMessage />
             </FormItem>
           )}

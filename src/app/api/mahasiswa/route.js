@@ -16,6 +16,8 @@ export async function GET(req) {
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
   const search = searchParams.get("search") || ""; // Default to empty string
 
+  console.log(search);
+
   // Validate prodi parameter
   if (!prodi) {
     return new Response(
@@ -47,6 +49,10 @@ export async function GET(req) {
       orderBy: { nim: "asc" },
       where: {
         prodiId: prodi,
+        OR: [
+          { nim: { contains: search } },
+          { nama: { contains: search } },
+        ],
       },
       take: limit,
       skip: (currentPage - 1) * limit,
