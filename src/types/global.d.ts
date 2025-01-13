@@ -3,6 +3,10 @@ export {};
 import type * as Prisma from "@prisma/client";
 
 declare global {
+  export interface DataCount {
+    name: string;
+    count: number;
+  }
   export interface TahunAjaran {
     id: number;
     tahun: string;

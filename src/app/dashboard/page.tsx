@@ -26,6 +26,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
   const { accountData } = useAccount();
@@ -34,10 +35,14 @@ const Page = () => {
   const [CPL, setCPL] = useState<CPL[]>([]);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("");
   const [semester, setSemester] = useState<TahunAjaran[]>([]);
+  const [dataCount, setDataCount] = useState<DataCount[]>([]);
+  const router = useRouter();
 
   const getMK = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}&limit=99999`);
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${prodiId}&limit=99999`
+      );
       if (response.data.status !== 400) {
         setMK(response.data.data);
       }
@@ -50,7 +55,9 @@ const Page = () => {
 
   const getCPL = async (prodiId: string) => {
     try {
-      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}&limit=99999`);
+      const response = await axiosConfig.get(
+        `api/cpl?prodi=${prodiId}&limit=99999`
+      );
       if (response.data.status !== 400) {
         setCPL(response.data.data);
       }
@@ -75,8 +82,33 @@ const Page = () => {
     }
   };
 
+  const getDataCount = async (prodiId: string) => {
+    try {
+      const response = await axiosConfig.get(`api/dataCount?prodi=${prodiId}`);
+      if (response.data.status !== 400) {
+        setDataCount(response.data.data);
+      }
+    } catch (error: any) {
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getAdminRoutes = (name: string) => {
+    console.log(name);
+    if (name === "PCPMK") {
+      return `/dashboard/data/penilaianCPMK`;
+    } else {
+      return `/dashboard/data/${name.toLocaleLowerCase()}`;
+    }
+  };
+
   useEffect(() => {
     if (accountData) {
+      if (accountData.role === "Admin") {
+        getDataCount(accountData.prodiId);
+      }
       getMK(accountData.prodiId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -223,77 +255,99 @@ const Page = () => {
       ) : accountData?.role === "Super Admin" ? (
         <h1>Dashboard Super Admin</h1>
       ) : accountData?.role === "Admin" ? (
-        <h1>Dashboard Admin</h1>
-      ) : accountData?.role === "Kaprodi" || accountData?.role === "Dosen" && (
-        <>
-          <div className="flex flex-col items-start">
-            <Select
-              value={filterTahunAjaran}
-              onValueChange={(e) => setFilterTahunAjaran(e)}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Pilih Tahun Ajaran" />
-              </SelectTrigger>
-              <SelectContent>
-                {semester.map((tahun) => (
-                  <SelectItem key={tahun.id} value={String(tahun.id)}>
-                    {tahun.tahun}-{tahun.semester}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Card className="w-[1200px] mx-auto">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <CardTitle>Tabel Rangkuman Evaluasi </CardTitle>
-                <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[8%]">MK </TableHead>
-                    <TableHead className="w-[8%]">Kelas </TableHead>
-                    <TableHead className="w-[8%]">CPMK </TableHead>
-                    <TableHead className="w-[8%]">CPL</TableHead>
-                    <TableHead className="w-[8%]">
-                      Total Nilai Minimal
-                    </TableHead>
-                    <TableHead className="w-[8%]">Nilai Masuk</TableHead>
-                    <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
-                    <TableHead className="w-[16%]">
-                      Persen Mencapai Nilai Minimal
-                    </TableHead>
-                    <TableHead className="w-[8%]">Rata-Rata</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>{renderDataRangkuman()}</TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-          <Card className="w-[1200px]">
-            <CardHeader className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <CardTitle>Rangkuman Performa CPL</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="flex-1">CPL</TableHead>
-                    <TableHead className="flex-1">CPMK</TableHead>
-                    <TableHead className="flex-1">MK</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>{renderRangkumanPerforma()}</TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </>
+        <Card className="w-[1200px] mx-auto shadow-lg">
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div className="flex flex-col">
+              <CardTitle>Tabel Data Prodi</CardTitle>
+              <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="flex items-center justify-center flex-wrap gap-4 w-full">
+            {dataCount.map((item) => (
+              <Card
+                key={item.name}
+                className="flex items-center justify-between p-6 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-64 active:scale-95"
+                onClick={() => router.push(getAdminRoutes(item.name))}
+              >
+                <p className="font-semibold text-xl">{item.name}</p>
+                <p className="font-medium text-lg">{item.count}</p>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
+      ) : (
+        accountData?.role === "Kaprodi" ||
+        (accountData?.role === "Dosen" && (
+          <>
+            <div className="flex flex-col items-start">
+              <Select
+                value={filterTahunAjaran}
+                onValueChange={(e) => setFilterTahunAjaran(e)}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Pilih Tahun Ajaran" />
+                </SelectTrigger>
+                <SelectContent>
+                  {semester.map((tahun) => (
+                    <SelectItem key={tahun.id} value={String(tahun.id)}>
+                      {tahun.tahun}-{tahun.semester}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Card className="w-[1200px] mx-auto">
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div className="flex flex-col">
+                  <CardTitle>Tabel Rangkuman Evaluasi </CardTitle>
+                  <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[8%]">MK </TableHead>
+                      <TableHead className="w-[8%]">Kelas </TableHead>
+                      <TableHead className="w-[8%]">CPMK </TableHead>
+                      <TableHead className="w-[8%]">CPL</TableHead>
+                      <TableHead className="w-[8%]">
+                        Total Nilai Minimal
+                      </TableHead>
+                      <TableHead className="w-[8%]">Nilai Masuk</TableHead>
+                      <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                      <TableHead className="w-[16%]">
+                        Persen Mencapai Nilai Minimal
+                      </TableHead>
+                      <TableHead className="w-[8%]">Rata-Rata</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>{renderDataRangkuman()}</TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+            <Card className="w-[1200px]">
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div className="flex flex-col">
+                  <CardTitle>Rangkuman Performa CPL</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="flex-1">CPL</TableHead>
+                      <TableHead className="flex-1">CPMK</TableHead>
+                      <TableHead className="flex-1">MK</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>{renderRangkumanPerforma()}</TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </>
+        ))
       )}
     </main>
   );
