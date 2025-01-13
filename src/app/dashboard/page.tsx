@@ -39,6 +39,7 @@ const Page = () => {
   const [CPL, setCPL] = useState<CPL[]>([]);
   const [filterTahunAjaran, setFilterTahunAjaran] = useState("");
   const [semester, setSemester] = useState<TahunAjaran[]>([]);
+  const [dataCount, setDataCount] = useState<DataCount[]>([]);
 
   const getMKDiampu = async () => {
     try {
@@ -99,10 +100,39 @@ const Page = () => {
     }
   };
 
+  const getDataCount = async (prodiId: string) => {
+    try {
+      const response = await axiosConfig.get(`api/dataCount?prodi=${prodiId}`);
+      if (response.data.status !== 400) {
+        setDataCount(response.data.data);
+      }
+    } catch (error: any) {
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getAdminRoutes = (name: string) => {
+    console.log(name);
+    if (name === "PCPMK") {
+      return `/dashboard/data/penilaianCPMK`;
+    } else {
+      return `/dashboard/data/${name.toLocaleLowerCase()}`;
+    }
+  };
+
   useEffect(() => {
     if (accountData && accountData.role === "Kaprodi") {
       getMK(accountData.prodiId);
       getCPL(accountData.prodiId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (accountData && accountData.role === "Admin") {
+      getDataCount(accountData.prodiId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -302,7 +332,26 @@ const Page = () => {
       ) : accountData?.role === "Super Admin" ? (
         <h1>Dashboard Super Admin</h1>
       ) : accountData?.role === "Admin" ? (
-        <h1>Dashboard Admin</h1>
+        <Card className='w-[1200px] mx-auto shadow-lg'>
+          <CardHeader className='flex flex-row justify-between items-center'>
+            <div className='flex flex-col'>
+              <CardTitle>Tabel Data Prodi</CardTitle>
+              <CardDescription>{`Program Studi ${accountData.prodiId}`}</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className='flex items-center justify-center flex-wrap gap-4 w-full'>
+            {dataCount.map((item) => (
+              <Card
+                key={item.name}
+                className='flex items-center justify-between p-6 hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer w-64 active:scale-95'
+                onClick={() => router.push(getAdminRoutes(item.name))}
+              >
+                <p className='font-semibold text-xl'>{item.name}</p>
+                <p className='font-medium text-lg'>{item.count}</p>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
       ) : (
         <>
           <div className='flex flex-col items-start'>
