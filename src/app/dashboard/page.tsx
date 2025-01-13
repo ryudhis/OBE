@@ -222,9 +222,9 @@ const Page = () => {
         </div>
       ) : accountData?.role === "Super Admin" ? (
         <h1>Dashboard Super Admin</h1>
-      ) : accountData?.role === "Admin Prodi" ? (
-        <h1>Dashboard Admin Prodi</h1>
-      ) : accountData?.role === "Kaprodi" ? (
+      ) : accountData?.role === "Admin" ? (
+        <h1>Dashboard Admin</h1>
+      ) : accountData?.role === "Kaprodi" || accountData?.role === "Dosen" && (
         <>
           <div className="flex flex-col items-start">
             <Select
@@ -243,6 +243,7 @@ const Page = () => {
               </SelectContent>
             </Select>
           </div>
+          
           <Card className="w-[1200px] mx-auto">
             <CardHeader className="flex flex-row justify-between items-center">
               <div className="flex flex-col">
@@ -293,8 +294,6 @@ const Page = () => {
             </CardContent>
           </Card>
         </>
-      ) : (
-        <h1>Dashboard Dosen</h1>
       )}
     </main>
   );

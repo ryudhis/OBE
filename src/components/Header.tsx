@@ -140,7 +140,7 @@ const Header = () => {
       ? linkListSuperAdmin
       : accountData?.role === "Kaprodi"
       ? linkListKaprodi
-      : accountData?.role === "Admin Prodi"
+      : accountData?.role === "Admin"
       ? linkListAdminProdi
       : linkListDosen;
 
