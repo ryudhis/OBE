@@ -3,7 +3,7 @@ import { validateToken } from "@/utils/auth"; // Import the token validation fun
 
 export async function GET(req) {
   const tokenValidation = validateToken(req);
-  
+
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
@@ -13,6 +13,9 @@ export async function GET(req) {
 
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || "";
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   if (!prodi) {
     return new Response(
@@ -22,9 +25,29 @@ export async function GET(req) {
   }
 
   try {
+    // Calculate total items
+    const totalItems = await prisma.BK.count({
+      where: {
+        prodiId: prodi,
+        kode: {
+          contains: search,
+        },  
+      },
+    });
+
+    // Calculate total pages
+    const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
+    // Fetch paginated data
     const BK = await prisma.BK.findMany({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
       include: {
         CPL: {
@@ -39,6 +62,8 @@ export async function GET(req) {
           },
         },
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return new Response(
@@ -46,14 +71,19 @@ export async function GET(req) {
         status: 200,
         message: "Berhasil ambil semua data!",
         data: BK,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
       { status: 200 }
     );
   } catch (error) {
     console.log(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400 }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500 }
     );
   }
 }

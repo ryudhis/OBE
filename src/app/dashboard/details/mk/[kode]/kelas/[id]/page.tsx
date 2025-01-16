@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/dialog";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
+import { BarChartComponent } from "@/components/BarChart";
+
 interface mahasiswaExcel {
   NIM: string;
   Nama: string;
@@ -203,6 +205,24 @@ export default function Page({ params }: { params: { id: string } }) {
         variant: "destructive",
       });
     }
+  };
+
+  const transformCPMKData = (
+    data: { cpmk: string; persenLulus: number }[]
+  ): { subject: string; percentage: number }[] => {
+    return data.map((item) => ({
+      subject: item.cpmk,
+      percentage: item.persenLulus,
+    }));
+  };
+
+  const transformCPLData = (
+    data: { cpl: string; persenLulus: number }[]
+  ): { subject: string; percentage: number }[] => {
+    return data.map((item) => ({
+      subject: item.cpl,
+      percentage: item.persenLulus,
+    }));
   };
 
   const renderDosenChecklist = () => {
@@ -572,7 +592,7 @@ export default function Page({ params }: { params: { id: string } }) {
                           Jumlah Lulus
                         </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
-                          Persentase Lulus 
+                          Persentase Lulus
                         </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
                           Rata-Rata Nilai
@@ -581,6 +601,11 @@ export default function Page({ params }: { params: { id: string } }) {
                     </TableHeader>
                     <TableBody>{renderDataRangkumanCPMK()}</TableBody>
                   </Table>
+
+                  <BarChartComponent
+                    data={transformCPMKData(kelas.dataCPMK || [])}
+                    tipe={"Capaian Mata Kuliah"}
+                  />
                 </TabsContent>
                 <TabsContent value='rangkumanCPL'>
                   <Table>
@@ -590,7 +615,7 @@ export default function Page({ params }: { params: { id: string } }) {
                           CPL
                         </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
-                          Persentase Lulus 
+                          Persentase Lulus
                         </TableHead>
                         <TableHead className='w-[8%] text-center border-x-2'>
                           Rata-Rata Nilai
@@ -599,6 +624,10 @@ export default function Page({ params }: { params: { id: string } }) {
                     </TableHeader>
                     <TableBody>{renderDataRangkumanCPL()}</TableBody>
                   </Table>
+                  <BarChartComponent
+                    data={transformCPLData(kelas.dataCPL || [])}
+                    tipe='Capaian Pembelajaran Lulusan'
+                  />
                 </TabsContent>
               </Tabs>
             </CardContent>

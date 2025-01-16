@@ -129,7 +129,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const getAllBK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/bk?prodi=${accountData?.prodiId}`
+        `api/bk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {

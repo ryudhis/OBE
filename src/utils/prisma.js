@@ -475,6 +475,26 @@ const updateKelas = async (data) => {
 
         rataCPMK[indexCPMK].nilai += rataNilai / nilaiCPMK.nilai.length;
 
+        // update performa MK_CPMK Mahasiswa
+        await prisma.mahasiswa_MK_CPMK.upsert({
+          where: {
+            mahasiswaNim_MKId_CPMKId: {
+              mahasiswaNim: mahasiswa.nim,
+              MKId: selectedKelas.MKId,
+              CPMKId: nilaiCPMK.penilaianCPMK.CPMK.id,
+            },
+          },
+          create: {
+            mahasiswaNim: mahasiswa.nim,
+            MKId: selectedKelas.MKId,
+            CPMKId: nilaiCPMK.penilaianCPMK.CPMK.id,
+            nilai: parseFloat((rataNilai / nilaiCPMK.nilai.length).toFixed(2)),
+          },
+          update: {
+            nilai: parseFloat((rataNilai / nilaiCPMK.nilai.length).toFixed(2)),
+          },
+        });
+
         // Update total lulus CPMK
         if (
           totalNilaiCPMK >=
@@ -565,6 +585,9 @@ const updateKelas = async (data) => {
       if (totalNilai >= MK.batasLulusMahasiswa) {
         totalLulusKelas += 1;
       }
+
+      // Update performa CPMK Mahasiswa
+      updatePerformaCPMKMahasiswa(mahasiswa.nim, MK);
     }
 
     for (let i = 0; i < dataCPMK.length; i++) {
@@ -603,9 +626,13 @@ const updateKelas = async (data) => {
     const dataCPL = Object.values(cplMap).map((cplEntry) => ({
       cpl: cplEntry.cpl,
       persenLulus:
-        cplEntry.count > 0 ? (cplEntry.persenLulusTotal / cplEntry.count).toFixed(2) : 0,
+        cplEntry.count > 0
+          ? (cplEntry.persenLulusTotal / cplEntry.count).toFixed(2)
+          : 0,
       rataNilai:
-        cplEntry.count > 0 ? (cplEntry.rataNilaiTotal / cplEntry.count).toFixed(2) : 0,
+        cplEntry.count > 0
+          ? (cplEntry.rataNilaiTotal / cplEntry.count).toFixed(2)
+          : 0,
     }));
 
     console.log("dataCPL = ", dataCPL);
@@ -986,6 +1013,172 @@ const updatePerformaCPL = async (updatedMK, tahunAjaranId) => {
     }
   } catch (error) {
     console.error("Error updating PerformaCPL:", error);
+  }
+};
+
+const updatePerformaCPMKMahasiswa = async (nim, MK) => {
+  const { penilaianCPMK } = MK;
+
+  if (!penilaianCPMK || penilaianCPMK.length === 0) {
+    console.log("No penilaianCPMK found for the given MK.");
+    return;
+  }
+
+  // Extract all CPMKIds from penilaianCPMK
+  const CPMKIds = penilaianCPMK.map((penilaian) => penilaian.CPMK.id);
+
+  // Fetch all mahasiswa_MK_CPMK data where mahasiswaNim = nim and CPMKId in CPMKIds
+  const mahasiswaMKCPMKData = await prisma.mahasiswa_MK_CPMK.findMany({
+    where: {
+      mahasiswaNim: nim,
+      CPMKId: { in: CPMKIds },
+    },
+  });
+
+  if (!mahasiswaMKCPMKData || mahasiswaMKCPMKData.length === 0) {
+    console.log("No mahasiswa_MK_CPMK data found for the given conditions.");
+    return;
+  }
+
+  // Group mahasiswa_MK_CPMK data by CPMKId
+  const groupedData = mahasiswaMKCPMKData.reduce((acc, curr) => {
+    if (!acc[curr.CPMKId]) {
+      acc[curr.CPMKId] = [];
+    }
+    acc[curr.CPMKId].push(curr);
+    return acc;
+  }, {});
+
+  // Iterate over each group, calculate the average nilai, and upsert into mahasiswa_CPMK
+  for (const CPMKId in groupedData) {
+    const group = groupedData[CPMKId];
+
+    // Calculate the average nilai
+    const totalNilai = group.reduce((sum, item) => sum + item.nilai, 0);
+    const averageNilai = totalNilai / group.length;
+
+    // Upsert into mahasiswa_CPMK
+    await prisma.mahasiswa_CPMK.upsert({
+      where: {
+        mahasiswaNim_CPMKId: {
+          mahasiswaNim: nim,
+          CPMKId: parseInt(CPMKId), // Ensure CPMKId is an integer
+        },
+      },
+      update: {
+        nilai: parseFloat(averageNilai.toFixed(2)),
+      },
+      create: {
+        mahasiswaNim: nim,
+        CPMKId: parseInt(CPMKId), // Ensure CPMKId is an integer
+        nilai: parseFloat(averageNilai.toFixed(2)),
+      },
+    });
+  }
+
+  console.log("Performa CPMK Mahasiswa updated successfully.");
+  updatePerformaCPLMahasiswa(nim, MK);
+};
+
+const updatePerformaCPLMahasiswa = async (nim, MK) => {
+  try {
+    // Extract the list of unique CPLs from MK.CPMK
+    const listCPL = [...new Set(MK.CPMK.map((cpmk) => cpmk.CPL))];
+
+    // Ensure uniqueness of CPLs (in case there are duplicates in the list)
+    const CPLtoUpdate = listCPL.reduce((uniqueCPLs, currentCPL) => {
+      const isDuplicate = uniqueCPLs.some((cpl) => cpl.id === currentCPL.id);
+      if (!isDuplicate) {
+        uniqueCPLs.push(currentCPL);
+      }
+      return uniqueCPLs;
+    }, []);
+
+    console.log("CPL to update = ", CPLtoUpdate);
+
+    // Get all relevant CPMK IDs from the CPL.CPMK arrays
+    const relevantCPMKIds = CPLtoUpdate.flatMap((cpl) =>
+      cpl.CPMK.map((cpmk) => cpmk.id)
+    );
+
+    // Get all mahasiswa_CPMK records for the given nim and relevant CPMKIds
+    const mahasiswaCPMKData = await prisma.mahasiswa_CPMK.findMany({
+      where: {
+        mahasiswaNim: nim,
+        CPMKId: {
+          in: relevantCPMKIds, // Only fetch mahasiswa_CPMK records for relevant CPMKIds
+        },
+      },
+    });
+
+    if (!mahasiswaCPMKData || mahasiswaCPMKData.length === 0) {
+      console.log("No mahasiswa_CPMK data found for the given mahasiswa.");
+      return;
+    }
+
+    for (const cpl of CPLtoUpdate) {
+      const cplId = cpl.id;
+
+      // Filter mahasiswa_CPMK data that relates to this CPL
+      const relatedMahasiswaCPMK = mahasiswaCPMKData.filter((entry) =>
+        cpl.CPMK.some((cpmk) => cpmk.id === entry.CPMKId)
+      );
+
+      console.log("CPL =", cplId, "relatedMahasiswaCPMK =", relatedMahasiswaCPMK);
+
+      if (relatedMahasiswaCPMK.length === 0) {
+        // If no related mahasiswa_CPMK data, delete the corresponding mahasiswa_CPL entry
+        try {
+          await prisma.mahasiswa_CPL.delete({
+            where: {
+              mahasiswaNim_CPLId: {
+                mahasiswaNim: nim,
+                CPLId: cplId,
+              },
+            },
+          });
+        } catch (error) {
+          console.error("Error deleting mahasiswa_CPL:", error);
+        }
+      } else {
+        // Calculate the average nilai for this CPL
+        const totalNilai = relatedMahasiswaCPMK.reduce(
+          (sum, entry) => sum + entry.nilai,
+          0
+        );
+        const averageNilai =
+          relatedMahasiswaCPMK.length > 0
+            ? totalNilai / relatedMahasiswaCPMK.length
+            : 0;
+
+        console.log("averageNilai = ", averageNilai);
+
+        // Upsert operation for mahasiswa_CPL
+        try {
+          await prisma.performaMahasiswa.upsert({
+            where: {
+              mahasiswaNim_CPLId: {
+                mahasiswaNim: nim,
+                CPLId: cplId,
+              },
+            },
+            update: {
+              nilai: parseFloat(averageNilai.toFixed(2)),
+            },
+            create: {
+              mahasiswaNim: nim,
+              CPLId: cplId,
+              nilai: parseFloat(averageNilai.toFixed(2)),
+            },
+          });
+        } catch (error) {
+          console.error("Error upserting mahasiswa_CPL:", error);
+        }
+      }
+    }
+    console.log("Performa CPL Mahasiswa updated successfully.");
+  } catch (error) {
+    console.error("Error updating PerformaCPLMahasiswa:", error);
   }
 };
 

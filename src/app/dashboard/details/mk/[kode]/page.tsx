@@ -348,7 +348,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     try {
       if (mk) {
         const response = await axiosConfig.get(
-          `api/mk?prodi=${accountData?.prodiId}`
+          `api/mk?prodi=${accountData?.prodiId}&limit=99999`
         );
         if (response.data.status !== 400) {
           const filteredMK = response.data.data.filter((item: MK) => {
@@ -375,7 +375,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const getAllCPMK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/cpmk?prodi=${accountData?.prodiId}`
+        `api/cpmk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {
@@ -391,7 +391,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const getAllBK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/bk?prodi=${accountData?.prodiId}`
+        `api/bk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {
@@ -512,7 +512,7 @@ export default function Page({ params }: { params: { kode: string } }) {
 
   const getTahunAjaran = async () => {
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       if (response.data.status !== 400) {
         setTahunAjaran(response.data.data);
         setSelectedTahun(String(response.data.data[0].id));
@@ -1372,9 +1372,18 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                     <div className='space-y-2'>
                       <FormLabel>Prerequisite Mata Kuliah</FormLabel>
+                      <div className='flex flex-row items-center mb-5'>
+                      <input
+                        type='text'
+                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        value={searchPrerequisite}
+                        placeholder='Cari...'
+                        onChange={(e) => setSearchPrerequisite(e.target.value)}
+                      />
+                    </div>
                       <div className='grid grid-cols-3 gap-3'>
                         {allMK.length > 0 ? (
-                          allMK.map((mk, index) => (
+                          filteredMK.map((mk, index) => (
                             <DataCard<MK>
                               key={index}
                               selected={selectedPrerequisite}

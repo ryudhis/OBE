@@ -116,7 +116,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const getAllMK = async () => {
     try {
       const response = await axiosConfig.get(
-        `api/mk?prodi=${accountData?.prodiId}`
+        `api/mk?prodi=${accountData?.prodiId}&limit=99999`
       );
 
       if (response.data.status !== 400) {

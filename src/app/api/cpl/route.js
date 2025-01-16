@@ -13,15 +13,38 @@ export async function GET(req) {
 
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || "";
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   if (!prodi) {
     return Response.json({ status: 400, message: "Missing prodi parameter" });
   }
 
   try {
+    // Calculate total items
+    const totalItems = await prisma.CPL.count({
+      where: {
+        prodiId: prodi,
+        kode: {
+          contains: search,
+        },
+      },
+    });
+
+    // Calculate total pages
+    const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
+    // Fetch paginated data
     const CPL = await prisma.CPL.findMany({
       where: {
         prodiId: prodi,
+        kode: {
+          contains: search,
+        },
       },
       include: {
         PL: true,
@@ -39,16 +62,23 @@ export async function GET(req) {
         },
         performaCPL: { include: { tahunAjaran: true } },
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return Response.json({
       status: 200,
       message: "Berhasil ambil semua data!",
       data: CPL,
+      meta: {
+        currentPage,
+        totalPages,
+        totalItems,
+      },
     });
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return Response.json({ status: 500, message: "Something went wrong!" });
   }
 }
 

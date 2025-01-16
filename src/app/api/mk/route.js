@@ -11,10 +11,23 @@ export async function GET(req) {
     );
   }
 
+  // Get the default tahun ajaran if no tahun ajaran parameter is provided
+  const defaultTahunAjaran = await prisma.tahunAjaran.findFirst({
+    orderBy: {
+      id: 'desc',
+    },
+  });
+
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || "";
   const dosenId = parseInt(searchParams.get("dosen")) || null;
-  const tahunAjaranId = parseInt(searchParams.get("tahunAjaran")) || null;
+  const tahunAjaranId =
+    parseInt(searchParams.get("tahunAjaran")) || defaultTahunAjaran.id;
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
+
+  console.log(dosenId, tahunAjaranId);
 
   // Validate prodi parameter if necessary
   if (!prodi) {
@@ -41,11 +54,34 @@ export async function GET(req) {
       const MKidArray = [...new Set(kelasArray.map((kelas) => kelas.MKId))];
 
       // Set the where condition based on the found MKidArray
-      whereCondition = { kode: { in: MKidArray } };
+      whereCondition = {
+        kode: { in: MKidArray },
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+          { deskripsiInggris: { contains: search } },
+        ],
+      };
     } else {
       // Set the where condition to filter by prodiId
-      whereCondition = { prodiId: prodi };
+      whereCondition = {
+        prodiId: prodi,
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+          { deskripsiInggris: { contains: search } },
+        ],
+      };
     }
+
+    // Calculate total items
+    const totalItems = await prisma.MK.count({ where: whereCondition });
+
+    // Calculate total pages
+    const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
 
     const MK = await prisma.MK.findMany({
       where: whereCondition,
@@ -57,6 +93,8 @@ export async function GET(req) {
         lulusMK: true,
         lulusMK_CPMK: true,
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return new Response(
@@ -64,14 +102,19 @@ export async function GET(req) {
         status: 200,
         message: "Berhasil ambil semua data!",
         data: MK,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

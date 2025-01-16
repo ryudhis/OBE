@@ -22,6 +22,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
+import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataProdi = () => {
   const router = useRouter();
@@ -29,13 +31,23 @@ const DataProdi = () => {
   const [prodi, setProdi] = useState<Prodi[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 0,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getProdi = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/prodi?`);
+      const response = await axiosConfig.get(`api/prodi?page=${currentPage}`);
       if (response.data.status !== 400) {
         setProdi(response.data.data);
+        setMeta({
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages,
+        });
       } else {
         alert(response.data.message);
       }
@@ -79,9 +91,13 @@ const DataProdi = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getProdi();
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role !== "Super Admin") {
     toast({
@@ -96,25 +112,24 @@ const DataProdi = () => {
     if (prodi.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={11} className='text-center font-semibold'>
+          <TableCell colSpan={11} className="text-center font-semibold">
             Belum ada Data
           </TableCell>
         </TableRow>
       );
     }
 
-
     return prodi.map((prodi, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[10%]'>{prodi.kode}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[10%]">{prodi.kode}</TableCell>
+          <TableCell className="flex-1">
             {prodi.nama.length > 20
               ? prodi.nama.slice(0, 18) + "..."
               : prodi.nama}
           </TableCell>
-          <TableCell className='w-[10%]'>
-            <Button variant='destructive' onClick={() => delProdi(prodi.kode)}>
+          <TableCell className="w-[10%]">
+            <Button variant="destructive" onClick={() => delProdi(prodi.kode)}>
               Hapus
             </Button>
           </TableCell>
@@ -124,29 +139,32 @@ const DataProdi = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20 mb-10">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel Prodi</CardTitle>
             <CardDescription>Program Studi</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/prodi");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex items-center gap-5">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/prodi");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[10%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Nama</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[10%]">Kode</TableHead>
+                  <TableHead className="flex-1">Nama</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -157,14 +175,19 @@ const DataProdi = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[10%]'>Kode</TableHead>
-                  <TableHead className='flex-1'>Nama</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[10%]">Kode</TableHead>
+                  <TableHead className="flex-1">Nama</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
             </Table>
           )}
+          <Pagination
+            meta={meta}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </CardContent>
       </Card>
     </section>

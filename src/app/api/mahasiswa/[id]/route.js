@@ -18,6 +18,17 @@ export async function GET(req, { params }) {
       where: {
         nim,
       },
+      include: {
+        kelas: {
+          include: { MK: true },
+        },
+        prodi: true,
+        performaMahasiswa: {
+          include: {
+            CPL: true,
+          },
+        },
+      },
     });
 
     if (!mahasiswa) {

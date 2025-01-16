@@ -50,6 +50,6 @@ export async function POST(req) {
     }
   } catch (error) {
     console.log(error);
-    return Response.json({ status: 400, message: "Something went wrong!" });
+    return Response.json({ status: 500, message: "Something went wrong!" });
   }
 }

@@ -485,10 +485,10 @@ export default function ProdiPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className='w-[8%]'>No</TableHead>
-                    <TableHead className='w-[8%]'>Nama</TableHead>
-                    <TableHead className='w-[8%]'>Ketua KK</TableHead>
-                    <TableHead className='w-[8%]'>Aksi</TableHead>
+                    <TableHead>No</TableHead>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Ketua KK</TableHead>
+                    <TableHead>Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -503,16 +503,16 @@ export default function ProdiPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className='w-[8%]'>No</TableHead>
-                    <TableHead className='w-[8%]'>Nama</TableHead>
-                    <TableHead className='w-[8%]'>Ketua KK</TableHead>
-                    <TableHead className='w-[8%]'>Aksi</TableHead>
+                    <TableHead>No</TableHead>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Ketua KK</TableHead>
+                    <TableHead>Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {prodi.KK.map((item, index) => (
                     <TableRow key={item.id}>
-                      <TableCell>{index + 1}</TableCell>
+                      <TableCell className="text-center">{index + 1}</TableCell>
                       <TableCell>{item.nama}</TableCell>
                       <TableCell>
                         {item.ketua ? item.ketua.nama : "-"}

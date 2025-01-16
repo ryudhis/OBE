@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import {
   Table,
@@ -22,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import Swal from "sweetalert2";
+import Pagination from "@/components/Pagination";
+import { SearchInput } from "@/components/Search";
 
 const DataTahun = () => {
   const router = useRouter();
@@ -29,13 +32,25 @@ const DataTahun = () => {
   const [tahun, setTahun] = useState<TahunAjaran[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({
+    totalItems: 0,
+    totalPages: 0,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const getTahun = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/tahun-ajaran`);
+      const response = await axiosConfig.get(
+        `api/tahun-ajaran?page=${currentPage}`
+      );
       if (response.data.status !== 400) {
         setTahun(response.data.data);
+        setMeta({
+          totalItems: response.data.meta.totalItems,
+          totalPages: response.data.meta.totalPages,
+        });
       } else {
         alert(response.data.message);
       }
@@ -79,9 +94,13 @@ const DataTahun = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+  };
+
   useEffect(() => {
     getTahun();
-  }, [refresh]); // Trigger useEffect only on initial mount
+  }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role !== "Super Admin") {
     toast({
@@ -96,7 +115,7 @@ const DataTahun = () => {
     if (tahun.length === 0) {
       return (
         <TableRow>
-          <TableCell colSpan={11} className='text-center font-semibold'>
+          <TableCell colSpan={11} className="text-center font-semibold">
             Belum ada Data
           </TableCell>
         </TableRow>
@@ -106,11 +125,11 @@ const DataTahun = () => {
     return tahun.map((tahun, index) => {
       return (
         <TableRow key={index}>
-          <TableCell className='w-[10%]'>{index + 1}</TableCell>
-          <TableCell className='w-[10%]'>{tahun.tahun}</TableCell>
-          <TableCell className='flex-1'>{tahun.semester}</TableCell>
-          <TableCell className='w-[10%]'>
-            <Button variant='destructive' onClick={() => delTahun(tahun.id)}>
+          <TableCell className="w-[10%]">{index + 1}</TableCell>
+          <TableCell className="w-[10%]">{tahun.tahun}</TableCell>
+          <TableCell className="flex-1">{tahun.semester}</TableCell>
+          <TableCell className="w-[10%]">
+            <Button variant="destructive" onClick={() => delTahun(tahun.id)}>
               Hapus
             </Button>
           </TableCell>
@@ -120,30 +139,33 @@ const DataTahun = () => {
   };
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between items-center'>
-          <div className='flex flex-col'>
+    <section className="flex justify-center items-center mt-20 mb-10">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
             <CardTitle>Tabel Tahun Ajaran</CardTitle>
             <CardDescription>Semester Ganjil/Genap</CardDescription>
           </div>
-          <Button
-            onClick={() => {
-              router.push("/dashboard/input/tahunAjaran");
-            }}
-          >
-            Tambah
-          </Button>
+          <div className="flex gap-5 items-center">
+            <SearchInput onSearch={handleSearch} />
+            <Button
+              onClick={() => {
+                router.push("/dashboard/input/tahunAjaran");
+              }}
+            >
+              Tambah
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[10%]'>No</TableHead>
-                  <TableHead className='w-[10%]'>Tahun</TableHead>
-                  <TableHead className='flex-1'>Semester</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[10%]">No</TableHead>
+                  <TableHead className="w-[10%]">Tahun</TableHead>
+                  <TableHead className="flex-1">Semester</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -154,15 +176,20 @@ const DataTahun = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className='w-[10%]'>No</TableHead>
-                  <TableHead className='w-[10%]'>Tahun</TableHead>
-                  <TableHead className='flex-1'>Semester</TableHead>
-                  <TableHead className='w-[10%]'>Aksi</TableHead>
+                  <TableHead className="w-[10%]">No</TableHead>
+                  <TableHead className="w-[10%]">Tahun</TableHead>
+                  <TableHead className="flex-1">Semester</TableHead>
+                  <TableHead className="w-[10%]">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>{renderData()}</TableBody>
             </Table>
           )}
+          <Pagination
+            meta={meta}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </CardContent>
       </Card>
     </section>

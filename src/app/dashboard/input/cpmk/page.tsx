@@ -60,7 +60,7 @@ const CPMKScreen = () => {
 
   const getCPL = async (prodiId: string = "") => {
     try {
-      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}`);
+      const response = await axiosConfig.get(`api/cpl?prodi=${prodiId}&limit=99999`);
       if (response.data.status !== 400) {
         setCPL(response.data.data);
       } else {

@@ -1,6 +1,12 @@
 export {};
 
+import type * as Prisma from "@prisma/client";
+
 declare global {
+  export interface DataCount {
+    name: string;
+    count: number;
+  }
   export interface TahunAjaran {
     id: number;
     tahun: string;
@@ -11,6 +17,10 @@ declare global {
     lulusMK_CPMK: LulusMK_CPMK[];
     lulusKelas_CPMK: LulusKelas_CPMK[];
     performaCPL: PerformaCPL[];
+  }
+
+  export interface performaMahasiswa extends Prisma.performaMahasiswa {
+    CPL: CPL;
   }
 
   export interface Prodi {
@@ -193,8 +203,8 @@ declare global {
     persenLulus: number;
     rataNilai: number;
   }
-  
-  export interface dataCPL {  
+
+  export interface dataCPL {
     cpl: string;
     nilaiMinimal: number;
     nilaiMasuk: number;
@@ -202,8 +212,8 @@ declare global {
     persenLulus: number;
     rataNilai: number;
   }
-  
-  export interface mahasiswaLulus{
+
+  export interface mahasiswaLulus {
     nim: string;
     totalNilai: number;
     statusLulus: string;
@@ -290,6 +300,7 @@ declare global {
     inputNilai: InputNilai[];
     prodi: Prodi;
     prodiId: string;
+    performaMahasiswa: performaMahasiswa[];
   }
 
   export interface InputNilai {

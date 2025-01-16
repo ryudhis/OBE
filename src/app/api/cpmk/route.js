@@ -7,25 +7,50 @@ export async function GET(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
+  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
+  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
+  const search = searchParams.get("search") || ""; // Default to empty string
 
   // Validate prodi parameter if necessary
   if (!prodi) {
     return new Response(
       JSON.stringify({ status: 400, message: "Missing prodi parameter" }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
+    // Calculate total items
+    const totalItems = await prisma.CPMK.count({
+      where: {
+        prodiId: prodi,
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+        ],
+      },
+    });
+
+    // Calculate total pages
+    const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
+
+    // Ensure the page number is within the valid range
+    const currentPage = Math.min(Math.max(page, 1), totalPages);
+
+    // Fetch paginated data
     const CPMK = await prisma.CPMK.findMany({
       where: {
         prodiId: prodi,
+        OR: [
+          { kode: { contains: search } },
+          { deskripsi: { contains: search } },
+        ],
       },
       include: {
         CPL: {
@@ -42,6 +67,8 @@ export async function GET(req) {
         penilaianCPMK: true,
         lulusCPMK: { include: { tahunAjaran: true } },
       },
+      take: limit,
+      skip: (currentPage - 1) * limit,
     });
 
     return new Response(
@@ -49,14 +76,19 @@ export async function GET(req) {
         status: 200,
         message: "Berhasil ambil semua data!",
         data: CPMK,
+        meta: {
+          currentPage,
+          totalPages,
+          totalItems,
+        },
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("GET CPMK Error: ", error); // More informative error logging
     return new Response(
       JSON.stringify({ status: 500, message: "Something went wrong!" }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
@@ -67,7 +99,7 @@ export async function POST(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -101,13 +133,13 @@ export async function POST(req) {
         message: "Berhasil buat data!",
         data: CPMK,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("POST CPMK Error: ", error); // More informative error logging
     return new Response(
       JSON.stringify({ status: 500, message: "Something went wrong!" }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
