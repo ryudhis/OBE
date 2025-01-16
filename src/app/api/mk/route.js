@@ -27,8 +27,6 @@ export async function GET(req) {
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
   const search = searchParams.get("search") || ""; // Default to empty string
 
-  console.log(dosenId, tahunAjaranId);
-
   // Validate prodi parameter if necessary
   if (!prodi) {
     return new Response(

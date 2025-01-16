@@ -1,3 +1,4 @@
+import prisma from "@/utils/prisma";
 import { validateToken } from "@/utils/auth";
 
 export async function GET(req) {
