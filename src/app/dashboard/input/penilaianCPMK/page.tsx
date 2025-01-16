@@ -79,15 +79,23 @@ const InputPenilaianCPMK = () => {
 
   const fetchData = async () => {
     try {
-      getMK(accountData?.prodiId);
+      if (accountData?.role === "Dosen") {
+        getMK(accountData.prodiId, accountData.id);
+      } else {
+        getMK(accountData?.prodiId);
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getMK = async (prodiId: string = "") => {
+  const getMK = async (prodiId: string = "", dosenId: number = 0) => {
     try {
-      const response = await axiosConfig.get(`api/mk?prodi=${prodiId}&limit=99999`);
+      const response = await axiosConfig.get(
+        `api/mk?prodi=${prodiId}${
+          dosenId ? `&dosen=${dosenId}` : ""
+        }&limit=99999`
+      );
       if (response.data.status !== 400) {
         setMK(response.data.data);
       } else {
@@ -151,7 +159,8 @@ const InputPenilaianCPMK = () => {
       if (totalBobot < 50) {
         toast({
           title: "Gagal Submit",
-          description: "Total bobot Project Based Learning harus lebih dari 50%",
+          description:
+            "Total bobot Project Based Learning harus lebih dari 50%",
           variant: "destructive",
         });
         return null;

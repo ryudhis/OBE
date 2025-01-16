@@ -11,13 +11,23 @@ export async function GET(req) {
     );
   }
 
+  // Get the default tahun ajaran if no tahun ajaran parameter is provided
+  const defaultTahunAjaran = await prisma.tahunAjaran.findFirst({
+    orderBy: {
+      id: 'desc',
+    },
+  });
+
   const { searchParams } = new URL(req.url);
   const prodi = searchParams.get("prodi") || "";
   const dosenId = parseInt(searchParams.get("dosen")) || null;
-  const tahunAjaranId = parseInt(searchParams.get("tahunAjaran")) || null;
+  const tahunAjaranId =
+    parseInt(searchParams.get("tahunAjaran")) || defaultTahunAjaran.id;
   const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
   const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
   const search = searchParams.get("search") || ""; // Default to empty string
+
+  console.log(dosenId, tahunAjaranId);
 
   // Validate prodi parameter if necessary
   if (!prodi) {
