@@ -53,6 +53,7 @@ export async function GET(req) {
       include: {
         CPMK: true,
         CPL: true,
+        MK: true,
       },
       take: limit,
       skip: (currentPage - 1) * limit,
