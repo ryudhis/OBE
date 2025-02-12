@@ -92,6 +92,7 @@ model CPL {
   prodiId           String
   performaCPL       performaCPL[]
   performaMahasiswa performaMahasiswa[]
+  evaluasiCPLKelas  evaluasiCPLKelas[]
 
   @@unique([kode, prodiId])
   @@index([prodiId])
@@ -213,24 +214,54 @@ model rencanaPembelajaran {
 }
 
 model kelas {
-  id             Int               @id @unique @default(sequence())
-  nama           String
-  MK             MK                @relation(fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId           String
-  tahunAjaran    tahunAjaran       @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
-  tahunAjaranId  Int
-  mahasiswa      mahasiswa[]       @relation("kelas_mahasiswa")
-  nilaiMahasiswa inputNilai[]
-  dosen          account[]         @relation("kelas_dosen")
-  jumlahLulus    Int
-  mahasiswaLulus Json?
-  dataCPMK       Json?
-  dataCPL        Json?
-  lulusCPMK      lulusKelas_CPMK[]
+  id               Int                 @id @unique @default(sequence())
+  nama             String
+  MK               MK                  @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId             String
+  tahunAjaran      tahunAjaran         @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId    Int
+  mahasiswa        mahasiswa[]         @relation("kelas_mahasiswa")
+  nilaiMahasiswa   inputNilai[]
+  dosen            account[]           @relation("kelas_dosen")
+  jumlahLulus      Int
+  mahasiswaLulus   Json?
+  dataCPMK         Json?
+  dataCPL          Json?
+  lulusCPMK        lulusKelas_CPMK[]
+  evaluasiCPMK     evaluasiCPMKKelas[]
+  tindakLanjutCPMK String?
+  evaluasiCPL      evaluasiCPLKelas[]
+  tindakLanjutCPL  String?
 
   @@unique([nama, MKId, tahunAjaranId])
   @@index([MKId])
   @@index([tahunAjaranId])
+}
+
+model evaluasiCPMKKelas {
+  id       Int    @id @unique @default(sequence())
+  kelas    kelas  @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  kelasId  Int
+  CPMK     CPMK   @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
+  CPMKId   Int
+  evaluasi String
+
+  @@unique([kelasId, CPMKId])
+  @@index([kelasId])
+  @@index([CPMKId])
+}
+
+model evaluasiCPLKelas {
+  id       Int    @id @unique @default(sequence())
+  kelas    kelas  @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  kelasId  Int
+  CPL      CPL    @relation(fields: [CPLId], references: [id], onDelete: Cascade)
+  CPLId    Int
+  evaluasi String
+
+  @@unique([kelasId, CPLId])
+  @@index([kelasId])
+  @@index([CPLId])
 }
 
 model lulusKelas_CPMK {
@@ -264,6 +295,7 @@ model CPMK {
   lulusMK_CPMK      lulusMK_CPMK[]
   mahasiswa_MK_CPMK mahasiswa_MK_CPMK[]
   mahasiswa_CPMK    mahasiswa_CPMK[]
+  evaluasiCPMKKelas evaluasiCPMKKelas[]
 
   @@unique([kode, prodiId])
   @@index([prodiId])

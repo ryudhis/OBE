@@ -360,8 +360,6 @@ export default function Page({ params }: { params: { kode: string } }) {
             );
           });
 
-          console.log(filteredMK);
-
           setAllMK(filteredMK);
         } else {
           alert(response.data.message);
@@ -609,6 +607,53 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
+  const onDeleteAllRencana = async () => {
+    const result = await Swal.fire({
+      title: "Tunggu !..",
+      text: `Kamu yakin ingin hapus semua rencana pembelajaran?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Tidak",
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#0F172A",
+    });
+
+    if (result.isConfirmed) {
+      const data = {
+        MKId: kode,
+      };
+
+      axiosConfig
+        .delete("api/rencanaPembelajaran", { data })
+        .then(function (response) {
+          if (response.status === 200) {
+            toast({
+              title: "Berhasil hapus data",
+              description: String(new Date()),
+            });
+          } else {
+            toast({
+              title: "Tidak ada data!",
+              description: String(new Date()),
+              variant: "destructive",
+            });
+          }
+        })
+        .catch(function (error) {
+          toast({
+            title: "Gagal Submit",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+          console.log(error);
+        })
+        .finally(() => {
+          setRefresh(!refresh);
+        });
+    }
+  };
+
   const delKelas = async (id: number) => {
     const result = await Swal.fire({
       title: "Tunggu !..",
@@ -824,7 +869,6 @@ export default function Page({ params }: { params: { kode: string } }) {
           }
         });
       });
-      console.log(allDosen);
       setTeamTeaching(allDosen);
     }
   };
@@ -1749,7 +1793,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                   <Button
                     variant='destructive'
                     onClick={() => {
-                      onDeleteAllKelas();
+                      onDeleteAllRencana();
                     }}
                   >
                     Hapus Semua Data

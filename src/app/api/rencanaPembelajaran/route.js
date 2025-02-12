@@ -12,7 +12,7 @@ export async function GET(req) {
   }
 
   const { searchParams } = new URL(req.url);
-  const mk = searchParams.get("mk") || ""; 
+  const mk = searchParams.get("mk") || "";
 
   // Validate mk parameter if necessary
   if (!mk) {
@@ -101,21 +101,13 @@ export async function DELETE(req) {
     );
   }
 
-  const { searchParams } = new URL(req.url);
-  const mk = searchParams.get("mk") || ""; // Access mk query parameter
-
-  // Validate mk parameter if necessary
-  if (!mk) {
-    return new Response(
-      JSON.stringify({ status: 400, message: "Missing mk parameter" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
-  }
+  const data = await req.json();
+  const { MKId } = data;
 
   try {
     const rencanaPembelajaran = await prisma.rencanaPembelajaran.deleteMany({
       where: {
-        MKId: mk,
+        MKId,
       },
     });
 

@@ -32,7 +32,7 @@ interface ComponentProps {
 
 export function BarChartComponent({ data, tipe }: ComponentProps) {
   return (
-    <div className='w-[600px] mt-10 '>
+    <div className='w-[600px]'>
       <Card>
         <CardHeader>
           <CardTitle>Grafik Persentase Lulus</CardTitle>

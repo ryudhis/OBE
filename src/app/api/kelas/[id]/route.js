@@ -36,6 +36,8 @@ export async function GET(req, { params }) {
             },
           },
         },
+        evaluasiCPMK: true,
+        evaluasiCPL: true,
         dosen: true,
         tahunAjaran: true,
       },

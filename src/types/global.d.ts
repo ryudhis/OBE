@@ -191,10 +191,33 @@ declare global {
     mahasiswaLulus?: mahasiswaLulus[];
     dataCPMK?: dataCPMK[];
     dataCPL?: dataCPL[];
+    evaluasiCPMK: evaluasiCPMK[];
+    evaluasiCPL: evaluasiCPL[];
+    tindakLanjutCPMK?: string;
+    tindakLanjutCPL?: string;
     lulusCPMK: LulusKelas_CPMK[];
   }
 
+  export interface evaluasiCPMK {
+    id: number;
+    kelas: Kelas;
+    kelasId: number;
+    CPMK: CPMK;
+    CPMKId: number;
+    evaluasi: string;
+  }
+
+  export interface evaluasiCPL {
+    id: number;
+    kelas: Kelas;
+    kelasId: number;
+    CPL: CPL;
+    CPLId: number;
+    evaluasi: string;
+  }
+
   export interface dataCPMK {
+    cpmkId: number;
     cpmk: string;
     cpl: string;
     nilaiMinimal: number;
@@ -205,6 +228,7 @@ declare global {
   }
 
   export interface dataCPL {
+    cplId: number;
     cpl: string;
     nilaiMinimal: number;
     nilaiMasuk: number;

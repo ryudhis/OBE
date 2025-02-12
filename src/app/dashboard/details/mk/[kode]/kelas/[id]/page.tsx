@@ -26,10 +26,14 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { BarChartComponent } from "@/components/BarChart";
@@ -52,6 +56,163 @@ export default function Page({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const { accountData, fetchData } = useAccount();
+  const [selectedCPMK, setSelectedCPMK] = useState<number>(0);
+  const [selectedCPL, setSelectedCPL] = useState<number>(0);
+  const [evaluasi, setEvaluasi] = useState<string>("");
+
+  const handleSelectCPMK = (cpmkId: number) => {
+    setSelectedCPMK(cpmkId);
+    setEvaluasi("");
+  };
+
+  const handleSelectCPL = (cplId: number) => {
+    setSelectedCPL(cplId);
+    setEvaluasi("");
+  };
+
+  const handleEvaluasiCPMK = async () => {
+    const data = {
+      CPMKId: selectedCPMK,
+      evaluasi: evaluasi,
+    };
+
+    axiosConfig
+      .post(`api/kelas/${id}/evaluasiCPMK`, data)
+      .then(function (response) {
+        if (response.data.status === 200) {
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Gagal Submit!",
+            description: response.data.message,
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+        setSelectedCPMK(0);
+        setEvaluasi("");
+      });
+  };
+
+  const handleEvaluasiCPL = async () => {
+    const data = {
+      CPLId: selectedCPL,
+      evaluasi: evaluasi,
+    };
+
+    axiosConfig
+      .post(`api/kelas/${id}/evaluasiCPL`, data)
+      .then(function (response) {
+        if (response.data.status === 200) {
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Gagal Submit!",
+            description: response.data.message,
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+        setSelectedCPL(0);
+        setEvaluasi("");
+      });
+  };
+
+  const handleTindakLanjutCPMK = async () => {
+    const data = {
+      tindakLanjutCPMK: evaluasi,
+    };
+
+    axiosConfig
+      .patch(`api/kelas/${id}`, data)
+      .then(function (response) {
+        if (response.data.status === 200) {
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Gagal Submit!",
+            description: response.data.message,
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+        setEvaluasi("");
+      });
+  };
+
+  const handleTindakLanjutCPL = async () => {
+    const data = {
+      tindakLanjutCPL: evaluasi,
+    };
+
+    axiosConfig
+      .patch(`api/kelas/${id}`, data)
+      .then(function (response) {
+        if (response.data.status === 200) {
+          toast({
+            title: "Berhasil Submit",
+            description: String(new Date()),
+          });
+        } else {
+          toast({
+            title: "Gagal Submit!",
+            description: response.data.message,
+            variant: "destructive",
+          });
+        }
+      })
+      .catch(function (error) {
+        toast({
+          title: "Gagal Submit",
+          description: String(new Date()),
+          variant: "destructive",
+        });
+        console.log(error);
+      })
+      .finally(() => {
+        setRefresh(!refresh);
+        setEvaluasi("");
+      });
+  };
 
   const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -311,6 +472,42 @@ export default function Page({ params }: { params: { id: string } }) {
     ));
   };
 
+  const renderEvaluasiCPMK = () => {
+    return kelas?.dataCPMK?.map((data) => {
+      // Find the corresponding evaluasiCPMK object where CPMKId matches
+      const evaluasiCPMKItem = kelas?.evaluasiCPMK?.find(
+        (evaluasi) => evaluasi.CPMKId === data.cpmkId
+      );
+
+      return (
+        <TableRow key={data.cpmk}>
+          <TableCell className='w-[15%]'>{data.cpmk}</TableCell>
+          <TableCell className='flex-1'>
+            {evaluasiCPMKItem ? evaluasiCPMKItem.evaluasi : "-"}
+          </TableCell>
+        </TableRow>
+      );
+    });
+  };
+
+  const renderEvaluasiCPL = () => {
+    return kelas?.dataCPL?.map((data) => {
+      // Find the corresponding evaluasiCPL object where CPLId matches
+      const evaluasiCPLItem = kelas?.evaluasiCPL?.find(
+        (evaluasi) => evaluasi.CPLId === data.cplId
+      );
+
+      return (
+        <TableRow key={data.cpl}>
+          <TableCell className='w-[15%]'>{data.cpl}</TableCell>
+          <TableCell className='flex-1'>
+            {evaluasiCPLItem ? evaluasiCPLItem.evaluasi : "-"}
+          </TableCell>
+        </TableRow>
+      );
+    });
+  };
+
   const renderDataRangkumanCPMK = () => {
     return kelas?.dataCPMK?.map((data) => {
       return (
@@ -330,6 +527,38 @@ export default function Page({ params }: { params: { id: string } }) {
             {data.persenLulus}%
           </TableCell>
           <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
+          <TableCell className='w-[8%] text-center'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={() => handleSelectCPMK(data.cpmkId)}
+                  variant='outline'
+                >
+                  Evaluasi
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Evaluasi</DialogTitle>
+                  <DialogDescription>{data.cpmk}</DialogDescription>
+                </DialogHeader>
+                <Textarea
+                  value={evaluasi}
+                  onChange={(e) => setEvaluasi(e.target.value)}
+                />
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button
+                      className='bg-blue-500 hover:bg-blue-600'
+                      onClick={handleEvaluasiCPMK}
+                    >
+                      Submit
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </TableCell>
         </TableRow>
       );
     });
@@ -344,6 +573,38 @@ export default function Page({ params }: { params: { id: string } }) {
             {data.persenLulus}%
           </TableCell>
           <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
+          <TableCell className='w-[8%] text-center'>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={() => handleSelectCPL(data.cplId)}
+                  variant='outline'
+                >
+                  Evaluasi
+                </Button>
+              </DialogTrigger>
+              <DialogContent className='sm:max-w-[425px]'>
+                <DialogHeader>
+                  <DialogTitle>Evaluasi</DialogTitle>
+                  <DialogDescription>{data.cpl}</DialogDescription>
+                </DialogHeader>
+                <Textarea
+                  value={evaluasi}
+                  onChange={(e) => setEvaluasi(e.target.value)}
+                />
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button
+                      className='bg-blue-500 hover:bg-blue-600'
+                      onClick={handleEvaluasiCPL}
+                    >
+                      Submit
+                    </Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </TableCell>
         </TableRow>
       );
     });
@@ -572,6 +833,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     </Table>
                   )}
                 </TabsContent>
+
                 <TabsContent value='rangkumanCPMK'>
                   <Table>
                     <TableHeader>
@@ -597,16 +859,77 @@ export default function Page({ params }: { params: { id: string } }) {
                         <TableHead className='w-[8%] text-center border-x-2'>
                           Rata-Rata Nilai
                         </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Aksi
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderDataRangkumanCPMK()}</TableBody>
                   </Table>
 
-                  <BarChartComponent
-                    data={transformCPMKData(kelas.dataCPMK || [])}
-                    tipe={"Capaian Mata Kuliah"}
-                  />
+                  <Table className='my-10'>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[15%]'>CPMK</TableHead>
+                        <TableHead className='flex-1'>Hasil Evaluasi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>{renderEvaluasiCPMK()}</TableBody>
+                  </Table>
+
+                  <div className='flex justify-between'>
+                    <BarChartComponent
+                      data={transformCPMKData(kelas.dataCPMK || [])}
+                      tipe={"Capaian Mata Kuliah"}
+                    />
+
+                    <Card className='w-[45%] '>
+                      <CardHeader>
+                        <div className='flex justify-between'>
+                          <div>
+                            <CardTitle>Tindak Lanjut</CardTitle>
+                            <CardDescription>Evaluasi CPMK</CardDescription>
+                          </div>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant='outline'>Tambah</Button>
+                            </DialogTrigger>
+                            <DialogContent className='sm:max-w-[425px]'>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Tindak Lanjut Evaluasi
+                                </DialogTitle>
+                              </DialogHeader>
+                              <Textarea
+                                value={evaluasi}
+                                onChange={(e) => setEvaluasi(e.target.value)}
+                              />
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button
+                                    className='bg-blue-500 hover:bg-blue-600'
+                                    onClick={handleTindakLanjutCPMK}
+                                  >
+                                    Submit
+                                  </Button>
+                                </DialogClose>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="break-words">
+                          {kelas?.tindakLanjutCPMK != null
+                            ? kelas?.tindakLanjutCPMK
+                            : " Belum Ada Tindak Lanjut "}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
+
                 <TabsContent value='rangkumanCPL'>
                   <Table>
                     <TableHeader>
@@ -620,14 +943,75 @@ export default function Page({ params }: { params: { id: string } }) {
                         <TableHead className='w-[8%] text-center border-x-2'>
                           Rata-Rata Nilai
                         </TableHead>
+                        <TableHead className='w-[8%] text-center border-x-2'>
+                          Aksi
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderDataRangkumanCPL()}</TableBody>
                   </Table>
-                  <BarChartComponent
-                    data={transformCPLData(kelas.dataCPL || [])}
-                    tipe='Capaian Pembelajaran Lulusan'
-                  />
+
+                  <Table className='my-10'>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[15%]'>CPL</TableHead>
+                        <TableHead className='flex-1'>Hasil Evaluasi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>{renderEvaluasiCPL()}</TableBody>
+                  </Table>
+
+                  <div className='flex justify-between'>
+                    <BarChartComponent
+                      data={transformCPLData(kelas.dataCPL || [])}
+                      tipe='Capaian Pembelajaran Lulusan'
+                    />
+
+                    <Card className='w-[45%] '>
+                      <CardHeader>
+                        <div className='flex justify-between'>
+                          <div>
+                            <CardTitle>Tindak Lanjut</CardTitle>
+                            <CardDescription>Evaluasi CPL</CardDescription>
+                          </div>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant='outline'>Tambah</Button>
+                            </DialogTrigger>
+                            <DialogContent className='sm:max-w-[425px]'>
+                              <DialogHeader>
+                                <DialogTitle>
+                                  Tindak Lanjut Evaluasi
+                                </DialogTitle>
+                              </DialogHeader>
+                              <Textarea
+                                value={evaluasi}
+                                onChange={(e) => setEvaluasi(e.target.value)}
+                              />
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button
+                                    className='bg-blue-500 hover:bg-blue-600'
+                                    onClick={handleTindakLanjutCPL}
+                                  >
+                                    Submit
+                                  </Button>
+                                </DialogClose>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </CardHeader>
+                      <CardContent className=''>
+                        <p>
+                          {kelas?.tindakLanjutCPL != null
+                            ? kelas?.tindakLanjutCPL
+                            : " Belum Ada Tindak Lanjut "}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
               </Tabs>
             </CardContent>

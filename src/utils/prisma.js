@@ -404,7 +404,9 @@ const updateKelas = async (data) => {
 
     for (const pcpmk of MK.penilaianCPMK) {
       dataCPMK.push({
+        cpmkId: pcpmk.CPMK.id,
         cpmk: pcpmk.CPMK.kode,
+        cplId: pcpmk.CPL.id,
         cpl: pcpmk.CPL.kode,
         nilaiMinimal: pcpmk.batasNilai,
         nilaiMasuk: 0,
@@ -610,6 +612,7 @@ const updateKelas = async (data) => {
       if (!cplMap[item.cpl]) {
         cplMap[item.cpl] = {
           cpl: item.cpl,
+          cplId: item.cplId,
           persenLulusTotal: 0,
           rataNilaiTotal: 0,
           count: 0,
@@ -625,6 +628,7 @@ const updateKelas = async (data) => {
     // Calculate the average for `persenLulus` and `rataNilai` for each unique `cpl`
     const dataCPL = Object.values(cplMap).map((cplEntry) => ({
       cpl: cplEntry.cpl,
+      cplId: cplEntry.cplId,
       persenLulus:
         cplEntry.count > 0
           ? (cplEntry.persenLulusTotal / cplEntry.count).toFixed(2)
@@ -1124,7 +1128,12 @@ const updatePerformaCPLMahasiswa = async (nim, MK) => {
         cpl.CPMK.some((cpmk) => cpmk.id === entry.CPMKId)
       );
 
-      console.log("CPL =", cplId, "relatedMahasiswaCPMK =", relatedMahasiswaCPMK);
+      console.log(
+        "CPL =",
+        cplId,
+        "relatedMahasiswaCPMK =",
+        relatedMahasiswaCPMK
+      );
 
       if (relatedMahasiswaCPMK.length === 0) {
         // If no related mahasiswa_CPMK data, delete the corresponding mahasiswa_CPL entry
