@@ -8,6 +8,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -47,21 +52,11 @@ const DataPenilaianCPMK = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
 
-  let totalBobot = 0;
-
-  if (filterMK !== "default") {
-    penilaianCPMK.map((pcpmk) => {
-      pcpmk.kriteria.map((kriteria) => {
-        totalBobot += kriteria.bobot;
-      });
-    });
-  }
-
   const getPenilaianCPMK = async () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}&search=${searchQuery}`
+        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}`
       );
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);
@@ -137,7 +132,24 @@ const DataPenilaianCPMK = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, currentPage, filterMK, searchQuery]); // Trigger useEffect only on initial mount
 
-  const renderData = () => {
+  const calculateBobot = (id: string) => {
+    let totalBobot = 0;
+    const filteredPenilaianCPMK = penilaianCPMK.filter(
+      (pCPMK) => pCPMK.MKkode === id
+    );
+    filteredPenilaianCPMK.map((pCPMK) => {
+      pCPMK.kriteria.map((item) => {
+        totalBobot += item.bobot;
+      });
+    });
+    return totalBobot;
+  };
+
+  const filteredMK = MK.filter((mk) =>
+    mk.deskripsi.toLowerCase().match(new RegExp(searchQuery.toLowerCase(), "i"))
+  );
+
+  const renderData = (id: string) => {
     if (penilaianCPMK.length === 0) {
       return (
         <TableRow>
@@ -148,11 +160,14 @@ const DataPenilaianCPMK = () => {
       );
     }
 
-    return penilaianCPMK.map((pCPMK) => {
+    const filteredPenilaianCPMK = penilaianCPMK.filter(
+      (pCPMK) => pCPMK.MKkode === id
+    );
+
+    return filteredPenilaianCPMK.map((pCPMK) => {
       return (
         <TableRow key={pCPMK.kode}>
           <TableCell className="w-[2%]">{pCPMK.kode}</TableCell>
-          <TableCell className="w-[7%]">{pCPMK.MKkode}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.CPL.kode}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.CPMK.kode}</TableCell>
           <TableCell className="w-[7%]">{pCPMK.tahapPenilaian}</TableCell>
@@ -236,63 +251,51 @@ const DataPenilaianCPMK = () => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[2%]">ID</TableHead>
-                  <TableHead className="w-[7%]">MK</TableHead>
-                  <TableHead className="w-[7%]">CPL</TableHead>
-                  <TableHead className="w-[7%]">CPMK</TableHead>
-                  <TableHead className="w-[7%]">Tahap Penilaian</TableHead>
-                  <TableHead className="w-[7%]">Teknik Penilaian</TableHead>
-                  <TableHead className="w-[7%]">Instrumen</TableHead>
-                  <TableHead className="w-[20%]">Kriteria</TableHead>
-                  <TableHead className="flex-1">Bobot</TableHead>
-                  <TableHead className="flex-1">Batas Nilai</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <SkeletonTable rows={5} cols={11} />
-              </TableBody>
-            </Table>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[2%]">ID</TableHead>
-                  <TableHead className="w-[7%]">MK</TableHead>
-                  <TableHead className="w-[7%]">CPL</TableHead>
-                  <TableHead className="w-[7%]">CPMK</TableHead>
-                  <TableHead className="w-[7%]">Tahap Penilaian</TableHead>
-                  <TableHead className="w-[7%]">Teknik Penilaian</TableHead>
-                  <TableHead className="w-[7%]">Instrumen</TableHead>
-                  <TableHead className="flex-1">Kriteria</TableHead>
-                  <TableHead className="flex-1">Bobot</TableHead>
-                  <TableHead className="flex-1">Batas Nilai</TableHead>
-                  <TableHead className="w-[10%]">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>{renderData()}</TableBody>
-            </Table>
-          )}
-          <Pagination
-            meta={meta}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-          />
+        <CardContent className="flex flex-col gap-5">
+          {!isLoading &&
+            filteredMK.map((mk) => (
+              <Collapsible
+                key={mk.kode}
+                className="w-full border rounded-lg shadow-sm py-4 space-y-4"
+              >
+                <CollapsibleTrigger className="w-full text-center text-lg font-bold">
+                  {mk.kode} - {mk.deskripsi}
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[2%]">ID</TableHead>
+                        <TableHead className="w-[7%]">CPL</TableHead>
+                        <TableHead className="w-[7%]">CPMK</TableHead>
+                        <TableHead className="w-[7%]">
+                          Tahap Penilaian
+                        </TableHead>
+                        <TableHead className="w-[7%]">
+                          Teknik Penilaian
+                        </TableHead>
+                        <TableHead className="w-[7%]">Instrumen</TableHead>
+                        <TableHead className="flex-1">Kriteria</TableHead>
+                        <TableHead className="flex-1">Bobot</TableHead>
+                        <TableHead className="flex-1">Batas Nilai</TableHead>
+                        <TableHead className="w-[10%]">Aksi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>{renderData(mk.kode)}</TableBody>
+                  </Table>
+                  <p
+                    className={`ml-[800px] font-semibold mb-2 ${
+                      calculateBobot(mk.kode) !== 100
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
+                    Total Bobot : {calculateBobot(mk.kode)}
+                  </p>
+                </CollapsibleContent>
+              </Collapsible>
+            ))}
         </CardContent>
-        {filterMK !== "default" && penilaianCPMK.length !== 0 && searchQuery==="" && (
-          <p
-            className={`ml-[800px] font-semibold mb-2 ${
-              totalBobot !== 100 ? "text-red-500" : "text-green-500"
-            }`}
-          >
-            Total Bobot : {totalBobot}
-          </p>
-        )}
       </Card>
     </section>
   );
