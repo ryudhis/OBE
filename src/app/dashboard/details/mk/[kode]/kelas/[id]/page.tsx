@@ -893,7 +893,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant='outline'>Tambah</Button>
+                              <Button variant='outline'>Edit</Button>
                             </DialogTrigger>
                             <DialogContent className='sm:max-w-[425px]'>
                               <DialogHeader>
@@ -977,7 +977,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant='outline'>Tambah</Button>
+                              <Button variant='outline'>Edit</Button>
                             </DialogTrigger>
                             <DialogContent className='sm:max-w-[425px]'>
                               <DialogHeader>
@@ -1004,7 +1004,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         </div>
                       </CardHeader>
                       <CardContent className=''>
-                        <p>
+                        <p className="break-words">
                           {kelas?.tindakLanjutCPL != null
                             ? kelas?.tindakLanjutCPL
                             : " Belum Ada Tindak Lanjut "}
