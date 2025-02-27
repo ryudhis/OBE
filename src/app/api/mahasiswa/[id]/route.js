@@ -46,6 +46,11 @@ export async function GET(req, { params }) {
             },
           },
         },
+        mahasiswa_MK: {
+          include: {
+            MK: true,
+          },
+        },
       },
     });
 
