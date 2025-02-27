@@ -326,6 +326,8 @@ declare global {
     prodi: Prodi;
     prodiId: string;
     performaMahasiswa: performaMahasiswa[];
+    mahasiswa_CPMK: Mahasiswa_CPMK[];
+    mahasiswa_MK_CPMK: Mahasiswa_MK_CPMK[];
   }
 
   export interface InputNilai {

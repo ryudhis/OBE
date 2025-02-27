@@ -28,6 +28,24 @@ export async function GET(req, { params }) {
             CPL: true,
           },
         },
+        mahasiswa_CPMK: {
+          include: {
+            CPMK: {
+              include: {
+                MK: true,
+              },
+            },
+          },
+        },
+        mahasiswa_MK_CPMK: {
+          include: {
+            CPMK: {
+              include: {
+                MK: true,
+              },
+            },
+          },
+        },
       },
     });
 
