@@ -6,16 +6,22 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { RadarChartComponent } from "@/components/RadarChart";
+import { BarChartComponent } from "@/components/BarChart";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
   const { accountData } = useAccount();
   const [mahasiswa, setMahasiswa] = useState<Mahasiswa | undefined>();
-  const [cpl, setCPL] = useState<CPL[]>([]);
-  const [data, setData] = useState<{ subject: string; percentage: number }[]>(
-    []
-  );
+  const [dataCPL, setDataCPL] = useState<
+    { subject: string; percentage: number }[]
+  >([]);
+  const [dataCPMK, setDataCPMK] = useState<
+    { subject: string; percentage: number }[]
+  >([]);
+  const [dataMK, setDataMK] = useState<
+    { subject: string; percentage: number }[]
+  >([]);
 
   const countTotalSKS = (mahasiswa: Mahasiswa): number => {
     return mahasiswa.kelas.reduce((total, kelasItem) => {
@@ -45,47 +51,44 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   };
 
-  const getCPL = async () => {
-    try {
-      const response = await axiosConfig.get(
-        `api/cpl?prodi=${accountData?.prodiId}`
-      );
-      if (response.data.status !== 400) {
-      } else {
-        alert(response.data.message);
-      }
-      setCPL(response.data.data);
-    } catch (error) {
-      console.log(error);
-    } finally {
-    }
-  };
-
   useEffect(() => {
     getMahasiswa();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    getCPL();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (mahasiswa) {
+      const performaCPL = mahasiswa?.performaMahasiswa || [];
 
-  useEffect(() => {
-    if (mahasiswa && cpl) {
-      const performaMahasiswa = mahasiswa.performaMahasiswa || [];
-      const result = cpl.map((cpl) => {
-        const match = performaMahasiswa.find(
-          (performance) => performance.CPLId === cpl.id
-        );
+      const resultCPL = performaCPL.map((performance) => {
         return {
-          subject: cpl.kode,
-          percentage: match ? match.nilai : 0,
+          subject: performance.CPL?.kode || "Unknown",
+          percentage: performance.nilai,
         };
       });
-      setData(result);
+      setDataCPL(resultCPL);
+
+      const performaCPMK = mahasiswa?.mahasiswa_CPMK || [];
+
+      const resultCPMK = performaCPMK.map((performance) => {
+        return {
+          subject: performance.CPMK?.kode || "Unknown",
+          percentage: performance.nilai,
+        };
+      });
+
+      setDataCPMK(resultCPMK);
+
+      const performaMK = mahasiswa?.mahasiswa_MK || [];
+      const resultMK = performaMK.map((performance) => {
+        return {
+          subject: performance.MKId,
+          percentage: performance.nilai,
+        };
+      });
+      setDataMK(resultMK);
     }
-  }, [mahasiswa, cpl]);
+  }, [mahasiswa]);
 
   if (accountData?.role === "Dosen") {
     toast({
@@ -98,7 +101,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (mahasiswa) {
     return (
-      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+      <main className="w-screen min-h-screen max-w-7xl mx-auto py-20 bg-[#FAFAFA] p-5">
         <p className="ml-2 font-bold text-2xl">Detail Mahasiswa</p>
         <div className="flex">
           <Table className="w-[1000px] table-fixed mb-5">
@@ -144,8 +147,19 @@ export default function Page({ params }: { params: { id: string } }) {
         </div>
 
         <div className="flex flex-col gap-8 items-center">
-          <h3 className="text-2xl font-bold">Performa Mahasiswa</h3>
-          <RadarChartComponent data={data} />
+          <h3 className="text-2xl font-bold">Performa CPL Mahasiswa</h3>
+          <RadarChartComponent data={dataCPL} />
+        </div>
+        <div className="flex flex-col gap-8 items-center">
+          <h3 className="text-2xl font-bold">Performa CPMK Mahasiswa</h3>
+          <RadarChartComponent data={dataCPMK} />
+        </div>
+        <div className="flex flex-col gap-8 items-center">
+          <BarChartComponent
+            data={dataMK}
+            tipe="Performa MK Mahasiswa"
+            title="Performa MK Mahasiswa"
+          />
         </div>
       </main>
     );
