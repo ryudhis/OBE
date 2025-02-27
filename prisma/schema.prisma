@@ -146,6 +146,7 @@ model MK {
   prodiId             String
   rencanaPembelajaran rencanaPembelajaran[]
   rps                 rps?                  @relation(name: "mk-rps")
+  mahasiswa_MK        mahasiswa_MK[]
   mahasiswa_MK_CPMK   mahasiswa_MK_CPMK[]
 
   // self relation
@@ -348,9 +349,23 @@ model mahasiswa {
   prodiId    String
 
   // evaluation_relation
+  mahasiswa_MK      mahasiswa_MK[]
   mahasiswa_MK_CPMK mahasiswa_MK_CPMK[]
   mahasiswa_CPMK    mahasiswa_CPMK[]
   performaMahasiswa performaMahasiswa[]
+}
+
+model mahasiswa_MK {
+  id           Int       @id @unique @default(sequence())
+  mahasiswa    mahasiswa @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
+  mahasiswaNim String
+  MK           MK        @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId         String
+  nilai        Float
+
+  @@unique([mahasiswaNim, MKId])
+  @@index([mahasiswaNim])
+  @@index([MKId])
 }
 
 model mahasiswa_MK_CPMK {

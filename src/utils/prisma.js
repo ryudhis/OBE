@@ -577,6 +577,23 @@ const updateKelas = async (data) => {
         statusCPMK: statusCPMK,
       };
 
+      await prisma.mahasiswa_MK.upsert({
+        where: {
+          mahasiswaNim_MKId: {
+            mahasiswaNim: mahasiswa.nim,
+            MKId: selectedKelas.MKId,
+          },
+        },
+        create: {
+          mahasiswaNim: mahasiswa.nim,
+          MKId: selectedKelas.MKId,
+          nilai: parseFloat(totalNilai.toFixed(2)),
+        },
+        update: {
+          nilai: parseFloat(totalNilai.toFixed(2)),
+        },
+      });
+
       console.log("daftarNilai = ", mahasiswaData.nilaiMahasiswa);
       console.log("statusCPMK = ", mahasiswaData.statusCPMK);
 
