@@ -28,14 +28,15 @@ const chartConfig = {
 interface ComponentProps {
   data: { subject: string; percentage: number }[];
   tipe: string;
+  title?: string;
 }
 
-export function BarChartComponent({ data, tipe }: ComponentProps) {
+export function BarChartComponent({ data, tipe, title }: ComponentProps) {
   return (
-    <div className='w-[600px]'>
+    <div className="w-[600px]">
       <Card>
         <CardHeader>
-          <CardTitle>Grafik Persentase Lulus</CardTitle>
+          <CardTitle>{title ? title : "Grafik Persentase Lulus"}</CardTitle>
           <CardDescription>{tipe}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -43,43 +44,43 @@ export function BarChartComponent({ data, tipe }: ComponentProps) {
             <BarChart
               accessibilityLayer
               data={data}
-              layout='vertical'
+              layout="vertical"
               margin={{
                 right: 16,
               }}
             >
               <YAxis
-                dataKey='subject'
-                type='category'
+                dataKey="subject"
+                type="category"
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
                 tickFormatter={(value) => value.slice(0, 3)}
                 hide
               />
-              <XAxis type='number' domain={[0, 100]} hide />
+              <XAxis type="number" domain={[0, 100]} hide />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator='line' />}
+                content={<ChartTooltipContent indicator="line" />}
               />
               <Bar
-                dataKey='percentage'
-                layout='vertical'
-                fill='var(--color-percentage)'
+                dataKey="percentage"
+                layout="vertical"
+                fill="var(--color-percentage)"
                 radius={4}
               >
                 <LabelList
-                  dataKey='subject'
-                  position='insideLeft'
+                  dataKey="subject"
+                  position="insideLeft"
                   offset={8}
-                  className='fill-[--color-label]'
+                  className="fill-[--color-label]"
                   fontSize={12}
                 />
                 <LabelList
-                  dataKey='percentage'
-                  position='insideRight'
+                  dataKey="percentage"
+                  position="insideRight"
                   offset={8}
-                  className='fill-[--color-label]'
+                  className="fill-[--color-label]"
                   fontSize={12}
                 />
               </Bar>
