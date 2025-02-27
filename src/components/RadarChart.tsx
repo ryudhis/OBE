@@ -37,7 +37,7 @@ export function RadarChartComponent({ data }: RadarChartComponentProps) {
           />
         </RadarChart>
       </ChartContainer>
-      <div className="xs:px-2 flex items-center gap-2 px-4 text-xs leading-none text-muted-foreground sm:px-5 md:px-4 lg:text-base">
+      <div className="xs:px-2 flex-wrap justify-center flex items-center gap-2 px-4 text-xs leading-none text-muted-foreground sm:px-5 md:px-4 lg:text-base">
         {data.map((item, index) => (
           <span key={index}>
             {item.subject}: {item.percentage} {index < data.length - 1 && "| "}
