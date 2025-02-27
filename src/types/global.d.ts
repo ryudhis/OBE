@@ -328,6 +328,7 @@ declare global {
     performaMahasiswa: performaMahasiswa[];
     mahasiswa_CPMK: Mahasiswa_CPMK[];
     mahasiswa_MK_CPMK: Mahasiswa_MK_CPMK[];
+    mahasiswa_MK: Mahasiswa_MK[];
   }
 
   export interface InputNilai {
