@@ -68,6 +68,7 @@ const CPLScreen = () => {
         : values.keterangan === "Keterampilan Khusus"
         ? "KK"
         : "";
+        
     const data = {
       kode: "CPL-" + keteranganKode + values.kode,
       deskripsi: values.deskripsi,

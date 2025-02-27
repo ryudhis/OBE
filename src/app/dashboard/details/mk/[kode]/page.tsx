@@ -59,8 +59,8 @@ import Image from "next/image";
 import logo from "/public/Logo1.png";
 
 const formSchema = z.object({
-  deskripsi: z.string(),
-  deskripsiInggris: z.string(),
+  deskripsi: z.string().min(1),
+  deskripsiInggris: z.string().min(1),
   sks: z.string(),
   semester: z.string(),
   batasLulusMahasiswa: z.string(),
@@ -75,7 +75,7 @@ const formSchema = z.object({
 });
 
 const rpsSchema = z.object({
-  deskripsi: z.string(),
+  deskripsi: z.string().min(1),
   pustakaUtama: z.array(
     z.object({
       name: z.string(),

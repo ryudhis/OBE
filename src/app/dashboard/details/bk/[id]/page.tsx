@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { set, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -275,15 +276,11 @@ export default function Page({ params }: { params: { id: string } }) {
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 items-center  gap-4'>
                     <Label htmlFor='deskripsi' className='text-right'>
                       Deskripsi
                     </Label>
-                    <Input
-                      id='deskripsi'
-                      {...form.register("deskripsi")}
-                      className='col-span-3'
-                    />
+                    <Textarea className="col-span-3" placeholder='Materi...' required id="deskripsi" {...form.register("deskripsi")} />
                   </div>
                   <div className='grid grid-cols-4 items-center gap-4'>
                     <Label htmlFor='min' className='text-right'>

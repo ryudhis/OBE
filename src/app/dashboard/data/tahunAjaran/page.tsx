@@ -43,7 +43,7 @@ const DataTahun = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/tahun-ajaran?page=${currentPage}`
+        `api/tahun-ajaran?page=${currentPage}&search=${searchQuery}`
       );
       if (response.data.status !== 400) {
         setTahun(response.data.data);

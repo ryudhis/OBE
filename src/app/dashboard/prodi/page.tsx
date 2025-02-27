@@ -55,6 +55,7 @@ import Swal from "sweetalert2";
 
 const formTambahKKSchema = z.object({
   nama: z.string().min(1).max(50),
+  ketua: z.string(),
 });
 
 const formEditKKSchema = z.object({
@@ -77,6 +78,7 @@ export default function ProdiPage() {
     resolver: zodResolver(formTambahKKSchema),
     defaultValues: {
       nama: "",
+      ketua: "",
     },
   });
 
@@ -197,6 +199,7 @@ export default function ProdiPage() {
     const data = {
       nama: values.nama,
       prodiId: accountData?.prodiId,
+      ketua: parseInt(values.ketua),
     };
 
     axiosConfig
@@ -465,6 +468,45 @@ export default function ProdiPage() {
                         </FormItem>
                       )}
                     />
+
+                    <FormField
+                      control={formTambahKK.control}
+                      name='ketua'
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Ketua Kelompok Keahlian</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder='Pilih Dosen' />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <Input
+                                type='text'
+                                className='mb-2'
+                                value={searchDosen}
+                                placeholder='Cari...'
+                                onChange={(e) => setSearchDosen(e.target.value)}
+                              />
+                              {filteredDosen?.map((item) => (
+                                <SelectItem
+                                  key={item.id}
+                                  value={String(item.id)}
+                                >
+                                  {item.nama}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button
@@ -512,7 +554,7 @@ export default function ProdiPage() {
                 <TableBody>
                   {prodi.KK.map((item, index) => (
                     <TableRow key={item.id}>
-                      <TableCell className="text-center">{index + 1}</TableCell>
+                      <TableCell className='text-center'>{index + 1}</TableCell>
                       <TableCell>{item.nama}</TableCell>
                       <TableCell>
                         {item.ketua ? item.ketua.nama : "-"}

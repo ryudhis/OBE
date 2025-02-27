@@ -40,7 +40,7 @@ const DataAkun = () => {
   const getAkun = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/account?page=${currentPage}`);
+      const response = await axiosConfig.get(`api/account?page=${currentPage}&search=${searchQuery}`);
       if (response.data.status !== 400) {
       } else {
         alert(response.data.message);

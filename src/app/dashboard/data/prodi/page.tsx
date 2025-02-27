@@ -41,7 +41,7 @@ const DataProdi = () => {
   const getProdi = async () => {
     setIsLoading(true);
     try {
-      const response = await axiosConfig.get(`api/prodi?page=${currentPage}`);
+      const response = await axiosConfig.get(`api/prodi?page=${currentPage}&search=${searchQuery}`);
       if (response.data.status !== 400) {
         setProdi(response.data.data);
         setMeta({

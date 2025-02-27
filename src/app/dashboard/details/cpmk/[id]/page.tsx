@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +23,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  deskripsi: z.string().min(1).max(50),
+  deskripsi: z.string().min(1),
 });
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -243,15 +243,11 @@ export default function Page({ params }: { params: { id: string } }) {
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='deskripsi' className='text-right'>
+                  <div className='flex flex-col gap-4'>
+                    <Label htmlFor='deskripsi' className='text-left'>
                       Deskripsi
                     </Label>
-                    <Input
-                      id='deskripsi'
-                      {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className='col-span-3'
-                    />
+                    <Textarea placeholder='Materi...' required id="deskripsi" {...form.register("deskripsi")} />
                   </div>
                 </div>
                 <DialogFooter>

@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,8 +24,8 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  deskripsi: z.string().min(1).max(50),
-  keterangan: z.string().min(1).max(50),
+  deskripsi: z.string().min(1),
+  deskripsiInggris: z.string().min(1),
 });
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -44,7 +44,7 @@ export default function Page({ params }: { params: { id: string } }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       deskripsi: "",
-      keterangan: "",
+      deskripsiInggris: "",
     },
   });
 
@@ -53,7 +53,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
     const data = {
       deskripsi: values.deskripsi,
-      keterangan: values.keterangan,
+      deskripsiInggris: values.deskripsiInggris,
     };
 
     axiosConfig
@@ -118,7 +118,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
         form.reset({
           deskripsi: response.data.data.deskripsi,
-          keterangan: response.data.data.keterangan,
+          deskripsiInggris: response.data.data.deskripsiInggris,
         });
       }
     } catch (error: any) {
@@ -234,7 +234,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   <strong>PL</strong>
                 </TableCell>
                 <TableCell className='p-2'>
-                  : {cpl.PL.length > 0 ?cpl.PL.map((pl) => pl.kode).join(", "): " - "}
+                  :{" "}
+                  {cpl.PL.length > 0
+                    ? cpl.PL.map((pl) => pl.kode).join(", ")
+                    : " - "}
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -242,7 +245,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   <strong>CPMK</strong>
                 </TableCell>
                 <TableCell className='p-2'>
-                  : {cpl.CPMK.length > 0 ?cpl.CPMK.map((cpmk) => cpmk.kode).join(", "): " - "}
+                  :{" "}
+                  {cpl.CPMK.length > 0
+                    ? cpl.CPMK.map((cpmk) => cpmk.kode).join(", ")
+                    : " - "}
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -250,7 +256,10 @@ export default function Page({ params }: { params: { id: string } }) {
                   <strong>BK</strong>
                 </TableCell>
                 <TableCell className='p-2'>
-                  : {cpl.BK.length > 0 ? cpl.BK.map((bk) => bk.kode).join(", "): " - "}
+                  :{" "}
+                  {cpl.BK.length > 0
+                    ? cpl.BK.map((bk) => bk.kode).join(", ")
+                    : " - "}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -266,26 +275,19 @@ export default function Page({ params }: { params: { id: string } }) {
                 <DialogDescription>{cpl.kode}</DialogDescription>
               </DialogHeader>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                <div className='flex flex-col gap-4 py-4'>
+                  <div className='items-center gap-4'>
                     <Label htmlFor='deskripsi' className='text-right'>
                       Deskripsi
                     </Label>
-                    <Input
-                      id='deskripsi'
-                      {...form.register("deskripsi")} // Register the input with react-hook-form
-                      className='col-span-3'
-                    />
+                    <Textarea placeholder='Deskripsi' required id="deskripsi" {...form.register("deskripsi")} />
                   </div>
-                  <div className='grid grid-cols-4 items-center gap-4'>
-                    <Label htmlFor='keterangan' className='text-right'>
-                      Keterangan
+
+                  <div className='items-center gap-4'>
+                    <Label htmlFor='deskripsiInggris' className='text-right'>
+                      Deskripsi Inggris
                     </Label>
-                    <Input
-                      id='keterangan'
-                      {...form.register("keterangan")} // Register the input with react-hook-form
-                      className='col-span-3'
-                    />
+                    <Textarea placeholder='Materi...' required id="deskripsiInggris" {...form.register("deskripsiInggris")} />
                   </div>
                 </div>
                 <DialogFooter>

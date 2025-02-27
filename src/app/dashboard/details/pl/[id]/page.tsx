@@ -23,7 +23,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  deskripsi: z.string().min(1).max(50),
+  deskripsi: z.string().min(1),
 });
 
 export default function Page({ params }: { params: { id: string } }) {

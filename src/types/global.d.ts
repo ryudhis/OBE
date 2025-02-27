@@ -7,6 +7,7 @@ declare global {
     name: string;
     count: number;
   }
+  
   export interface TahunAjaran {
     id: number;
     tahun: string;

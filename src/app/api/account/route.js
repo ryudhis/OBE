@@ -34,6 +34,7 @@ export async function GET(req) {
       where: {
         nama: {
           contains: search,
+          mode: "insensitive",
         },
       },
     });
@@ -48,6 +49,7 @@ export async function GET(req) {
       where: {
         nama: {
           contains: search,
+          mode: "insensitive",
         },
       },
       take: limit,
