@@ -415,7 +415,7 @@ export default function Page({ params }: { params: { id: string } }) {
       <TableRow key={lulusData.nim}>
         <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
         <TableCell className='w-[8%] text-center'>{lulusData.nim}</TableCell>
-        <TableCell className='w-[8%]'>
+        <TableCell className='w-[8%] border-r-2'>
             {(() => {
             const nama = kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-";
             return nama.length > 34 ? `${nama.substring(0, 45)}...` : nama;
@@ -795,7 +795,7 @@ export default function Page({ params }: { params: { id: string } }) {
                             </TableHead>
                             <TableHead
                               rowSpan={2}
-                              className='w-full text-center '
+                              className='w-full text-center border-r-2'
                             >
                               Nama
                             </TableHead>
@@ -805,7 +805,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       </Table>
                       <Table>
                         <TableHeader className='h-[150px]'>
-                          <TableRow>
+                          <TableRow >
                             <TableHead
                               rowSpan={2}
                               className='w-[8%] text-center '
@@ -814,7 +814,7 @@ export default function Page({ params }: { params: { id: string } }) {
                             </TableHead>
                             <TableHead
                               rowSpan={2}
-                              className='w-[8%] text-center '
+                              className='w-[8%] text-center'
                             >
                               Indeks Nilai
                             </TableHead>
