@@ -37,6 +37,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { BarChartComponent } from "@/components/BarChart";
+import { Check, X } from "lucide-react";
 
 interface mahasiswaExcel {
   NIM: string;
@@ -409,14 +410,24 @@ export default function Page({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
-  const renderDataNilai = () => {
+  const renderNoNimNama = () => {
     return dataMahasiswaLulus.map((lulusData, index) => (
       <TableRow key={lulusData.nim}>
-        <TableCell className='w-[8%]'>{index + 1}</TableCell>
-        <TableCell className='w-[8%]'>{lulusData.nim}</TableCell>
+        <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
+        <TableCell className='w-[8%] text-center'>{lulusData.nim}</TableCell>
         <TableCell className='w-[8%]'>
-          {kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-"}
+            {(() => {
+            const nama = kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-";
+            return nama.length > 34 ? `${nama.substring(0, 45)}...` : nama;
+            })()}
         </TableCell>
+      </TableRow>
+    ));
+  };
+
+  const renderRestData = () => {
+    return dataMahasiswaLulus.map((lulusData) => (
+      <TableRow key={lulusData.nim}>
         <TableCell className={`w-[8%]`}>{lulusData.totalNilai}</TableCell>
         <TableCell
           className={`w-[8%] text-center ${
@@ -457,13 +468,17 @@ export default function Page({ params }: { params: { id: string } }) {
                   ))}
               <TableCell
                 key={`status-${CPMK.CPMK.kode}`}
-                className={`w-[16%] text-center ${
+                className={`w-[16%] ${
                   statusCPMKItem?.statusLulus === "Lulus"
                     ? "bg-green-300"
                     : "bg-red-300"
                 }`}
               >
-                {statusCPMKItem?.statusLulus || "Tidak Lulus"}
+                {statusCPMKItem?.statusLulus === "Lulus" ? (
+                  <Check className='mx-auto' size={20} />
+                ) : (
+                  <X className='mx-auto' size={20} />
+                )}
               </TableCell>
             </React.Fragment>
           );
@@ -762,75 +777,84 @@ export default function Page({ params }: { params: { id: string } }) {
                       </TableBody>
                     </Table>
                   ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead
-                            rowSpan={2}
-                            className='w-[8%] text-center '
-                          >
-                            No
-                          </TableHead>
-                          <TableHead
-                            rowSpan={2}
-                            className='w-[8%] text-center '
-                          >
-                            NIM
-                          </TableHead>
-                          <TableHead
-                            rowSpan={2}
-                            className='w-[8%] text-center '
-                          >
-                            Nama
-                          </TableHead>
-                          <TableHead
-                            rowSpan={2}
-                            className='w-[8%] text-center '
-                          >
-                            Total Nilai
-                          </TableHead>
-                          <TableHead
-                            rowSpan={2}
-                            className='w-[8%] text-center '
-                          >
-                            Indeks Nilai
-                          </TableHead>
-                          {kelas.MK.penilaianCPMK.map((CPMK) => (
+                    <div className='flex'>
+                      <Table>
+                        <TableHeader className='h-[150px]'>
+                          <TableRow>
                             <TableHead
-                              colSpan={CPMK.kriteria.length + 1}
-                              key={CPMK.CPMK.kode}
-                              className='w-[16%] text-center border-x-2'
+                              rowSpan={2}
+                              className='w-[2%] text-center '
                             >
-                              {CPMK.CPMK.kode}
+                              No
                             </TableHead>
-                          ))}
-                        </TableRow>
-                        <TableRow>
-                          {kelas.MK.penilaianCPMK.map((CPMK) => (
-                            <React.Fragment key={CPMK.CPMK.kode}>
-                              {CPMK.kriteria.map((kriteria, index) => (
+                            <TableHead
+                              rowSpan={2}
+                              className='w-[2%] text-center '
+                            >
+                              NIM
+                            </TableHead>
+                            <TableHead
+                              rowSpan={2}
+                              className='w-full text-center '
+                            >
+                              Nama
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>{renderNoNimNama()}</TableBody>
+                      </Table>
+                      <Table>
+                        <TableHeader className='h-[150px]'>
+                          <TableRow>
+                            <TableHead
+                              rowSpan={2}
+                              className='w-[8%] text-center '
+                            >
+                              Total Nilai
+                            </TableHead>
+                            <TableHead
+                              rowSpan={2}
+                              className='w-[8%] text-center '
+                            >
+                              Indeks Nilai
+                            </TableHead>
+                            {kelas.MK.penilaianCPMK.map((CPMK) => (
+                              <TableHead
+                                colSpan={CPMK.kriteria.length + 1}
+                                key={CPMK.CPMK.kode}
+                                className='w-[16%] text-center border-x-2'
+                              >
+                                {CPMK.CPMK.kode}
+                              </TableHead>
+                            ))}
+                          </TableRow>
+                          <TableRow>
+                            {kelas.MK.penilaianCPMK.map((CPMK) => (
+                              <React.Fragment key={CPMK.CPMK.kode}>
+                                {CPMK.kriteria.map((kriteria, index) => (
+                                  <TableHead
+                                    className='text-center w-[16%] border-x-2'
+                                    key={index}
+                                  >
+                                    {kriteria.kriteria} <br />{" "}
+                                    <span className='font-semibold text-blue-600'>
+                                      {kriteria.bobot}
+                                    </span>
+                                  </TableHead>
+                                ))}
                                 <TableHead
                                   className='text-center w-[16%] border-x-2'
-                                  key={index}
+                                  key={`status-${CPMK.CPMK.kode}`}
                                 >
-                                  {kriteria.kriteria} <br />{" "}
-                                  <span className='font-semibold text-blue-600'>
-                                    {kriteria.bobot}
-                                  </span>
+                                  Status
                                 </TableHead>
-                              ))}
-                              <TableHead
-                                className='text-center w-[16%] border-x-2'
-                                key={`status-${CPMK.CPMK.kode}`}
-                              >
-                                Status
-                              </TableHead>
-                            </React.Fragment>
-                          ))}
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>{renderDataNilai()}</TableBody>
-                    </Table>
+                              </React.Fragment>
+                            ))}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>{renderRestData()}</TableBody>
+                      </Table>
+                    </div>
                   )}
                 </TabsContent>
 
@@ -920,7 +944,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p className="break-words">
+                        <p className='break-words'>
                           {kelas?.tindakLanjutCPMK != null
                             ? kelas?.tindakLanjutCPMK
                             : " Belum Ada Tindak Lanjut "}
@@ -1004,7 +1028,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         </div>
                       </CardHeader>
                       <CardContent className=''>
-                        <p className="break-words">
+                        <p className='break-words'>
                           {kelas?.tindakLanjutCPL != null
                             ? kelas?.tindakLanjutCPL
                             : " Belum Ada Tindak Lanjut "}
