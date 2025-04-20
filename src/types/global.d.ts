@@ -59,6 +59,27 @@ export interface PerformaCPL {
   CPMK: PerformaCPMK[];
 }
 
+export interface CalculatedPerformaCPL {
+  kode: string;
+  nilai: string;
+  value?: number;
+  CPMK: CalculatedPerformaCPMK[];
+}
+
+export interface CalculatedPerformaCPMK {
+  kode: string;
+  nilai: string;
+  value?: number;
+  MK: CalculatedPerformaMK[];
+}
+
+export interface CalculatedPerformaMK {
+  kode: string;
+  nilai: string;
+  value?: number;
+}
+
+
 export interface RangkumanPerformaResponse {
   status: number;
   message: string;

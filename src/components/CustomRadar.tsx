@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  Radar,
-  Tooltip,
-} from "recharts";
+import { RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, Home } from "lucide-react";
@@ -19,79 +12,17 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-// Raw JSON data
-
-// Types
-interface MK {
-  kode: string;
-  nilai: string;
-  value?: number;
-}
-
-interface CPMK {
-  kode: string;
-  nilai: string;
-  value?: number;
-  MK: MK[];
-}
-
-interface CPL {
-  kode: string;
-  nilai: string;
-  value?: number;
-  CPMK: CPMK[];
-}
-
 type HistoryItem = {
   type: "cpl" | "cpmk";
   data: any[];
 };
 
-// Transform raw data
-function calculateChartData(raw: any[]): CPL[] {
-  return raw.map((cpl) => {
-    const CPMK = cpl.CPMK.map(
-      (cpmk: {
-        kode: string;
-        lulusMK_CPMK: { jumlahLulus: number; MKId: string }[];
-      }) => {
-        const totalNilai: number = cpmk.lulusMK_CPMK.reduce(
-          (acc: number, mk: { jumlahLulus: number }) => acc + mk.jumlahLulus,
-          0
-        );
-        const countMK: number = cpmk.lulusMK_CPMK.length;
-        const mkValue: number = countMK ? totalNilai / countMK : 0;
-
-        return {
-          kode: cpmk.kode.trim(),
-          nilai: `${mkValue.toFixed(2)}%`,
-          MK: cpmk.lulusMK_CPMK.map(
-            (mk: { MKId: string; jumlahLulus: number }) => ({
-              kode: mk.MKId,
-              nilai: `${mk.jumlahLulus}%`,
-            })
-          ),
-        };
-      }
-    );
-
-    const totalCPMK: number = CPMK.reduce(
-      (acc: number, cpmk: { nilai: string }) => acc + parseFloat(cpmk.nilai),
-      0
-    );
-    const countCPMK = CPMK.length;
-    const cplValue = countCPMK ? totalCPMK / countCPMK : 0;
-
-    return {
-      kode: cpl.kode.trim(),
-      nilai: `${cplValue.toFixed(2)}%`,
-      CPMK,
-    };
-  });
-}
-
-export default function CustomRadar({data}: { data: PerformaCPL[] }) {
-  const initialData: CPL[] = calculateChartData(data);
+export default function CustomRadar({
+  data,
+}: {
+  data: CalculatedPerformaCPL[];
+}) {
+  const initialData = data;
   const [currentData, setCurrentData] = useState<any[]>(initialData);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentTitle, setCurrentTitle] = useState("All CPLs");
@@ -125,7 +56,7 @@ export default function CustomRadar({data}: { data: PerformaCPL[] }) {
     updateChart(initialData, "CPL", "All CPLs");
   }
 
-  function showCPMKs(cpl: CPL) {
+  function showCPMKs(cpl: CalculatedPerformaCPL) {
     setHistory((prev) => [...prev, { type: "cpl", data: currentData }]);
     updateChart(cpl.CPMK, "CPMK", `CPMKs for ${cpl.kode}`);
   }
@@ -155,7 +86,7 @@ export default function CustomRadar({data}: { data: PerformaCPL[] }) {
     } else if (currentLevel === "CPMK") {
       for (const cpl of initialData) {
         const cpmk = cpl.CPMK.find((d) => d.kode === point.kode);
-        if (cpmk) showMKs(cpmk);
+        if (cpmk) showMKs(cpmk as unknown as CPMK);
       }
     }
   }
@@ -167,14 +98,7 @@ export default function CustomRadar({data}: { data: PerformaCPL[] }) {
   return (
     <Card className="w-full">
       <CardContent>
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-center">
-          <div>
-            <p className="text-sm text-muted-foreground">
-              Click on a {currentLevel} to{" "}
-              {currentLevel === "MK" ? "view details" : "see its components"}
-            </p>
-            <p className="font-medium">Currently showing: {currentTitle}</p>
-          </div>
+        <div className="my-6 flex flex-col sm:flex-row justify-between items-center">
           <div className="flex gap-2">
             {history.length > 0 && (
               <Button onClick={goBack} variant="outline" size="sm">
@@ -185,7 +109,7 @@ export default function CustomRadar({data}: { data: PerformaCPL[] }) {
             {(history.length > 0 || currentLevel !== "CPL") && (
               <Button onClick={showAllCPLs} variant="outline" size="sm">
                 <Home className="mr-1 h-4 w-4" />
-                All CPLs
+                Semua CPL
               </Button>
             )}
           </div>
@@ -199,7 +123,7 @@ export default function CustomRadar({data}: { data: PerformaCPL[] }) {
             <RadarChart
               cx="50%"
               cy="50%"
-              outerRadius="80%"
+              outerRadius="70%"
               data={currentData}
               onClick={handleChartClick}
             >

@@ -42,6 +42,9 @@ const Page = () => {
   const [semester, setSemester] = useState<TahunAjaran[]>([]);
   const [dataCount, setDataCount] = useState<DataCount[]>([]);
   const [dataSistem, setDataSistem] = useState<DataCount[]>([]);
+  const [calculatedCPL, setCalculatedCPL] = useState<CalculatedPerformaCPL[]>(
+    []
+  );
 
   const getMKDiampu = async () => {
     try {
@@ -80,6 +83,8 @@ const Page = () => {
       );
       if (response.data.status !== 400) {
         setPerformaCPL(response.data.data);
+        const transformed = calculateChartData(response.data.data);
+        setCalculatedCPL(transformed);
       }
     } catch (error: any) {
       throw error;
@@ -138,6 +143,44 @@ const Page = () => {
       return `/dashboard/data/${name.toLocaleLowerCase()}`;
     }
   };
+
+  function calculateChartData(raw: PerformaCPL[]): CalculatedPerformaCPL[] {
+    return raw.map((cpl) => {
+      const CPMK = cpl.CPMK.map((cpmk) => {
+        const totalNilai: number = cpmk.lulusMK_CPMK.reduce(
+          (acc: number, mk) => acc + mk.jumlahLulus,
+          0
+        );
+        const countMK: number = cpmk.lulusMK_CPMK.length;
+        const mkValue: number = countMK ? totalNilai / countMK : 0;
+
+        return {
+          kode: cpmk.kode.trim(),
+          nilai: `${mkValue.toFixed(2)}%`,
+          value: mkValue,
+          MK: cpmk.lulusMK_CPMK.map((mk) => ({
+            kode: mk.MKId,
+            nilai: `${mk.jumlahLulus}%`,
+            value: mk.jumlahLulus,
+          })),
+        };
+      });
+
+      const totalCPMK: number = CPMK.reduce(
+        (acc, cpmk) => acc + parseFloat(cpmk.nilai),
+        0
+      );
+      const countCPMK = CPMK.length;
+      const cplValue = countCPMK ? totalCPMK / countCPMK : 0;
+
+      return {
+        kode: cpl.kode.trim(),
+        nilai: `${cplValue.toFixed(2)}%`,
+        value: cplValue,
+        CPMK,
+      };
+    });
+  }
 
   useEffect(() => {
     if (accountData && accountData.role === "Kaprodi") {
@@ -478,7 +521,7 @@ const Page = () => {
             </CardContent>
           </Card>
 
-          {accountData?.role === "Kaprodi" && (
+          {accountData?.role === "Kaprodi" && calculatedCPL && (
             <>
               <Card className="w-[1200px] mx-auto">
                 <CardHeader className="flex flex-row justify-between items-center">
@@ -527,7 +570,7 @@ const Page = () => {
                     </TableHeader>
                     <TableBody>{renderRangkumanPerforma()}</TableBody>
                   </Table>
-                  <CustomRadar data={performaCPL} />
+                  <CustomRadar data={calculatedCPL} />
                 </CardContent>
               </Card>
             </>
