@@ -50,26 +50,33 @@ type HistoryItem = {
 // Transform raw data
 function calculateChartData(raw: any[]): CPL[] {
   return raw.map((cpl) => {
-    const CPMK = cpl.CPMK.map((cpmk) => {
-      const totalNilai = cpmk.lulusMK_CPMK.reduce(
-        (acc, mk) => acc + mk.jumlahLulus,
-        0
-      );
-      const countMK = cpmk.lulusMK_CPMK.length;
-      const mkValue = countMK ? totalNilai / countMK : 0;
+    const CPMK = cpl.CPMK.map(
+      (cpmk: {
+        kode: string;
+        lulusMK_CPMK: { jumlahLulus: number; MKId: string }[];
+      }) => {
+        const totalNilai: number = cpmk.lulusMK_CPMK.reduce(
+          (acc: number, mk: { jumlahLulus: number }) => acc + mk.jumlahLulus,
+          0
+        );
+        const countMK: number = cpmk.lulusMK_CPMK.length;
+        const mkValue: number = countMK ? totalNilai / countMK : 0;
 
-      return {
-        kode: cpmk.kode.trim(),
-        nilai: `${mkValue.toFixed(2)}%`,
-        MK: cpmk.lulusMK_CPMK.map((mk) => ({
-          kode: mk.MKId,
-          nilai: `${mk.jumlahLulus}%`,
-        })),
-      };
-    });
+        return {
+          kode: cpmk.kode.trim(),
+          nilai: `${mkValue.toFixed(2)}%`,
+          MK: cpmk.lulusMK_CPMK.map(
+            (mk: { MKId: string; jumlahLulus: number }) => ({
+              kode: mk.MKId,
+              nilai: `${mk.jumlahLulus}%`,
+            })
+          ),
+        };
+      }
+    );
 
-    const totalCPMK = CPMK.reduce(
-      (acc, cpmk) => acc + parseFloat(cpmk.nilai),
+    const totalCPMK: number = CPMK.reduce(
+      (acc: number, cpmk: { nilai: string }) => acc + parseFloat(cpmk.nilai),
       0
     );
     const countCPMK = CPMK.length;
