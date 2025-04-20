@@ -25,7 +25,7 @@ export default function CustomRadar({
   const initialData = data;
   const [currentData, setCurrentData] = useState<any[]>(initialData);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [currentTitle, setCurrentTitle] = useState("All CPLs");
+  const [currentTitle, setCurrentTitle] = useState("Semua CPL");
   const [currentLevel, setCurrentLevel] = useState<"CPL" | "CPMK" | "MK">(
     "CPL"
   );
@@ -53,26 +53,28 @@ export default function CustomRadar({
 
   function showAllCPLs() {
     setHistory([]);
-    updateChart(initialData, "CPL", "All CPLs");
+    updateChart(initialData, "CPL", "Semua CPL");
   }
 
   function showCPMKs(cpl: CalculatedPerformaCPL) {
     setHistory((prev) => [...prev, { type: "cpl", data: currentData }]);
-    updateChart(cpl.CPMK, "CPMK", `CPMKs for ${cpl.kode}`);
+    updateChart(cpl.CPMK, "CPMK", `CPMK untuk ${cpl.kode}`);
   }
 
   function showMKs(cpmk: CPMK) {
     setHistory((prev) => [...prev, { type: "cpmk", data: currentData }]);
-    updateChart(cpmk.MK, "MK", `MKs for ${cpmk.kode}`);
+    updateChart(cpmk.MK, "MK", `MK untuk ${cpmk.kode}`);
   }
 
   function goBack() {
     if (history.length === 0) return;
     const previous = history.pop()!;
+    const isCPLLevel = history.length === 0 && previous.type === "cpl";
+
     updateChart(
       previous.data,
       previous.type === "cpl" ? "CPL" : "CPMK",
-      currentTitle
+      isCPLLevel ? "Semua CPL" : currentTitle
     );
     setHistory([...history]);
   }
@@ -99,6 +101,10 @@ export default function CustomRadar({
     <Card className="w-full">
       <CardContent>
         <div className="my-6 flex flex-col sm:flex-row justify-between items-center">
+          <h2 className="font-medium">
+            Sedang menampilkan:{" "}
+            <span className="font-bold">{currentTitle}</span>
+          </h2>
           <div className="flex gap-2">
             {history.length > 0 && (
               <Button onClick={goBack} variant="outline" size="sm">
