@@ -7,7 +7,64 @@ declare global {
     name: string;
     count: number;
   }
-  
+
+export interface DataCPMK {
+  id: string;
+  cpmk: string;
+  cpl: string;
+  nilaiMinimal: number;
+  nilaiMasuk: number;
+  jumlahLulus: number;
+  persenLulus: number;
+  rataNilai: number;
+}
+
+export interface PerformaKelas {
+  id: string;
+  nama: string;
+  tahunAjaranId: number;
+  mahasiswaCount: number;
+  dataCPMK: DataCPMK[];
+}
+
+export interface PerformaCPMKResponse {
+  id: string;
+  kode: string;
+  kelas: PerformaKelas[];
+}
+
+export interface LulusMK_CPMK {
+  id: string;
+  MKId: string;
+  jumlahLulus: number;
+  tahunAjaranId: number;
+}
+
+export interface LulusCPMK {
+  id: string;
+  jumlahLulus: number;
+  tahunAjaranId: number;
+}
+
+export interface PerformaCPMK {
+  id: string;
+  kode: string;
+  lulusMK_CPMK: LulusMK_CPMK[];
+  lulusCPMK: LulusCPMK[];
+}
+
+export interface PerformaCPL {
+  id: string;
+  kode: string;
+  CPMK: PerformaCPMK[];
+}
+
+export interface RangkumanPerformaResponse {
+  status: number;
+  message: string;
+  data: PerformaCPL[];
+}
+
   export interface TahunAjaran {
     id: number;
     tahun: string;
