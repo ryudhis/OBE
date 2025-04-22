@@ -61,6 +61,28 @@ export default function Page({ params }: { params: { id: string } }) {
   const [selectedCPL, setSelectedCPL] = useState<number>(0);
   const [evaluasi, setEvaluasi] = useState<string>("");
 
+  const exportTemplate = () => {
+    // Define headers
+    const headers = [
+      { header: "Nama", key: "Nama" },
+      { header: "NIM", key: "NIM" },
+    ];
+
+    // Create worksheet with headers
+    const ws = XLSX.utils.json_to_sheet([], {
+      header: headers.map((h) => h.key),
+    });
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+    // Export workbook
+    XLSX.writeFile(wb, "Template Mahasiswa.xlsx");
+  };
+
   const handleSelectCPMK = (cpmkId: number) => {
     setSelectedCPMK(cpmkId);
     setEvaluasi("");
@@ -416,10 +438,12 @@ export default function Page({ params }: { params: { id: string } }) {
         <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
         <TableCell className='w-[8%] text-center'>{lulusData.nim}</TableCell>
         <TableCell className='w-[8%] border-r-2'>
-            {(() => {
-            const nama = kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama || "-";
+          {(() => {
+            const nama =
+              kelas?.mahasiswa.find((m) => m.nim === lulusData.nim)?.nama ||
+              "-";
             return nama.length > 34 ? `${nama.substring(0, 45)}...` : nama;
-            })()}
+          })()}
         </TableCell>
       </TableRow>
     ));
@@ -694,7 +718,14 @@ export default function Page({ params }: { params: { id: string } }) {
                       </Table>
                     )}
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="flex justify-between">
+                    <Button
+                      onClick={() => {
+                        exportTemplate();
+                      }}
+                    >
+                      Export Template
+                    </Button>
                     <Button onClick={onSubmit}>Submit</Button>
                   </CardFooter>
                 </Card>
@@ -805,7 +836,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       </Table>
                       <Table>
                         <TableHeader className='h-[150px]'>
-                          <TableRow >
+                          <TableRow>
                             <TableHead
                               rowSpan={2}
                               className='w-[8%] text-center '
