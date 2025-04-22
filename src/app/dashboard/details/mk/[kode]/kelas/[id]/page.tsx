@@ -711,7 +711,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   Dosen Pengampu
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[425px]'>
+              <DialogContent className='sm:max-w-[25%]'>
                 <DialogHeader>
                   <DialogTitle>Dosen Pengampu</DialogTitle>
                 </DialogHeader>
@@ -719,8 +719,8 @@ export default function Page({ params }: { params: { id: string } }) {
                   <CardHeader>
                     <CardDescription>Data Dosen</CardDescription>
                   </CardHeader>
-                  <CardContent className='flex w-[300px]'>
-                    <div className='flex flex-col gap-2'>
+                  <CardContent className='flex'>
+                    <div className='flex flex-col gap-2 overflow-auto max-h-[500px]'>
                       {" "}
                       {renderDosenChecklist()}
                     </div>
