@@ -53,6 +53,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccount } from "@/app/contexts/AccountContext";
+import { useKunci } from "@/app/contexts/KunciContext";
 import { DataCard } from "@/components/DataCard";
 import Swal from "sweetalert2";
 import Image from "next/image";
@@ -95,6 +96,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   const [mk, setMK] = useState<MK | undefined>();
   const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
   const { accountData } = useAccount();
+  const { kunciData } = useKunci();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedRencana, setSelectedRencana] =
@@ -1264,7 +1266,9 @@ export default function Page({ params }: { params: { kode: string } }) {
                 className={accountData?.role === "Dosen" ? "hidden" : ""}
                 asChild
               >
-                <Button variant='outline'>Edit Data</Button>
+                <Button variant='outline' disabled={kunciData?.kunci}>
+                  Edit Data
+                </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
@@ -1417,14 +1421,16 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <div className='space-y-2'>
                       <FormLabel>Prerequisite Mata Kuliah</FormLabel>
                       <div className='flex flex-row items-center mb-5'>
-                      <input
-                        type='text'
-                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
-                        value={searchPrerequisite}
-                        placeholder='Cari...'
-                        onChange={(e) => setSearchPrerequisite(e.target.value)}
-                      />
-                    </div>
+                        <input
+                          type='text'
+                          className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                          value={searchPrerequisite}
+                          placeholder='Cari...'
+                          onChange={(e) =>
+                            setSearchPrerequisite(e.target.value)
+                          }
+                        />
+                      </div>
                       <div className='grid grid-cols-3 gap-3'>
                         {allMK.length > 0 ? (
                           filteredMK.map((mk, index) => (
@@ -2346,7 +2352,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <button
                       onClick={updateCPMK}
                       type='button'
-                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                      disabled={kunciData?.kunci}
                     >
                       Simpan
                     </button>
@@ -2383,7 +2390,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <button
                       onClick={updateBK}
                       type='button'
-                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                      disabled={kunciData?.kunci}
                     >
                       Simpan
                     </button>

@@ -11,14 +11,10 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       <KunciProvider>
         <div>
           <Header />
+          <CustomBreadCrumbs />
           <div>{children}</div>
         </div>
       </KunciProvider>
-      <div>
-        <Header />
-        <CustomBreadCrumbs />
-        <div>{children}</div>
-      </div>
     </AccountProvider>
   );
 };

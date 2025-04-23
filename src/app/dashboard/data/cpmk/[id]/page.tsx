@@ -20,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount } from "@/app/contexts/AccountContext";
+import { useKunci }  from "@/app/contexts/KunciContext";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -28,6 +29,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const { accountData } = useAccount();
+  const { kunciData } = useKunci();
   const [cpmk, setCpmk] = useState<CPMK | undefined>();
   const [mk, setMk] = useState<MK[] | undefined>([]);
   const [prevSelected, setPrevSelected] = useState<string[]>([]);
@@ -234,7 +236,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Edit Data</Button>
+              <Button variant='outline' disabled={kunciData?.kunci}>Edit Data</Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
@@ -292,7 +294,8 @@ export default function Page({ params }: { params: { id: string } }) {
         <button
           onClick={updateMK}
           type='button'
-          className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600'
+          className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
+          disabled={kunciData?.kunci}
         >
           Simpan
         </button>

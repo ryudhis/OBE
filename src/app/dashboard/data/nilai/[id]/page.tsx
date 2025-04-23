@@ -27,6 +27,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
+import { useKunci } from "@/app/contexts/KunciContext";
 
 const formSchema = z.object({
   nilai: z.array(z.string()),
@@ -36,6 +37,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
   const { accountData } = useAccount();
+  const { kunciData } = useKunci();
   const [inputNilai, setInputNilai] = useState<InputNilai | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
   const defaultValues = {
