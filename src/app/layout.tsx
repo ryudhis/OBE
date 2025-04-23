@@ -14,10 +14,10 @@ export const metadata: Metadata = {
       { url: "/favicon-48x48.png", type: "image/png", sizes: "48x48" },
       { url: "/favicon.svg", type: "image/svg+xml" },
     ],
-    shortcut: "/favicon.ico", 
-    apple: "/apple-touch-icon.png", 
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
-  manifest: "/site.webmanifest", 
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <body className={inter.className}>
         {children}
         <Toaster />

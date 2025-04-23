@@ -133,7 +133,7 @@ const DataMahasiswa = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/mahasiswa/${mhs.nim}/`);
+                router.push(`/dashboard/data/mahasiswa/${mhs.nim}/`);
               }}
             >
               Details

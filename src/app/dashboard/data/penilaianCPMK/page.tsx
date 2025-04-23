@@ -197,7 +197,7 @@ const DataPenilaianCPMK = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/penilaianCPMK/${pCPMK.id}/`);
+                router.push(`/dashboard/data/penilaianCPMK/${pCPMK.id}/`);
               }}
             >
               Details

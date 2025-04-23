@@ -180,7 +180,7 @@ const DataCPMK = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/cpmk/${cpmk.id}/`);
+                router.push(`/dashboard/data/cpmk/${cpmk.id}/`);
               }}
             >
               Details

@@ -193,7 +193,7 @@ const DataMK = () => {
             </Button>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/mk/${mk.kode}/`);
+                router.push(`/dashboard/data/mk/${mk.kode}/`);
               }}
             >
               Details

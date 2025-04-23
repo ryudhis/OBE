@@ -277,7 +277,7 @@ const Page = () => {
           <TableCell className='flex gap-2 justify-center'>
             <Button
               onClick={() => {
-                router.push(`/dashboard/details/mk/${mk.kode}/`);
+                router.push(`/dashboard/data/mk/${mk.kode}/`);
               }}
             >
               Details
