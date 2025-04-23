@@ -143,6 +143,11 @@ export interface RangkumanPerformaResponse {
     rps: RPS[];
   }
 
+  export interface Kunci {
+    id: number;
+    kunci: boolean;
+  }
+
   export interface PL {
     id: number;
     kode: string;

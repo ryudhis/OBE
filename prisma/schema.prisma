@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model kunci {
+  id    Int    @id @unique @default(sequence())
+  kunci Boolean
+}
+
 model tahunAjaran {
   id              Int               @id @unique @default(sequence())
   tahun           String

@@ -3,6 +3,12 @@ const prisma = new PrismaClient();
 
 async function main() {
   try {
+    await prisma.kunci.create({
+      data: {
+        kunci: false,
+      },
+    });
+
     await prisma.prodi.create({
       data: {
         kode: "0",
@@ -112,10 +118,9 @@ async function main() {
         },
       },
     });
-
   } catch (e) {
     console.error("Error during seeding:", e);
-    throw e; 
+    throw e;
   }
 }
 
