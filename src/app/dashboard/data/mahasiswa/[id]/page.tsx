@@ -7,6 +7,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { RadarChartComponent } from "@/components/RadarChart";
 import { BarChartComponent } from "@/components/BarChart";
+import html2pdf from "html2pdf.js";
 
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -90,6 +91,22 @@ export default function Page({ params }: { params: { id: string } }) {
     }
   }, [mahasiswa]);
 
+  const generatePDF = () => {
+    const element = document.getElementById("main-content");
+    const options = {
+      margin: 1,
+      filename: `Detail_Mahasiswa_${mahasiswa?.nim || "unknown"}.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+    };
+    if (element) {
+      html2pdf().set(options).from(element).save();
+    } else {
+      console.error("Element not found for PDF generation.");
+    }
+  };
+
   if (accountData?.role === "Dosen") {
     toast({
       title: "Anda tidak memiliki akses untuk page detail PL prodi .",
@@ -103,63 +120,72 @@ export default function Page({ params }: { params: { id: string } }) {
     return (
       <main className="w-screen min-h-screen max-w-7xl mx-auto py-20 bg-[#FAFAFA] p-5">
         <p className="ml-2 font-bold text-2xl">Detail Mahasiswa</p>
-        <div className="flex">
-          <Table className="w-[1000px] table-fixed mb-5">
-            <TableBody>
-              <TableRow>
-                <TableCell className="w-[20%] p-2">
-                  <strong>Nama</strong>
-                </TableCell>
-                <TableCell className="p-2">: {mahasiswa.nama} </TableCell>
-              </TableRow>
-
-              <TableRow>
-                <TableCell className="w-[20%] p-2">
-                  <strong>NIM</strong>{" "}
-                </TableCell>
-                <TableCell className="p-2">: {mahasiswa.nim}</TableCell>
-              </TableRow>
-
-              <TableRow>
-                <TableCell className="w-[20%] p-2">
-                  <strong>Prodi</strong>
-                </TableCell>
-                <TableCell className="p-2">: {mahasiswa.prodi.nama} </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="w-[20%] p-2">
-                  <strong>Jumlah Kelas</strong>
-                </TableCell>
-                <TableCell className="p-2">
-                  : {mahasiswa.kelas.length}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="w-[20%] p-2">
-                  <strong>Jumlah SKS</strong>
-                </TableCell>
-                <TableCell className="p-2">
-                  : {countTotalSKS(mahasiswa)}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={generatePDF}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Generate
+          </button>
         </div>
-
-        <div className="flex flex-col gap-8 items-center">
-          <h3 className="text-2xl font-bold">Performa CPL Mahasiswa</h3>
-          <RadarChartComponent data={dataCPL} />
-        </div>
-        <div className="flex flex-col gap-8 items-center">
-          <h3 className="text-2xl font-bold">Performa CPMK Mahasiswa</h3>
-          <RadarChartComponent data={dataCPMK} />
-        </div>
-        <div className="flex flex-col gap-8 items-center">
-          <BarChartComponent
-            data={dataMK}
-            tipe="Performa MK Mahasiswa"
-            title="Performa MK Mahasiswa"
-          />
+        <div id="main-content">
+          <div className="flex">
+            <Table className="w-[1000px] table-fixed mb-5">
+              <TableBody>
+                <TableRow>
+                  <TableCell className="w-[20%] p-2">
+                    <strong>Nama</strong>
+                  </TableCell>
+                  <TableCell className="p-2">: {mahasiswa.nama} </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="w-[20%] p-2">
+                    <strong>NIM</strong>{" "}
+                  </TableCell>
+                  <TableCell className="p-2">: {mahasiswa.nim}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="w-[20%] p-2">
+                    <strong>Prodi</strong>
+                  </TableCell>
+                  <TableCell className="p-2">
+                    : {mahasiswa.prodi.nama}{" "}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="w-[20%] p-2">
+                    <strong>Jumlah Kelas</strong>
+                  </TableCell>
+                  <TableCell className="p-2">
+                    : {mahasiswa.kelas.length}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="w-[20%] p-2">
+                    <strong>Jumlah SKS</strong>
+                  </TableCell>
+                  <TableCell className="p-2">
+                    : {countTotalSKS(mahasiswa)}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+          <div className="flex flex-col gap-2 items-center">
+            <h3 className="text-2xl font-bold">Performa CPL Mahasiswa</h3>
+            <RadarChartComponent data={dataCPL} />
+          </div>
+          <div className="flex flex-col gap-2 items-center">
+            <h3 className="text-2xl font-bold">Performa CPMK Mahasiswa</h3>
+            <RadarChartComponent data={dataCPMK} />
+          </div>
+          <div className="flex flex-col gap-2 items-center">
+            <BarChartComponent
+              data={dataMK}
+              tipe="Performa MK Mahasiswa"
+              title="Performa MK Mahasiswa"
+            />
+          </div>
         </div>
       </main>
     );

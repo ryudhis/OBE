@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +29,14 @@ export default function CustomRadar({
   const [currentLevel, setCurrentLevel] = useState<"CPL" | "CPMK" | "MK">(
     "CPL"
   );
+
+  // Update currentData when the data prop changes
+  useEffect(() => {
+    setCurrentData(initialData);
+    setCurrentTitle("Semua CPL");
+    setCurrentLevel("CPL");
+    setHistory([]);
+  }, [initialData]);
 
   function parsePercentage(percentage: string): number {
     return Number.parseFloat(percentage.replace("%", ""));
