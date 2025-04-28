@@ -7,7 +7,7 @@ export async function GET(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -25,7 +25,9 @@ export async function GET(req) {
     // Calculate total items
     const totalItems = await prisma.CPL.count({
       where: {
-        prodiId: prodi,
+        prodiId: {
+          in: [prodi, "0"], // Fetch from prodi and "0"
+        },
         kode: {
           contains: search,
         },
@@ -41,7 +43,9 @@ export async function GET(req) {
     // Fetch paginated data
     const CPL = await prisma.CPL.findMany({
       where: {
-        prodiId: prodi,
+        prodiId: {
+          in: [prodi, "0"], // Fetch from prodi and "0"
+        },
         kode: {
           contains: search,
         },
@@ -88,7 +92,7 @@ export async function POST(req) {
   if (!tokenValidation.valid) {
     return new Response(
       JSON.stringify({ status: 401, message: tokenValidation.message }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { "Content-Type": "application/json" } }
     );
   }
 

@@ -56,7 +56,7 @@ const DataPenilaianCPMK = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}`
+        `api/penilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}&limit=99999`
       );
       if (response.data.status !== 400) {
         setPenilaianCPMK(response.data.data);

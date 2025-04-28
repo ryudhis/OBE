@@ -209,6 +209,7 @@ const Page = () => {
   useEffect(() => {
     if (accountData && accountData.role === "Super Admin") {
       getDataSistem();
+      getPerformaCPL(accountData.prodiId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -413,6 +414,24 @@ const Page = () => {
         </div>
       ) : accountData?.role === "Super Admin" ? (
         <>
+                  <div className='flex flex-col items-start'>
+            <Select
+              value={filterTahunAjaran}
+              onValueChange={(e) => setFilterTahunAjaran(e)}
+            >
+              <SelectTrigger className='w-[200px]'>
+                <SelectValue placeholder='Pilih Tahun Ajaran' />
+              </SelectTrigger>
+              <SelectContent>
+                {semester.map((tahun) => (
+                  <SelectItem key={tahun.id} value={String(tahun.id)}>
+                    {tahun.tahun}-{tahun.semester}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           <Card className='w-[1200px] mx-auto shadow-lg'>
             <CardHeader className='flex flex-row justify-between items-center'>
               <div className='flex flex-col'>
@@ -431,6 +450,27 @@ const Page = () => {
                   <p className='font-medium text-lg'>{item.count}</p>
                 </Card>
               ))}
+            </CardContent>
+          </Card>
+
+          <Card className='w-[1200px]'>
+            <CardHeader className='flex flex-row justify-between items-center'>
+              <div className='flex flex-col'>
+                <CardTitle>Performa CPL ITERA</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className='flex-1'>CPL</TableHead>
+                    <TableHead className='flex-1'>CPMK</TableHead>
+                    <TableHead className='flex-1'>MK</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>{renderRangkumanPerforma()}</TableBody>
+              </Table>
+              <CustomRadar data={calculatedCPL} />
             </CardContent>
           </Card>
 

@@ -121,6 +121,17 @@ export async function POST(req) {
       );
     }
 
+    
+    // Check if the combination of kode and prodiId exists
+    const existingCPL = await prisma.CPL.findUnique({
+      where: {
+        kode_prodiId: {
+          kode: data.CPL,
+          prodiId: prodiId,
+        },
+      },
+    });
+
     const penilaianCPMK = await prisma.penilaianCPMK.create({
       data: {
         ...restData,
@@ -141,7 +152,7 @@ export async function POST(req) {
           connect: {
             kode_prodiId: {
               kode: data.CPL,
-              prodiId: prodiId,
+              prodiId: existingCPL ? prodiId : "0", // Use 0 if the combination is not found
             },
           },
         },
