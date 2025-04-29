@@ -658,6 +658,17 @@ const updateKelas = async (data) => {
 
     console.log("dataCPL = ", dataCPL);
 
+    const mahasiswaPerbaikan = mahasiswaLulus
+      .filter((mahasiswa) => mahasiswa.statusLulus === "Tidak Lulus")
+      .map((mahasiswa) => ({
+        ...mahasiswa,
+        statusCPMK: mahasiswa.statusCPMK.filter(
+          (cpmk) => cpmk.statusLulus === "Tidak Lulus"
+        ),
+      }));
+
+    console.log("Perbaikan: ", mahasiswaPerbaikan);
+
     await prisma.kelas.update({
       where: {
         id: selectedKelas.id,

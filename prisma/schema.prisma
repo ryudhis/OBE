@@ -8,7 +8,7 @@ datasource db {
 }
 
 model kunci {
-  id    Int    @id @unique @default(sequence())
+  id    Int     @id @unique @default(sequence())
   kunci Boolean
 }
 
@@ -220,24 +220,25 @@ model rencanaPembelajaran {
 }
 
 model kelas {
-  id               Int                 @id @unique @default(sequence())
-  nama             String
-  MK               MK                  @relation(fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId             String
-  tahunAjaran      tahunAjaran         @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
-  tahunAjaranId    Int
-  mahasiswa        mahasiswa[]         @relation("kelas_mahasiswa")
-  nilaiMahasiswa   inputNilai[]
-  dosen            account[]           @relation("kelas_dosen")
-  jumlahLulus      Int
-  mahasiswaLulus   Json?
-  dataCPMK         Json?
-  dataCPL          Json?
-  lulusCPMK        lulusKelas_CPMK[]
-  evaluasiCPMK     evaluasiCPMKKelas[]
-  tindakLanjutCPMK String?
-  evaluasiCPL      evaluasiCPLKelas[]
-  tindakLanjutCPL  String?
+  id                 Int                 @id @unique @default(sequence())
+  nama               String
+  MK                 MK                  @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId               String
+  tahunAjaran        tahunAjaran         @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId      Int
+  mahasiswa          mahasiswa[]         @relation("kelas_mahasiswa")
+  nilaiMahasiswa     inputNilai[]
+  dosen              account[]           @relation("kelas_dosen")
+  jumlahLulus        Int
+  mahasiswaLulus     Json?
+  mahasiswaPerbaikan Json?
+  dataCPMK           Json?
+  dataCPL            Json?
+  lulusCPMK          lulusKelas_CPMK[]
+  evaluasiCPMK       evaluasiCPMKKelas[]
+  tindakLanjutCPMK   String?
+  evaluasiCPL        evaluasiCPLKelas[]
+  tindakLanjutCPL    String?
 
   @@unique([nama, MKId, tahunAjaranId])
   @@index([MKId])
