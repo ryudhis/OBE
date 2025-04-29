@@ -419,7 +419,7 @@ const updateKelas = async (data) => {
       });
     }
 
-    console.log("data CPMK :", dataCPMK);
+    // console.log("data CPMK :", dataCPMK);
 
     for (const mahasiswa of selectedKelas.mahasiswa) {
       const relevantNilai = await prisma.inputNilai.findMany({
@@ -528,17 +528,19 @@ const updateKelas = async (data) => {
           },
         });
 
-        console.log(
-          "persentase lulus CPMK = ",
-          dataCPMK[indexCPMK].jumlahLulus /
-            (selectedKelas.mahasiswa.length / 100)
-        );
+        // console.log(
+        //   "persentase lulus CPMK = ",
+        //   dataCPMK[indexCPMK].jumlahLulus /
+        //     (selectedKelas.mahasiswa.length / 100)
+        // );
 
         nilaiMahasiswa.push(daftarNilai);
 
         statusCPMK.push({
+          nilaiId: nilaiCPMK.id,
           namaCPMK: nilaiCPMK.penilaianCPMK.CPMK.kode,
           nilaiCPMK: totalNilaiCPMK.toFixed(2),
+          kriteria: nilaiCPMK.penilaianCPMK.kriteria.map((k) => k.kriteria),
           statusLulus:
             totalNilaiCPMK >=
             nilaiCPMK.penilaianCPMK.batasNilai * (totalBobot / 100)
@@ -569,6 +571,7 @@ const updateKelas = async (data) => {
       }
 
       const mahasiswaData = {
+        nama: mahasiswa.nama,
         nim: mahasiswa.nim,
         totalNilai: totalNilai.toFixed(2),
         indexNilai: indexNilai,
@@ -594,12 +597,12 @@ const updateKelas = async (data) => {
         },
       });
 
-      console.log("daftarNilai = ", mahasiswaData.nilaiMahasiswa);
-      console.log("statusCPMK = ", mahasiswaData.statusCPMK);
+      // console.log("daftarNilai = ", mahasiswaData.nilaiMahasiswa);
+      // console.log("statusCPMK = ", mahasiswaData.statusCPMK);
 
       mahasiswaLulus.push(mahasiswaData);
 
-      console.log(mahasiswa.nama, "=", totalNilai);
+      // console.log(mahasiswa.nama, "=", totalNilai);
 
       if (totalNilai >= MK.batasLulusMahasiswa) {
         totalLulusKelas += 1;
@@ -619,9 +622,21 @@ const updateKelas = async (data) => {
       ).toFixed(2);
     }
 
-    console.log("totalLulusKelas = ", totalLulusKelas);
+    // console.log("totalLulusKelas = ", totalLulusKelas);
 
-    console.log("Mahasiswa Lulus = ", mahasiswaLulus);
+    // console.log("Mahasiswa Lulus = ", mahasiswaLulus);
+
+    // Filter mahasiswa tidak lulus
+    const mahasiswaPerbaikan = mahasiswaLulus
+      .filter((mahasiswa) => mahasiswa.statusLulus === "Tidak Lulus")
+      .map((mahasiswa) => ({
+        ...mahasiswa,
+        statusCPMK: mahasiswa.statusCPMK.filter(
+          (cpmk) => cpmk.statusLulus === "Tidak Lulus"
+        ),
+      }));
+
+    // console.log("Perbaikan: ", mahasiswaPerbaikan);
 
     const cplMap = {};
 
@@ -656,18 +671,7 @@ const updateKelas = async (data) => {
           : 0,
     }));
 
-    console.log("dataCPL = ", dataCPL);
-
-    const mahasiswaPerbaikan = mahasiswaLulus
-      .filter((mahasiswa) => mahasiswa.statusLulus === "Tidak Lulus")
-      .map((mahasiswa) => ({
-        ...mahasiswa,
-        statusCPMK: mahasiswa.statusCPMK.filter(
-          (cpmk) => cpmk.statusLulus === "Tidak Lulus"
-        ),
-      }));
-
-    console.log("Perbaikan: ", mahasiswaPerbaikan);
+    // console.log("dataCPL = ", dataCPL);
 
     await prisma.kelas.update({
       where: {
@@ -676,6 +680,7 @@ const updateKelas = async (data) => {
       data: {
         jumlahLulus: totalLulusKelas,
         mahasiswaLulus: mahasiswaLulus,
+        mahasiswaPerbaikan: mahasiswaPerbaikan,
         dataCPMK: dataCPMK,
         dataCPL: dataCPL,
       },

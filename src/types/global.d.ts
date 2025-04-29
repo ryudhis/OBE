@@ -273,6 +273,7 @@ export interface RangkumanPerformaResponse {
     dosen: Account[];
     jumlahLulus: number;
     mahasiswaLulus?: mahasiswaLulus[];
+    mahasiswaPerbaikan?: mahasiswaLulus[];
     dataCPMK?: dataCPMK[];
     dataCPL?: dataCPL[];
     evaluasiCPMK: evaluasiCPMK[];
@@ -322,6 +323,7 @@ export interface RangkumanPerformaResponse {
   }
 
   export interface mahasiswaLulus {
+    nama: string;
     nim: string;
     totalNilai: number;
     statusLulus: string;
@@ -331,9 +333,11 @@ export interface RangkumanPerformaResponse {
   }
 
   export interface statusCPMK {
+    nilaiId: number;
     namaCPMK: string;
     nilaiCPMK: number;
     statusLulus: string;
+    kriteria: string[];
   }
 
   export interface nilaiMahasiswa {

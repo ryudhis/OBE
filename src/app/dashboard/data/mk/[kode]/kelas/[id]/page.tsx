@@ -38,6 +38,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { BarChartComponent } from "@/components/BarChart";
 import { Check, X } from "lucide-react";
+import RepairNilai from "@/components/RepairNilai";
 
 interface mahasiswaExcel {
   NIM: string;
@@ -47,7 +48,7 @@ interface mahasiswaExcel {
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
-  const [kelas, setKelas] = useState<Kelas | undefined>();
+  const [kelas, setKelas] = useState<Kelas>();
   const [dataMahasiswaLulus, setDataMahasiswaLulus] = useState<
     mahasiswaLulus[]
   >([]);
@@ -718,7 +719,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       </Table>
                     )}
                   </CardContent>
-                  <CardFooter className="flex justify-between">
+                  <CardFooter className='flex justify-between'>
                     <Button
                       onClick={() => {
                         exportTemplate();
@@ -775,8 +776,9 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue='nilai' className='w-full'>
-                <TabsList className='grid w-full grid-cols-3'>
+                <TabsList className='grid w-full grid-cols-4'>
                   <TabsTrigger value='nilai'>Nilai Mahasiswa</TabsTrigger>
+                  <TabsTrigger value='perbaikan'>Perbaikan</TabsTrigger>
                   <TabsTrigger value='rangkumanCPMK'>
                     Rangkuman Evaluasi CPMK
                   </TabsTrigger>
@@ -887,6 +889,13 @@ export default function Page({ params }: { params: { id: string } }) {
                       </Table>
                     </div>
                   )}
+                </TabsContent>
+
+                <TabsContent value='perbaikan'>
+                  <RepairNilai
+                    mahasiswaPerbaikan={kelas.mahasiswaPerbaikan ?? []}
+                    setRefresh={setRefresh}
+                  />
                 </TabsContent>
 
                 <TabsContent value='rangkumanCPMK'>
