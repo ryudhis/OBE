@@ -51,7 +51,6 @@ export async function GET(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-  // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
     return new Response(
@@ -60,13 +59,26 @@ export async function DELETE(req, { params }) {
     );
   }
 
-  const id = parseInt(params.id); // Directly get id from params
+  const id = parseInt(params.id);
 
   try {
+    // Check for related inputNilai entries
+    const relatedCount = await prisma.inputNilai.count({
+      where: { penilaianCPMKId: id },
+    });
+
+    if (relatedCount > 0) {
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          message: "PCPMK sudah memiliki nilai yang sudah di input!",
+        }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const penilaianCPMK = await prisma.penilaianCPMK.delete({
-      where: {
-        id,
-      },
+      where: { id },
     });
 
     return new Response(
@@ -86,8 +98,8 @@ export async function DELETE(req, { params }) {
   }
 }
 
+
 export async function PATCH(req, { params }) {
-  // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
     return new Response(
@@ -96,14 +108,27 @@ export async function PATCH(req, { params }) {
     );
   }
 
-  const id = parseInt(params.id); // Directly get id from params
-  const data = await req.json(); // Get the updated data
+  const id = parseInt(params.id);
+  const data = await req.json();
 
   try {
+    // Check for related inputNilai entries
+    const relatedCount = await prisma.inputNilai.count({
+      where: { penilaianCPMKId: id },
+    });
+
+    if (relatedCount > 0) {
+      return new Response(
+        JSON.stringify({
+          status: 400,
+          message: "PCPMK sudah memiliki nilai yang sudah di input!",
+        }),
+        { headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     const penilaianCPMK = await prisma.penilaianCPMK.update({
-      where: {
-        id,
-      },
+      where: { id },
       data,
     });
 

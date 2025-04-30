@@ -45,16 +45,6 @@ import { useKunci } from "@/app/contexts/KunciContext";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  tahapPenilaian: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    }),
-  teknikPenilaian: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    }),
   instrumen: z
     .string({
       required_error: "Please select Instrumen to display.",
@@ -135,8 +125,6 @@ export default function Page({ params }: { params: { id: string } }) {
         setPCPMK(response.data.data);
 
         form.reset({
-          tahapPenilaian: [],
-          teknikPenilaian: [],
           instrumen: response.data.data.instrumen,
           batasNilai: String(response.data.data.batasNilai),
         });
