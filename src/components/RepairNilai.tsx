@@ -25,31 +25,46 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
     cpmkId: number
   } | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [selectedCPMK, setSelectedCPMK] = useState<{
+  const [selectedMahasiswaData, setSelectedMahasiswaData] = useState<{
     nim: string
-    cpmkId: number
-    cpmkName: string
-    kriteria: string[]
-    nilai: number[]
+    nama: string
+    cpmkData: {
+      cpmkId: number
+      cpmkName: string
+      kriteria: string[]
+      nilai: number[]
+      batasNilai: number
+    }[]
   } | null>(null)
 
-  const handlePerbaiki = (e: React.MouseEvent, mahasiswaNim: string, cpmkId: number, cpmkName: string) => {
+  const handlePerbaikiAll = (e: React.MouseEvent, mahasiswa: mahasiswaLulus) => {
     e.stopPropagation()
-    const mahasiswa = mahasiswaPerbaikan.find((m) => m.nim === mahasiswaNim)
-    if (!mahasiswa) return
 
-    const cpmkData = mahasiswa.statusCPMK.find((c) => c.nilaiId === cpmkId)
-    if (!cpmkData) return
+    const cpmkDataArray = mahasiswa.statusCPMK
+      .map((cpmk) => {
+        const nilaiData = findNilaiMahasiswa(mahasiswa, cpmk.namaCPMK)
+        if (!nilaiData) return null
 
-    const nilaiData = findNilaiMahasiswa(mahasiswa, cpmkName)
-    if (!nilaiData) return
+        return {
+          cpmkId: cpmk.nilaiId,
+          cpmkName: cpmk.namaCPMK,
+          kriteria: cpmk.kriteria,
+          nilai: [...nilaiData.nilai],
+          batasNilai: nilaiData.batasNilai,
+        }
+      })
+      .filter(Boolean) as {
+      cpmkId: number
+      cpmkName: string
+      kriteria: string[]
+      nilai: number[]
+      batasNilai: number
+    }[]
 
-    setSelectedCPMK({
-      nim: mahasiswaNim,
-      cpmkId,
-      cpmkName,
-      kriteria: cpmkData.kriteria,
-      nilai: [...nilaiData.nilai],
+    setSelectedMahasiswaData({
+      nim: mahasiswa.nim,
+      nama: mahasiswa.nama,
+      cpmkData: cpmkDataArray,
     })
 
     setDialogOpen(true)
@@ -67,51 +82,59 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
     }
   }
 
-  const handleNilaiChange = (index: number, value: string) => {
-    if (!selectedCPMK) return
+  const handleNilaiChange = (cpmkIndex: number, kriteriaIndex: number, value: string) => {
+    if (!selectedMahasiswaData) return
 
-    const newNilai = [...selectedCPMK.nilai]
-    newNilai[index] = Number.parseFloat(value) || 0
+    const newCpmkData = [...selectedMahasiswaData.cpmkData]
+    const newNilai = [...newCpmkData[cpmkIndex].nilai]
+    newNilai[kriteriaIndex] = Number.parseFloat(value) || 0
 
-    setSelectedCPMK({
-      ...selectedCPMK,
+    newCpmkData[cpmkIndex] = {
+      ...newCpmkData[cpmkIndex],
       nilai: newNilai,
+    }
+
+    setSelectedMahasiswaData({
+      ...selectedMahasiswaData,
+      cpmkData: newCpmkData,
     })
   }
 
-  const handleSubmitPerbaikan = () => {
-    if (!selectedCPMK) return
-
-    const data = {
-      nilai: selectedCPMK.nilai,
-    }
-
-    axiosConfig
-      .patch(`api/inputNilai/${selectedCPMK.cpmkId}`, data)
-      .then((response) => {
-        if (response.data.status != 400) {
-          setRefresh((prev: boolean) => !prev)
-          toast({
-            title: "Berhasil Perbaiki Nilai",
-            description: String(new Date()),
-          })
-        } else {
-          toast({
-            title: response.data.message,
-            description: String(new Date()),
-            variant: "destructive",
-          })
-        }
-      })
-      .catch((error) => {
+  const handleSubmitPerbaikan = async () => {
+    if (!selectedMahasiswaData) return
+  
+    try {
+      // Prepare an array of objects with cpmkId and nilai
+      const payload = selectedMahasiswaData.cpmkData.map((cpmk) => ({
+        cpmkId: cpmk.cpmkId,
+        nilai: cpmk.nilai,
+      }))
+  
+      // Send the array in a single PATCH request
+      const response = await axiosConfig.patch(`api/inputNilai/perbaiki`, payload)
+  
+      if (response.data.status !== 400) {
+        setRefresh((prev: boolean) => !prev)
         toast({
-          title: "Gagal Perbaiki Nilai",
+          title: "Berhasil Perbaiki Nilai",
+          description: String(new Date()),
+        })
+      } else {
+        toast({
+          title: "Beberapa nilai gagal diperbaiki",
           description: String(new Date()),
           variant: "destructive",
         })
-        console.log(error)
+      }
+    } catch (error) {
+      toast({
+        title: "Gagal Perbaiki Nilai",
+        description: String(new Date()),
+        variant: "destructive",
       })
-
+      console.log(error)
+    }
+  
     setDialogOpen(false)
   }
 
@@ -153,6 +176,14 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
                       <div className="text-2xl font-bold">{mahasiswa.indexNilai}</div>
                       <div className="text-xs text-muted-foreground">Index</div>
                     </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/50 dark:hover:text-red-300"
+                      onClick={(e) => handlePerbaikiAll(e, mahasiswa)}
+                    >
+                      Perbaiki
+                    </Button>
                     <ChevronRight
                       className={`transition-transform ${selectedMahasiswa === mahasiswa.nim ? "rotate-90" : ""}`}
                     />
@@ -170,7 +201,6 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
                           <TableHead>Nama CPMK</TableHead>
                           <TableHead>Nilai</TableHead>
                           <TableHead>Batas Nilai</TableHead>
-                          <TableHead>Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -206,14 +236,6 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
                                   </div>
                                 </TableCell>
                                 <TableCell>{nilaiData.batasNilai}</TableCell>
-                                <TableCell>
-                                  <Button
-                                    size="sm"
-                                    onClick={(e) => handlePerbaiki(e, mahasiswa.nim, cpmk.nilaiId, cpmk.namaCPMK)}
-                                  >
-                                    Perbaiki
-                                  </Button>
-                                </TableCell>
                               </TableRow>
                               {isExpanded && (
                                 <TableRow className="bg-red-50/50 dark:bg-red-950/10">
@@ -262,27 +284,39 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
       )}
       {/* Dialog for updating nilai */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Perbaiki Nilai {selectedCPMK?.cpmkName}</DialogTitle>
+            <DialogTitle>Perbaiki Nilai Mahasiswa: {selectedMahasiswaData?.nama}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {selectedCPMK?.kriteria.map((kriteria, index) => (
-              <div key={index} className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor={`nilai-${index}`} className="text-right col-span-1">
-                  {kriteria}
-                </Label>
-                <div className="col-span-3">
-                  <Input
-                    id={`nilai-${index}`}
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="100"
-                    value={selectedCPMK?.nilai[index] || 0}
-                    onChange={(e) => handleNilaiChange(index, e.target.value)}
-                    className="w-full"
-                  />
+          <div className="py-4">
+            {selectedMahasiswaData?.cpmkData.map((cpmk, cpmkIndex) => (
+              <div key={cpmkIndex} className="mb-6 border rounded-lg p-4 bg-red-50/30 dark:bg-red-950/10">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-lg font-semibold">{cpmk.cpmkName}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Batas Nilai: {cpmk.batasNilai}</span>
+                  </div>
+                </div>
+                <div className="grid gap-4">
+                  {cpmk.kriteria.map((kriteria, kriteriaIndex) => (
+                    <div key={kriteriaIndex} className="grid grid-cols-6 items-center gap-4">
+                      <Label htmlFor={`nilai-${cpmkIndex}-${kriteriaIndex}`} className="text-right col-span-2">
+                        {kriteria}
+                      </Label>
+                      <div className="col-span-4">
+                        <Input
+                          id={`nilai-${cpmkIndex}-${kriteriaIndex}`}
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={cpmk.nilai[kriteriaIndex] || 0}
+                          onChange={(e) => handleNilaiChange(cpmkIndex, kriteriaIndex, e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -291,8 +325,12 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
             <DialogClose asChild>
               <Button variant="outline">Batal</Button>
             </DialogClose>
-            <Button type="button" onClick={handleSubmitPerbaikan}>
-              Simpan Perubahan
+            <Button
+              type="button"
+              onClick={handleSubmitPerbaikan}
+              className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+            >
+              Simpan Semua Perubahan
             </Button>
           </DialogFooter>
         </DialogContent>
