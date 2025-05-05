@@ -132,34 +132,46 @@ model BK {
 }
 
 model MK {
-  kode                String                @id @unique
-  deskripsi           String
-  deskripsiInggris    String
-  sks                 String
-  semester            String
-  batasLulusMahasiswa Float
-  batasLulusMK        Float
-  lulusMK             lulusMK[]
-  lulusMK_CPMK        lulusMK_CPMK[]
-  kelas               kelas[]
-  BK                  BK[]                  @relation("bk_mk")
-  CPMK                CPMK[]                @relation("cpmk_mk")
-  penilaianCPMK       penilaianCPMK[]
-  KK                  kelompokKeahlian      @relation(fields: [KKId], references: [id])
-  KKId                Int
-  prodi               prodi                 @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId             String
-  rencanaPembelajaran rencanaPembelajaran[]
-  rps                 rps?                  @relation(name: "mk-rps")
-  mahasiswa_MK        mahasiswa_MK[]
-  mahasiswa_MK_CPMK   mahasiswa_MK_CPMK[]
+  kode                  String                  @id @unique
+  deskripsi             String
+  deskripsiInggris      String
+  sks                   String
+  semester              String
+  batasLulusMahasiswa   Float
+  batasLulusMK          Float
+  lulusMK               lulusMK[]
+  lulusMK_CPMK          lulusMK_CPMK[]
+  kelas                 kelas[]
+  BK                    BK[]                    @relation("bk_mk")
+  CPMK                  CPMK[]                  @relation("cpmk_mk")
+  templatePenilaianCPMK templatePenilaianCPMK[]
+  KK                    kelompokKeahlian        @relation(fields: [KKId], references: [id])
+  KKId                  Int
+  prodi                 prodi                   @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId               String
+  rencanaPembelajaran   rencanaPembelajaran[]
+  rps                   rps?                    @relation(name: "mk-rps")
+  mahasiswa_MK          mahasiswa_MK[]
+  mahasiswa_MK_CPMK     mahasiswa_MK_CPMK[]
 
   // self relation
-  prerequisitesMK   MK[] @relation("Prerequisites")
-  isPrerequisiteFor MK[] @relation("Prerequisites")
+  prerequisitesMK   MK[]            @relation("Prerequisites")
+  isPrerequisiteFor MK[]            @relation("Prerequisites")
+  penilaianCPMK     penilaianCPMK[]
 
   @@index([KKId])
   @@index([prodiId])
+}
+
+model templatePenilaianCPMK {
+  id            Int             @id @unique @default(sequence())
+  template      String
+  MK            MK              @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId          String
+  penilaianCPMK penilaianCPMK[]
+  kelas         kelas[]
+
+  @@index([MKId])
 }
 
 model rps {
@@ -224,6 +236,8 @@ model kelas {
   nama               String
   MK                 MK                  @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId               String
+  templatePenilaianCPMK templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id])
+  templatePenilaianCPMKId Int
   tahunAjaran        tahunAjaran         @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
   tahunAjaranId      Int
   mahasiswa          mahasiswa[]         @relation("kelas_mahasiswa")
@@ -243,6 +257,7 @@ model kelas {
   @@unique([nama, MKId, tahunAjaranId])
   @@index([MKId])
   @@index([tahunAjaranId])
+  @@index([templatePenilaianCPMKId])
 }
 
 model evaluasiCPMKKelas {
@@ -323,22 +338,24 @@ model lulusCPMK {
 }
 
 model penilaianCPMK {
-  id              Int          @id @unique @default(sequence())
-  kode            String
-  CPL             CPL          @relation(fields: [CPLkode], references: [id], onDelete: Cascade)
-  CPLkode         Int
-  MK              MK           @relation(fields: [MKkode], references: [kode], onDelete: Cascade)
-  MKkode          String
-  CPMK            CPMK         @relation(fields: [CPMKkode], references: [id], onDelete: Cascade)
-  CPMKkode        Int
-  tahapPenilaian  String
-  teknikPenilaian String
-  instrumen       String
-  batasNilai      Float
-  kriteria        Json
-  inputNilai      inputNilai[]
-  prodi           prodi        @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
-  prodiId         String
+  id                      Int                   @id @unique @default(sequence())
+  kode                    String
+  CPL                     CPL                   @relation(fields: [CPLkode], references: [id], onDelete: Cascade)
+  CPLkode                 Int
+  MK                      MK                    @relation(fields: [MKkode], references: [kode], onDelete: Cascade)
+  MKkode                  String
+  CPMK                    CPMK                  @relation(fields: [CPMKkode], references: [id], onDelete: Cascade)
+  CPMKkode                Int
+  tahapPenilaian          String
+  teknikPenilaian         String
+  instrumen               String
+  batasNilai              Float
+  kriteria                Json
+  inputNilai              inputNilai[]
+  prodi                   prodi                 @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
+  prodiId                 String
+  templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id])
+  templatePenilaianCPMKId Int
 
   @@unique([kode, prodiId])
   @@index([CPLkode])
