@@ -16,7 +16,15 @@ export async function GET(req, { params }) {
     const MK = await prisma.MK.findUnique({
       where: { kode: kode },
       include: {
-        penilaianCPMK: { include: { CPMK: true } },
+        templatePenilaianCPMK: {
+          include: {
+            penilaianCPMK: {
+              include: {
+                CPMK: true,
+              },
+            },
+          },
+        },
         BK: { include: { CPL: true } },
         CPMK: { include: { CPL: true } },
         kelas: {

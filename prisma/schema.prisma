@@ -166,6 +166,7 @@ model MK {
 model templatePenilaianCPMK {
   id            Int             @id @unique @default(sequence())
   template      String
+  active        Boolean
   MK            MK              @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId          String
   penilaianCPMK penilaianCPMK[]
@@ -232,27 +233,27 @@ model rencanaPembelajaran {
 }
 
 model kelas {
-  id                 Int                 @id @unique @default(sequence())
-  nama               String
-  MK                 MK                  @relation(fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId               String
-  templatePenilaianCPMK templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id])
+  id                      Int                   @id @unique @default(sequence())
+  nama                    String
+  MK                      MK                    @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId                    String
+  templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id])
   templatePenilaianCPMKId Int
-  tahunAjaran        tahunAjaran         @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
-  tahunAjaranId      Int
-  mahasiswa          mahasiswa[]         @relation("kelas_mahasiswa")
-  nilaiMahasiswa     inputNilai[]
-  dosen              account[]           @relation("kelas_dosen")
-  jumlahLulus        Int
-  mahasiswaLulus     Json?
-  mahasiswaPerbaikan Json?
-  dataCPMK           Json?
-  dataCPL            Json?
-  lulusCPMK          lulusKelas_CPMK[]
-  evaluasiCPMK       evaluasiCPMKKelas[]
-  tindakLanjutCPMK   String?
-  evaluasiCPL        evaluasiCPLKelas[]
-  tindakLanjutCPL    String?
+  tahunAjaran             tahunAjaran           @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
+  tahunAjaranId           Int
+  mahasiswa               mahasiswa[]           @relation("kelas_mahasiswa")
+  nilaiMahasiswa          inputNilai[]
+  dosen                   account[]             @relation("kelas_dosen")
+  jumlahLulus             Int
+  mahasiswaLulus          Json?
+  mahasiswaPerbaikan      Json?
+  dataCPMK                Json?
+  dataCPL                 Json?
+  lulusCPMK               lulusKelas_CPMK[]
+  evaluasiCPMK            evaluasiCPMKKelas[]
+  tindakLanjutCPMK        String?
+  evaluasiCPL             evaluasiCPLKelas[]
+  tindakLanjutCPL         String?
 
   @@unique([nama, MKId, tahunAjaranId])
   @@index([MKId])
@@ -354,7 +355,7 @@ model penilaianCPMK {
   inputNilai              inputNilai[]
   prodi                   prodi                 @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId                 String
-  templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id])
+  templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id], onDelete: Cascade)
   templatePenilaianCPMKId Int
 
   @@unique([kode, prodiId])

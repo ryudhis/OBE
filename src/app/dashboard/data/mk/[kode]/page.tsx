@@ -58,6 +58,7 @@ import { DataCard } from "@/components/DataCard";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import logo from "/public/Logo1.png";
+import TemplatePenilaianContent from "@/components/TemplatePenilaianContent";
 
 const formSchema = z.object({
   deskripsi: z.string().min(1),
@@ -1551,15 +1552,16 @@ export default function Page({ params }: { params: { kode: string } }) {
         <Tabs defaultValue='kelas' className='w-full'>
           <TabsList
             className={`grid w-full ${
-              accountData?.role === "Dosen" ? "grid-cols-4" : "grid-cols-5"
+              accountData?.role === "Dosen" ? "grid-cols-5" : "grid-cols-6"
             }`}
           >
             <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
             <TabsTrigger value='rencana'>Rencana Pembelajaran</TabsTrigger>
-            <TabsTrigger value='asesment'>
-              Rencana Asesment dan Evaluasi
-            </TabsTrigger>
+            <TabsTrigger value='asesment'>Asesment dan Evaluasi</TabsTrigger>
             <TabsTrigger value='rps'>RPS</TabsTrigger>
+            <TabsTrigger value='templatePenilaian'>
+              Template Penilaian
+            </TabsTrigger>
             <TabsTrigger
               className={accountData?.role === "Dosen" ? "hidden" : ""}
               value='relasi'
@@ -1567,6 +1569,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               Sambungkan CPMK/BK
             </TabsTrigger>
           </TabsList>
+
           <TabsContent value='kelas'>
             {filteredKelas?.length != 0 ? (
               <Card className='w-[1200px] mx-auto'>
@@ -1678,6 +1681,7 @@ export default function Page({ params }: { params: { kode: string } }) {
               </Form>
             )}
           </TabsContent>
+
           <TabsContent className='flex flex-col gap-3' value='rencana'>
             <Dialog>
               <DialogTrigger asChild>
@@ -1844,7 +1848,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             )}
           </TabsContent>
 
-          <TabsContent value='asesment'>
+          {/* <TabsContent value='asesment'>
             <Card className='w-[1000px] mx-auto'>
               <CardHeader className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>
@@ -1924,7 +1928,6 @@ export default function Page({ params }: { params: { kode: string } }) {
                             )}
                           />
 
-                          {/* Pustaka Utama Fields */}
                           <div>
                             <div className='flex justify-between items-center mb-3'>
                               <FormLabel>Pustaka Utama</FormLabel>
@@ -1966,7 +1969,6 @@ export default function Page({ params }: { params: { kode: string } }) {
                             ))}
                           </div>
 
-                          {/* Pustaka Pendukung Fields */}
                           <div>
                             <div className='flex justify-between items-center mb-3'>
                               <FormLabel>Pustaka Pendukung</FormLabel>
@@ -2015,7 +2017,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                             ))}
                           </div>
 
-                          {/* Additional Fields */}
+             
                           <FormField
                             name='hardware'
                             control={rpsForm.control}
@@ -2294,6 +2296,14 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent> */}
+
+          <TabsContent value='templatePenilaian'>
+            <TemplatePenilaianContent
+              templates={mk?.templatePenilaianCPMK}
+              mkId={mk?.kode}
+              setRefresh={setRefresh}
+            />
           </TabsContent>
 
           <TabsContent value='relasi'>

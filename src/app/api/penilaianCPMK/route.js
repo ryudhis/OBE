@@ -37,10 +37,8 @@ export async function GET(req) {
 
     // Calculate total items
     const totalItems = await prisma.penilaianCPMK.count({
-      where
+      where,
     });
-
-    console.log(MK);
 
     // Calculate total pages
     const totalPages = Math.max(Math.ceil(totalItems / limit), 1);
@@ -97,7 +95,7 @@ export async function POST(req) {
 
     const filteredPCPMK = await prisma.penilaianCPMK.findMany({
       where: {
-        MKkode: data.MK,
+        templatePenilaianCPMKId: data.templateId,
       },
     });
 
@@ -121,7 +119,6 @@ export async function POST(req) {
       );
     }
 
-    
     // Check if the combination of kode and prodiId exists
     const existingCPL = await prisma.CPL.findUnique({
       where: {
@@ -135,6 +132,11 @@ export async function POST(req) {
     const penilaianCPMK = await prisma.penilaianCPMK.create({
       data: {
         ...restData,
+        templatePenilaianCPMK: {
+          connect: {
+            id: data.templateId,
+          },
+        },
         MK: {
           connect: {
             kode: data.MK,
