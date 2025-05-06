@@ -52,9 +52,19 @@ export async function POST(req) {
     const jumlahKelas = Math.max(1, Math.min(data.jumlahKelas, 4)); // Limit between 1 and 4
     const namaBase = "R"; // Base name for kelas
 
+    const templateId = await prisma.templatePenilaianCPMK.findFirst({
+      where: {
+        MKId: data.MKId,
+        active: true,
+      },
+    });
+
     // Create multiple kelas
     for (let i = 0; i < jumlahKelas; i++) {
-      const nama = jumlahKelas === 1 ? namaBase : `${namaBase}${String.fromCharCode(65 + i)}`;
+      const nama =
+        jumlahKelas === 1
+          ? namaBase
+          : `${namaBase}${String.fromCharCode(65 + i)}`;
       await prisma.kelas.create({
         data: {
           nama: nama,
@@ -63,6 +73,11 @@ export async function POST(req) {
           MK: {
             connect: {
               kode: data.MKId,
+            },
+          },
+          templatePenilaianCPMK: {
+            connect: {
+              id: templateId.id,
             },
           },
           tahunAjaran: {
