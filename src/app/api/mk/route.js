@@ -14,7 +14,7 @@ export async function GET(req) {
   // Get the default tahun ajaran if no tahun ajaran parameter is provided
   const defaultTahunAjaran = await prisma.tahunAjaran.findFirst({
     orderBy: {
-      id: 'desc',
+      id: "desc",
     },
   });
 
@@ -87,7 +87,15 @@ export async function GET(req) {
         BK: true,
         CPMK: { include: { CPL: true } },
         kelas: { include: { mahasiswa: true, tahunAjaran: true } },
-        penilaianCPMK: { include: { CPMK: true } },
+        templatePenilaianCPMK: {
+          include: {
+            penilaianCPMK: {
+              include: {
+                CPMK: true,
+              },
+            },
+          },
+        },
         lulusMK: true,
         lulusMK_CPMK: true,
       },

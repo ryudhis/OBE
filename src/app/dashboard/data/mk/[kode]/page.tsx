@@ -95,6 +95,7 @@ const rpsSchema = z.object({
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MK | undefined>();
+  const [currentTemplate, setCurrentTemplate] = useState<TemplatePenilaianCPMK>();
   const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
   const { accountData } = useAccount();
   const { kunciData } = useKunci();
@@ -284,6 +285,11 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
       } else {
         setMK(response.data.data);
+
+        const activeTemplate = response.data.data.templatePenilaianCPMK.find(
+          (template: TemplatePenilaianCPMK) => template.active === true
+        );
+        setCurrentTemplate(activeTemplate);
 
         setListCPL(
           Array.from(
@@ -1200,14 +1206,14 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   const renderDataAsesment = () => {
-    if (!mk) return null;
+    if (!currentTemplate) return null;
 
     const kriteriaMap = new Map<
       string,
       { bobot: number[]; totalBobot: number }
     >();
 
-    mk.penilaianCPMK.forEach((CPMK) => {
+    currentTemplate.penilaianCPMK.forEach((CPMK) => {
       CPMK.kriteria.forEach((kriteria) => {
         if (!kriteriaMap.has(kriteria.kriteria)) {
           kriteriaMap.set(kriteria.kriteria, { bobot: [], totalBobot: 0 });
@@ -1224,7 +1230,7 @@ export default function Page({ params }: { params: { kode: string } }) {
       <TableRow key={kriteriaName}>
         <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
         <TableCell className='w-[16%]'>{kriteriaName}</TableCell>
-        {mk.penilaianCPMK.map((CPMK) => (
+        {currentTemplate.penilaianCPMK.map((CPMK) => (
           <React.Fragment key={CPMK.CPMKkode}>
             {CPMK.kriteria.some((k) => k.kriteria === kriteriaName) ? (
               <TableCell className='w-[8%] text-center'>
@@ -1848,7 +1854,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             )}
           </TabsContent>
 
-          {/* <TabsContent value='asesment'>
+          <TabsContent value='asesment'>
             <Card className='w-[1000px] mx-auto'>
               <CardHeader className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>
@@ -1865,7 +1871,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHead className='w-[16%]'>
                         Rencana Evaluasi
                       </TableHead>
-                      {mk.penilaianCPMK.map((CPMK) => (
+                      {currentTemplate?.penilaianCPMK.map((CPMK) => (
                         <TableHead
                           key={CPMK.CPMK.kode}
                           className='w-[8%] text-center'
@@ -1884,7 +1890,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             </Card>
           </TabsContent>
 
-          <TabsContent className='flex flex-col gap-3' value='rps'>
+          {/* <TabsContent className='flex flex-col gap-3' value='rps'>
             <Card className='mx-auto w-[100%]'>
               <CardHeader className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>

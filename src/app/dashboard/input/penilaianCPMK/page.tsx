@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, set } from "react-hook-form";
 import axiosConfig from "../../../../utils/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,6 +36,9 @@ import { useAccount } from "@/app/contexts/AccountContext";
 
 const formSchema = z.object({
   MK: z.string({ required_error: "Please select MK to display." }),
+  templatePenilaianCPMK: z.string({
+    required_error: "Please select Template Penilaian to display.",
+  }),
   CPMK: z.string({ required_error: "Please select CPMK to display." }),
   CPL: z.string({ required_error: "Please select CPL to display." }),
   tahapPenilaian: z
@@ -127,6 +130,7 @@ const InputPenilaianCPMK = () => {
 
   const defaultValues = {
     MK: "",
+    templatePenilaian: "",
     CPMK: "",
     CPL: "",
     tahapPenilaian: [],
@@ -184,6 +188,7 @@ const InputPenilaianCPMK = () => {
     const data = {
       kode: kode,
       MK: values.MK,
+      templatePenilaianCPMK: parseInt(values.templatePenilaianCPMK),
       CPMK: values.CPMK,
       CPL: values.CPL,
       tahapPenilaian: concat(values.tahapPenilaian),
@@ -256,6 +261,7 @@ const InputPenilaianCPMK = () => {
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
+                        form.resetField("templatePenilaianCPMK");
                         form.resetField("CPMK");
                         form.resetField("CPL");
                         setSelectedMK(MK.find((mk) => mk.kode === value));
@@ -278,6 +284,39 @@ const InputPenilaianCPMK = () => {
                         {filteredMK.map((item) => (
                           <SelectItem key={item.kode} value={item.kode}>
                             {item.kode} - {item.deskripsi}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='templatePenilaianCPMK'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Template Penilaian</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.resetField("CPMK");
+                        form.resetField("CPL");
+                      }}
+                      value={field.value}
+                      disabled={!selectedMK}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Pilih Template Penilaian CPMK' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {selectedMK?.templatePenilaianCPMK.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.template}
                           </SelectItem>
                         ))}
                       </SelectContent>

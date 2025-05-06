@@ -134,7 +134,7 @@ export async function POST(req) {
         ...restData,
         templatePenilaianCPMK: {
           connect: {
-            id: data.templateId,
+            id: data.templatePenilaianCPMK,
           },
         },
         MK: {
@@ -154,7 +154,7 @@ export async function POST(req) {
           connect: {
             kode_prodiId: {
               kode: data.CPL,
-              prodiId: existingCPL ? prodiId : "0", // Use 0 if the combination is not found
+              prodiId: existingCPL ? prodiId : "0", 
             },
           },
         },
