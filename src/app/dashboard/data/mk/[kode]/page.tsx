@@ -95,7 +95,8 @@ const rpsSchema = z.object({
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
   const [mk, setMK] = useState<MK | undefined>();
-  const [currentTemplate, setCurrentTemplate] = useState<TemplatePenilaianCPMK>();
+  const [currentTemplate, setCurrentTemplate] =
+    useState<TemplatePenilaianCPMK>();
   const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
   const { accountData } = useAccount();
   const { kunciData } = useKunci();
@@ -1126,7 +1127,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     // Step 1: Gather all unique kriteria
     const allKriteria = Array.from(
       new Set(
-        mk?.penilaianCPMK.flatMap((item) =>
+        currentTemplate?.penilaianCPMK.flatMap((item) =>
           item.kriteria.map((k) => k.kriteria)
         )
       )
@@ -1140,7 +1141,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     let totalBobotSum = 0;
 
     // Step 3: Create table rows with CPMK, corresponding bobot for each kriteria, and total bobot
-    const tableData = mk?.penilaianCPMK.map((pcpmk) => {
+    const tableData = currentTemplate?.penilaianCPMK.map((pcpmk) => {
       const row: { [key: string]: number | string } = { kode: pcpmk.CPMK.kode };
 
       let totalBobot = 0;
@@ -1890,7 +1891,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             </Card>
           </TabsContent>
 
-          {/* <TabsContent className='flex flex-col gap-3' value='rps'>
+          <TabsContent className='flex flex-col gap-3' value='rps'>
             <Card className='mx-auto w-[100%]'>
               <CardHeader className='flex flex-row justify-between items-center'>
                 <div className='flex flex-col'>
@@ -2023,7 +2024,6 @@ export default function Page({ params }: { params: { kode: string } }) {
                             ))}
                           </div>
 
-             
                           <FormField
                             name='hardware'
                             control={rpsForm.control}
@@ -2302,7 +2302,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                 </Table>
               </CardContent>
             </Card>
-          </TabsContent> */}
+          </TabsContent>
 
           <TabsContent value='templatePenilaian'>
             <TemplatePenilaianContent

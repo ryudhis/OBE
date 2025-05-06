@@ -347,7 +347,6 @@ const updateKelas = async (data) => {
         kode: data.MKId,
       },
       include: {
-        penilaianCPMK: { include: { CPMK: true, CPL: true } },
         kelas: {
           include: {
             mahasiswa: {
@@ -389,6 +388,11 @@ const updateKelas = async (data) => {
         id: data.kelasId,
       },
       include: {
+        templatePenilaianCPMK: {
+          include: {
+            penilaianCPMK: { include: { CPMK: true, CPL: true } },
+          },
+        },
         mahasiswa: true,
         tahunAjaran: true,
       },
@@ -402,7 +406,7 @@ const updateKelas = async (data) => {
     let dataCPMK = [];
     let rataCPMK = [];
 
-    for (const pcpmk of MK.penilaianCPMK) {
+    for (const pcpmk of selectedKelas.templatePenilaianCPMK.penilaianCPMK) {
       dataCPMK.push({
         cpmkId: pcpmk.CPMK.id,
         cpmk: pcpmk.CPMK.kode,
@@ -804,8 +808,8 @@ const updateMK = async (MKId, tahunAjaranId) => {
 
     console.log("dataLulusMK_CPMK : ", dataLulusMK_CPMK);
 
-    const cpmkIds = updatedMK.penilaianCPMK.map((data) => {
-      return data.CPMKkode;
+    const cpmkIds = updatedMK.CPMK.map((data) => {
+      return data.id;
     });
 
     console.log("CPMKIds = ", cpmkIds);
@@ -873,7 +877,7 @@ const updateMK = async (MKId, tahunAjaranId) => {
 const updateCPMK = async (updatedMK, tahunAjaranId) => {
   // Update CPMK
   try {
-    const CPMKinMK = updatedMK.penilaianCPMK.map((pcpmk) => pcpmk.CPMKkode);
+    const CPMKinMK = updatedMK.CPMK.map((cpmk) => cpmk.id);
 
     console.log("CPMK in MK = ", CPMKinMK);
 
