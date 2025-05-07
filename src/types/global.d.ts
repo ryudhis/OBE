@@ -281,6 +281,7 @@ declare global {
     tindakLanjutCPMK?: string;
     tindakLanjutCPL?: string;
     lulusCPMK: LulusKelas_CPMK[];
+    templatePenilaianCPMK: TemplatePenilaianCPMK;
   }
 
   export interface evaluasiCPMK {

@@ -86,7 +86,21 @@ export async function GET(req) {
       include: {
         BK: true,
         CPMK: { include: { CPL: true } },
-        kelas: { include: { mahasiswa: true, tahunAjaran: true } },
+        kelas: {
+          include: {
+            mahasiswa: true,
+            tahunAjaran: true,
+            templatePenilaianCPMK: {
+              include: {
+                penilaianCPMK: {
+                  include: {
+                    CPMK: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         templatePenilaianCPMK: {
           include: {
             penilaianCPMK: {

@@ -461,7 +461,7 @@ export default function Page({ params }: { params: { id: string } }) {
         >
           {lulusData.indexNilai}
         </TableCell>
-        {kelas?.MK.penilaianCPMK.map((CPMK) => {
+        {kelas?.templatePenilaianCPMK.penilaianCPMK.map((CPMK) => {
           const nilaiMahasiswaItem = lulusData.nilaiMahasiswa.find(
             (item) => item.namaCPMK === CPMK.CPMK.kode
           );
@@ -487,7 +487,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     );
                   })
                 : Array.from({ length: CPMK.kriteria.length }, (_, i) => (
-                    <TableCell key={i} className='w-[16%] text-center'>
+                    <TableCell key={i} className="w-[16%] text-center">
                       -
                     </TableCell>
                   ))}
@@ -500,9 +500,9 @@ export default function Page({ params }: { params: { id: string } }) {
                 }`}
               >
                 {statusCPMKItem?.statusLulus === "Lulus" ? (
-                  <Check className='mx-auto' size={20} />
+                  <Check className="mx-auto" size={20} />
                 ) : (
-                  <X className='mx-auto' size={20} />
+                  <X className="mx-auto" size={20} />
                 )}
               </TableCell>
             </React.Fragment>
@@ -521,8 +521,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
       return (
         <TableRow key={data.cpmk}>
-          <TableCell className='w-[15%]'>{data.cpmk}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[15%]">{data.cpmk}</TableCell>
+          <TableCell className="flex-1">
             {evaluasiCPMKItem ? evaluasiCPMKItem.evaluasi : "-"}
           </TableCell>
         </TableRow>
@@ -539,8 +539,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
       return (
         <TableRow key={data.cpl}>
-          <TableCell className='w-[15%]'>{data.cpl}</TableCell>
-          <TableCell className='flex-1'>
+          <TableCell className="w-[15%]">{data.cpl}</TableCell>
+          <TableCell className="flex-1">
             {evaluasiCPLItem ? evaluasiCPLItem.evaluasi : "-"}
           </TableCell>
         </TableRow>
@@ -552,32 +552,32 @@ export default function Page({ params }: { params: { id: string } }) {
     return kelas?.dataCPMK?.map((data) => {
       return (
         <TableRow key={data.cpmk}>
-          <TableCell className='w-[8%] text-center'>{data.cpl}</TableCell>
-          <TableCell className='w-[8%] text-center'>{data.cpmk}</TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">{data.cpl}</TableCell>
+          <TableCell className="w-[8%] text-center">{data.cpmk}</TableCell>
+          <TableCell className="w-[8%] text-center">
             {data.nilaiMinimal}/100
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">
             {data.nilaiMasuk}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">
             {data.jumlahLulus}/{kelas.mahasiswa.length}
           </TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">
             {data.persenLulus}%
           </TableCell>
-          <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">{data.rataNilai}</TableCell>
+          <TableCell className="w-[8%] text-center">
             <Dialog>
               <DialogTrigger asChild>
                 <Button
                   onClick={() => handleSelectCPMK(data.cpmkId)}
-                  variant='outline'
+                  variant="outline"
                 >
                   Evaluasi
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[425px]'>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Evaluasi</DialogTitle>
                   <DialogDescription>{data.cpmk}</DialogDescription>
@@ -589,7 +589,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button
-                      className='bg-blue-500 hover:bg-blue-600'
+                      className="bg-blue-500 hover:bg-blue-600"
                       onClick={handleEvaluasiCPMK}
                     >
                       Submit
@@ -608,22 +608,22 @@ export default function Page({ params }: { params: { id: string } }) {
     return kelas?.dataCPL?.map((data) => {
       return (
         <TableRow key={data.cpl}>
-          <TableCell className='w-[8%] text-center'>{data.cpl}</TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">{data.cpl}</TableCell>
+          <TableCell className="w-[8%] text-center">
             {data.persenLulus}%
           </TableCell>
-          <TableCell className='w-[8%] text-center'>{data.rataNilai}</TableCell>
-          <TableCell className='w-[8%] text-center'>
+          <TableCell className="w-[8%] text-center">{data.rataNilai}</TableCell>
+          <TableCell className="w-[8%] text-center">
             <Dialog>
               <DialogTrigger asChild>
                 <Button
                   onClick={() => handleSelectCPL(data.cplId)}
-                  variant='outline'
+                  variant="outline"
                 >
                   Evaluasi
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[425px]'>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Evaluasi</DialogTitle>
                   <DialogDescription>{data.cpl}</DialogDescription>
@@ -635,7 +635,7 @@ export default function Page({ params }: { params: { id: string } }) {
                 <DialogFooter>
                   <DialogClose asChild>
                     <Button
-                      className='bg-blue-500 hover:bg-blue-600'
+                      className="bg-blue-500 hover:bg-blue-600"
                       onClick={handleEvaluasiCPL}
                     >
                       Submit
@@ -652,21 +652,21 @@ export default function Page({ params }: { params: { id: string } }) {
 
   if (kelas) {
     return (
-      <main className='mx-auto pt-20 mb-10 flex flex-col gap-12 '>
-        <Card className='w-[1200px] mx-auto'>
-          <CardHeader className='flex justify-center'>
+      <main className="mx-auto pt-20 mb-10 flex flex-col gap-12 ">
+        <Card className="w-[1200px] mx-auto">
+          <CardHeader className="flex justify-center">
             <CardTitle>Data Kelas {kelas.nama} </CardTitle>
             <CardDescription>
               Kelas {kelas.MK.deskripsi} - {kelas.tahunAjaran.tahun}{" "}
               {kelas.tahunAjaran.semester}{" "}
             </CardDescription>
-            <Table className='w-[1000px] table-fixed mb-5'>
+            <Table className="w-[1000px] table-fixed mb-5">
               <TableBody>
                 <TableRow>
-                  <TableCell className='w-[20%] p-2'>
+                  <TableCell className="w-[20%] p-2">
                     <strong>Dosen Pengampu</strong>
                   </TableCell>
-                  <TableCell className='p-2'>
+                  <TableCell className="p-2">
                     {": "}
                     {kelas.dosen.length > 0
                       ? kelas.dosen.map((dosen) => dosen.nama).join(", ")
@@ -676,25 +676,25 @@ export default function Page({ params }: { params: { id: string } }) {
               </TableBody>
             </Table>
           </CardHeader>
-          <CardContent className='flex gap-3'>
+          <CardContent className="flex gap-3">
             <Dialog>
               <DialogTrigger asChild>
-                <Button className='w-[200px] self-center' variant='outline'>
+                <Button className="w-[200px] self-center" variant="outline">
                   Tambah Mahasiswa
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[425px]'>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Input Mahasiswa</DialogTitle>
                 </DialogHeader>
-                <Card className='mx-auto'>
+                <Card className="mx-auto">
                   <CardHeader>
                     <CardDescription>Data Mahasiswa</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Input
-                      type='file'
-                      accept='.xlsx, .xls'
+                      type="file"
+                      accept=".xlsx, .xls"
                       onChange={handleFileUpload}
                     />
 
@@ -719,7 +719,7 @@ export default function Page({ params }: { params: { id: string } }) {
                       </Table>
                     )}
                   </CardContent>
-                  <CardFooter className='flex justify-between'>
+                  <CardFooter className="flex justify-between">
                     <Button
                       onClick={() => {
                         exportTemplate();
@@ -738,21 +738,21 @@ export default function Page({ params }: { params: { id: string } }) {
                   className={`w-[200px] self-center ${
                     accountData?.role === "Dosen" ? "hidden" : null
                   }`}
-                  variant='outline'
+                  variant="outline"
                 >
                   Dosen Pengampu
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[25%]'>
+              <DialogContent className="sm:max-w-[25%]">
                 <DialogHeader>
                   <DialogTitle>Dosen Pengampu</DialogTitle>
                 </DialogHeader>
-                <Card className='mx-auto'>
+                <Card className="mx-auto">
                   <CardHeader>
                     <CardDescription>Data Dosen</CardDescription>
                   </CardHeader>
-                  <CardContent className='flex'>
-                    <div className='flex flex-col gap-2 overflow-auto max-h-[500px]'>
+                  <CardContent className="flex">
+                    <div className="flex flex-col gap-2 overflow-auto max-h-[500px]">
                       {" "}
                       {renderDosenChecklist()}
                     </div>
@@ -767,42 +767,44 @@ export default function Page({ params }: { params: { id: string } }) {
         </Card>
 
         {kelas.mahasiswa.length != 0 ? (
-          <Card className='w-[1200px] mx-auto'>
-            <CardHeader className='flex flex-row justify-between items-center'>
-              <div className='flex flex-col'>
+          <Card className="w-[1200px] mx-auto">
+            <CardHeader className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
                 <CardTitle>Tabel Mahasiswa Kelas {kelas.nama}</CardTitle>
                 <CardDescription>Kelas {kelas.MK.deskripsi}</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue='nilai' className='w-full'>
-                <TabsList className='grid w-full grid-cols-4'>
-                  <TabsTrigger value='nilai'>Nilai Mahasiswa</TabsTrigger>
-                  <TabsTrigger value='perbaikan'>Perbaikan</TabsTrigger>
-                  <TabsTrigger value='rangkumanCPMK'>
+              <Tabs defaultValue="nilai" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="nilai">Nilai Mahasiswa</TabsTrigger>
+                  <TabsTrigger value="perbaikan">Perbaikan</TabsTrigger>
+                  <TabsTrigger value="rangkumanCPMK">
                     Rangkuman Evaluasi CPMK
                   </TabsTrigger>
-                  <TabsTrigger value='rangkumanCPL'>
+                  <TabsTrigger value="rangkumanCPL">
                     Rangkuman Evaluasi CPL
                   </TabsTrigger>
                 </TabsList>
-                <TabsContent value='nilai'>
+                <TabsContent value="nilai">
                   {isLoading ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className='w-[8%]'>NIM</TableHead>
-                          <TableHead className='w-[8%]'>Nama</TableHead>
-                          <TableHead className='w-[8%]'>Total Nilai</TableHead>
-                          {kelas.MK.penilaianCPMK.map((CPMK) => (
-                            <TableHead
-                              colSpan={CPMK.kriteria.length}
-                              key={CPMK.CPMK.kode}
-                              className='w-[16%]'
-                            >
-                              {CPMK.CPMK.kode}
-                            </TableHead>
-                          ))}
+                          <TableHead className="w-[8%]">NIM</TableHead>
+                          <TableHead className="w-[8%]">Nama</TableHead>
+                          <TableHead className="w-[8%]">Total Nilai</TableHead>
+                          {kelas.templatePenilaianCPMK.penilaianCPMK.map(
+                            (CPMK) => (
+                              <TableHead
+                                colSpan={CPMK.kriteria.length}
+                                key={CPMK.CPMK.kode}
+                                className="w-[16%]"
+                              >
+                                {CPMK.CPMK.kode}
+                              </TableHead>
+                            )
+                          )}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -810,25 +812,25 @@ export default function Page({ params }: { params: { id: string } }) {
                       </TableBody>
                     </Table>
                   ) : (
-                    <div className='flex'>
+                    <div className="flex">
                       <Table>
-                        <TableHeader className='h-[150px]'>
+                        <TableHeader className="h-[150px]">
                           <TableRow>
                             <TableHead
                               rowSpan={2}
-                              className='w-[2%] text-center '
+                              className="w-[2%] text-center "
                             >
                               No
                             </TableHead>
                             <TableHead
                               rowSpan={2}
-                              className='w-[2%] text-center '
+                              className="w-[2%] text-center "
                             >
                               NIM
                             </TableHead>
                             <TableHead
                               rowSpan={2}
-                              className='w-full text-center border-r-2'
+                              className="w-full text-center border-r-2"
                             >
                               Nama
                             </TableHead>
@@ -837,52 +839,56 @@ export default function Page({ params }: { params: { id: string } }) {
                         <TableBody>{renderNoNimNama()}</TableBody>
                       </Table>
                       <Table>
-                        <TableHeader className='h-[150px]'>
+                        <TableHeader className="h-[150px]">
                           <TableRow>
                             <TableHead
                               rowSpan={2}
-                              className='w-[8%] text-center '
+                              className="w-[8%] text-center "
                             >
                               Total Nilai
                             </TableHead>
                             <TableHead
                               rowSpan={2}
-                              className='w-[8%] text-center'
+                              className="w-[8%] text-center"
                             >
                               Indeks Nilai
                             </TableHead>
-                            {kelas.MK.penilaianCPMK.map((CPMK) => (
-                              <TableHead
-                                colSpan={CPMK.kriteria.length + 1}
-                                key={CPMK.CPMK.kode}
-                                className='w-[16%] text-center border-x-2'
-                              >
-                                {CPMK.CPMK.kode}
-                              </TableHead>
-                            ))}
+                            {kelas.templatePenilaianCPMK.penilaianCPMK.map(
+                              (CPMK) => (
+                                <TableHead
+                                  colSpan={CPMK.kriteria.length + 1}
+                                  key={CPMK.CPMK.kode}
+                                  className="w-[16%] text-center border-x-2"
+                                >
+                                  {CPMK.CPMK.kode}
+                                </TableHead>
+                              )
+                            )}
                           </TableRow>
                           <TableRow>
-                            {kelas.MK.penilaianCPMK.map((CPMK) => (
-                              <React.Fragment key={CPMK.CPMK.kode}>
-                                {CPMK.kriteria.map((kriteria, index) => (
+                            {kelas.templatePenilaianCPMK.penilaianCPMK.map(
+                              (CPMK) => (
+                                <React.Fragment key={CPMK.CPMK.kode}>
+                                  {CPMK.kriteria.map((kriteria, index) => (
+                                    <TableHead
+                                      className="text-center w-[16%] border-x-2"
+                                      key={index}
+                                    >
+                                      {kriteria.kriteria} <br />{" "}
+                                      <span className="font-semibold text-blue-600">
+                                        {kriteria.bobot}
+                                      </span>
+                                    </TableHead>
+                                  ))}
                                   <TableHead
-                                    className='text-center w-[16%] border-x-2'
-                                    key={index}
+                                    className="text-center w-[16%] border-x-2"
+                                    key={`status-${CPMK.CPMK.kode}`}
                                   >
-                                    {kriteria.kriteria} <br />{" "}
-                                    <span className='font-semibold text-blue-600'>
-                                      {kriteria.bobot}
-                                    </span>
+                                    Status
                                   </TableHead>
-                                ))}
-                                <TableHead
-                                  className='text-center w-[16%] border-x-2'
-                                  key={`status-${CPMK.CPMK.kode}`}
-                                >
-                                  Status
-                                </TableHead>
-                              </React.Fragment>
-                            ))}
+                                </React.Fragment>
+                              )
+                            )}
                           </TableRow>
                         </TableHeader>
                         <TableBody>{renderRestData()}</TableBody>
@@ -891,39 +897,39 @@ export default function Page({ params }: { params: { id: string } }) {
                   )}
                 </TabsContent>
 
-                <TabsContent value='perbaikan'>
+                <TabsContent value="perbaikan">
                   <RepairNilai
                     mahasiswaPerbaikan={kelas.mahasiswaPerbaikan ?? []}
                     setRefresh={setRefresh}
                   />
                 </TabsContent>
 
-                <TabsContent value='rangkumanCPMK'>
+                <TabsContent value="rangkumanCPMK">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           CPL{" "}
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           CPMK
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Total Nilai Minimal
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Nilai Masuk
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Jumlah Lulus
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Persentase Lulus
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Rata-Rata Nilai
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Aksi
                         </TableHead>
                       </TableRow>
@@ -931,25 +937,25 @@ export default function Page({ params }: { params: { id: string } }) {
                     <TableBody>{renderDataRangkumanCPMK()}</TableBody>
                   </Table>
 
-                  <Table className='my-10'>
+                  <Table className="my-10">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[15%]'>CPMK</TableHead>
-                        <TableHead className='flex-1'>Hasil Evaluasi</TableHead>
+                        <TableHead className="w-[15%]">CPMK</TableHead>
+                        <TableHead className="flex-1">Hasil Evaluasi</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderEvaluasiCPMK()}</TableBody>
                   </Table>
 
-                  <div className='flex justify-between'>
+                  <div className="flex justify-between">
                     <BarChartComponent
                       data={transformCPMKData(kelas.dataCPMK || [])}
                       tipe={"Capaian Mata Kuliah"}
                     />
 
-                    <Card className='w-[45%] '>
+                    <Card className="w-[45%] ">
                       <CardHeader>
-                        <div className='flex justify-between'>
+                        <div className="flex justify-between">
                           <div>
                             <CardTitle>Tindak Lanjut</CardTitle>
                             <CardDescription>Evaluasi CPMK</CardDescription>
@@ -957,9 +963,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant='outline'>Edit</Button>
+                              <Button variant="outline">Edit</Button>
                             </DialogTrigger>
-                            <DialogContent className='sm:max-w-[425px]'>
+                            <DialogContent className="sm:max-w-[425px]">
                               <DialogHeader>
                                 <DialogTitle>
                                   Tindak Lanjut Evaluasi
@@ -972,7 +978,7 @@ export default function Page({ params }: { params: { id: string } }) {
                               <DialogFooter>
                                 <DialogClose asChild>
                                   <Button
-                                    className='bg-blue-500 hover:bg-blue-600'
+                                    className="bg-blue-500 hover:bg-blue-600"
                                     onClick={handleTindakLanjutCPMK}
                                   >
                                     Submit
@@ -984,7 +990,7 @@ export default function Page({ params }: { params: { id: string } }) {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <p className='break-words'>
+                        <p className="break-words">
                           {kelas?.tindakLanjutCPMK != null
                             ? kelas?.tindakLanjutCPMK
                             : " Belum Ada Tindak Lanjut "}
@@ -994,20 +1000,20 @@ export default function Page({ params }: { params: { id: string } }) {
                   </div>
                 </TabsContent>
 
-                <TabsContent value='rangkumanCPL'>
+                <TabsContent value="rangkumanCPL">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           CPL
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Persentase Lulus
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Rata-Rata Nilai
                         </TableHead>
-                        <TableHead className='w-[8%] text-center border-x-2'>
+                        <TableHead className="w-[8%] text-center border-x-2">
                           Aksi
                         </TableHead>
                       </TableRow>
@@ -1015,25 +1021,25 @@ export default function Page({ params }: { params: { id: string } }) {
                     <TableBody>{renderDataRangkumanCPL()}</TableBody>
                   </Table>
 
-                  <Table className='my-10'>
+                  <Table className="my-10">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className='w-[15%]'>CPL</TableHead>
-                        <TableHead className='flex-1'>Hasil Evaluasi</TableHead>
+                        <TableHead className="w-[15%]">CPL</TableHead>
+                        <TableHead className="flex-1">Hasil Evaluasi</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>{renderEvaluasiCPL()}</TableBody>
                   </Table>
 
-                  <div className='flex justify-between'>
+                  <div className="flex justify-between">
                     <BarChartComponent
                       data={transformCPLData(kelas.dataCPL || [])}
-                      tipe='Capaian Pembelajaran Lulusan'
+                      tipe="Capaian Pembelajaran Lulusan"
                     />
 
-                    <Card className='w-[45%] '>
+                    <Card className="w-[45%] ">
                       <CardHeader>
-                        <div className='flex justify-between'>
+                        <div className="flex justify-between">
                           <div>
                             <CardTitle>Tindak Lanjut</CardTitle>
                             <CardDescription>Evaluasi CPL</CardDescription>
@@ -1041,9 +1047,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant='outline'>Edit</Button>
+                              <Button variant="outline">Edit</Button>
                             </DialogTrigger>
-                            <DialogContent className='sm:max-w-[425px]'>
+                            <DialogContent className="sm:max-w-[425px]">
                               <DialogHeader>
                                 <DialogTitle>
                                   Tindak Lanjut Evaluasi
@@ -1056,7 +1062,7 @@ export default function Page({ params }: { params: { id: string } }) {
                               <DialogFooter>
                                 <DialogClose asChild>
                                   <Button
-                                    className='bg-blue-500 hover:bg-blue-600'
+                                    className="bg-blue-500 hover:bg-blue-600"
                                     onClick={handleTindakLanjutCPL}
                                   >
                                     Submit
@@ -1067,8 +1073,8 @@ export default function Page({ params }: { params: { id: string } }) {
                           </Dialog>
                         </div>
                       </CardHeader>
-                      <CardContent className=''>
-                        <p className='break-words'>
+                      <CardContent className="">
+                        <p className="break-words">
                           {kelas?.tindakLanjutCPL != null
                             ? kelas?.tindakLanjutCPL
                             : " Belum Ada Tindak Lanjut "}
@@ -1081,7 +1087,7 @@ export default function Page({ params }: { params: { id: string } }) {
             </CardContent>
           </Card>
         ) : (
-          <h1 className='self-center'>Belum ada data mahasiswa.</h1>
+          <h1 className="self-center">Belum ada data mahasiswa.</h1>
         )}
       </main>
     );

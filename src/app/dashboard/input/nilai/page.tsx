@@ -66,17 +66,15 @@ const InputNilai: React.FC = () => {
   let PCPMK: PenilaianCPMK[] = [];
   let filteredPCPMK: PenilaianCPMK[] = [];
 
-  if (selectedMK) {
-    console.log(selectedMK);
-    PCPMK = selectedMK.penilaianCPMK;
+  if (selectedKelas) {
+    console.log(selectedKelas);
+    PCPMK = selectedKelas?.templatePenilaianCPMK.penilaianCPMK;
     console.log(PCPMK);
   }
 
   const filteredMK = MK.filter((mk) =>
     mk.kode.toLowerCase().includes(searchMK.toLowerCase())
   );
-
-  console.log(MK);
 
   if (PCPMK.length !== 0) {
     filteredPCPMK = PCPMK.filter((pcpmk) =>
@@ -90,7 +88,6 @@ const InputNilai: React.FC = () => {
       const userMKIds: string[] = accountData.kelas
         .filter((kelas) => kelas.tahunAjaran.id === parseInt(tahunId))
         .map((kelas) => kelas.MKId);
-
       const response = await axiosConfig.get(
         `api/mk?prodi=${accountData.prodiId}&limit=99999`
       );
@@ -202,28 +199,28 @@ const InputNilai: React.FC = () => {
   }
 
   return (
-    <section className='flex justify-center items-center mt-20 mb-10'>
-      <Card className='w-[1000px]'>
-        <CardHeader className='flex flex-row justify-between'>
+    <section className="flex justify-center items-center mt-20 mb-10">
+      <Card className="w-[1000px]">
+        <CardHeader className="flex flex-row justify-between">
           <div>
             <CardTitle>Input Nilai</CardTitle>
             <CardDescription>Nilai PCPMK</CardDescription>
           </div>
-          {/* <Button
+          <Button
             className="w-[100px] self-end"
             onClick={() => {
               router.push(`/dashboard/input/nilai/excel`);
             }}
           >
             Input Excel
-          </Button> */}
+          </Button>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <FormField
                 control={form.control}
-                name='MK'
+                name="MK"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tahun Ajaran</FormLabel>
@@ -244,7 +241,7 @@ const InputNilai: React.FC = () => {
                       value={selectedTahun}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder='Tahun Ajaran' />
+                        <SelectValue placeholder="Tahun Ajaran" />
                       </SelectTrigger>
                       <SelectContent>
                         {tahunAjaran.map((tahun) => (
@@ -274,7 +271,7 @@ const InputNilai: React.FC = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder='Pilih MK' />
+                            <SelectValue placeholder="Pilih MK" />
                           ) : (
                             "Pilih MK"
                           )}
@@ -282,10 +279,10 @@ const InputNilai: React.FC = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='text'
-                          className='mb-2'
+                          type="text"
+                          className="mb-2"
                           value={searchMK}
-                          placeholder='Cari...'
+                          placeholder="Cari..."
                           onChange={(e) => setSearchMK(e.target.value)}
                         />
                         {filteredMK.map((mk, index) => (
@@ -302,7 +299,7 @@ const InputNilai: React.FC = () => {
 
               <FormField
                 control={form.control}
-                name='kelas'
+                name="kelas"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kelas</FormLabel>
@@ -324,7 +321,7 @@ const InputNilai: React.FC = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder='Pilih Kelas' />
+                            <SelectValue placeholder="Pilih Kelas" />
                           ) : (
                             "Pilih Kelas"
                           )}
@@ -355,7 +352,7 @@ const InputNilai: React.FC = () => {
 
               <FormField
                 control={form.control}
-                name='PCPMK'
+                name="PCPMK"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Penilaian CPMK</FormLabel>
@@ -376,7 +373,7 @@ const InputNilai: React.FC = () => {
                       <FormControl>
                         <SelectTrigger>
                           {field.value ? (
-                            <SelectValue placeholder='Pilih PCPMK' />
+                            <SelectValue placeholder="Pilih PCPMK" />
                           ) : (
                             "Pilih PCPMK"
                           )}
@@ -384,10 +381,10 @@ const InputNilai: React.FC = () => {
                       </FormControl>
                       <SelectContent>
                         <Input
-                          type='text'
-                          className='mb-2'
+                          type="text"
+                          className="mb-2"
                           value={searchPCPMK}
-                          placeholder='Cari...'
+                          placeholder="Cari..."
                           onChange={(e) => setSearchPCPMK(e.target.value)}
                         />
                         {filteredPCPMK.map((pcpmk, index) => (
@@ -403,14 +400,14 @@ const InputNilai: React.FC = () => {
               />
 
               {selectedKelas && selectedPCPMK && (
-                <div className='overflow-x-auto'>
-                  <table className='min-w-full bg-white border'>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border">
                     <thead>
                       <tr>
-                        <th className='py-2 px-4 border'>NIM</th>
-                        <th className='py-2 px-4 border'>Nama</th>
+                        <th className="py-2 px-4 border">NIM</th>
+                        <th className="py-2 px-4 border">Nama</th>
                         {selectedPCPMK.kriteria.map((kriteria, kIndex) => (
-                          <th key={kIndex} className='py-2 px-4 border'>
+                          <th key={kIndex} className="py-2 px-4 border">
                             {kriteria.kriteria}
                           </th>
                         ))}
@@ -418,21 +415,21 @@ const InputNilai: React.FC = () => {
                     </thead>
                     <tbody>
                       {selectedKelas.mahasiswa.map((mahasiswa, mIndex) => (
-                        <tr key={mIndex} className='border-t'>
-                          <td className='py-2 px-4 border'>{mahasiswa.nim}</td>
-                          <td className='py-2 px-4 border'>{mahasiswa.nama}</td>
+                        <tr key={mIndex} className="border-t">
+                          <td className="py-2 px-4 border">{mahasiswa.nim}</td>
+                          <td className="py-2 px-4 border">{mahasiswa.nama}</td>
                           {selectedPCPMK.kriteria.map((kriteria, kIndex) => (
-                            <td key={kIndex} className='py-2 px-4 border'>
+                            <td key={kIndex} className="py-2 px-4 border">
                               <FormField
                                 control={form.control}
                                 name={
                                   `nilai.${mIndex}.nilai.${kIndex}` as const
                                 }
                                 render={({ field }) => (
-                                  <FormItem className='m-0'>
+                                  <FormItem className="m-0">
                                     <Input
-                                      placeholder='Nilai'
-                                      type='number'
+                                      placeholder="Nilai"
+                                      type="number"
                                       min={0}
                                       max={100}
                                       required
@@ -468,7 +465,7 @@ const InputNilai: React.FC = () => {
                 </div>
               )}
 
-              <Button className='bg-blue-500 hover:bg-blue-600' type='submit'>
+              <Button className="bg-blue-500 hover:bg-blue-600" type="submit">
                 Submit
               </Button>
             </form>
