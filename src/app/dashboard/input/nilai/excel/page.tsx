@@ -239,17 +239,21 @@ const NilaiExcel = () => {
         };
       });
 
+      console.log(selectedKelas.id, "selectedKelas");
+
       return {
         nim: mahasiswa.nim,
         nama: mahasiswa.nama,
         nilai: nilaiArray,
+        kelasId: parseInt(selectedKelas.id),
+        prodiId: accountData?.prodiId,
       };
     });
 
     console.log(transformed);
 
     axiosConfig
-      .post("api/nilai/excel", transformed)
+      .post("api/inputNilai/excel", transformed)
       .then(function (response) {
         if (response.data.status === 200) {
           toast({
@@ -285,21 +289,21 @@ const NilaiExcel = () => {
   }
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1000px]">
+    <section className='flex justify-center items-center mt-20'>
+      <Card className='w-[1000px]'>
         <CardHeader>
           <CardTitle>Input Nilai Excel</CardTitle>
           <CardDescription>Data Nilai Mahasiswa</CardDescription>
-          <div className="flex items-center justify-end gap-4">
+          <div className='flex items-center justify-end gap-4'>
             <Button
               disabled={!selectedTahunAjaran || !selectedMk || !selectedKelas}
-              className="w-[130px] self-end"
+              className='w-[130px] self-end'
               onClick={exportTemplate}
             >
               Export Template
             </Button>
             <Button
-              className="w-[100px] self-end"
+              className='w-[100px] self-end'
               onClick={() => {
                 router.push(`/dashboard/input/nilai/`);
               }}
@@ -309,7 +313,7 @@ const NilaiExcel = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className='grid grid-cols-3 gap-4 mb-4'>
             <Select
               onValueChange={(value) => {
                 handleTahunChange(value);
@@ -320,7 +324,7 @@ const NilaiExcel = () => {
               value={selectedTahunAjaran}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Pilih Tahun Ajaran" />
+                <SelectValue placeholder='Pilih Tahun Ajaran' />
               </SelectTrigger>
               <SelectContent>
                 {tahunAjaranList.map((tahun) => (
@@ -339,7 +343,7 @@ const NilaiExcel = () => {
               disabled={!selectedTahunAjaran}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Pilih Mata Kuliah" />
+                <SelectValue placeholder='Pilih Mata Kuliah' />
               </SelectTrigger>
               <SelectContent>
                 {mkList.map((mk) => (
@@ -365,7 +369,7 @@ const NilaiExcel = () => {
               disabled={!selectedMk}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Pilih Kelas" />
+                <SelectValue placeholder='Pilih Kelas' />
               </SelectTrigger>
               <SelectContent>
                 {kelasList.map((kelas) => (
@@ -378,14 +382,14 @@ const NilaiExcel = () => {
           </div>
 
           <Input
-            type="file"
-            accept=".xlsx, .xls"
+            type='file'
+            accept='.xlsx, .xls'
             onChange={handleFileUpload}
             disabled={!selectedKelas}
           />
 
           {nilai.length > 0 && (
-            <Table className="mt-4 text-center">
+            <Table className='mt-4 text-center'>
               <TableHeader>
                 <TableRow>
                   <TableHead rowSpan={2}>NIM</TableHead>
@@ -394,7 +398,7 @@ const NilaiExcel = () => {
                     <TableHead
                       colSpan={CPMK.kriteria.length}
                       key={CPMK.CPMK.kode}
-                      className="text-center border-x-2"
+                      className='text-center border-x-2'
                     >
                       {CPMK.CPMK.kode}
                     </TableHead>
@@ -405,12 +409,12 @@ const NilaiExcel = () => {
                     <React.Fragment key={CPMK.CPMK.kode}>
                       {CPMK.kriteria.map((kriteria, index) => (
                         <TableHead
-                          className="text-center border-x-2"
+                          className='text-center border-x-2'
                           key={`${CPMK.CPMK.kode}-${index}`}
                         >
                           {kriteria.kriteria}
                           <br />
-                          <span className="font-semibold text-blue-600">
+                          <span className='font-semibold text-blue-600'>
                             {kriteria.bobot}
                           </span>
                         </TableHead>
