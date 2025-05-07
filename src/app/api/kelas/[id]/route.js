@@ -21,8 +21,16 @@ export async function GET(req, { params }) {
         MK: {
           include: {
             CPMK: true,
+          },
+        },
+        templatePenilaianCPMK: {
+          include: {
             penilaianCPMK: {
-              include: { inputNilai: true, CPMK: true, CPL: true },
+              include: {
+                inputNilai: true,
+                CPMK: true,
+                CPL: true,
+              },
             },
           },
         },
