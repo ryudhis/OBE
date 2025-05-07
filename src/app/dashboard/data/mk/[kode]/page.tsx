@@ -946,17 +946,14 @@ export default function Page({ params }: { params: { kode: string } }) {
             {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
           <TableCell className='w-[8%]'>{kelas.jumlahLulus}</TableCell>
-          {kelas.lulusCPMK
-            .filter((lulus) => lulus.tahunAjaranId === parseInt(selectedTahun))
-            .map((lulus) => (
-              <TableCell key={lulus.CPMKId} className='w-[8%]'>
-                {lulus.jumlahLulus ? `${lulus.jumlahLulus.toFixed(2)}%` : "-"}
+          {kelas.dataCPMK &&
+            kelas.dataCPMK.map((cpmk: dataCPMK) => (
+              <TableCell key={cpmk.cpmk} className='w-[8%]'>
+                {cpmk.persenLulus ? `${cpmk.persenLulus}%` : "-"}
               </TableCell>
             ))}
 
-          {kelas.lulusCPMK.filter(
-            (lulus) => lulus.tahunAjaranId === parseInt(selectedTahun)
-          ).length === 0 &&
+          {(kelas.dataCPMK ?? []).length === 0 &&
             mk?.CPMK.map((_, index) => (
               <TableCell key={index} className='w-[8%]'>
                 -

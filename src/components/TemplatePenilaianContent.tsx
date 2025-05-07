@@ -40,6 +40,7 @@ import {
   Trash2,
   CheckCircle,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import axiosConfig from "@/utils/axios";
 import { toast } from "@/components/ui/use-toast";
 import Swal from "sweetalert2";
@@ -89,6 +90,7 @@ export default function TemplatePenilaianContent({
   const [editingTemplate, setEditingTemplate] =
     useState<TemplatePenilaianCPMK | null>(null);
   const [newTemplateName, setNewTemplateName] = useState("");
+  const router = useRouter();
 
   // Toggle template expansion
   const toggleTemplate = (id: number) => {
@@ -277,36 +279,47 @@ export default function TemplatePenilaianContent({
       <div className='flex justify-between items-center'>
         <h2 className='text-2xl font-bold'>Template Penilaian CPMK</h2>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className='mr-2 h-4 w-4' />
-              Tambah Template
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Tambah Template Penilaian</DialogTitle>
-            </DialogHeader>
-            <div className='py-4'>
-              <Label htmlFor='template-name'>Nama Template</Label>
-              <Input
-                id='template-name'
-                value={newTemplateName}
-                onChange={(e) => setNewTemplateName(e.target.value)}
-                placeholder='Masukkan nama template'
-              />
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant='outline'>Batal</Button>
-              </DialogClose>
-              <DialogClose asChild>
-                <Button onClick={handleAddTemplate}>Simpan</Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className='flex items-center gap-2'>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className='mr-2 h-4 w-4' />
+                Tambah Template
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Tambah Template Penilaian</DialogTitle>
+              </DialogHeader>
+              <div className='py-4'>
+                <Label htmlFor='template-name'>Nama Template</Label>
+                <Input
+                  id='template-name'
+                  value={newTemplateName}
+                  onChange={(e) => setNewTemplateName(e.target.value)}
+                  placeholder='Masukkan nama template'
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant='outline'>Batal</Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button onClick={handleAddTemplate}>Simpan</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Button
+            onClick={() => {
+              router.push(`/dashboard/input/penilaianCPMK`);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Input PCPMK
+          </Button>
+        </div>
       </div>
 
       {templates.length === 0 ? (
