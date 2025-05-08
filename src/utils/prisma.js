@@ -1,5 +1,5 @@
 import prisma from "@/utils/prismaClient";
-import { updateKelas, updateMK, updateCPMK } from "@/utils/prismaUpdate";
+import { updateKelas, updateMK, updateCPMK } from "@/utils/prismaUpdateFunc";
 
 const prismaExtended = prisma.$extends({
   name: "UpdateDataExtension",
