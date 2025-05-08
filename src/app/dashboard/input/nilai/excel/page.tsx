@@ -30,17 +30,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { StringDecoder } from "string_decoder";
 
 interface NilaiInput {
   nim: string;
   nama: string;
-  [key: string]: string | number; // Dynamic keys for penilaianCPMK
+  nilai: Record<string, number>; // Explicitly define 'nilai' as an object with string keys and number values
+  [key: string]: any; // Allow additional dynamic keys if necessary
 }
 
 interface PenilaianCPMK {
   id: string;
   nama: string;
   bobot: number;
+  kriteria: { kriteria: string; bobot: number }[];
+  CPMK: { kode: string }; // Added CPMK property
 }
 
 const NilaiExcel = () => {
@@ -53,8 +57,15 @@ const NilaiExcel = () => {
     []
   );
   const [selectedTahunAjaran, setSelectedTahunAjaran] = useState("");
-  const [selectedMk, setSelectedMk] = useState("");
-  const [selectedKelas, setSelectedKelas] = useState("");
+  const [selectedMk, setSelectedMk] = useState<{
+    kode: string;
+    kelas: any[];
+  } | null>(null);
+  const [selectedKelas, setSelectedKelas] = useState<{
+    id: string;
+    nama: string;
+    templatePenilaianCPMK: { penilaianCPMK: PenilaianCPMK[] };
+  } | null>(null);
   const { accountData } = useAccount();
   const { toast } = useToast();
 
@@ -64,16 +75,16 @@ const NilaiExcel = () => {
 
   useEffect(() => {
     if (accountData?.prodiId) {
-      fetchTahunAjaran();
+      getTahunAjaran();
     }
   }, [accountData?.prodiId]);
 
-  const fetchTahunAjaran = async () => {
+  const getTahunAjaran = async () => {
     try {
       const response = await axiosConfig.get(`api/tahun-ajaran?limit=99999`);
       setTahunAjaranList(response.data.data);
       if (accountData) {
-        fetchMk(accountData, response.data.data[0].id);
+        getMK(accountData, response.data.data[0].id);
       }
     } catch (error) {
       toast({
@@ -83,9 +94,8 @@ const NilaiExcel = () => {
     }
   };
 
-  const fetchMk = async (accountData: Account, tahunAjaranId: string) => {
+  const getMK = async (accountData: Account, tahunAjaranId: string) => {
     try {
-      // Filter the MKIds based on the matching tahunId
       const userMKIds: string[] = accountData.kelas
         .filter((kelas) => kelas.tahunAjaran.id === parseInt(tahunAjaranId))
         .map((kelas) => kelas.MKId);
@@ -127,7 +137,6 @@ const NilaiExcel = () => {
       });
       return;
     }
-    console.log(penilaianCPMKList);
 
     // Create headers
     const headers = [
@@ -158,7 +167,7 @@ const NilaiExcel = () => {
     // Export workbook
     XLSX.writeFile(
       wb,
-      `Template Nilai ${selectedMk} Kelas ${selectedKelas}.xlsx`
+      `Template Nilai ${selectedMk.kode} Kelas ${selectedKelas.id}.xlsx`
     );
   };
 
@@ -205,7 +214,6 @@ const NilaiExcel = () => {
           nilai,
         };
       });
-      console.log(formattedData);
       setNilai(formattedData);
     };
   };
@@ -238,8 +246,6 @@ const NilaiExcel = () => {
           value,
         };
       });
-
-      console.log(selectedKelas.id, "selectedKelas");
 
       return {
         nim: mahasiswa.nim,
@@ -289,21 +295,21 @@ const NilaiExcel = () => {
   }
 
   return (
-    <section className='flex justify-center items-center mt-20'>
-      <Card className='w-[1000px]'>
+    <section className="flex justify-center items-center mt-20">
+      <Card className="w-[1000px]">
         <CardHeader>
           <CardTitle>Input Nilai Excel</CardTitle>
           <CardDescription>Data Nilai Mahasiswa</CardDescription>
-          <div className='flex items-center justify-end gap-4'>
+          <div className="flex items-center justify-end gap-4">
             <Button
               disabled={!selectedTahunAjaran || !selectedMk || !selectedKelas}
-              className='w-[130px] self-end'
+              className="w-[130px] self-end"
               onClick={exportTemplate}
             >
               Export Template
             </Button>
             <Button
-              className='w-[100px] self-end'
+              className="w-[100px] self-end"
               onClick={() => {
                 router.push(`/dashboard/input/nilai/`);
               }}
@@ -313,18 +319,18 @@ const NilaiExcel = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className='grid grid-cols-3 gap-4 mb-4'>
+          <div className="grid grid-cols-3 gap-4 mb-4">
             <Select
               onValueChange={(value) => {
                 handleTahunChange(value);
                 if (accountData) {
-                  fetchMk(accountData, value);
+                  getMK(accountData, value);
                 }
               }}
               value={selectedTahunAjaran}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Pilih Tahun Ajaran' />
+                <SelectValue placeholder="Pilih Tahun Ajaran" />
               </SelectTrigger>
               <SelectContent>
                 {tahunAjaranList.map((tahun) => (
@@ -339,11 +345,11 @@ const NilaiExcel = () => {
               onValueChange={(value) =>
                 setSelectedMk(mkList.find((mk) => mk.kode === value))
               }
-              value={selectedMk}
+              value={selectedMk?.kode ?? ""}
               disabled={!selectedTahunAjaran}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Pilih Mata Kuliah' />
+                <SelectValue placeholder="Pilih Mata Kuliah" />
               </SelectTrigger>
               <SelectContent>
                 {mkList.map((mk) => (
@@ -363,17 +369,16 @@ const NilaiExcel = () => {
                 setPenilaianCPMKList(
                   kelas?.templatePenilaianCPMK.penilaianCPMK || []
                 );
-                console.log(kelas?.templatePenilaianCPMK.penilaianCPMK);
               }}
-              value={selectedKelas}
+              value={selectedKelas?.id?.toString() ?? ""}
               disabled={!selectedMk}
             >
               <SelectTrigger>
-                <SelectValue placeholder='Pilih Kelas' />
+                <SelectValue placeholder="Pilih Kelas" />
               </SelectTrigger>
               <SelectContent>
                 {kelasList.map((kelas) => (
-                  <SelectItem key={kelas.id} value={kelas.id}>
+                  <SelectItem key={kelas.id} value={kelas.id.toString()}>
                     {kelas.nama}
                   </SelectItem>
                 ))}
@@ -382,14 +387,14 @@ const NilaiExcel = () => {
           </div>
 
           <Input
-            type='file'
-            accept='.xlsx, .xls'
+            type="file"
+            accept=".xlsx, .xls"
             onChange={handleFileUpload}
             disabled={!selectedKelas}
           />
 
           {nilai.length > 0 && (
-            <Table className='mt-4 text-center'>
+            <Table className="mt-4 text-center">
               <TableHeader>
                 <TableRow>
                   <TableHead rowSpan={2}>NIM</TableHead>
@@ -398,7 +403,7 @@ const NilaiExcel = () => {
                     <TableHead
                       colSpan={CPMK.kriteria.length}
                       key={CPMK.CPMK.kode}
-                      className='text-center border-x-2'
+                      className="text-center border-x-2"
                     >
                       {CPMK.CPMK.kode}
                     </TableHead>
@@ -409,12 +414,12 @@ const NilaiExcel = () => {
                     <React.Fragment key={CPMK.CPMK.kode}>
                       {CPMK.kriteria.map((kriteria, index) => (
                         <TableHead
-                          className='text-center border-x-2'
+                          className="text-center border-x-2"
                           key={`${CPMK.CPMK.kode}-${index}`}
                         >
                           {kriteria.kriteria}
                           <br />
-                          <span className='font-semibold text-blue-600'>
+                          <span className="font-semibold text-blue-600">
                             {kriteria.bobot}
                           </span>
                         </TableHead>
@@ -448,12 +453,17 @@ const NilaiExcel = () => {
           )}
         </CardContent>
         <CardFooter>
-          <Button
-            onClick={onSubmit}
-            disabled={nilai.length === 0 || hasMissingNilai}
-          >
-            Submit
-          </Button>
+          <div className="flex flex-col">
+            {hasMissingNilai && (
+              <p className="text-red-500 font-semibold">NILAI BELUM LENGKAP!</p>
+            )}
+            <Button
+              onClick={onSubmit}
+              disabled={nilai.length === 0 || hasMissingNilai}
+            >
+              Submit
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </section>
