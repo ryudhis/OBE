@@ -51,7 +51,7 @@ export async function GET(req) {
         nama: kelas.nama,
         tahunAjaranId: kelas.tahunAjaranId,
         mahasiswaCount: kelas.mahasiswa.length,
-        dataCPMK: kelas.dataCPMK.map((data) => ({
+        dataCPMK: (kelas.dataCPMK || []).map((data) => ({
           id: data.id,
           cpmk: data.cpmk,
           cpl: data.cpl,
