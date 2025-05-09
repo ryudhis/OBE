@@ -9,7 +9,8 @@ datasource db {
 
 model kunci {
   id    Int     @id @unique @default(sequence())
-  kunci Boolean
+  data  Boolean
+  nilai Boolean
 }
 
 model tahunAjaran {
@@ -446,5 +447,6 @@ model inputNilai {
   prodi           prodi         @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId         String
 
+  @@unique([penilaianCPMKId, mahasiswaNim, kelasId])
   @@index([prodiId])
 }
