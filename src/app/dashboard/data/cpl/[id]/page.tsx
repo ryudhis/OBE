@@ -32,7 +32,7 @@ const formSchema = z.object({
 export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const { accountData } = useAccount();
-  const { kunciData } = useKunci();
+  const { kunciSistem } = useKunci();
   const [cpl, setCPl] = useState<CPL | undefined>();
   const [bk, setBK] = useState<BK[] | undefined>([]);
   const [prevSelected1, setPrevSelected1] = useState<string[]>([]);
@@ -269,7 +269,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline' disabled={kunciData?.kunci}>Edit Data</Button>
+              <Button variant='outline' disabled={kunciSistem?.data}>Edit Data</Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
@@ -333,7 +333,7 @@ export default function Page({ params }: { params: { id: string } }) {
           onClick={updateRelation}
           type='button'
           className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
-          disabled={kunciData?.kunci}
+          disabled={kunciSistem?.data}
         >
           Simpan
         </button>

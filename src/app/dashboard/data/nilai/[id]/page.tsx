@@ -37,7 +37,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
   const { accountData } = useAccount();
-  const { kunciData } = useKunci();
+  const { kunciSistem } = useKunci();
   const [inputNilai, setInputNilai] = useState<InputNilai | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
   const defaultValues = {
@@ -179,7 +179,9 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Edit Data</Button>
+              <Button variant='outline' disabled={kunciSistem?.nilai}>
+                Edit Data
+              </Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>

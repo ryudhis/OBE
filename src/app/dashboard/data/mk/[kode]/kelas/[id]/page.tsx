@@ -38,7 +38,7 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useRouter } from "next/navigation";
 import { BarChartComponent } from "@/components/BarChart";
 import { Check, X } from "lucide-react";
-import RepairNilai from "@/components/RepairNilai";
+import RepairNilai from "@/components/RepairNilai"
 
 interface mahasiswaExcel {
   NIM: string;

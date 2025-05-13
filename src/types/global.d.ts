@@ -144,7 +144,8 @@ declare global {
 
   export interface Kunci {
     id: number;
-    kunci: boolean;
+    data: boolean;
+    nilai: boolean;
   }
 
   export interface PL {

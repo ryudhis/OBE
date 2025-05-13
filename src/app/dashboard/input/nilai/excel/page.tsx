@@ -23,6 +23,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/app/contexts/AccountContext";
+import { useKunci } from "@/app/contexts/KunciContext";
 import {
   Select,
   SelectContent,
@@ -30,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StringDecoder } from "string_decoder";
 
 interface NilaiInput {
   nim: string;
@@ -67,6 +67,7 @@ const NilaiExcel = () => {
     templatePenilaianCPMK: { penilaianCPMK: PenilaianCPMK[] };
   } | null>(null);
   const { accountData } = useAccount();
+  const { kunciSistem } = useKunci();
   const { toast } = useToast();
 
   const handleTahunChange = (value: string) => {
@@ -77,7 +78,7 @@ const NilaiExcel = () => {
     if (accountData?.prodiId) {
       getTahunAjaran();
     }
-  }, [accountData?.prodiId]);
+  }, []);
 
   const getTahunAjaran = async () => {
     try {
@@ -295,177 +296,215 @@ const NilaiExcel = () => {
   }
 
   return (
-    <section className="flex justify-center items-center mt-20">
-      <Card className="w-[1000px]">
-        <CardHeader>
-          <CardTitle>Input Nilai Excel</CardTitle>
-          <CardDescription>Data Nilai Mahasiswa</CardDescription>
-          <div className="flex items-center justify-end gap-4">
-            <Button
-              disabled={!selectedTahunAjaran || !selectedMk || !selectedKelas}
-              className="w-[130px] self-end"
-              onClick={exportTemplate}
-            >
-              Export Template
-            </Button>
-            <Button
-              className="w-[100px] self-end"
-              onClick={() => {
-                router.push(`/dashboard/input/nilai/`);
-              }}
-            >
-              Input Manual
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <Select
-              onValueChange={(value) => {
-                handleTahunChange(value);
-                if (accountData) {
-                  getMK(accountData, value);
+    <section className='flex justify-center items-center mt-20'>
+      {kunciSistem?.nilai ? (
+        <Card className='w-[1000px]'>
+          <CardHeader>
+            <CardTitle>Input Nilai</CardTitle>
+            <CardDescription>Nilai PCPMK</CardDescription>
+          </CardHeader>
+          <CardContent className='flex flex-col items-center justify-center py-12'>
+            <div className='rounded-full bg-amber-100 p-4 mb-6'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='48'
+                height='48'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                className='text-amber-600'
+              >
+                <path d='M12 9v4'></path>
+                <path d='M12 16h.01'></path>
+                <circle cx='12' cy='12' r='10'></circle>
+              </svg>
+            </div>
+            <h2 className='text-2xl font-semibold text-center mb-2'>
+              Belum Waktunya Input Nilai
+            </h2>
+            <p className='text-gray-500 text-center max-w-md'>
+              Sistem input nilai belum dibuka. Silahkan coba lagi nanti atau
+              hubungi administrator untuk informasi lebih lanjut.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className='w-[1000px]'>
+          <CardHeader>
+            <CardTitle>Input Nilai Excel</CardTitle>
+            <CardDescription>Data Nilai Mahasiswa</CardDescription>
+            <div className='flex items-center justify-end gap-4'>
+              <Button
+                disabled={!selectedTahunAjaran || !selectedMk || !selectedKelas}
+                className='w-[130px] self-end'
+                onClick={exportTemplate}
+              >
+                Export Template
+              </Button>
+              <Button
+                className='w-[100px] self-end'
+                onClick={() => {
+                  router.push(`/dashboard/input/nilai/`);
+                }}
+              >
+                Input Manual
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className='grid grid-cols-3 gap-4 mb-4'>
+              <Select
+                onValueChange={(value) => {
+                  handleTahunChange(value);
+                  if (accountData) {
+                    getMK(accountData, value);
+                  }
+                }}
+                value={selectedTahunAjaran}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Tahun Ajaran' />
+                </SelectTrigger>
+                <SelectContent>
+                  {tahunAjaranList.map((tahun) => (
+                    <SelectItem key={tahun.id} value={tahun.id}>
+                      {tahun.tahun} {tahun.semester}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                onValueChange={(value) =>
+                  setSelectedMk(mkList.find((mk) => mk.kode === value))
                 }
-              }}
-              value={selectedTahunAjaran}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih Tahun Ajaran" />
-              </SelectTrigger>
-              <SelectContent>
-                {tahunAjaranList.map((tahun) => (
-                  <SelectItem key={tahun.id} value={tahun.id}>
-                    {tahun.tahun} {tahun.semester}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              onValueChange={(value) =>
-                setSelectedMk(mkList.find((mk) => mk.kode === value))
-              }
-              value={selectedMk?.kode ?? ""}
-              disabled={!selectedTahunAjaran}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih Mata Kuliah" />
-              </SelectTrigger>
-              <SelectContent>
-                {mkList.map((mk) => (
-                  <SelectItem key={mk.kode} value={mk.kode}>
-                    {mk.kode} - {mk.deskripsi}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              onValueChange={(value) => {
-                const kelas = selectedMk?.kelas.find(
-                  (kelas) => kelas.id === parseInt(value)
-                );
-                setSelectedKelas(kelas);
-                setPenilaianCPMKList(
-                  kelas?.templatePenilaianCPMK.penilaianCPMK || []
-                );
-              }}
-              value={selectedKelas?.id?.toString() ?? ""}
-              disabled={!selectedMk}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih Kelas" />
-              </SelectTrigger>
-              <SelectContent>
-                {kelasList.map((kelas) => (
-                  <SelectItem key={kelas.id} value={kelas.id.toString()}>
-                    {kelas.nama}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Input
-            type="file"
-            accept=".xlsx, .xls"
-            onChange={handleFileUpload}
-            disabled={!selectedKelas}
-          />
-
-          {nilai.length > 0 && (
-            <Table className="mt-4 text-center">
-              <TableHeader>
-                <TableRow>
-                  <TableHead rowSpan={2}>NIM</TableHead>
-                  <TableHead rowSpan={2}>Nama</TableHead>
-                  {penilaianCPMKList.map((CPMK) => (
-                    <TableHead
-                      colSpan={CPMK.kriteria.length}
-                      key={CPMK.CPMK.kode}
-                      className="text-center border-x-2"
-                    >
-                      {CPMK.CPMK.kode}
-                    </TableHead>
+                value={selectedMk?.kode ?? ""}
+                disabled={!selectedTahunAjaran}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Mata Kuliah' />
+                </SelectTrigger>
+                <SelectContent>
+                  {mkList.map((mk) => (
+                    <SelectItem key={mk.kode} value={mk.kode}>
+                      {mk.kode} - {mk.deskripsi}
+                    </SelectItem>
                   ))}
-                </TableRow>
-                <TableRow>
-                  {penilaianCPMKList.map((CPMK) => (
-                    <React.Fragment key={CPMK.CPMK.kode}>
-                      {CPMK.kriteria.map((kriteria, index) => (
-                        <TableHead
-                          className="text-center border-x-2"
-                          key={`${CPMK.CPMK.kode}-${index}`}
-                        >
-                          {kriteria.kriteria}
-                          <br />
-                          <span className="font-semibold text-blue-600">
-                            {kriteria.bobot}
-                          </span>
-                        </TableHead>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </TableRow>
-              </TableHeader>
+                </SelectContent>
+              </Select>
 
-              <TableBody>
-                {nilai.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.nim}</TableCell>
-                    <TableCell>{row.nama}</TableCell>
-                    {penilaianCPMKList.map((cpmk) =>
-                      cpmk.kriteria.map((k) => {
-                        const key = `${cpmk.CPMK.kode}|${k.kriteria}|${cpmk.id}`;
-                        return (
-                          <TableCell key={key}>
-                            {row.nilai?.[key] !== undefined
-                              ? row.nilai[key]
-                              : "-"}
-                          </TableCell>
-                        );
-                      })
-                    )}
+              <Select
+                onValueChange={(value) => {
+                  const kelas = selectedMk?.kelas.find(
+                    (kelas) => kelas.id === parseInt(value)
+                  );
+                  setSelectedKelas(kelas);
+                  setPenilaianCPMKList(
+                    kelas?.templatePenilaianCPMK.penilaianCPMK || []
+                  );
+                }}
+                value={selectedKelas?.id?.toString() ?? ""}
+                disabled={!selectedMk}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder='Pilih Kelas' />
+                </SelectTrigger>
+                <SelectContent>
+                  {kelasList.map((kelas) => (
+                    <SelectItem key={kelas.id} value={kelas.id.toString()}>
+                      {kelas.nama}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Input
+              type='file'
+              accept='.xlsx, .xls'
+              onChange={handleFileUpload}
+              disabled={!selectedKelas}
+            />
+
+            {nilai.length > 0 && (
+              <Table className='mt-4 text-center'>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead rowSpan={2}>NIM</TableHead>
+                    <TableHead rowSpan={2}>Nama</TableHead>
+                    {penilaianCPMKList.map((CPMK) => (
+                      <TableHead
+                        colSpan={CPMK.kriteria.length}
+                        key={CPMK.CPMK.kode}
+                        className='text-center border-x-2'
+                      >
+                        {CPMK.CPMK.kode}
+                      </TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-        <CardFooter>
-          <div className="flex flex-col">
-            {hasMissingNilai && (
-              <p className="text-red-500 font-semibold">NILAI BELUM LENGKAP!</p>
+                  <TableRow>
+                    {penilaianCPMKList.map((CPMK) => (
+                      <React.Fragment key={CPMK.CPMK.kode}>
+                        {CPMK.kriteria.map((kriteria, index) => (
+                          <TableHead
+                            className='text-center border-x-2'
+                            key={`${CPMK.CPMK.kode}-${index}`}
+                          >
+                            {kriteria.kriteria}
+                            <br />
+                            <span className='font-semibold text-blue-600'>
+                              {kriteria.bobot}
+                            </span>
+                          </TableHead>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                  {nilai.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{row.nim}</TableCell>
+                      <TableCell>{row.nama}</TableCell>
+                      {penilaianCPMKList.map((cpmk) =>
+                        cpmk.kriteria.map((k) => {
+                          const key = `${cpmk.CPMK.kode}|${k.kriteria}|${cpmk.id}`;
+                          return (
+                            <TableCell key={key}>
+                              {row.nilai?.[key] !== undefined
+                                ? row.nilai[key]
+                                : "-"}
+                            </TableCell>
+                          );
+                        })
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
-            <Button
-              onClick={onSubmit}
-              disabled={nilai.length === 0 || hasMissingNilai}
-            >
-              Submit
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardContent>
+          <CardFooter>
+            <div className='flex flex-col'>
+              {hasMissingNilai && (
+                <p className='text-red-500 font-semibold'>
+                  NILAI BELUM LENGKAP!
+                </p>
+              )}
+              <Button
+                onClick={onSubmit}
+                disabled={nilai.length === 0 || hasMissingNilai}
+              >
+                Submit
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      )}
     </section>
   );
 };

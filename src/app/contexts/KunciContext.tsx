@@ -11,7 +11,7 @@ import { getKunci } from "@/utils/api";
 import Image from "next/image";
 
 interface KunciContextType {
-  kunciData: Kunci | null;
+  kunciSistem: Kunci | null;
   fetchData: () => Promise<void>;
 }
 
@@ -26,13 +26,13 @@ export const useKunci = () => {
 };
 
 export const KunciProvider = ({ children }: { children: ReactNode }) => {
-  const [kunciData, setKunciData] = useState<Kunci | null>(null);
+  const [kunciSistem, setKunciSistem] = useState<Kunci | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
       const data = await getKunci();
-      setKunciData(data);
+      setKunciSistem(data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -59,7 +59,7 @@ export const KunciProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <KunciContext.Provider value={{ kunciData, fetchData }}>
+    <KunciContext.Provider value={{ kunciSistem, fetchData }}>
       {children}
     </KunciContext.Provider>
   );

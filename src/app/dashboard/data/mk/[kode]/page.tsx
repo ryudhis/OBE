@@ -99,7 +99,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     useState<TemplatePenilaianCPMK>();
   const [tahunAjaran, setTahunAjaran] = useState<TahunAjaran[]>([]);
   const { accountData } = useAccount();
-  const { kunciData } = useKunci();
+  const { kunciSistem } = useKunci();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
   const [selectedRencana, setSelectedRencana] =
@@ -1271,7 +1271,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                 className={accountData?.role === "Dosen" ? "hidden" : ""}
                 asChild
               >
-                <Button variant='outline' disabled={kunciData?.kunci}>
+                <Button variant='outline' disabled={kunciSistem?.data}>
                   Edit Data
                 </Button>
               </DialogTrigger>
@@ -2366,7 +2366,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       onClick={updateCPMK}
                       type='button'
                       className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
-                      disabled={kunciData?.kunci}
+                      disabled={kunciSistem?.data}
                     >
                       Simpan
                     </button>
@@ -2404,7 +2404,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                       onClick={updateBK}
                       type='button'
                       className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
-                      disabled={kunciData?.kunci}
+                      disabled={kunciSistem?.data}
                     >
                       Simpan
                     </button>

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import axiosConfig from "@/utils/axios"
 import { toast } from "@/components/ui/use-toast"
+import { useKunci } from "@/app/contexts/KunciContext"
 
 type MahasiswaVisualizationProps = {
   mahasiswaPerbaikan: mahasiswaLulus[]
@@ -25,6 +26,7 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
     cpmkId: number
   } | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const { kunciSistem } = useKunci()
   const [selectedMahasiswaData, setSelectedMahasiswaData] = useState<{
     nim: string
     nama: string
@@ -102,17 +104,17 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
 
   const handleSubmitPerbaikan = async () => {
     if (!selectedMahasiswaData) return
-  
+
     try {
       // Prepare an array of objects with cpmkId and nilai
       const payload = selectedMahasiswaData.cpmkData.map((cpmk) => ({
         cpmkId: cpmk.cpmkId,
         nilai: cpmk.nilai,
       }))
-  
+
       // Send the array in a single PATCH request
       const response = await axiosConfig.patch(`api/inputNilai/perbaiki`, payload)
-  
+
       if (response.data.status !== 400) {
         setRefresh((prev: boolean) => !prev)
         toast({
@@ -134,13 +136,23 @@ export default function RepairNilai({ mahasiswaPerbaikan, setRefresh }: Mahasisw
       })
       console.log(error)
     }
-  
+
     setDialogOpen(false)
   }
 
   return (
     <div className="container mx-auto py-8 px-4">
-      {mahasiswaPerbaikan.length === 0 ? (
+      {kunciSistem?.nilai ? (
+        <Card className="border-dashed border-amber-300 dark:border-amber-700">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <AlertCircle className="h-16 w-16 text-amber-500 mb-4" />
+            <h3 className="text-xl font-semibold text-center mb-2">Belum waktunya input / perbaikan nilai</h3>
+            <p className="text-muted-foreground text-center max-w-md">
+              Sistem penilaian saat ini sedang ditutup. Silakan coba lagi nanti ketika periode penilaian telah dibuka.
+            </p>
+          </CardContent>
+        </Card>
+      ) : mahasiswaPerbaikan.length === 0 ? (
         <Card className="border-dashed border-muted-foreground/50">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <AlertCircle className="h-16 w-16 text-muted-foreground mb-4" />

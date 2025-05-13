@@ -57,7 +57,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const { id } = params;
   const router = useRouter();
   const { accountData } = useAccount();
-  const { kunciData } = useKunci();
+  const { kunciSistem } = useKunci();
   const [PCPMK, setPCPMK] = useState<PenilaianCPMK | undefined>();
   const [refresh, setRefresh] = useState<boolean>(false);
 
@@ -183,7 +183,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline' disabled={kunciData?.kunci}>Edit Data</Button>
+              <Button variant='outline' disabled={kunciSistem?.data}>Edit Data</Button>
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>

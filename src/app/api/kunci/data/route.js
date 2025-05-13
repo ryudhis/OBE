@@ -1,7 +1,7 @@
 import prisma from "@/utils/prisma";
 import { validateToken } from "@/utils/auth";
 
-export async function GET(req) {
+export async function PATCH(req) {
   // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
@@ -12,12 +12,21 @@ export async function GET(req) {
   }
 
   try {
-    const kunci = await prisma.kunci.findFirst();
+    const before = await prisma.kunci.findFirst();
+
+    const kunci = await prisma.kunci.update({
+      data: {
+        data: !before.data,
+      },
+      where: {
+        id: 1,
+      },
+    });
 
     return new Response(
       JSON.stringify({
         status: 200,
-        message: "Berhasil ambil data!",
+        message: "Berhasil ubah data!",
         data: kunci,
       }),
       { headers: { "Content-Type": "application/json" } }
