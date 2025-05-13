@@ -97,6 +97,7 @@ const DataProdi = () => {
 
   useEffect(() => {
     getProdi();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, currentPage, searchQuery]); // Trigger useEffect only on initial mount
 
   if (accountData?.role !== "Super Admin") {

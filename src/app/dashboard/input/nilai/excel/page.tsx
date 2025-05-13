@@ -77,6 +77,7 @@ const NilaiExcel = () => {
     if (accountData?.prodiId) {
       getTahunAjaran();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accountData?.prodiId]);
 
   const getTahunAjaran = async () => {

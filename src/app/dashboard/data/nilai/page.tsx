@@ -134,15 +134,6 @@ const DataNilai = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, currentPage, filterMK, searchQuery]); // Trigger useEffect only on initial mount
 
-  if (accountData?.role === "Admin Prodi") {
-    toast({
-      title: "Anda tidak memiliki akses untuk page data Nilai.",
-      variant: "destructive",
-    });
-    router.push("/dashboard");
-    return null;
-  }
-
   const renderData = () => {
     if (inputNilai.length === 0) {
       return (

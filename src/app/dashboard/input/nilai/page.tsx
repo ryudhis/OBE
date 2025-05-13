@@ -189,15 +189,6 @@ const InputNilai: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (accountData?.role === "Admin Prodi") {
-    toast({
-      title: "Anda tidak memiliki akses untuk page input nilai.",
-      variant: "destructive",
-    });
-    router.push("/dashboard");
-    return null;
-  }
-
   return (
     <section className="flex justify-center items-center mt-20 mb-10">
       <Card className="w-[1000px]">

@@ -112,7 +112,7 @@ const Header = () => {
     "tahun Ajaran",
   ];
 
-  const linkListKaprodi = [
+  const linkListKaprodiOrGKMP = [
     "pl",
     "cpl",
     "bk",
@@ -123,25 +123,13 @@ const Header = () => {
     "nilai",
   ];
 
-  const linkListAdminProdi = [
-    "pl",
-    "cpl",
-    "bk",
-    "cpmk",
-    "mk",
-    "penilaian CPMK",
-    "mahasiswa",
-  ];
-
   const linkListDosen = ["mk", "nilai", "penilaian CPMK"];
 
   const linkList =
     accountData?.role === "Super Admin"
       ? linkListSuperAdmin
       : accountData?.role === "Kaprodi"
-      ? linkListKaprodi
-      : accountData?.role === "Admin"
-      ? linkListAdminProdi
+      ? linkListKaprodiOrGKMP
       : linkListDosen;
 
   const handleDrawerOpen = () => {
