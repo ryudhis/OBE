@@ -46,7 +46,7 @@ export async function GET(req, { params }) {
             },
           },
         },
-        prodi: { include: { kaprodi: true } },
+        prodi: { include: { kaprodi: true, GKMP: true } },
         prerequisitesMK: true,
         isPrerequisiteFor: true,
         rps: { include: { pengembang: true } },

@@ -116,6 +116,8 @@ declare global {
     PCPMK: PenilaianCPMK[];
     nilai: InputNilai[];
     KK: KelompokKeahlian[];
+    GKMP: Account;
+    GKMPId?: number;
   }
 
   export interface KelompokKeahlian {
@@ -231,6 +233,10 @@ declare global {
     software: string;
     hardware: string;
     revisi: string;
+    signaturePengembang?: string;
+    signatureKaprodi?: string;
+    signatureGKMP?: string;
+    signatureKetuaKK?: string;
   }
 
   export interface LulusMK_CPMK {

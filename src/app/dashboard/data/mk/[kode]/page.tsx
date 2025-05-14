@@ -452,7 +452,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     });
   };
 
-  const handleAddSignature = async (role) => {
+  const handleAddSignature = async (role: string) => {
     const result = await Swal.fire({
       title: "Tunggu !..",
       text: `
@@ -465,14 +465,12 @@ export default function Page({ params }: { params: { kode: string } }) {
       cancelButtonColor: "#0F172A",
     });
     if (result.isConfirmed) {
-      const data = {
-        MKId: mk?.kode,
-        dosenId: accountData?.id,
-        prodiId: accountData?.prodiId,
-      };
-
       axiosConfig
-        .post("api/tandaTangan", data)
+        .patch("api/rps/signature", {
+          MKId: mk?.kode,
+          role: role,
+          signature: accountData?.signature,
+        })
         .then(function (response) {
           if (response.data.status != 400) {
             toast({
@@ -499,8 +497,7 @@ export default function Page({ params }: { params: { kode: string } }) {
           setRefresh(!refresh);
         });
     }
-  }
-    
+  };
 
   const updateCPMK = async () => {
     const addedCPMKId: string[] = selectedCPMK.filter(
@@ -998,35 +995,35 @@ export default function Page({ params }: { params: { kode: string } }) {
     return filteredKelas?.map((kelas) => {
       return (
         <TableRow key={kelas.id}>
-          <TableCell className='w-[8%]'>{kelas.nama}</TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">{kelas.nama}</TableCell>
+          <TableCell className="w-[8%]">
             {kelas.tahunAjaran.tahun} - {kelas.tahunAjaran.semester}
           </TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">
             {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
-          <TableCell className='w-[8%]'>{kelas.jumlahLulus}</TableCell>
+          <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
           {kelas.dataCPMK &&
             kelas.dataCPMK.map((cpmk: dataCPMK) => (
-              <TableCell key={cpmk.cpmk} className='w-[8%]'>
+              <TableCell key={cpmk.cpmk} className="w-[8%]">
                 {cpmk.persenLulus ? `${cpmk.persenLulus}%` : "-"}
               </TableCell>
             ))}
 
           {(kelas.dataCPMK ?? []).length === 0 &&
             mk?.CPMK.map((_, index) => (
-              <TableCell key={index} className='w-[8%]'>
+              <TableCell key={index} className="w-[8%]">
                 -
               </TableCell>
             ))}
 
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">
             {kelas.MK.batasLulusMahasiswa}
           </TableCell>
-          <TableCell className='w-[8%] flex gap-2'>
+          <TableCell className="w-[8%] flex gap-2">
             <Button
               className={accountData?.role === "Dosen" ? "hidden" : ""}
-              variant='destructive'
+              variant="destructive"
               onClick={() => delKelas(kelas.id)}
             >
               Hapus
@@ -1050,12 +1047,12 @@ export default function Page({ params }: { params: { kode: string } }) {
     return mk?.rencanaPembelajaran.map((rencana) => {
       return (
         <TableRow key={rencana.id}>
-          <TableCell className='text-center'>{rencana.minggu}</TableCell>
+          <TableCell className="text-center">{rencana.minggu}</TableCell>
           <TableCell>{rencana.materi}</TableCell>
-          <TableCell className='text-center'>{rencana.metode}</TableCell>
-          <TableCell className='text  -center flex gap-3'>
+          <TableCell className="text-center">{rencana.metode}</TableCell>
+          <TableCell className="text  -center flex gap-3">
             <Button
-              variant='destructive'
+              variant="destructive"
               onClick={() => delRencana(rencana.id)}
             >
               Hapus
@@ -1064,12 +1061,12 @@ export default function Page({ params }: { params: { kode: string } }) {
               <DialogTrigger asChild>
                 <Button
                   onClick={() => handleSelectRP(rencana.id)}
-                  variant='outline'
+                  variant="outline"
                 >
                   Edit
                 </Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[425px]'>
+              <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                   <DialogTitle>Edit Data</DialogTitle>
                   <DialogDescription>Rencana Pembelajaran</DialogDescription>
@@ -1077,20 +1074,20 @@ export default function Page({ params }: { params: { kode: string } }) {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(editRencana)}
-                    className='space-y-8'
+                    className="space-y-8"
                   >
                     <FormField
                       control={form.control}
-                      name='editMinggu'
+                      name="editMinggu"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Minggu</FormLabel>
                           <FormControl>
                             <Input
-                              type='number'
+                              type="number"
                               min={1}
                               max={12}
-                              placeholder='Minggu ke-'
+                              placeholder="Minggu ke-"
                               required
                               {...field}
                             />
@@ -1101,7 +1098,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <FormField
                       control={form.control}
-                      name='editMateri'
+                      name="editMateri"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Materi</FormLabel>
@@ -1110,7 +1107,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <FormLabel>Materi</FormLabel>
                               <FormControl>
                                 <Textarea
-                                  placeholder='Materi...'
+                                  placeholder="Materi..."
                                   required
                                   {...field}
                                 />
@@ -1124,7 +1121,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                     />
                     <FormField
                       control={form.control}
-                      name='editMetode'
+                      name="editMetode"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Metode</FormLabel>
@@ -1138,7 +1135,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                             <FormControl>
                               <SelectTrigger>
                                 {field.value ? (
-                                  <SelectValue placeholder='Pilih Metode' />
+                                  <SelectValue placeholder="Pilih Metode" />
                                 ) : (
                                   "Pilih Metode"
                                 )}
@@ -1163,8 +1160,8 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button
-                          className='bg-blue-500 hover:bg-blue-600'
-                          type='submit'
+                          className="bg-blue-500 hover:bg-blue-600"
+                          type="submit"
                         >
                           Submit
                         </Button>
@@ -1233,7 +1230,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     return (
       <Table>
         <TableHeader>
-          <TableRow className='bg-[#CCCCCC]'>
+          <TableRow className="bg-[#CCCCCC]">
             <TableHead>CPMK Code</TableHead>
             {allKriteria.map((kriteria) => (
               <TableHead key={kriteria}>{kriteria}</TableHead>
@@ -1286,21 +1283,21 @@ export default function Page({ params }: { params: { kode: string } }) {
 
     return kriteriaArray.map(([kriteriaName, kriteriaData], index) => (
       <TableRow key={kriteriaName}>
-        <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
-        <TableCell className='w-[16%]'>{kriteriaName}</TableCell>
+        <TableCell className="w-[8%] text-center">{index + 1}</TableCell>
+        <TableCell className="w-[16%]">{kriteriaName}</TableCell>
         {currentTemplate.penilaianCPMK.map((CPMK) => (
           <React.Fragment key={CPMK.CPMKkode}>
             {CPMK.kriteria.some((k) => k.kriteria === kriteriaName) ? (
-              <TableCell className='w-[8%] text-center'>
+              <TableCell className="w-[8%] text-center">
                 {CPMK.kriteria.find((k) => k.kriteria === kriteriaName)
                   ?.bobot || "-"}
               </TableCell>
             ) : (
-              <TableCell className='w-[8%] text-center'>-</TableCell>
+              <TableCell className="w-[8%] text-center">-</TableCell>
             )}
           </React.Fragment>
         ))}
-        <TableCell className='w-[8%] text-center'>
+        <TableCell className="w-[8%] text-center">
           {kriteriaData.totalBobot}
         </TableCell>
       </TableRow>
@@ -2192,47 +2189,79 @@ export default function Page({ params }: { params: { kode: string } }) {
                             </TableRow>
                             <TableRow>
                               <TableCell>
-                                <Button>Tambah Signature</Button>
+                                {mk.rps?.signaturePengembang ? (
+                                  <div
+                                    className="border bg-white p-4 rounded shadow"
+                                    dangerouslySetInnerHTML={{
+                                      __html: mk.rps.signaturePengembang,
+                                    }}
+                                  />
+                                ) : (
+                                  "-"
+                                )}
                               </TableCell>
-                              {accountData?.role === "GKMP" && (
-                                <TableCell>
-                                  {!accountData?.signature ? (
-                                    <p>Anda belum memiliki signature</p>
-                                  ) : (
-                                    <Button
-                                      onClick={() => handleAddSignature("GKMP")}
-                                    >
-                                      Tambah Signature
-                                    </Button>
-                                  )}
-                                </TableCell>
-                              )}
-                              {accountData?.nama === mk.KK.ketua?.nama && (
-                                <TableCell>
-                                  {!accountData?.signature ? (
-                                    <p>Anda belum memiliki signature</p>
-                                  ) : (
-                                    <Button
-                                      onClick={() => handleAddSignature("KK")}
-                                    >
-                                      Tambah Signature
-                                    </Button>
-                                  )}
-                                </TableCell>
-                              )}
-                              {accountData?.role === "Kaprodi" && (
-                                <TableCell>
-                                  {!accountData?.signature ? (
-                                    <p>Anda belum memiliki signature</p>
-                                  ) : (
-                                    <Button
-                                      onClick={() => handleAddSignature("Kaprodi")}
-                                    >
-                                      Tambah Signature
-                                    </Button>
-                                  )}
-                                </TableCell>
-                              )}
+                              <TableCell>
+                                {mk.rps?.signatureGKMP ? (
+                                  <div
+                                    className="border bg-white p-4 rounded shadow"
+                                    dangerouslySetInnerHTML={{
+                                      __html: mk.rps.signatureGKMP,
+                                    }}
+                                  />
+                                ) : !accountData?.signature ? (
+                                  <p>Anda belum memiliki signature</p>
+                                ) : accountData.role === "GKMP" ? (
+                                  <Button
+                                    onClick={() => handleAddSignature("GKMP")}
+                                  >
+                                    Tambah Signature
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {mk.rps?.signatureKetuaKK ? (
+                                  <div
+                                    className="border bg-white p-4 rounded shadow"
+                                    dangerouslySetInnerHTML={{
+                                      __html: mk.rps.signatureKetuaKK,
+                                    }}
+                                  />
+                                ) : !accountData?.signature ? (
+                                  <p>Anda belum memiliki signature</p>
+                                ) : accountData.nama === mk.KK.ketua?.nama ? (
+                                  <Button
+                                    onClick={() => handleAddSignature("KK")}
+                                  >
+                                    Tambah Signature
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {mk.rps?.signatureKaprodi ? (
+                                  <div
+                                    className="border bg-white p-4 rounded shadow"
+                                    dangerouslySetInnerHTML={{
+                                      __html: mk.rps.signatureKaprodi,
+                                    }}
+                                  />
+                                ) : !accountData?.signature ? (
+                                  <p>Anda belum memiliki signature</p>
+                                ) : accountData.role === "Kaprodi" ? (
+                                  <Button
+                                    onClick={() =>
+                                      handleAddSignature("Kaprodi")
+                                    }
+                                  >
+                                    Tambah Signature
+                                  </Button>
+                                ) : (
+                                  "-"
+                                )}
+                              </TableCell>
                             </TableRow>
                             <TableRow>
                               <TableCell>
@@ -2240,7 +2269,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                                   ? mk.rps.pengembang.nama
                                   : "-"}
                               </TableCell>
-                              <TableCell>{mk.prodi.gkmp?.nama}</TableCell>
+                              <TableCell>{mk.prodi.GKMP?.nama}</TableCell>
                               <TableCell>
                                 {mk.KK.ketua ? mk.KK.ketua.nama : "-"}
                               </TableCell>
