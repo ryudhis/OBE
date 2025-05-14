@@ -71,6 +71,7 @@ model account {
   GKMP       prodi?            @relation(name: "prodi-GKMP")
   KK         kelompokKeahlian? @relation(name: "KK-ketua")
   rps        rps[]
+  signature  String?
 
   @@index([prodiId])
 }
