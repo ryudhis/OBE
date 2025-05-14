@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { useForm, useFieldArray, set } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -68,12 +68,26 @@ const formSchema = z.object({
   batasLulusMahasiswa: z.string(),
   batasLulusMK: z.string(),
   jumlahKelas: z.string(),
+});
+
+const penilaianSchema = z.object({
+  kriteria: z.string().min(1, "Kriteria is required"),
+  indikator: z.string().min(1, "Indikator is required"),
+  bobot: z.string().min(1, "Bobot is required"),
+});
+
+export const rencanaPembelajaranSchema = z.object({
   minggu: z.string(),
-  materi: z.string(),
+  materi: z.string().min(1, "Materi is required"),
   metode: z.string(),
-  editMinggu: z.string(),
-  editMateri: z.string(),
-  editMetode: z.string(),
+  bentuk: z.string(),
+  sumber: z.string().optional(),
+  waktu: z.string().optional(),
+  pengalaman: z.string().optional(),
+
+  penilaian: z
+    .array(penilaianSchema)
+    .min(1, "At least one penilaian is required"),
 });
 
 const rpsSchema = z.object({
@@ -91,6 +105,8 @@ const rpsSchema = z.object({
   hardware: z.string(),
   software: z.string(),
 });
+
+type RPFormData = z.infer<typeof rencanaPembelajaranSchema>;
 
 export default function Page({ params }: { params: { kode: string } }) {
   const { kode } = params;
@@ -148,12 +164,6 @@ export default function Page({ params }: { params: { kode: string } }) {
       batasLulusMahasiswa: "",
       batasLulusMK: "",
       jumlahKelas: "",
-      minggu: "",
-      materi: "",
-      metode: "",
-      editMinggu: "",
-      editMateri: "",
-      editMetode: "",
     },
   });
 
@@ -1686,7 +1696,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             )}
           </TabsContent>
 
-          <TabsContent className='flex flex-col gap-3' value='rencana'>
+          {/* <TabsContent className='flex flex-col gap-3' value='rencana'>
             <Dialog>
               <DialogTrigger asChild>
                 <Button className='w-[200px] self-end mr-32' variant='outline'>
@@ -1850,7 +1860,7 @@ export default function Page({ params }: { params: { kode: string } }) {
             ) : (
               <p className='self-center'>Belum Ada Rencana Pembelajaran ...</p>
             )}
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value='asesment'>
             <Card className='w-[1000px] mx-auto'>
