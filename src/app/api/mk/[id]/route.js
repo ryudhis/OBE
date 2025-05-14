@@ -36,9 +36,6 @@ export async function GET(req, { params }) {
             dosen: true,
           },
         },
-        rencanaPembelajaran: {
-          orderBy: { minggu: "asc" },
-        },
         lulusMK_CPMK: true,
         KK: {
           include: {
