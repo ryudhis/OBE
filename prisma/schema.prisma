@@ -192,10 +192,10 @@ model rps {
   software            String
   hardware            String
   revisi              String
-  signaturePengembang String
-  signatureKaprodi    String
-  signatureKetuaKK    String
-  signatureGKMP       String
+  signaturePengembang String?
+  signatureKaprodi    String?
+  signatureKetuaKK    String?
+  signatureGKMP       String?
 
   @@index([MKId])
 }

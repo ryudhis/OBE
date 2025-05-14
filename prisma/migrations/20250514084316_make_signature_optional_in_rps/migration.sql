@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "rps" ALTER COLUMN "signatureGKMP" DROP NOT NULL;
+ALTER TABLE "rps" ALTER COLUMN "signatureKaprodi" DROP NOT NULL;
+ALTER TABLE "rps" ALTER COLUMN "signatureKetuaKK" DROP NOT NULL;
+ALTER TABLE "rps" ALTER COLUMN "signaturePengembang" DROP NOT NULL;
