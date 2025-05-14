@@ -110,6 +110,7 @@ const Header = () => {
     "akun",
     "prodi",
     "tahun Ajaran",
+    "signature",
   ];
 
   const linkListKaprodiOrGKMP = [
@@ -121,14 +122,15 @@ const Header = () => {
     "penilaian CPMK",
     "mahasiswa",
     "nilai",
+    "signature",
   ];
 
-  const linkListDosen = ["mk", "nilai", "penilaian CPMK"];
+  const linkListDosen = ["mk", "nilai", "penilaian CPMK", "signature"];
 
   const linkList =
     accountData?.role === "Super Admin"
       ? linkListSuperAdmin
-      : accountData?.role === "Kaprodi"
+      : accountData?.role === "Kaprodi" || accountData?.role === "GKMP"
       ? linkListKaprodiOrGKMP
       : linkListDosen;
 
@@ -172,35 +174,35 @@ const Header = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
-      <AppBar position='fixed' open={open}>
+      <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
-            color='inherit'
-            aria-label='open drawer'
+            color="inherit"
+            aria-label="open drawer"
             onClick={handleDrawerOpen}
-            edge='start'
+            edge="start"
             sx={{ mr: 2, ...(open && { display: "none" }) }}
           >
             <MenuIcon />
           </IconButton>
           <Typography
-            variant='h6'
+            variant="h6"
             noWrap
-            component='a'
-            className='cursor-pointer'
+            component="a"
+            className="cursor-pointer"
             onClick={() => router.push(`/dashboard/`)}
           >
             OBE
           </Typography>
           {!accountData ? (
             <Typography
-              variant='body1'
+              variant="body1"
               sx={{ marginLeft: "auto", animation: "pulse 2s infinite" }}
             >
               ...
             </Typography>
           ) : (
-            <Typography variant='body1' sx={{ marginLeft: "auto" }}>
+            <Typography variant="body1" sx={{ marginLeft: "auto" }}>
               {accountData.nama} - {accountData.role}
             </Typography>
           )}
@@ -216,12 +218,12 @@ const Header = () => {
             boxSizing: "border-box",
           },
         }}
-        variant='persistent'
-        anchor='left'
+        variant="persistent"
+        anchor="left"
         open={open}
       >
-        <DrawerHeader className='flex justify-between'>
-          <Image src='/Logo1.png' alt='logo' width={50} height={50} />
+        <DrawerHeader className="flex justify-between">
+          <Image src="/Logo1.png" alt="logo" width={50} height={50} />
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
@@ -233,17 +235,17 @@ const Header = () => {
         <Divider />
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-          component='nav'
-          aria-labelledby='nested-list-subheader'
+          component="nav"
+          aria-labelledby="nested-list-subheader"
         >
           <ListItemButton onClick={handleClickInput}>
             <ListItemIcon>
               <InputIcon />
             </ListItemIcon>
-            <ListItemText primary='Input' />
+            <ListItemText primary="Input" />
             {openNestedInput ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedInput} timeout='auto' unmountOnExit>
+          <Collapse in={openNestedInput} timeout="auto" unmountOnExit>
             {linkList.map((item) =>
               item === "mk" && accountData?.role === "Dosen" ? null : (
                 <ListItemButton
@@ -264,21 +266,25 @@ const Header = () => {
             <ListItemIcon>
               <TextSnippetIcon />
             </ListItemIcon>
-            <ListItemText primary='Data' />
+            <ListItemText primary="Data" />
             {openNestedData ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <Collapse in={openNestedData} timeout='auto' unmountOnExit>
-            {linkList.map((item) => (
-              <ListItemButton
-                key={item}
-                onClick={() =>
-                  handleItemClick(`/dashboard/data/${item.replace(/\s+/g, "")}`)
-                }
-                sx={{ pl: 4 }}
-              >
-                <ListItemText primary={item.toLocaleUpperCase()} />
-              </ListItemButton>
-            ))}
+          <Collapse in={openNestedData} timeout="auto" unmountOnExit>
+            {linkList
+              .filter((item) => item.toLowerCase() !== "signature")
+              .map((item) => (
+                <ListItemButton
+                  key={item}
+                  onClick={() =>
+                    handleItemClick(
+                      `/dashboard/data/${item.replace(/\s+/g, "")}`
+                    )
+                  }
+                  sx={{ pl: 4 }}
+                >
+                  <ListItemText primary={item.toLocaleUpperCase()} />
+                </ListItemButton>
+              ))}
           </Collapse>
 
           {accountData?.role !== "Dosen" && (
@@ -290,15 +296,15 @@ const Header = () => {
               <ListItemIcon>
                 <ProdiIcon />
               </ListItemIcon>
-              <ListItemText primary='Data Prodi' />
+              <ListItemText primary="Data Prodi" />
             </ListItemButton>
           )}
         </List>
         <Button
-          size='medium'
-          variant='contained'
-          color='error'
-          className='text-black font-semibold bg-red-500 m-4'
+          size="medium"
+          variant="contained"
+          color="error"
+          className="text-black font-semibold bg-red-500 m-4"
           onClick={() => {
             toast({
               description: "Berhasil Log Out.",

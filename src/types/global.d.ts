@@ -140,6 +140,7 @@ declare global {
     ketuaProdi?: Prodi;
     KK?: KelompokKeahlian;
     rps: RPS[];
+    signature?: string;
   }
 
   export interface Kunci {
