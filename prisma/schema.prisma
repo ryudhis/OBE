@@ -33,6 +33,8 @@ model prodi {
   tendik    account[]          @relation(name: "prodi-tendik")
   kaprodi   account?           @relation(name: "prodi-kaprodi", fields: [kaprodiId], references: [id])
   kaprodiId Int?               @unique
+  GKMP      account?           @relation(name: "prodi-GKMP", fields: [GKMPId], references: [id])
+  GKMPId    Int?               @unique
   PL        PL[]
   CPL       CPL[]
   BK        BK[]
@@ -66,6 +68,7 @@ model account {
   prodi      prodi             @relation(name: "prodi-tendik", fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId    String
   ketuaProdi prodi?            @relation(name: "prodi-kaprodi")
+  GKMP       prodi?            @relation(name: "prodi-GKMP")
   KK         kelompokKeahlian? @relation(name: "KK-ketua")
   rps        rps[]
 
@@ -150,7 +153,6 @@ model MK {
   KKId                  Int
   prodi                 prodi                   @relation(fields: [prodiId], references: [kode], onDelete: Cascade)
   prodiId               String
-  rencanaPembelajaran   rencanaPembelajaran[]
   rps                   rps?                    @relation(name: "mk-rps")
   mahasiswa_MK          mahasiswa_MK[]
   mahasiswa_MK_CPMK     mahasiswa_MK_CPMK[]
@@ -165,29 +167,34 @@ model MK {
 }
 
 model templatePenilaianCPMK {
-  id            Int             @id @unique @default(sequence())
-  template      String
-  active        Boolean
-  MK            MK              @relation(fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId          String
-  penilaianCPMK penilaianCPMK[]
-  kelas         kelas[]
+  id                  Int                   @id @unique @default(sequence())
+  template            String
+  active              Boolean
+  MK                  MK                    @relation(fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId                String
+  penilaianCPMK       penilaianCPMK[]
+  kelas               kelas[]
+  rencanaPembelajaran rencanaPembelajaran[]
 
   @@index([MKId])
 }
 
 model rps {
-  id               Int      @id @unique @default(sequence())
-  MK               MK       @relation(name: "mk-rps", fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId             String   @unique
-  pengembang       account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
-  pengembangId     Int?
-  deskripsi        String
-  pustakaUtama     String[]
-  pustakaPendukung String[]
-  software         String
-  hardware         String
-  revisi           String
+  id                  Int      @id @unique @default(sequence())
+  MK                  MK       @relation(name: "mk-rps", fields: [MKId], references: [kode], onDelete: Cascade)
+  MKId                String   @unique
+  pengembang          account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
+  pengembangId        Int?
+  deskripsi           String
+  pustakaUtama        String[]
+  pustakaPendukung    String[]
+  software            String
+  hardware            String
+  revisi              String
+  signaturePengembang String
+  signatureKaprodi    String
+  signatureKetuaKK    String
+  signatureGKMP       String
 
   @@index([MKId])
 }
@@ -223,19 +230,48 @@ model lulusMK {
 }
 
 model rencanaPembelajaran {
-  id     Int    @id @unique @default(sequence())
-  minggu Int
-  materi String
-  metode String
-  MK     MK     @relation(fields: [MKId], references: [kode], onDelete: Cascade)
-  MKId   String
+  id          Int    @id @unique @default(sequence())
+  minggu      Int
+  bahanKajian String
+  bentuk      String
+  metode      String
+  sumber      String
+  waktu       String
+  pengalaman  String
 
-  @@index([MKId])
+  templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id], onDelete: Cascade)
+  templatePenilaianCPMKId Int
+  penilaianCPMK           penilaianCPMK         @relation(fields: [penilaianCPMKId], references: [id], onDelete: Cascade)
+  penilaianCPMKId         Int
+  penilaianRP             penilaianRP[]
+
+  @@index([templatePenilaianCPMKId])
+  @@index([penilaianCPMKId])
+}
+
+model penilaianRP {
+  id        Int    @id @unique @default(sequence())
+  kriteria  String
+  indikator String
+  bobot     Float
+
+  rencanaPembelajaran   rencanaPembelajaran @relation(fields: [rencanaPembelajaranId], references: [id], onDelete: Cascade)
+  rencanaPembelajaranId Int
+
+  @@index([rencanaPembelajaranId])
 }
 
 model kelas {
-  id                      Int                   @id @unique @default(sequence())
-  nama                    String
+  id                 Int     @id @unique @default(sequence())
+  nama               String
+  jumlahLulus        Int
+  mahasiswaLulus     Json?
+  mahasiswaPerbaikan Json?
+  dataCPMK           Json?
+  dataCPL            Json?
+  tindakLanjutCPMK   String?
+  tindakLanjutCPL    String?
+
   MK                      MK                    @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId                    String
   templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id])
@@ -245,16 +281,9 @@ model kelas {
   mahasiswa               mahasiswa[]           @relation("kelas_mahasiswa")
   nilaiMahasiswa          inputNilai[]
   dosen                   account[]             @relation("kelas_dosen")
-  jumlahLulus             Int
-  mahasiswaLulus          Json?
-  mahasiswaPerbaikan      Json?
-  dataCPMK                Json?
-  dataCPL                 Json?
   lulusCPMK               lulusKelas_CPMK[]
   evaluasiCPMK            evaluasiCPMKKelas[]
-  tindakLanjutCPMK        String?
   evaluasiCPL             evaluasiCPLKelas[]
-  tindakLanjutCPL         String?
 
   @@unique([nama, MKId, tahunAjaranId])
   @@index([MKId])
@@ -358,6 +387,7 @@ model penilaianCPMK {
   prodiId                 String
   templatePenilaianCPMK   templatePenilaianCPMK @relation(fields: [templatePenilaianCPMKId], references: [id], onDelete: Cascade)
   templatePenilaianCPMKId Int
+  rencanaPembelajaran     rencanaPembelajaran[]
 
   @@unique([kode, prodiId])
   @@index([CPLkode])
