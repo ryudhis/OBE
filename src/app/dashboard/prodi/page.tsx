@@ -71,6 +71,7 @@ export default function ProdiPage() {
   const [filteredDosen, setFilteredDosen] = useState<Account[]>();
   const [prodi, setProdi] = useState<Prodi>();
   const [selectedKaprodi, setSelectedKaprodi] = useState<string>();
+  const [selectedGKMP, setSelectedGKMP] = useState<string>();
   const [selectedKKId, setSelectedKKId] = useState<number>();
   const [refresh, setRefresh] = useState<boolean>(false);
 
@@ -172,6 +173,48 @@ export default function ProdiPage() {
     }
   };
 
+  const assignGKMP = async (e: any) => {
+    e.preventDefault();
+
+    if (selectedGKMP) {
+      const data = {
+        GKMP: parseInt(selectedGKMP),
+        oldGKMP: prodi?.GKMP?.id,
+      };
+
+      axiosConfig
+        .patch(`api/prodi/gkmp/${accountData?.prodiId}`, data)
+        .then(function (response) {
+          if (response.data.status != 400) {
+            setRefresh(!refresh);
+            toast({
+              title: "Berhasil Menetapkan GKMP",
+              description: String(new Date()),
+            });
+          } else {
+            toast({
+              title: response.data.message,
+              description: String(new Date()),
+              variant: "destructive",
+            });
+          }
+        })
+        .catch(function (error) {
+          toast({
+            title: "Gagal Edit",
+            description: String(new Date()),
+            variant: "destructive",
+          });
+          console.log(error);
+        })
+        .finally(function () {
+          setSelectedGKMP("");
+          setRefresh(!refresh);
+          fetchData();
+        });
+    }
+  };
+
   const handleAssignKaprodi = async (e: any) => {
     e.stopPropagation();
 
@@ -189,6 +232,27 @@ export default function ProdiPage() {
 
       if (result.isConfirmed) {
         assignKaprodi(e);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleAssignGKMP = async (e: any) => {
+    try {
+      const result = await Swal.fire({
+        title: "Tunggu !..",
+        text: `Kamu yakin ingin menetapkan GKMP baru?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#0F172A",
+      });
+
+      if (result.isConfirmed) {
+        assignGKMP(e);
       }
     } catch (error) {
       throw error;
@@ -335,35 +399,35 @@ export default function ProdiPage() {
 
   if (prodi) {
     return (
-      <main className='w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5'>
-        <div className='flex justify-between'>
-          <p className='ml-2 mb-3 font-bold text-2xl'>Detail Prodi</p>
+      <main className="w-screen h-screen max-w-7xl mx-auto pt-20 bg-[#FAFAFA] p-5">
+        <div className="flex justify-between">
+          <p className="ml-2 mb-3 font-bold text-2xl">Detail Prodi</p>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant='outline'>Ubah Kaprodi</Button>
+              <Button variant="outline">Ubah Kaprodi</Button>
             </DialogTrigger>
-            <DialogContent className='sm:max-w-[400px]'>
+            <DialogContent className="sm:max-w-[400px]">
               <DialogHeader>
                 <DialogTitle>Pilih Dosen Sebagai Kaprodi</DialogTitle>
                 <DialogDescription>Prodi {prodi.nama}</DialogDescription>
               </DialogHeader>
-              <div className='flex gap-3 flex-col'>
-                <Label htmlFor='deskripsi'>Dosen</Label>
+              <div className="flex gap-3 flex-col">
+                <Label htmlFor="deskripsi">Dosen</Label>
                 <Select
                   onValueChange={(e) => {
                     setSelectedKaprodi(e);
                   }}
                   value={selectedKaprodi}
                 >
-                  <SelectTrigger className='w-[200px]'>
-                    <SelectValue placeholder='Pilih Dosen' />
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Pilih Dosen" />
                   </SelectTrigger>
                   <SelectContent>
                     <Input
-                      type='text'
-                      className='mb-2'
+                      type="text"
+                      className="mb-2"
                       value={searchDosen}
-                      placeholder='Cari...'
+                      placeholder="Cari..."
                       onChange={(e) => setSearchDosen(e.target.value)}
                     />
                     {filteredDosen?.map((item) => (
@@ -376,7 +440,52 @@ export default function ProdiPage() {
               </div>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button onClick={handleAssignKaprodi} type='submit'>
+                  <Button onClick={handleAssignKaprodi} type="submit">
+                    Simpan
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Ubah GKMP</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[400px]">
+              <DialogHeader>
+                <DialogTitle>Pilih Dosen Sebagai GKMP</DialogTitle>
+                <DialogDescription>Prodi {prodi.nama}</DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-3 flex-col">
+                <Label htmlFor="deskripsi">Dosen</Label>
+                <Select
+                  onValueChange={(e) => {
+                    setSelectedGKMP(e);
+                  }}
+                  value={selectedGKMP}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Pilih Dosen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <Input
+                      type="text"
+                      className="mb-2"
+                      value={searchDosen}
+                      placeholder="Cari..."
+                      onChange={(e) => setSearchDosen(e.target.value)}
+                    />
+                    {filteredDosen?.map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.nama}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button onClick={handleAssignGKMP} type="submit">
                     Simpan
                   </Button>
                 </DialogClose>
@@ -385,60 +494,68 @@ export default function ProdiPage() {
           </Dialog>
         </div>
 
-        <Table className='table-fixed mb-5'>
+        <Table className="table-fixed mb-5">
           <TableBody>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Kode Prodi</strong>
               </TableCell>
-              <TableCell className='p-2'>: {prodi.kode}</TableCell>
+              <TableCell className="p-2">: {prodi.kode}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Nama Prodi</strong>
               </TableCell>
-              <TableCell className='p-2'>: {prodi.nama}</TableCell>
+              <TableCell className="p-2">: {prodi.nama}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Kaprodi</strong>
               </TableCell>
-              <TableCell className='p-2'>
+              <TableCell className="p-2">
                 : {prodi.kaprodi ? prodi.kaprodi.nama : "-"}
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
+                <strong>GKMP</strong>
+              </TableCell>
+              <TableCell className="p-2">
+                : {prodi.GKMP ? prodi.GKMP.nama : "-"}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="w-[20%] p-2">
                 <strong>Jumlah Tendik</strong>
               </TableCell>
-              <TableCell className='p-2'>: {prodi.tendik.length}</TableCell>
+              <TableCell className="p-2">: {prodi.tendik.length}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Jumlah Mahasiswa</strong>
               </TableCell>
-              <TableCell className='p-2'>: {prodi.mahasiswa.length}</TableCell>
+              <TableCell className="p-2">: {prodi.mahasiswa.length}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Jumlah MK</strong>
               </TableCell>
-              <TableCell className='p-2'>: {prodi.MK.length}</TableCell>
+              <TableCell className="p-2">: {prodi.MK.length}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
 
-        <Card className='w-[1000px] mx-auto'>
-          <CardHeader className='flex flex-row justify-between items-center'>
-            <div className='flex flex-col'>
+        <Card className="w-[1000px] mx-auto">
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div className="flex flex-col">
               <CardTitle>Kelompok Keahlian</CardTitle>
               <CardDescription>Prodi {prodi.nama}</CardDescription>
             </div>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant='outline'>Tambah KK</Button>
+                <Button variant="outline">Tambah KK</Button>
               </DialogTrigger>
-              <DialogContent className='sm:max-w-[400px]'>
+              <DialogContent className="sm:max-w-[400px]">
                 <DialogHeader>
                   <DialogTitle>Tambah Kelompok Keahlian</DialogTitle>
                   <DialogDescription>Prodi {prodi.nama}</DialogDescription>
@@ -446,20 +563,20 @@ export default function ProdiPage() {
                 <Form {...formTambahKK}>
                   <form
                     onSubmit={formTambahKK.handleSubmit(tambahKK)}
-                    className='space-y-8'
+                    className="space-y-8"
                   >
                     <FormField
                       control={formTambahKK.control}
-                      name='nama'
+                      name="nama"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Nama</FormLabel>
                           <FormControl>
                             <Input
-                              type='nama'
+                              type="nama"
                               min={1}
                               max={50}
-                              placeholder='Nama Kelompok Keahlian'
+                              placeholder="Nama Kelompok Keahlian"
                               required
                               {...field}
                             />
@@ -471,7 +588,7 @@ export default function ProdiPage() {
 
                     <FormField
                       control={formTambahKK.control}
-                      name='ketua'
+                      name="ketua"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Ketua Kelompok Keahlian</FormLabel>
@@ -481,15 +598,15 @@ export default function ProdiPage() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder='Pilih Dosen' />
+                                <SelectValue placeholder="Pilih Dosen" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               <Input
-                                type='text'
-                                className='mb-2'
+                                type="text"
+                                className="mb-2"
                                 value={searchDosen}
-                                placeholder='Cari...'
+                                placeholder="Cari..."
                                 onChange={(e) => setSearchDosen(e.target.value)}
                               />
                               {filteredDosen?.map((item) => (
@@ -510,8 +627,8 @@ export default function ProdiPage() {
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button
-                          className='bg-blue-500 hover:bg-blue-600'
-                          type='submit'
+                          className="bg-blue-500 hover:bg-blue-600"
+                          type="submit"
                         >
                           Submit
                         </Button>
@@ -538,7 +655,7 @@ export default function ProdiPage() {
                 </TableBody>
               </Table>
             ) : prodi.KK.length === 0 ? (
-              <p className='text-center animate-pulse'>
+              <p className="text-center animate-pulse">
                 Belum ada Kelompok Keahlian
               </p>
             ) : (
@@ -554,19 +671,19 @@ export default function ProdiPage() {
                 <TableBody>
                   {prodi.KK.map((item, index) => (
                     <TableRow key={item.id}>
-                      <TableCell className='text-center'>{index + 1}</TableCell>
+                      <TableCell className="text-center">{index + 1}</TableCell>
                       <TableCell>{item.nama}</TableCell>
                       <TableCell>
                         {item.ketua ? item.ketua.nama : "-"}
                       </TableCell>
-                      <TableCell className='space-x-3'>
+                      <TableCell className="space-x-3">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button onClick={() => handleEditKK(item)}>
                               Edit KK
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className='sm:max-w-[400px]'>
+                          <DialogContent className="sm:max-w-[400px]">
                             <DialogHeader>
                               <DialogTitle>Edit Kelompok Keahlian</DialogTitle>
                               <DialogDescription>{item.nama}</DialogDescription>
@@ -574,20 +691,20 @@ export default function ProdiPage() {
                             <Form {...formEditKK}>
                               <form
                                 onSubmit={formEditKK.handleSubmit(editKK)}
-                                className='space-y-8'
+                                className="space-y-8"
                               >
                                 <FormField
                                   control={formEditKK.control}
-                                  name='nama'
+                                  name="nama"
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>Nama</FormLabel>
                                       <FormControl>
                                         <Input
-                                          type='nama'
+                                          type="nama"
                                           min={1}
                                           max={50}
-                                          placeholder='Nama Kelompok Keahlian'
+                                          placeholder="Nama Kelompok Keahlian"
                                           required
                                           {...field}
                                         />
@@ -599,7 +716,7 @@ export default function ProdiPage() {
 
                                 <FormField
                                   control={formEditKK.control}
-                                  name='ketua'
+                                  name="ketua"
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel>
@@ -611,15 +728,15 @@ export default function ProdiPage() {
                                       >
                                         <FormControl>
                                           <SelectTrigger>
-                                            <SelectValue placeholder='Pilih Dosen' />
+                                            <SelectValue placeholder="Pilih Dosen" />
                                           </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                           <Input
-                                            type='text'
-                                            className='mb-2'
+                                            type="text"
+                                            className="mb-2"
                                             value={searchDosen}
-                                            placeholder='Cari...'
+                                            placeholder="Cari..."
                                             onChange={(e) =>
                                               setSearchDosen(e.target.value)
                                             }
@@ -642,8 +759,8 @@ export default function ProdiPage() {
                                 <DialogFooter>
                                   <DialogClose asChild>
                                     <Button
-                                      className='bg-blue-500 hover:bg-blue-600'
-                                      type='submit'
+                                      className="bg-blue-500 hover:bg-blue-600"
+                                      type="submit"
                                     >
                                       Submit
                                     </Button>
@@ -654,7 +771,7 @@ export default function ProdiPage() {
                           </DialogContent>
                         </Dialog>
                         <Button
-                          variant='destructive'
+                          variant="destructive"
                           onClick={() => {
                             deleteKK(item.id);
                           }}

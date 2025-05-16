@@ -30,6 +30,7 @@ export async function GET(req, { params }) {
           },
         },
         kaprodi: true,
+        GKMP: true,
       },
     });
 
