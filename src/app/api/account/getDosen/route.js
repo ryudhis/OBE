@@ -26,7 +26,7 @@ export async function GET(req) {
       where: {
         prodiId: prodi,
         role: {
-          in: ["Dosen", "Kaprodi"],
+          in: ["Dosen", "Kaprodi", "GKMP"],
         },
       },
     });
