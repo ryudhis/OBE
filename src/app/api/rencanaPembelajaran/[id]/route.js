@@ -1,5 +1,5 @@
 import prisma from "@/utils/prisma";
-import { validateToken } from "@/utils/auth"; 
+import { validateToken } from "@/utils/auth";
 
 export async function GET(req, { params }) {
   // Validate the token
@@ -11,7 +11,7 @@ export async function GET(req, { params }) {
     );
   }
 
-  const id = parseInt(params.id); 
+  const id = parseInt(params.id);
 
   try {
     const rencanaPembelajaran = await prisma.rencanaPembelajaran.findUnique({
@@ -54,7 +54,7 @@ export async function DELETE(req, { params }) {
     );
   }
 
-  const id = parseInt(params.id); 
+  const id = parseInt(params.id);
 
   try {
     const rencanaPembelajaran = await prisma.rencanaPembelajaran.delete({
@@ -81,7 +81,6 @@ export async function DELETE(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
-  // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
     return new Response(
@@ -90,16 +89,87 @@ export async function PATCH(req, { params }) {
     );
   }
 
-  const id = parseInt(params.id); 
+  const id = Number(params.id); // rencanaPembelajaran ID
 
   try {
     const data = await req.json();
+    const {
+      minggu,
+      materi,
+      bentuk,
+      metode,
+      sumber,
+      waktu,
+      pengalaman,
+      penilaian,
+    } = data;
 
-    const rencanaPembelajaran = await prisma.rencanaPembelajaran.update({
-      where: {
-        id: id,
-      },
-      data,
+    //
+    const existingChildren = await prisma.penilaianRP.findMany({
+      where: { rencanaPembelajaranId: id },
+      select: { id: true },
+    });
+    const existingIds = new Set(existingChildren.map((c) => c.id));
+
+    const toUpdate = penilaian.filter((p) => p.id);
+    const toCreate = penilaian.filter((p) => !p.id);
+
+    const payloadIds = new Set(toUpdate.map((p) => p.id));
+    const toDelete = [...existingIds].filter((eid) => !payloadIds.has(eid));
+
+    console.log("toUpdate", toUpdate);
+    console.log("toCreate", toCreate);
+    console.log("toDelete", toDelete);
+
+    const rencanaPembelajaran = await prisma.$transaction(async (tx) => {
+      /* --- parent update --- */
+      const parent = await tx.rencanaPembelajaran.update({
+        where: { id },
+        data: {
+          minggu,
+          bahanKajian: materi,
+          bentuk,
+          metode,
+          sumber,
+          waktu,
+          pengalaman,
+        },
+      });
+
+      /* --- upsert children --- */
+      // updates
+      for (const p of toUpdate) {
+        await tx.penilaianRP.update({
+          where: { id: p.id },
+          data: {
+            kriteria: p.kriteria,
+            indikator: p.indikator,
+            bobot: p.bobot,
+          },
+        });
+      }
+      // creates
+      if (toCreate.length) {
+        await tx.penilaianRP.createMany({
+          data: toCreate.map((p) => ({
+            kriteria: p.kriteria,
+            indikator: p.indikator,
+            bobot: p.bobot,
+            rencanaPembelajaranId: id,
+          })),
+        });
+      }
+      // deletes
+      if (toDelete.length) {
+        await tx.penilaianRP.deleteMany({
+          where: { id: { in: toDelete } },
+        });
+      }
+
+      return tx.rencanaPembelajaran.findUnique({
+        where: { id },
+        include: { penilaianRP: true },
+      });
     });
 
     return new Response(
@@ -111,10 +181,10 @@ export async function PATCH(req, { params }) {
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return new Response(
       JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { headers: { "Content-Type": "application/json" } }
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 }

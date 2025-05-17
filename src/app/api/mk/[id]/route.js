@@ -23,6 +23,16 @@ export async function GET(req, { params }) {
                 CPMK: true,
               },
             },
+            rencanaPembelajaran: {
+              include: {
+                penilaianCPMK: {
+                  include: {
+                    CPMK: true,
+                  },
+                },
+                penilaianRP: true,
+              },
+            },
           },
         },
         BK: { include: { CPL: true } },

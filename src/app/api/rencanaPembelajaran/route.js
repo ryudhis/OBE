@@ -2,7 +2,6 @@ import prisma from "@/utils/prisma";
 import { validateToken } from "@/utils/auth";
 
 export async function GET(req) {
-  // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
     return new Response(
@@ -12,21 +11,22 @@ export async function GET(req) {
   }
 
   const { searchParams } = new URL(req.url);
-  const mk = searchParams.get("mk") || "";
+  const templateId = searchParams.get("templateId");
 
-  // Validate mk parameter if necessary
-  if (!mk) {
+  if (!templateId) {
     return new Response(
-      JSON.stringify({ status: 400, message: "Missing mk parameter" }),
+      JSON.stringify({ status: 400, message: "Missing templateId parameter" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
-    // Fetch MK data filtered by MKId
     const rencanaPembelajaran = await prisma.rencanaPembelajaran.findMany({
       where: {
-        MKId: mk,
+        templatePenilaianCPMKId: parseInt(templateId),
+      },
+      include: {
+        penilaianRP: true,
       },
     });
 
@@ -41,14 +41,13 @@ export async function GET(req) {
   } catch (error) {
     console.error(error);
     return new Response(
-      JSON.stringify({ status: 400, message: "Something went wrong!" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ status: 500, message: "Something went wrong!" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
 
 export async function POST(req) {
-  // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
     return new Response(
@@ -59,18 +58,44 @@ export async function POST(req) {
 
   try {
     const data = await req.json();
-    const { MKId, ...restData } = data;
+    const {
+      minggu,
+      materi,
+      bentuk,
+      metode,
+      sumber,
+      waktu,
+      pengalaman,
+      templatePenilaianCPMKId,
+      penilaianCPMKId,
+      penilaian, // Array: [{ kriteria, indikator, bobot }]
+    } = data;
 
-    console.log(data);
-
-    const rencanaPembelajaran = await prisma.rencanaPembelajaran.create({
+    const created = await prisma.rencanaPembelajaran.create({
       data: {
-        ...restData,
-        MK: {
-          connect: {
-            kode: MKId,
-          },
+        minggu,
+        bahanKajian: materi,
+        bentuk,
+        metode,
+        sumber,
+        waktu,
+        pengalaman,
+        templatePenilaianCPMK: {
+          connect: { id: templatePenilaianCPMKId },
         },
+        penilaianCPMK: {
+          connect: { id: penilaianCPMKId },
+        },
+        penilaianRP: {
+          create: penilaian.map((p) => ({
+            kriteria: p.kriteria,
+            indikator: p.indikator,
+            bobot: p.bobot,
+          })),
+        },
+      },
+      include: {
+        penilaianRP: true,
       },
     });
 
@@ -78,7 +103,7 @@ export async function POST(req) {
       JSON.stringify({
         status: 200,
         message: "Berhasil buat data!",
-        data: rencanaPembelajaran,
+        data: created,
       }),
       { headers: { "Content-Type": "application/json" } }
     );
@@ -92,7 +117,6 @@ export async function POST(req) {
 }
 
 export async function DELETE(req) {
-  // Validate the token
   const tokenValidation = validateToken(req);
   if (!tokenValidation.valid) {
     return new Response(
@@ -101,13 +125,22 @@ export async function DELETE(req) {
     );
   }
 
-  const data = await req.json();
-  const { MKId } = data;
+  const { templatePenilaianCPMKId } = await req.json();
+
+  if (!templatePenilaianCPMKId) {
+    return new Response(
+      JSON.stringify({
+        status: 400,
+        message: "Missing templatePenilaianCPMKId",
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
+  }
 
   try {
-    const rencanaPembelajaran = await prisma.rencanaPembelajaran.deleteMany({
+    const deleted = await prisma.rencanaPembelajaran.deleteMany({
       where: {
-        MKId,
+        templatePenilaianCPMKId,
       },
     });
 
@@ -115,7 +148,7 @@ export async function DELETE(req) {
       JSON.stringify({
         status: 200,
         message: "Berhasil hapus data!",
-        data: rencanaPembelajaran,
+        data: deleted,
       }),
       { headers: { "Content-Type": "application/json" } }
     );

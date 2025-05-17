@@ -215,7 +215,6 @@ declare global {
     KKId: number;
     prodi: Prodi;
     prodiId: string;
-    rencanaPembelajaran: RencanaPembelajaran[];
     rps?: RPS;
     prerequisitesMK: MK[];
     isPrerequisiteFor: MK[];
@@ -263,10 +262,26 @@ declare global {
   export interface RencanaPembelajaran {
     id: number;
     minggu: number;
-    materi: string;
+    bahanKajian: string;
+    bentuk: string;
     metode: string;
-    MK: MK;
-    MKId: string;
+    sumber: string;
+    waktu: string;
+    pengalaman: string;
+    templatePenilaianCPMK: TemplatePenilaianCPMK;
+    templatePenilaianCPMKId: number;
+    penilaianCPMK: PenilaianCPMK;
+    penilaianCPMKId: number;
+    penilaianRP: any[];
+  }
+
+  export interface penilaianRP {
+    id: number;
+    kriteria: string;
+    indikator: string;
+    bobot: number;
+    rencanaPembelajaran: RencanaPembelajaran;
+    rencanaPembelajaranId: number;
   }
 
   export interface Kelas {
@@ -391,11 +406,12 @@ declare global {
   }
 
   export interface TemplatePenilaianCPMK {
-    id: number
-    template: string
-    active: boolean
-    MKId: string
-    penilaianCPMK: PenilaianCPMK[]
+    id: number;
+    template: string;
+    active: boolean;
+    MKId: string;
+    penilaianCPMK: PenilaianCPMK[];
+    rencanaPembelajaran: RencanaPembelajaran[];
   }
 
   export interface PenilaianCPMK {
@@ -419,8 +435,9 @@ declare global {
   }
 
   export interface Kriteria {
-    bobot: number;
+    id: number;
     kriteria: string;
+    bobot: number;
   }
 
   export interface Mahasiswa {
