@@ -187,6 +187,7 @@ model rps {
   pengembang          account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
   pengembangId        Int?
   deskripsi           String
+  materiPembelajaran  String
   pustakaUtama        String[]
   pustakaPendukung    String[]
   software            String
@@ -246,6 +247,7 @@ model rencanaPembelajaran {
   penilaianCPMKId         Int
   penilaianRP             penilaianRP[]
 
+  @@unique([minggu, templatePenilaianCPMKId])
   @@index([templatePenilaianCPMKId])
   @@index([penilaianCPMKId])
 }

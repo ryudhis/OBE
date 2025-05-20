@@ -73,6 +73,7 @@ const formSchema = z.object({
 
 const rpsSchema = z.object({
   deskripsi: z.string().min(1),
+  materiPembelajaran: z.string().min(1),
   pustakaUtama: z.array(
     z.object({
       name: z.string(),
@@ -97,9 +98,14 @@ export default function Page({ params }: { params: { kode: string } }) {
   const { kunciSistem } = useKunci();
   const [isLoading, setIsLoading] = useState(true);
   const [refresh, setRefresh] = useState<boolean>(false);
-  const [selectedRencana, setSelectedRencana] =
-    useState<RencanaPembelajaran | null>(null);
   const [selectedTahun, setSelectedTahun] = useState("");
+  const [rencanaByWeek, setRencanaByWeek] = useState<Record<
+    number,
+    RencanaPembelajaran
+  > | null>(null);
+
+  // Create an array of 16 weeks
+  const allWeeks = Array.from({ length: 16 }, (_, i) => i + 1);
 
   // edit prerequisite
   const [allMK, setAllMK] = useState<MK[]>([]);
@@ -150,6 +156,7 @@ export default function Page({ params }: { params: { kode: string } }) {
     resolver: zodResolver(rpsSchema),
     defaultValues: {
       deskripsi: "",
+      materiPembelajaran: "",
       pustakaUtama: [],
       pustakaPendukung: [],
       hardware: "",
@@ -244,6 +251,19 @@ export default function Page({ params }: { params: { kode: string } }) {
         );
         setCurrentTemplate(activeTemplate);
 
+        setRencanaByWeek(
+          activeTemplate.rencanaPembelajaran.reduce(
+            (
+              acc: Record<number, RencanaPembelajaran>,
+              rp: RencanaPembelajaran
+            ) => {
+              acc[rp.minggu] = rp;
+              return acc;
+            },
+            {} as Record<number, RencanaPembelajaran>
+          )
+        );
+
         setListCPL(
           Array.from(
             new Set(response.data.data.CPMK.map((cpmk: CPMK) => cpmk.CPL))
@@ -285,6 +305,10 @@ export default function Page({ params }: { params: { kode: string } }) {
         //form revisi rps
         if (response.data.data.rps) {
           rpsForm.setValue("deskripsi", response.data.data.rps.deskripsi);
+          rpsForm.setValue(
+            "materiPembelajaran",
+            response.data.data.rps.materiPembelajaran
+          );
           rpsForm.setValue("hardware", response.data.data.rps.hardware);
           rpsForm.setValue("software", response.data.data.rps.software);
 
@@ -616,53 +640,6 @@ export default function Page({ params }: { params: { kode: string } }) {
     }
   };
 
-  const onDeleteAllRencana = async () => {
-    const result = await Swal.fire({
-      title: "Tunggu !..",
-      text: `Kamu yakin ingin hapus semua rencana pembelajaran?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya",
-      cancelButtonText: "Tidak",
-      confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#0F172A",
-    });
-
-    if (result.isConfirmed) {
-      const data = {
-        templatePenilaianCPMKId: currentTemplate?.id,
-      };
-
-      axiosConfig
-        .delete("api/rencanaPembelajaran", { data })
-        .then(function (response) {
-          if (response.status === 200) {
-            toast({
-              title: "Berhasil hapus data",
-              description: String(new Date()),
-            });
-          } else {
-            toast({
-              title: "Tidak ada data!",
-              description: String(new Date()),
-              variant: "destructive",
-            });
-          }
-        })
-        .catch(function (error) {
-          toast({
-            title: "Gagal Submit",
-            description: String(new Date()),
-            variant: "destructive",
-          });
-          console.log(error);
-        })
-        .finally(() => {
-          setRefresh(!refresh);
-        });
-    }
-  };
-
   const delKelas = async (id: number) => {
     const result = await Swal.fire({
       title: "Tunggu !..",
@@ -705,98 +682,6 @@ export default function Page({ params }: { params: { kode: string } }) {
         });
     }
   };
-
-  const delRencana = async (id: number) => {
-    const result = await Swal.fire({
-      title: "Tunggu !..",
-      text: `Kamu yakin ingin hapus rencana pembelajaran ini?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya",
-      cancelButtonText: "Tidak",
-      confirmButtonColor: "#EF4444",
-      cancelButtonColor: "#0F172A",
-    });
-
-    if (result.isConfirmed) {
-      axiosConfig
-        .delete(`api/rencanaPembelajaran/${id}`)
-        .then(function (response) {
-          if (response.status === 200) {
-            toast({
-              title: "Berhasil hapus rencana pembelajaran",
-              description: String(new Date()),
-            });
-          } else {
-            toast({
-              title: "Tidak ada rencana pembelajaran!",
-              description: String(new Date()),
-              variant: "destructive",
-            });
-          }
-        })
-        .catch(function (error) {
-          toast({
-            title: "Gagal hapus rencana pembelajaran",
-            description: String(new Date()),
-            variant: "destructive",
-          });
-          console.log(error);
-        })
-        .finally(() => {
-          setRefresh(!refresh);
-        });
-    }
-  };
-
-  function editRencana(values: any, e: any) {
-    e.preventDefault();
-
-    if (!selectedRencana) return;
-
-    const data = {
-      minggu: parseInt(values.editMinggu),
-      bahanKajian: values.editBahanKajian,
-      bentuk: values.editBentuk,
-      metode: values.editMetode,
-      sumber: values.editSumber,
-      waktu: values.editWaktu,
-      pengalaman: values.editPengalaman,
-      penilaianRP: values.editPenilaian.map((item: any) => ({
-        kriteria: item.kriteria,
-        indikator: item.indikator,
-        bobot: parseFloat(item.bobot),
-      })),
-    };
-
-    axiosConfig
-      .patch(`api/rencanaPembelajaran/${selectedRencana.id}`, data)
-      .then(function (response) {
-        if (response.status === 200) {
-          toast({
-            title: "Berhasil edit rencana pembelajaran",
-            description: String(new Date()),
-          });
-        } else {
-          toast({
-            title: "Tidak ada rencana pembelajaran!",
-            description: String(new Date()),
-            variant: "destructive",
-          });
-        }
-      })
-      .catch(function (error) {
-        toast({
-          title: "Gagal edit rencana pembelajaran",
-          description: String(new Date()),
-          variant: "destructive",
-        });
-        console.log(error);
-      })
-      .finally(() => {
-        setRefresh(!refresh);
-      });
-  }
 
   const handleTahunChange = (value: string) => {
     setSelectedTahun(value);
@@ -984,7 +869,7 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   const renderDataPenilaian = () => {
-    // Step 1: Gather all unique kriteria
+    // Gather all unique kriteria
     const allKriteria = Array.from(
       new Set(
         currentTemplate?.penilaianCPMK.flatMap((item) =>
@@ -993,73 +878,76 @@ export default function Page({ params }: { params: { kode: string } }) {
       )
     );
 
-    // Step 2: Initialize the totals object
-    const kriteriaTotals: { [key: string]: number } = {};
-    allKriteria.forEach((kriteria) => {
-      kriteriaTotals[kriteria] = 0;
-    });
-    let totalBobotSum = 0;
+    // Gather all CPMK codes
+    const allCPMK =
+      currentTemplate?.penilaianCPMK.map((pcpmk) => pcpmk.CPMK.kode) || [];
 
-    // Step 3: Create table rows with CPMK, corresponding bobot for each kriteria, and total bobot
-    const tableData = currentTemplate?.penilaianCPMK.map((pcpmk) => {
-      const row: { [key: string]: number | string } = { kode: pcpmk.CPMK.kode };
-
+    // Build a mapping of kriteria to CPMK bobot
+    const kriteriaRows = allKriteria.map((kriteria) => {
+      const row: { [key: string]: string | number } = { kriteria };
       let totalBobot = 0;
 
-      allKriteria.forEach((kriteria) => {
-        const foundKriteria = pcpmk.kriteria.find(
+      allCPMK.forEach((kode) => {
+        const pcpmk = currentTemplate?.penilaianCPMK.find(
+          (p) => p.CPMK.kode === kode
+        );
+        const foundKriteria = pcpmk?.kriteria.find(
           (k) => k.kriteria === kriteria
         );
         const bobot = foundKriteria ? foundKriteria.bobot : 0;
-        row[kriteria] = bobot;
+        row[kode] = bobot;
         totalBobot += bobot;
-
-        // Add to kriteriaTotals
-        kriteriaTotals[kriteria] += bobot;
       });
 
       row["totalBobot"] = totalBobot;
-      totalBobotSum += totalBobot;
-
       return row;
     });
 
-    // Step 4: Create the final row for total bobot of each kriteria
-    const totalRow: { [key: string]: number | string } = {
-      kode: "Total Bobot",
+    // Step 4: Add a final row for total per CPMK
+    const totalPerCPMK: { [key: string]: string | number } = {
+      kriteria: "Total Bobot per CPMK",
     };
-    allKriteria.forEach((kriteria) => {
-      totalRow[kriteria] = kriteriaTotals[kriteria];
+    let overallTotal = 0;
+
+    allCPMK.forEach((kode) => {
+      let sum = 0;
+      allKriteria.forEach((kriteria) => {
+        const row = kriteriaRows.find((r) => r.kriteria === kriteria);
+        sum += (row?.[kode] as number) || 0;
+      });
+      totalPerCPMK[kode] = sum;
+      overallTotal += sum;
     });
-    totalRow["totalBobot"] = totalBobotSum;
+
+    totalPerCPMK["totalBobot"] = overallTotal;
 
     return (
       <Table>
         <TableHeader>
           <TableRow className='bg-[#CCCCCC]'>
-            <TableHead>CPMK Code</TableHead>
-            {allKriteria.map((kriteria) => (
-              <TableHead key={kriteria}>{kriteria}</TableHead>
+            <TableHead>Penilaian (Kriteria)</TableHead>
+            {allCPMK.map((kode) => (
+              <TableHead key={kode}>{kode}</TableHead>
             ))}
             <TableHead>Total Bobot</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {tableData?.map((row, index) => (
+          {kriteriaRows.map((row, index) => (
             <TableRow key={index}>
-              <TableCell>{row.kode}</TableCell>
-              {allKriteria.map((kriteria) => (
-                <TableCell key={kriteria}>{row[kriteria]}</TableCell>
+              <TableCell>{row.kriteria}</TableCell>
+              {allCPMK.map((kode) => (
+                <TableCell key={kode}>{row[kode]}</TableCell>
               ))}
               <TableCell>{row.totalBobot}</TableCell>
             </TableRow>
           ))}
           <TableRow>
-            <TableCell>Total per penilaian</TableCell>
-            {allKriteria.map((kriteria) => (
-              <TableCell key={kriteria}>{totalRow[kriteria]}</TableCell>
+            <TableCell>{totalPerCPMK.kriteria}</TableCell>
+            {allCPMK.map((kode) => (
+              <TableCell key={kode}>{totalPerCPMK[kode]}</TableCell>
             ))}
-            <TableCell>{totalRow.totalBobot}</TableCell>
+            <TableCell>{totalPerCPMK.totalBobot}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -1639,6 +1527,25 @@ export default function Page({ params }: { params: { kode: string } }) {
                             )}
                           />
 
+                          <FormField
+                            control={rpsForm.control}
+                            name='materiPembelajaran'
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Materi Pembelajaran / Pokok Bahasn
+                                </FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder='Materi...'
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
                           <div>
                             <div className='flex justify-between items-center mb-3'>
                               <FormLabel>Pustaka Utama</FormLabel>
@@ -1809,7 +1716,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <TableHead>RUMPUN MATA KULIAH</TableHead>
                               <TableHead>BOBOT (SKS)</TableHead>
                               <TableHead>SEMESTER</TableHead>
-                              <TableHead>Direvisi</TableHead>
+                              <TableHead>Tgl Penyusunan</TableHead>
                             </TableRow>
                             <TableRow>
                               <TableCell>{mk.deskripsi}</TableCell>
@@ -1929,12 +1836,6 @@ export default function Page({ params }: { params: { kode: string } }) {
                       </TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableHead>Deskripsi Mata Kuliah</TableHead>
-                      <TableCell>
-                        {mk.rps && mk.rps.deskripsi ? mk.rps.deskripsi : "-"}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
                       <TableHead>Capaian Pembelajaran</TableHead>
                       <TableCell>
                         <Table>
@@ -1977,6 +1878,20 @@ export default function Page({ params }: { params: { kode: string } }) {
                     <TableRow>
                       <TableHead>Penilaian</TableHead>
                       <TableCell>{mk ? renderDataPenilaian() : null}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Deskripsi Singkat MK</TableHead>
+                      <TableCell>
+                        {mk.rps && mk.rps.deskripsi ? mk.rps.deskripsi : "-"}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableHead>Materi Pembelajaran / Pokok Bahasan</TableHead>
+                      <TableCell>
+                        {mk.rps && mk.rps.materiPembelajaran
+                          ? mk.rps.materiPembelajaran
+                          : "-"}
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableHead>Pustaka</TableHead>
@@ -2071,14 +1986,159 @@ export default function Page({ params }: { params: { kode: string } }) {
                         </p>
                       </TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableHead>Ambang Batas Kelulusan Mahasiswa</TableHead>
-                      <TableCell>{mk?.batasLulusMahasiswa}</TableCell>
+                  </TableBody>
+                </Table>
+
+                <Table>
+                  <TableBody>
+                    <TableRow className='bg-[#CCCCCC] w-max-full'>
+                      <TableHead rowSpan={2}>Minggu ke-</TableHead>
+                      <TableHead rowSpan={2}>CPMK</TableHead>
+                      <TableHead rowSpan={2}>
+                        Bahan Kajian (Materi Pembelajaran)
+                      </TableHead>
+                      <TableHead rowSpan={2} className="w-[20%]">
+                        Bentuk dan Metode Pembelajaran (Media & Sumber Belajar)
+                      </TableHead>
+                      <TableHead rowSpan={2} className="w-[15%]">Estimasi Waktu</TableHead>
+                      <TableHead rowSpan={2}>
+                        Pengalaman Belajar Mahasiswa
+                      </TableHead>
+                      <TableHead colSpan={3} className='w-full text-center'>
+                        Penilaian
+                      </TableHead>
                     </TableRow>
-                    <TableRow>
-                      <TableHead>Ambang Batas Kelulusan MK</TableHead>
-                      <TableCell>{mk?.batasLulusMK}%</TableCell>
+                    <TableRow className='bg-[#CCCCCC]'>
+                      <TableHead className=''>Kriteria dan Bentuk</TableHead>
+                      <TableHead className=''>Indikator</TableHead>
+                      <TableHead className=''>Bobot (%)</TableHead>
                     </TableRow>
+
+                    {allWeeks.map((weekNum) => {
+                      const rp = (rencanaByWeek ?? {})[weekNum];
+
+                      // Special handling for weeks 8 and 16
+                      if (weekNum === 8) {
+                        return (
+                          <TableRow className="bg-[#CCCCCC]" key={`week-${weekNum}`}>
+                            <TableCell>{weekNum}</TableCell>
+                            <TableCell
+                              colSpan={8}
+                              className='text-center font-medium bg'
+                            >
+                              Ujian Tengah Semester (UTS)
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+
+                      if (weekNum === 16) {
+                        return (
+                          <TableRow className="bg-[#CCCCCC]" key={`week-${weekNum}`}>
+                            <TableCell>{weekNum}</TableCell>
+                            <TableCell
+                              colSpan={8}
+                              className='text-center font-medium'
+                            >
+                              Ujian Akhir Semester (UAS)
+                            </TableCell>
+                          </TableRow>
+                        );
+                      }
+
+                      // For weeks with data
+                      if (rp) {
+                        return (
+                          <>
+                            <TableRow key={`week-${weekNum}`}>
+                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                                {weekNum}
+                              </TableCell>
+                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                                {rp.penilaianCPMKId
+                                  ? rp.penilaianCPMK.CPMK.kode
+                                  : "-"}
+                              </TableCell>
+                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                                {rp.bahanKajian || "-"}
+                              </TableCell>
+                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                                <div className='space-y-1'>
+                                  <p>
+                                    <span className='font-medium'>Bentuk:</span>{" "}
+                                    {rp.bentuk || "-"}
+                                  </p>
+                                  <p>
+                                    <span className='font-medium'>Metode:</span>{" "}
+                                    {rp.metode || "-"}
+                                  </p>
+                                  <p>
+                                    <span className='font-medium'>Sumber:</span>{" "}
+                                    {rp.sumber || "-"}
+                                  </p>
+                                </div>
+                              </TableCell>
+                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                                {rp.waktu || "-"}
+                              </TableCell>
+                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                                {rp.pengalaman || "-"}
+                              </TableCell>
+
+                              {rp.penilaianRP.length > 0 ? (
+                                <>
+                                  <TableCell>
+                                    {rp.penilaianRP[0]?.kriteria || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    {rp.penilaianRP[0]?.indikator || "-"}
+                                  </TableCell>
+                                  <TableCell>
+                                    {rp.penilaianRP[0]?.bobot || "-"}
+                                  </TableCell>
+                                </>
+                              ) : (
+                                <>
+                                  <TableCell>-</TableCell>
+                                  <TableCell>-</TableCell>
+                                  <TableCell>-</TableCell>
+                                </>
+                              )}
+                            </TableRow>
+
+                            {/* Render additional penilaian rows if there are more than one */}
+                            {rp.penilaianRP.slice(1).map((penilaian, idx) => (
+                              <TableRow
+                                key={`week-${weekNum}-penilaian-${idx + 1}`}
+                              >
+                                <TableCell>
+                                  {penilaian.kriteria || "-"}
+                                </TableCell>
+                                <TableCell>
+                                  {penilaian.indikator || "-"}
+                                </TableCell>
+                                <TableCell>{penilaian.bobot || "-"}</TableCell>
+                              </TableRow>
+                            ))}
+                          </>
+                        );
+                      }
+
+                      // For weeks without data
+                      return (
+                        <TableRow key={`week-${weekNum}`}>
+                          <TableCell>{weekNum}</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>

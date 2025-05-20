@@ -639,6 +639,7 @@ export default function RencanaPembelajaranTab({
                 <TableHeader>
                   <TableRow>
                     <TableHead className='text-center'>Minggu</TableHead>
+                    <TableHead className='text-center'>CPMK</TableHead>
                     <TableHead className='text-center'>Bahan Kajian</TableHead>
                     <TableHead className='text-center'>Bentuk</TableHead>
                     <TableHead className='text-center'>Metode</TableHead>
@@ -657,6 +658,7 @@ export default function RencanaPembelajaranTab({
                 <TableHeader>
                   <TableRow>
                     <TableHead className='text-center'>Minggu</TableHead>
+                    <TableHead className='text-center'>CPMK</TableHead>
                     <TableHead className='text-center'>Bahan Kajian</TableHead>
                     <TableHead className='text-center'>Bentuk</TableHead>
                     <TableHead className='text-center'>Metode</TableHead>

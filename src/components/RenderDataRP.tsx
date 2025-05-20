@@ -276,6 +276,7 @@ const RenderDataRP = ({ templatePenilaian, setRefresh }: RenderDataRPProps) => {
             {rencana.minggu}
           </div>
         </TableCell>
+        <TableCell>{rencana.penilaianCPMK.CPMK.kode}</TableCell>
         <TableCell>{rencana.bahanKajian}</TableCell>
         <TableCell>{rencana.bentuk}</TableCell>
         <TableCell className='text-center'>{rencana.metode}</TableCell>

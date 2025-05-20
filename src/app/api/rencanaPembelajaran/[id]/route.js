@@ -117,10 +117,6 @@ export async function PATCH(req, { params }) {
     const payloadIds = new Set(toUpdate.map((p) => p.id));
     const toDelete = [...existingIds].filter((eid) => !payloadIds.has(eid));
 
-    console.log("toUpdate", toUpdate);
-    console.log("toCreate", toCreate);
-    console.log("toDelete", toDelete);
-
     const rencanaPembelajaran = await prisma.$transaction(async (tx) => {
       /* --- parent update --- */
       const parent = await tx.rencanaPembelajaran.update({

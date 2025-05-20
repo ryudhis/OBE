@@ -227,6 +227,7 @@ declare global {
     pengembang?: Account;
     pengembangId?: number;
     deskripsi: string;
+    materiPembelajaran: string;
     pustakaUtama: string[];
     pustakaPendukung: string[];
     software: string;
