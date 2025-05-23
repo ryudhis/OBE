@@ -179,11 +179,16 @@ const InputPenilaianCPMK = () => {
     const concat = (data: string[]) => data.join(", ");
 
     const extractAfterHyphen = (str: string) => str.split("-")[1] || "";
-
     const mkKode = extractAfterHyphen(values.MK);
     const cpmkKode = extractAfterHyphen(values.CPMK);
 
-    const kode = `PCPMK-${mkKode}-${cpmkKode}`;
+    // Find the selected template object
+    const selectedTemplate = selectedMK?.templatePenilaianCPMK.find(
+      (item) => String(item.id) === values.templatePenilaianCPMK
+    );
+    const namaTemplate = selectedTemplate ? selectedTemplate.template : "";
+
+    const kode = `PCPMK-${mkKode}-${cpmkKode}-${namaTemplate}`;
 
     const data = {
       kode: kode,

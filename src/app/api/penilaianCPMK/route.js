@@ -95,7 +95,7 @@ export async function POST(req) {
 
     const filteredPCPMK = await prisma.penilaianCPMK.findMany({
       where: {
-        templatePenilaianCPMKId: data.templateId,
+        templatePenilaianCPMKId: data.templatePenilaianCPMK,
       },
     });
 
@@ -179,7 +179,7 @@ export async function POST(req) {
       return new Response(
         JSON.stringify({
           status: 400,
-          message: "Kombinasi MK dan CPMK sudah ada",
+          message: "CPMK sudah ada pada template ini!",
         }),
         { headers: { "Content-Type": "application/json" } }
       );

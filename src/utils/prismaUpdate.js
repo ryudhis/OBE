@@ -62,7 +62,9 @@ const updateKelas = async (data) => {
     for (const mahasiswa of selectedKelas.mahasiswa) {
       const nilaiRecords = await prisma.inputNilai.findMany({
         where: {
-          penilaianCPMK: { MKkode: MK.kode },
+          penilaianCPMK: {
+            templatePenilaianCPMKId: selectedKelas.templatePenilaianCPMKId,
+          },
           mahasiswaNim: mahasiswa.nim,
         },
         include: { penilaianCPMK: { include: { CPMK: true, CPL: true } } },
@@ -72,6 +74,8 @@ const updateKelas = async (data) => {
       const statusCPMK = [];
       const nilaiMahasiswa = [];
 
+      const nilaiKriteriaMap = {}; // { kriteriaName: { totalNilai: x, totalBobot: y } }
+
       for (const nilaiCPMK of nilaiRecords) {
         const idx = dataCPMK.findIndex(
           (d) => d.cpmk === nilaiCPMK.penilaianCPMK.CPMK.kode
@@ -80,18 +84,32 @@ const updateKelas = async (data) => {
         const nilaiArr = nilaiCPMK.nilai || [];
 
         let totalNilaiCPMK = 0;
+        let totalNilaiTidakBobot = 0;
         let totalBobot = 0;
         let rataNilai = 0;
 
         nilaiArr.forEach((val, i) => {
           if (kriteria[i]) {
             const bobot = kriteria[i].bobot / 100;
+            const namaKriteria = kriteria[i].kriteria;
+
             totalNilaiCPMK += val * bobot;
+            totalNilaiTidakBobot += val;
             totalBobot += kriteria[i].bobot;
             totalNilai += val * bobot;
             rataNilai += val;
+
+            // Aggregate nilai per kriteria
+            if (!nilaiKriteriaMap[namaKriteria]) {
+              nilaiKriteriaMap[namaKriteria] = { totalNilai: 0, totalBobot: 0 };
+            }
+
+            nilaiKriteriaMap[namaKriteria].totalNilai += val * bobot;
+            nilaiKriteriaMap[namaKriteria].totalBobot += bobot;
           }
         });
+
+        totalNilaiTidakBobot /= nilaiArr.length;
 
         rataCPMK[idx].nilai += rataNilai / nilaiArr.length;
         dataCPMK[idx].nilaiMasuk += 1;
@@ -141,6 +159,7 @@ const updateKelas = async (data) => {
 
         nilaiMahasiswa.push({
           namaCPMK: nilaiCPMK.penilaianCPMK.CPMK.kode,
+          totalNilai: totalNilaiTidakBobot.toFixed(2),
           batasNilai: nilaiCPMK.penilaianCPMK.batasNilai,
           nilai: nilaiArr,
         });
@@ -162,6 +181,13 @@ const updateKelas = async (data) => {
         totalNilai >= MK.batasLulusMahasiswa ? "Lulus" : "Tidak Lulus";
       const indexNilai = calculateIndexNilai(totalNilai);
 
+      const nilaiKriteria = Object.entries(nilaiKriteriaMap).map(
+        ([kriteria, data]) => ({
+          kriteria,
+          nilai: parseFloat((data.totalNilai / data.totalBobot).toFixed(2)),
+        })
+      );
+
       mahasiswaLulus.push({
         nama: mahasiswa.nama,
         nim: mahasiswa.nim,
@@ -170,6 +196,7 @@ const updateKelas = async (data) => {
         nilaiMahasiswa,
         statusLulus,
         statusCPMK,
+        nilaiKriteria,
       });
 
       await upsertRecord(

@@ -354,7 +354,13 @@ declare global {
     statusLulus: string;
     statusCPMK: statusCPMK[];
     nilaiMahasiswa: nilaiMahasiswa[];
+    nilaiKriteria: nilaiKriteria[];
     indexNilai: string;
+  }
+
+  export interface nilaiKriteria {
+    kriteria: string;
+    nilai: number;
   }
 
   export interface statusCPMK {
@@ -367,6 +373,7 @@ declare global {
 
   export interface nilaiMahasiswa {
     nilai: number[];
+    totalNilai: number;
     namaCPMK: string;
     batasNilai: number;
   }
