@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import axiosConfig from "../../../../../utils/axios";
@@ -56,10 +57,10 @@ import { useAccount } from "@/app/contexts/AccountContext";
 import { useKunci } from "@/app/contexts/KunciContext";
 import { DataCard } from "@/components/DataCard";
 import Swal from "sweetalert2";
-import Image from "next/image";
-import logo from "/public/Logo1.png";
 import TemplatePenilaianContent from "@/components/TemplatePenilaianContent";
 import RencanaPembelajaranTab from "@/components/RPTabs";
+import { generatePDFFromElement } from "@/lib/pdf-utils";
+import Image from "next/image";
 
 const formSchema = z.object({
   deskripsi: z.string().min(1),
@@ -770,34 +771,18 @@ export default function Page({ params }: { params: { kode: string } }) {
   );
 
   const generateRPS = async () => {
-    if (typeof window !== "undefined") {
-      const html2pdf = (await import("html2pdf.js")).default;
+    if (!mk) {
+      alert("MK data not found");
+      return;
+    }
 
-      const element = document.getElementById("RPS");
-
-      if (element) {
-        const options = {
-          margin: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number], // Margins in inches
-          filename: `RPS_MK_${mk?.kode}.pdf`,
-          image: { type: "jpeg", quality: 1.0 }, // Handles image quality if any images are present
-          html2canvas: {
-            scale: 2, // Scale up for higher resolution of all content
-            useCORS: true, // Allow cross-origin images (if any)
-            letterRendering: true, // Improves text rendering quality
-            scrollY: -window.scrollY, // Correct positioning on scrolled pages
-          },
-          jsPDF: {
-            unit: "in",
-            format: "A4",
-            orientation: "landscape",
-            compressPDF: true, // Compress the PDF for smaller file size
-          },
-        };
-
-        html2pdf().from(element).set(options).save();
-      } else {
-        console.error("Element with ID 'RPS' not found.");
-      }
+    const result = await generatePDFFromElement(
+      "RPS",
+      `RPS-${mk.kode}-${mk.deskripsi}`,
+      mk.kode
+    );
+    if (!result.success) {
+      alert(`Error generating PDF: ${result.error}`);
     }
   };
 
@@ -1681,17 +1666,21 @@ export default function Page({ params }: { params: { kode: string } }) {
                   <Button onClick={generateRPS}>Generate RPS</Button>
                 </div>
               </CardHeader>
-              <CardContent>
-                <Table id='RPS'>
+
+              <CardContent id='RPS'>
+                <Table>
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={2} className='text-center'>
-                        <div className='flex w-full items-center justify-between'>
-                          <Image
-                            src={logo}
+                        <div
+                          id='header'
+                          className='flex w-full items-center justify-between'
+                        >
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_BASE_URL}/Logo1.png`}
                             alt='LOGO UNIVERSITAS'
-                            width={100}
-                            height={100}
+                            width='100'
+                            height='100'
                           />
 
                           <div>
@@ -1747,7 +1736,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <TableCell>
                                 {mk.rps?.signaturePengembang ? (
                                   <div
-                                    className='border bg-white p-4 rounded shadow w-2 h-2'
+                                    className='w-fit'
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signaturePengembang,
                                     }}
@@ -1759,7 +1748,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <TableCell>
                                 {mk.rps?.signatureGKMP ? (
                                   <div
-                                    className='border bg-white p-4 rounded shadow w-2 h-2'
+                                    className='w-fit'
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signatureGKMP,
                                     }}
@@ -1779,7 +1768,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                               <TableCell>
                                 {mk.rps?.signatureKetuaKK ? (
                                   <div
-                                    className='border bg-white p-4 rounded shadow w-2 h-2'
+                                    className='w-fit'
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signatureKetuaKK,
                                     }}
@@ -1850,7 +1839,9 @@ export default function Page({ params }: { params: { kode: string } }) {
                                 <TableCell className='w-[15%]'>
                                   {cpl.kode}
                                 </TableCell>
-                                <TableCell>{cpl.deskripsi}</TableCell>
+                                <TableCell colSpan={2}>
+                                  {cpl.deskripsi}
+                                </TableCell>
                               </TableRow>
                             ))}
 
@@ -1989,7 +1980,7 @@ export default function Page({ params }: { params: { kode: string } }) {
                   </TableBody>
                 </Table>
 
-                <Table>
+                <Table className='mt-6'>
                   <TableBody>
                     <TableRow className='bg-[#CCCCCC] w-max-full'>
                       <TableHead rowSpan={2}>Minggu ke-</TableHead>
@@ -1997,10 +1988,12 @@ export default function Page({ params }: { params: { kode: string } }) {
                       <TableHead rowSpan={2}>
                         Bahan Kajian (Materi Pembelajaran)
                       </TableHead>
-                      <TableHead rowSpan={2} className="w-[20%]">
+                      <TableHead rowSpan={2} className='w-[20%]'>
                         Bentuk dan Metode Pembelajaran (Media & Sumber Belajar)
                       </TableHead>
-                      <TableHead rowSpan={2} className="w-[15%]">Estimasi Waktu</TableHead>
+                      <TableHead rowSpan={2} className='w-[15%]'>
+                        Estimasi Waktu
+                      </TableHead>
                       <TableHead rowSpan={2}>
                         Pengalaman Belajar Mahasiswa
                       </TableHead>
@@ -2020,7 +2013,10 @@ export default function Page({ params }: { params: { kode: string } }) {
                       // Special handling for weeks 8 and 16
                       if (weekNum === 8) {
                         return (
-                          <TableRow className="bg-[#CCCCCC]" key={`week-${weekNum}`}>
+                          <TableRow
+                            className='bg-[#CCCCCC]'
+                            key={`week-${weekNum}`}
+                          >
                             <TableCell>{weekNum}</TableCell>
                             <TableCell
                               colSpan={8}
@@ -2034,7 +2030,10 @@ export default function Page({ params }: { params: { kode: string } }) {
 
                       if (weekNum === 16) {
                         return (
-                          <TableRow className="bg-[#CCCCCC]" key={`week-${weekNum}`}>
+                          <TableRow
+                            className='bg-[#CCCCCC]'
+                            key={`week-${weekNum}`}
+                          >
                             <TableCell>{weekNum}</TableCell>
                             <TableCell
                               colSpan={8}
