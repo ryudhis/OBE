@@ -60,7 +60,6 @@ import Swal from "sweetalert2";
 import TemplatePenilaianContent from "@/components/TemplatePenilaianContent";
 import RencanaPembelajaranTab from "@/components/RPTabs";
 import { generatePDFFromElement } from "@/lib/pdf-utils";
-import Image from "next/image";
 
 const formSchema = z.object({
   deskripsi: z.string().min(1),
@@ -329,6 +328,23 @@ export default function Page({ params }: { params: { kode: string } }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getStatistic = async () => {
+    if (selectedTahun)
+      try {
+        console.log("selected tahun ", selectedTahun);
+        const response = await axiosConfig.get(
+          `api/mk/statistic/${kode}?tahunAjaran=${selectedTahun}`
+        );
+        if (response.data.status !== 400) {
+          console.log(response.data.data);
+        } else {
+          alert(response.data.message);
+        }
+      } catch (error: any) {
+        throw error;
+      }
   };
 
   const getAllMK = async () => {
@@ -800,6 +816,10 @@ export default function Page({ params }: { params: { kode: string } }) {
     getAllMK();
     getTeamTeaching();
   }, [mk]);
+
+  useEffect(() => {
+    getStatistic();
+  }, [mk, selectedTahun]);
 
   const renderData = () => {
     return filteredKelas?.map((kelas) => {
