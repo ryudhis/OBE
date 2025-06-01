@@ -60,6 +60,7 @@ import Swal from "sweetalert2";
 import TemplatePenilaianContent from "@/components/TemplatePenilaianContent";
 import RencanaPembelajaranTab from "@/components/RPTabs";
 import { generatePDFFromElement } from "@/lib/pdf-utils";
+import { FileText } from "lucide-react";
 
 const formSchema = z.object({
   deskripsi: z.string().min(1),
@@ -249,22 +250,35 @@ export default function Page({ params }: { params: { kode: string } }) {
         const activeTemplate = response.data.data.templatePenilaianCPMK.find(
           (template: TemplatePenilaianCPMK) => template.active === true
         );
-        setCurrentTemplate(activeTemplate);
 
-        setRencanaByWeek(
-          activeTemplate.rencanaPembelajaran.reduce(
-            (
-              acc: Record<number, RencanaPembelajaran>,
-              rp: RencanaPembelajaran
-            ) => {
-              acc[rp.minggu] = rp;
-              return acc;
-            },
-            {} as Record<number, RencanaPembelajaran>
-          )
-        );
+        if (activeTemplate) {
+          setCurrentTemplate(activeTemplate);
+          setRencanaByWeek(
+            activeTemplate.rencanaPembelajaran.reduce(
+              (
+                acc: Record<number, RencanaPembelajaran>,
+                rp: RencanaPembelajaran
+              ) => {
+                acc[rp.minggu] = rp;
+                return acc;
+              },
+              {} as Record<number, RencanaPembelajaran>
+            )
+          );
+        }
 
-        setListCPL(
+        const uniqueCPLMap = new Map();
+
+        response.data.data.CPMK.forEach((cpmk: CPMK) => {
+          const cpl = cpmk.CPL;
+          if (!uniqueCPLMap.has(cpl.kode)) {
+            uniqueCPLMap.set(cpl.kode, cpl);
+          }
+        });
+
+        setListCPL(Array.from(uniqueCPLMap.values()));
+
+        console.log(
           Array.from(
             new Set(response.data.data.CPMK.map((cpmk: CPMK) => cpmk.CPL))
           )
@@ -960,7 +974,15 @@ export default function Page({ params }: { params: { kode: string } }) {
   };
 
   const renderDataAsesment = () => {
-    if (!currentTemplate) return null;
+    if (!currentTemplate || currentTemplate.penilaianCPMK.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={3} className="text-center">
+            Belum Ada Asesmen
+          </TableCell>
+        </TableRow>
+      );
+    }
 
     const kriteriaMap = new Map<
       string,
@@ -979,6 +1001,16 @@ export default function Page({ params }: { params: { kode: string } }) {
     });
 
     const kriteriaArray = Array.from(kriteriaMap.entries());
+
+    if (kriteriaArray.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={3} className="text-center">
+            Belum Ada Asesmen
+          </TableCell>
+        </TableRow>
+      );
+    }
 
     return kriteriaArray.map(([kriteriaName, kriteriaData], index) => (
       <TableRow key={kriteriaName}>
@@ -1443,12 +1475,27 @@ export default function Page({ params }: { params: { kode: string } }) {
           </TabsContent>
 
           <TabsContent className='flex flex-col gap-3' value='rencana'>
-            {currentTemplate && (
+            {currentTemplate ? (
               <RencanaPembelajaranTab
                 templatePenilaian={currentTemplate}
                 isLoading={false}
                 setRefresh={setRefresh}
               />
+            ) : (
+              <Card className='border-dashed'>
+                <CardContent className='flex flex-col items-center justify-center py-12 px-6 text-center'>
+                  <div className='rounded-full bg-muted p-4 mb-4'>
+                    <FileText className='h-8 w-8 text-muted-foreground' />
+                  </div>
+                  <h3 className='text-lg font-semibold text-foreground mb-2'>
+                    Belum ada template penilaian yang aktif
+                  </h3>
+                  <p className='text-sm text-muted-foreground mb-6 max-w-sm'>
+                    Saat ini belum ada template penilaian yang aktif. Silakan
+                    buat atau aktifkan template terlebih dahulu.
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 

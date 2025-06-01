@@ -121,10 +121,24 @@ export async function GET(req, { params }) {
     if (!kelasList || kelasList.length === 0) {
       return new Response(
         JSON.stringify({
-          status: 404,
-          message: "No kelas found for MK and tahunAjaran",
+          status: 200,
+          message:
+            "No kelas found yet for MK and tahunAjaran — returning empty statistics.",
+          data: {
+            totalMahasiswa: 0,
+            totalNilaiStats: {
+              min: null,
+              max: null,
+              range: null,
+              average: null,
+              stdDev: null,
+            },
+            kriteriaStats: [],
+            indexDistribution: { A: 0, AB: 0, B: 0, BC: 0, C: 0, D: 0, E: 0 },
+            cpmkStats: [],
+          },
         }),
-        { status: 404, headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json" } }
       );
     }
 
