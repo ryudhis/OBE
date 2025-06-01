@@ -753,6 +753,7 @@ export default function Page({ params }: { params: { kode: string } }) {
         .post(`api/rps`, payload)
         .then(function (response) {
           if (response.data.status !== 400) {
+            handleAddSignature("Pengembang");
             toast({
               title: "Berhasil Revisi RPS",
               description: `MK ${kode}`,

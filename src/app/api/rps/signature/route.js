@@ -23,7 +23,7 @@ export async function PATCH(req) {
     }
 
     const data = {};
-    if (role === "pengembang") {
+    if (role === "Pengembang") {
       data.signaturePengembang = signature;
     } else if (role === "GKMP") {
       data.signatureGKMP = signature;
