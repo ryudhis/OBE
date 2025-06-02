@@ -33,8 +33,6 @@ function analyzeMahasiswaLulus(kelasList) {
   for (const mhs of allMahasiswa) {
     totalNilaiList.push(Number(mhs.totalNilai));
 
-    console.log("total nilai", totalNilaiList);
-
     indexCount[mhs.indexNilai] = (indexCount[mhs.indexNilai] || 0) + 1;
 
     for (const k of mhs.nilaiKriteria || []) {

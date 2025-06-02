@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost"], // NO protocol, just the hostname
+    domains: ["localhost"], // Add more domains if needed
+  },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.map$/,
+      use: "ignore-loader",
+    });
+    return config; // Important: return the config object!
   },
 };
 

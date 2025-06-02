@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import { NextRequest, NextResponse } from "next/server";
+import chromium from "chrome-aws-lambda";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,17 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--disable-gpu",
-      ],
+    const browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
@@ -80,14 +74,12 @@ export async function POST(request: NextRequest) {
               max-width: 100px;
               height: auto;
             }
-
             #header {
               display: flex;
               width: 100%;
               align-items: center;
               justify-content: space-between;
             }
-
             @media print {
               html, body {
                 height: auto;
@@ -104,11 +96,11 @@ export async function POST(request: NextRequest) {
           ${html}
         </body>
       </html>
-    `,
+      `,
       { waitUntil: "networkidle0" }
     );
 
-    // Get the total height of the content
+    // Calculate dynamic height for PDF
     const bodyHeight = await page.evaluate(() => {
       const body = document.body;
       const html = document.documentElement;
@@ -121,11 +113,11 @@ export async function POST(request: NextRequest) {
       );
     });
 
-    const heightInInches = bodyHeight / 96; // 96 dpi to inches
+    const heightInInches = bodyHeight / 96;
 
     const pdf = await page.pdf({
-      width: "210mm", // A4 width
-      height: `${heightInInches}in`, // dynamic height
+      width: "210mm",
+      height: `${heightInInches}in`,
       printBackground: true,
       margin: {
         top: "10px",
