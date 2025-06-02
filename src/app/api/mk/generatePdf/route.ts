@@ -148,7 +148,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("PDF generation error:", error);
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      {
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      },
       { status: 500 }
     );
   }
