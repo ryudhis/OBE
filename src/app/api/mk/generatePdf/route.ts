@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer-core";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const browser = await chromium.puppeteer.launch({
+    const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
@@ -144,7 +145,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message + "baru" : "Unknown error occurred",
+          error instanceof Error
+            ? error.message + "baru2"
+            : "Unknown error occurred",
       },
       { status: 500 }
     );
