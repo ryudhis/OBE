@@ -17,7 +17,7 @@ export async function generatePDF(
     const page = await browser.newPage();
 
     // Get the current page URL to render the same content
-    const mkPath = `/dashboard/data/mk/${MKId}`; // or however you get the dynamic path
+    const mkPath = `/dashboard/data/mk/${MKId}`; 
     const currentUrl = `${
       process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     }${mkPath}`;
