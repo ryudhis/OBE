@@ -7,8 +7,8 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OBE IF ITERA",
-  description: "Institut Teknologi Sumatera | Teknik Informatika",
+  title: "OBE ITERA",
+  description: "Institut Teknologi Sumatera - Sistem Informasi OBE",
   icons: {
     icon: [
       { url: "/favicon-48x48.png", type: "image/png", sizes: "48x48" },
