@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message : "Unknown error occurred",
+          error instanceof Error ? error.message + "baru" : "Unknown error occurred",
       },
       { status: 500 }
     );
