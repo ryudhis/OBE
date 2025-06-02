@@ -140,13 +140,15 @@ export async function POST(request: NextRequest) {
     return new NextResponse(pdf, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename || "document"}.pdf"`,
+        "Content-Disposition": `attachment; filename="${
+          filename || "document"
+        }.pdf"`,
       },
     });
   } catch (error) {
     console.error("PDF generation error:", error);
     return NextResponse.json(
-      { error: error },
+      { error: "Failed to generate PDF" },
       { status: 500 }
     );
   }
