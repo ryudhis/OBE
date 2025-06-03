@@ -15,10 +15,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const executablePath = await chromium.executablePath;
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+      executablePath: executablePath || "/usr/bin/chromium-browser",
       headless: chromium.headless,
     });
 
@@ -146,7 +147,7 @@ export async function POST(request: NextRequest) {
       {
         error:
           error instanceof Error
-            ? error.message + "baru2"
+            ? error.message + " baru3"
             : "Unknown error occurred",
       },
       { status: 500 }
