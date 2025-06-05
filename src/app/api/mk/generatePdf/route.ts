@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import chromium from "chrome-aws-lambda";
+import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 
 export const dynamic = "force-dynamic";
@@ -15,11 +15,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const executablePath = await chromium.executablePath;
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: executablePath || "/usr/bin/chromium-browser",
+      executablePath: await chromium.executablePath(), // Sparticuz uses function call
       headless: chromium.headless,
     });
 
@@ -104,7 +103,6 @@ export async function POST(request: NextRequest) {
       { waitUntil: "networkidle0" }
     );
 
-    // Calculate dynamic height for PDF
     const bodyHeight = await page.evaluate(() => {
       const body = document.body;
       const html = document.documentElement;
@@ -136,9 +134,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(pdf, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${
-          filename || "document"
-        }.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename || "document"}.pdf"`,
       },
     });
   } catch (error) {
