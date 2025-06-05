@@ -51,7 +51,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useKunci } from "@/app/contexts/KunciContext";
@@ -89,8 +89,9 @@ const rpsSchema = z.object({
   software: z.string(),
 });
 
-export default function Page({ params }: { params: { kode: string } }) {
-  const { kode } = params;
+export default function Page() {
+  const params = useParams();
+  const kode = params.kode;
   const [mk, setMK] = useState<MK | undefined>();
   const [currentTemplate, setCurrentTemplate] =
     useState<TemplatePenilaianCPMK>();

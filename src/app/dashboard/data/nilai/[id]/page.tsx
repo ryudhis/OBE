@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useKunci } from "@/app/contexts/KunciContext";
 
@@ -33,8 +33,9 @@ const formSchema = z.object({
   nilai: z.array(z.string()),
 });
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function Page() {
+  const params = useParams();
+  const id = params.id;
   const router = useRouter();
   const { accountData } = useAccount();
   const { kunciSistem } = useKunci();

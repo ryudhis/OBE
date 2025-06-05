@@ -22,7 +22,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccount } from "@/app/contexts/AccountContext";
 import { useKunci } from "@/app/contexts/KunciContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 const formSchema = z.object({
   deskripsi: z.string().min(1),
@@ -30,8 +30,9 @@ const formSchema = z.object({
   max: z.string().min(0).max(10),
 });
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function Page() {
+  const params = useParams();
+  const id = params.id;
   const { accountData } = useAccount();
   const { kunciSistem } = useKunci();
   const [bk, setBk] = useState<BK | undefined>();

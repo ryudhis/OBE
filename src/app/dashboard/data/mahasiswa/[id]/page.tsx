@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { useAccount } from "@/app/contexts/AccountContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { RadarChartComponent } from "@/components/RadarChart";
 import { BarChartComponent } from "@/components/BarChart";
 import html2pdf from "html2pdf.js";
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function Page() {
+  const params = useParams();
+  const id = params.id;
   const router = useRouter();
   const { accountData } = useAccount();
   const [mahasiswa, setMahasiswa] = useState<Mahasiswa | undefined>();

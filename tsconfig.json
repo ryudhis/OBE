@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,9 +22,14 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@utils/*": ["./src/utils/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ]
+    },
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
@@ -28,7 +37,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/**/*.d.ts",
-    "src/app/api/dataCount/route.js"
+    "src/app/api/dataCount/route.js",
+    "src/app/api/mk/generatePdf/route.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

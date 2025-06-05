@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useAccount } from "@/app/contexts/AccountContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { BarChartComponent } from "@/components/BarChart";
 import { Check, X } from "lucide-react";
 import RepairNilai from "@/components/RepairNilai"
@@ -45,8 +45,9 @@ interface mahasiswaExcel {
   Nama: string;
 }
 
-export default function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function Page() {
+  const params = useParams();
+  const id = params.id;
   const router = useRouter();
   const [kelas, setKelas] = useState<Kelas>();
   const [dataMahasiswaLulus, setDataMahasiswaLulus] = useState<

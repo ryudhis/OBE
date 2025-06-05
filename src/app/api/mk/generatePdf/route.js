@@ -1,11 +1,34 @@
-import { NextRequest, NextResponse } from "next/server";
-import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer-core";
-export const runtime = "nodejs";
+import chromium from "@sparticuz/chromium-min";
+import puppeteerCore from "puppeteer-core";
+import puppeteer from "puppeteer";
+import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest) {
+const remoteExecutablePath =
+  "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
+
+let browser;
+
+async function getBrowser() {
+  if (browser) return browser;
+
+  if (process.env.NEXT_PUBLIC_VERCEL_ENVIRONMENT === "production") {
+    browser = await puppeteerCore.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(remoteExecutablePath),
+      headless: true,
+    });
+  } else {
+    browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
+  }
+  return browser;
+}
+
+export async function POST(request) {
   try {
     const { html, filename } = await request.json();
 
@@ -16,13 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(), // Sparticuz uses function call
-      headless: true,
-    });
-
+    const browser = await getBrowser();
     const page = await browser.newPage();
 
     await page.setContent(
@@ -30,7 +47,7 @@ export async function POST(request: NextRequest) {
       <!DOCTYPE html>
       <html>
         <head>
-          <meta charset="utf-8">
+          <meta charset="utf-8" />
           <title>RPS Document</title>
           <style>
             body {
@@ -60,12 +77,6 @@ export async function POST(request: NextRequest) {
             .font-medium {
               font-weight: 600;
             }
-            .bg-\\[\\#CCCCCC\\] {
-              background-color: #CCCCCC;
-            }
-            .space-y-1 > * + * {
-              margin-top: 4px;
-            }
             h2, h3, h4, h5 {
               margin: 5px 0;
               text-align: center;
@@ -77,12 +88,6 @@ export async function POST(request: NextRequest) {
             img {
               max-width: 100px;
               height: auto;
-            }
-            #header {
-              display: flex;
-              width: 100%;
-              align-items: center;
-              justify-content: space-between;
             }
             @media print {
               html, body {
@@ -118,7 +123,7 @@ export async function POST(request: NextRequest) {
 
     const heightInInches = bodyHeight / 96;
 
-    const pdf = await page.pdf({
+    const pdfBuffer = await page.pdf({
       width: "210mm",
       height: `${heightInInches}in`,
       printBackground: true,
@@ -130,12 +135,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await browser.close();
+    await page.close();
 
-    return new NextResponse(pdf, {
+    return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename || "document"}.pdf"`,
+        "Content-Disposition": `attachment; filename="${(
+          filename || "document"
+        ).replace(/[^a-zA-Z0-9-_]/g, "")}.pdf"`,
       },
     });
   } catch (error) {
@@ -144,7 +151,7 @@ export async function POST(request: NextRequest) {
       {
         error:
           error instanceof Error
-            ? error.message + " baru3"
+            ? error.message
             : "Unknown error occurred",
       },
       { status: 500 }
