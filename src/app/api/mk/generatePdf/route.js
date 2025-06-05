@@ -13,7 +13,10 @@ let browser;
 async function getBrowser() {
   if (browser) return browser;
 
-  if (process.env.NEXT_PUBLIC_VERCEL_ENVIRONMENT === "production") {
+  const isVercel = process.env.VERCEL === "1";
+  const isProd = process.env.NODE_ENV === "production";
+
+  if (isVercel && isProd) {
     browser = await puppeteerCore.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath(remoteExecutablePath),
@@ -25,6 +28,7 @@ async function getBrowser() {
       headless: true,
     });
   }
+
   return browser;
 }
 
@@ -150,9 +154,7 @@ export async function POST(request) {
     return NextResponse.json(
       {
         error:
-          error instanceof Error
-            ? error.message
-            : "Unknown error occurred",
+          error instanceof Error ? error.message : "Unknown error occurred",
       },
       { status: 500 }
     );
