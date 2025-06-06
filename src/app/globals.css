@@ -104,6 +104,9 @@
   * {
     @apply border-border;
   }
+  img {
+    @apply inline-block;
+  }
   body {
     @apply bg-background text-foreground;
   }

@@ -59,7 +59,6 @@ import { DataCard } from "@/components/DataCard";
 import Swal from "sweetalert2";
 import TemplatePenilaianContent from "@/components/TemplatePenilaianContent";
 import RencanaPembelajaranTab from "@/components/RPTabs";
-import { generatePDFFromElement } from "@/lib/pdf-utils";
 import { FileText } from "lucide-react";
 
 const formSchema = z.object({
@@ -803,18 +802,43 @@ export default function Page() {
   );
 
   const generateRPS = async () => {
-    if (!mk) {
-      alert("MK data not found");
-      return;
-    }
+    if (typeof window !== "undefined") {
+      const html2pdf = (await import("html2pdf.js")).default;
+      const element = document.getElementById("RPS");
 
-    const result = await generatePDFFromElement(
-      "RPS",
-      `RPS-${mk.kode}-${mk.deskripsi}`,
-      mk.kode
-    );
-    if (!result.success) {
-      alert(`Error generating PDF: ${result.error}`);
+      if (element) {
+        // 1. Get the element's height in pixels
+        const rect = element.getBoundingClientRect();
+        const pxHeight = rect.height + 20;
+        const pxWidth = rect.width;
+
+        // 2. Convert px to inches (1in = 96px)
+        const inchHeight = pxHeight / 96;
+        const inchWidth = pxWidth / 96;
+
+        // 3. Set options with dynamic height
+        const options = {
+          margin: [0.1, 0, 0, 0] as [number, number, number, number], // Margins in inches
+          filename: `RPS_MK_${mk?.kode}.pdf`,
+          image: { type: "jpeg", quality: 1.0 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            scrollY: -window.scrollY,
+          },
+          jsPDF: {
+            unit: "in",
+            format: [inchWidth, inchHeight] as [number, number], // Dynamic size, ensure tuple
+            orientation: "portrait",
+            compressPDF: true,
+          },
+        };
+
+        html2pdf().from(element).set(options).save();
+      } else {
+        console.error("Element with ID 'RPS' not found.");
+      }
     }
   };
 
@@ -841,35 +865,35 @@ export default function Page() {
     return filteredKelas?.map((kelas) => {
       return (
         <TableRow key={kelas.id}>
-          <TableCell className='w-[8%]'>{kelas.nama}</TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">{kelas.nama}</TableCell>
+          <TableCell className="w-[8%]">
             {kelas.tahunAjaran.tahun} - {kelas.tahunAjaran.semester}
           </TableCell>
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">
             {kelas.mahasiswa ? kelas.mahasiswa.length : 0}
           </TableCell>
-          <TableCell className='w-[8%]'>{kelas.jumlahLulus}</TableCell>
+          <TableCell className="w-[8%]">{kelas.jumlahLulus}</TableCell>
           {kelas.dataCPMK &&
             kelas.dataCPMK.map((cpmk: dataCPMK) => (
-              <TableCell key={cpmk.cpmk} className='w-[8%]'>
+              <TableCell key={cpmk.cpmk} className="w-[8%]">
                 {cpmk.persenLulus ? `${cpmk.persenLulus}%` : "-"}
               </TableCell>
             ))}
 
           {(kelas.dataCPMK ?? []).length === 0 &&
             mk?.CPMK.map((_, index) => (
-              <TableCell key={index} className='w-[8%]'>
+              <TableCell key={index} className="w-[8%]">
                 -
               </TableCell>
             ))}
 
-          <TableCell className='w-[8%]'>
+          <TableCell className="w-[8%]">
             {kelas.MK.batasLulusMahasiswa}
           </TableCell>
-          <TableCell className='w-[8%] flex gap-2'>
+          <TableCell className="w-[8%] flex gap-2">
             <Button
               className={accountData?.role === "Dosen" ? "hidden" : ""}
-              variant='destructive'
+              variant="destructive"
               onClick={() => delKelas(kelas.id)}
             >
               Hapus
@@ -943,35 +967,52 @@ export default function Page() {
     totalPerCPMK["totalBobot"] = overallTotal;
 
     return (
-      <Table>
-        <TableHeader>
-          <TableRow className='bg-[#CCCCCC]'>
-            <TableHead>Penilaian (Kriteria)</TableHead>
+      <table className="w-full border-collapse border border-gray-300">
+        <thead>
+          <tr className="bg-gray-300">
+            <th className="border border-gray-300 p-2 font-semibold text-left">
+              Penilaian (Kriteria)
+            </th>
             {allCPMK.map((kode) => (
-              <TableHead key={kode}>{kode}</TableHead>
+              <th
+                key={kode}
+                className="border border-gray-300 p-2 font-semibold text-left"
+              >
+                {kode}
+              </th>
             ))}
-            <TableHead>Total Bobot</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+            <th className="border border-gray-300 p-2 font-semibold text-left">
+              Total Bobot
+            </th>
+          </tr>
+        </thead>
+        <tbody>
           {kriteriaRows.map((row, index) => (
-            <TableRow key={index}>
-              <TableCell>{row.kriteria}</TableCell>
+            <tr key={index}>
+              <td className="border border-gray-300 p-2">{row.kriteria}</td>
               {allCPMK.map((kode) => (
-                <TableCell key={kode}>{row[kode]}</TableCell>
+                <td key={kode} className="border border-gray-300 p-2">
+                  {row[kode]}
+                </td>
               ))}
-              <TableCell>{row.totalBobot}</TableCell>
-            </TableRow>
+              <td className="border border-gray-300 p-2">{row.totalBobot}</td>
+            </tr>
           ))}
-          <TableRow>
-            <TableCell>{totalPerCPMK.kriteria}</TableCell>
+          <tr>
+            <td className="border border-gray-300 p-2">
+              {totalPerCPMK.kriteria}
+            </td>
             {allCPMK.map((kode) => (
-              <TableCell key={kode}>{totalPerCPMK[kode]}</TableCell>
+              <td key={kode} className="border border-gray-300 p-2">
+                {totalPerCPMK[kode]}
+              </td>
             ))}
-            <TableCell>{totalPerCPMK.totalBobot}</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+            <td className="border border-gray-300 p-2">
+              {totalPerCPMK.totalBobot}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     );
   };
 
@@ -1016,21 +1057,21 @@ export default function Page() {
 
     return kriteriaArray.map(([kriteriaName, kriteriaData], index) => (
       <TableRow key={kriteriaName}>
-        <TableCell className='w-[8%] text-center'>{index + 1}</TableCell>
-        <TableCell className='w-[16%]'>{kriteriaName}</TableCell>
+        <TableCell className="w-[8%] text-center">{index + 1}</TableCell>
+        <TableCell className="w-[16%]">{kriteriaName}</TableCell>
         {currentTemplate.penilaianCPMK.map((CPMK) => (
           <React.Fragment key={CPMK.CPMKkode}>
             {CPMK.kriteria.some((k) => k.kriteria === kriteriaName) ? (
-              <TableCell className='w-[8%] text-center'>
+              <TableCell className="w-[8%] text-center">
                 {CPMK.kriteria.find((k) => k.kriteria === kriteriaName)
                   ?.bobot || "-"}
               </TableCell>
             ) : (
-              <TableCell className='w-[8%] text-center'>-</TableCell>
+              <TableCell className="w-[8%] text-center">-</TableCell>
             )}
           </React.Fragment>
         ))}
-        <TableCell className='w-[8%] text-center'>
+        <TableCell className="w-[8%] text-center">
           {kriteriaData.totalBobot}
         </TableCell>
       </TableRow>
@@ -1039,13 +1080,13 @@ export default function Page() {
 
   if (mk) {
     return (
-      <main className='w-screen max-w-7xl mx-auto pt-20 p-5'>
-        <div className='flex justify-between'>
-          <p className='ml-2 font-bold text-2xl'>Detail Mata Kuliah</p>
-          <div className='flex gap-3'>
+      <main className="w-screen max-w-7xl mx-auto pt-20 p-5">
+        <div className="flex justify-between">
+          <p className="ml-2 font-bold text-2xl">Detail Mata Kuliah</p>
+          <div className="flex gap-3">
             <Select onValueChange={handleTahunChange} value={selectedTahun}>
-              <SelectTrigger className='w-[250px]'>
-                <SelectValue placeholder='Tahun Ajaran' />
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Tahun Ajaran" />
               </SelectTrigger>
               <SelectContent>
                 {tahunAjaran.map((tahun) => (
@@ -1061,7 +1102,7 @@ export default function Page() {
                 className={accountData?.role === "Dosen" ? "hidden" : ""}
                 asChild
               >
-                <Button variant='outline' disabled={kunciSistem?.data}>
+                <Button variant="outline" disabled={kunciSistem?.data}>
                   Edit Data
                 </Button>
               </DialogTrigger>
@@ -1073,17 +1114,17 @@ export default function Page() {
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className='space-y-8'
+                    className="space-y-8"
                   >
                     <FormField
                       control={form.control}
-                      name='deskripsi'
+                      name="deskripsi"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Nama</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder='Deskripsi'
+                              placeholder="Deskripsi"
                               required
                               {...field}
                             />
@@ -1095,13 +1136,13 @@ export default function Page() {
 
                     <FormField
                       control={form.control}
-                      name='deskripsiInggris'
+                      name="deskripsiInggris"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Nama Inggris</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder='Deskripsi Inggris'
+                              placeholder="Deskripsi Inggris"
                               required
                               {...field}
                             />
@@ -1113,7 +1154,7 @@ export default function Page() {
 
                     <FormField
                       control={form.control}
-                      name='sks'
+                      name="sks"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>SKS</FormLabel>
@@ -1125,7 +1166,7 @@ export default function Page() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder='Pilih Jumlah SKS' />
+                                <SelectValue placeholder="Pilih Jumlah SKS" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -1143,7 +1184,7 @@ export default function Page() {
 
                     <FormField
                       control={form.control}
-                      name='semester'
+                      name="semester"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Semester</FormLabel>
@@ -1155,7 +1196,7 @@ export default function Page() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder='Pilih Semester' />
+                                <SelectValue placeholder="Pilih Semester" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -1173,16 +1214,16 @@ export default function Page() {
 
                     <FormField
                       control={form.control}
-                      name='batasLulusMahasiswa'
+                      name="batasLulusMahasiswa"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Batas Lulus Mahasiswa</FormLabel>
                           <FormControl>
                             <Input
-                              type='number'
+                              type="number"
                               min={0}
                               max={100}
-                              placeholder='Batas Lulus Mahasiswa'
+                              placeholder="Batas Lulus Mahasiswa"
                               required
                               {...field}
                             />
@@ -1194,16 +1235,16 @@ export default function Page() {
 
                     <FormField
                       control={form.control}
-                      name='batasLulusMK'
+                      name="batasLulusMK"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Batas Lulus MK {"(%)"}</FormLabel>
                           <FormControl>
                             <Input
-                              type='number'
+                              type="number"
                               min={0}
                               max={100}
-                              placeholder='Batas Lulus MK'
+                              placeholder="Batas Lulus MK"
                               required
                               {...field}
                             />
@@ -1213,20 +1254,20 @@ export default function Page() {
                       )}
                     />
 
-                    <div className='space-y-2'>
+                    <div className="space-y-2">
                       <FormLabel>Prerequisite Mata Kuliah</FormLabel>
-                      <div className='flex flex-row items-center mb-5'>
+                      <div className="flex flex-row items-center mb-5">
                         <input
-                          type='text'
-                          className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                          type="text"
+                          className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
                           value={searchPrerequisite}
-                          placeholder='Cari...'
+                          placeholder="Cari..."
                           onChange={(e) =>
                             setSearchPrerequisite(e.target.value)
                           }
                         />
                       </div>
-                      <div className='grid grid-cols-3 gap-3'>
+                      <div className="grid grid-cols-3 gap-3">
                         {allMK.length > 0 ? (
                           filteredMK.map((mk, index) => (
                             <DataCard<MK>
@@ -1237,7 +1278,7 @@ export default function Page() {
                             />
                           ))
                         ) : (
-                          <div className='text-center text-xl animate-pulse'>
+                          <div className="text-center text-xl animate-pulse">
                             Belum ada MK ...
                           </div>
                         )}
@@ -1247,8 +1288,8 @@ export default function Page() {
                     <DialogFooter>
                       <DialogClose asChild>
                         <Button
-                          className='bg-blue-500 hover:bg-blue-600'
-                          type='submit'
+                          className="bg-blue-500 hover:bg-blue-600"
+                          type="submit"
                         >
                           Submit
                         </Button>
@@ -1261,66 +1302,66 @@ export default function Page() {
           </div>
         </div>
 
-        <Table className='w-full table-fixed mb-5'>
+        <Table className="w-full table-fixed mb-5">
           <TableBody>
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Kode</strong>
               </TableCell>
-              <TableCell className='p-2'>: {mk.kode}</TableCell>
+              <TableCell className="p-2">: {mk.kode}</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Nama</strong>
               </TableCell>
-              <TableCell className='p-2'>: {mk.deskripsi}</TableCell>
+              <TableCell className="p-2">: {mk.deskripsi}</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Nama Inggris</strong>
               </TableCell>
-              <TableCell className='p-2'>: {mk.deskripsiInggris}</TableCell>
+              <TableCell className="p-2">: {mk.deskripsiInggris}</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Kelompok Keahlian</strong>
               </TableCell>
-              <TableCell className='p-2'>: {mk.KK.nama}</TableCell>
+              <TableCell className="p-2">: {mk.KK.nama}</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Jumlah SKS</strong>
               </TableCell>
-              <TableCell className='p-2'>: {mk.sks}</TableCell>
+              <TableCell className="p-2">: {mk.sks}</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>CPMK</strong>
               </TableCell>
-              <TableCell className='p-2'>
+              <TableCell className="p-2">
                 : {mk.CPMK.map((cpmk) => cpmk.kode).join(", ")}
               </TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>BK</strong>
               </TableCell>
-              <TableCell className='p-2'>
+              <TableCell className="p-2">
                 : {mk.BK.map((bk) => bk.kode).join(", ")}
               </TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell className='w-[20%] p-2'>
+              <TableCell className="w-[20%] p-2">
                 <strong>Performa</strong>
               </TableCell>
-              <TableCell className='p-2'>
+              <TableCell className="p-2">
                 :{" "}
                 {mk.lulusMK_CPMK
                   .filter(
@@ -1343,38 +1384,38 @@ export default function Page() {
           </TableBody>
         </Table>
 
-        <Tabs defaultValue='kelas' className='w-full'>
+        <Tabs defaultValue="kelas" className="w-full">
           <TabsList
             className={`grid w-full ${
               accountData?.role === "Dosen" ? "grid-cols-5" : "grid-cols-6"
             }`}
           >
-            <TabsTrigger value='kelas'>Data Kelas</TabsTrigger>
-            <TabsTrigger value='rencana'>Rencana Pembelajaran</TabsTrigger>
-            <TabsTrigger value='asesment'>Asesment dan Evaluasi</TabsTrigger>
-            <TabsTrigger value='rps'>RPS</TabsTrigger>
-            <TabsTrigger value='templatePenilaian'>
+            <TabsTrigger value="kelas">Data Kelas</TabsTrigger>
+            <TabsTrigger value="rencana">Rencana Pembelajaran</TabsTrigger>
+            <TabsTrigger value="asesment">Asesment dan Evaluasi</TabsTrigger>
+            <TabsTrigger value="rps">RPS</TabsTrigger>
+            <TabsTrigger value="templatePenilaian">
               Template Penilaian
             </TabsTrigger>
             <TabsTrigger
               className={accountData?.role === "Dosen" ? "hidden" : ""}
-              value='relasi'
+              value="relasi"
             >
               Sambungkan CPMK/BK
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value='kelas'>
+          <TabsContent value="kelas">
             {filteredKelas?.length != 0 ? (
-              <Card className='w-[1200px] mx-auto'>
-                <CardHeader className='flex flex-row justify-between items-center'>
-                  <div className='flex flex-col'>
+              <Card className="w-[1200px] mx-auto">
+                <CardHeader className="flex flex-row justify-between items-center">
+                  <div className="flex flex-col">
                     <CardTitle>Tabel Kelas</CardTitle>
                     <CardDescription>Mata Kuliah {mk.kode}</CardDescription>
                   </div>
                   <Button
                     className={accountData?.role === "Dosen" ? "hidden" : ""}
-                    variant='destructive'
+                    variant="destructive"
                     onClick={() => {
                       onDeleteAllKelas();
                     }}
@@ -1387,14 +1428,14 @@ export default function Page() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className='w-[8%]'>Nama</TableHead>
-                          <TableHead className='w-[8%]'>Tahun Ajaran</TableHead>
-                          <TableHead className='w-[8%]'>
+                          <TableHead className="w-[8%]">Nama</TableHead>
+                          <TableHead className="w-[8%]">Tahun Ajaran</TableHead>
+                          <TableHead className="w-[8%]">
                             Jumlah Mahasiswa
                           </TableHead>
-                          <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
-                          <TableHead className='w-[8%]'>Batas Lulus</TableHead>
-                          <TableHead className='w-[8%]'>Aksi</TableHead>
+                          <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
+                          <TableHead className="w-[8%]">Batas Lulus</TableHead>
+                          <TableHead className="w-[8%]">Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1405,19 +1446,19 @@ export default function Page() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className='w-[8%]'>Nama</TableHead>
-                          <TableHead className='w-[8%]'>Tahun Ajaran</TableHead>
-                          <TableHead className='w-[8%]'>
+                          <TableHead className="w-[8%]">Nama</TableHead>
+                          <TableHead className="w-[8%]">Tahun Ajaran</TableHead>
+                          <TableHead className="w-[8%]">
                             Jumlah Mahasiswa
                           </TableHead>
-                          <TableHead className='w-[8%]'>Jumlah Lulus</TableHead>
+                          <TableHead className="w-[8%]">Jumlah Lulus</TableHead>
                           {mk.CPMK.map((cpmk) => {
                             return (
                               <TableHead key={cpmk.id}>{cpmk.kode}</TableHead>
                             );
                           })}
-                          <TableHead className='w-[8%]'>Batas Lulus</TableHead>
-                          <TableHead className='w-[8%]'>Aksi</TableHead>
+                          <TableHead className="w-[8%]">Batas Lulus</TableHead>
+                          <TableHead className="w-[8%]">Aksi</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>{renderData()}</TableBody>
@@ -1429,11 +1470,11 @@ export default function Page() {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmitKelas)}
-                  className='space-y-8'
+                  className="space-y-8"
                 >
                   <FormField
                     control={form.control}
-                    name='jumlahKelas'
+                    name="jumlahKelas"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tambah Jumlah Kelas</FormLabel>
@@ -1447,7 +1488,7 @@ export default function Page() {
                           <FormControl>
                             <SelectTrigger>
                               {field.value ? (
-                                <SelectValue placeholder='Pilih Jumlah Kelas' />
+                                <SelectValue placeholder="Pilih Jumlah Kelas" />
                               ) : (
                                 "Pilih Jumlah Kelas"
                               )}
@@ -1466,8 +1507,8 @@ export default function Page() {
                   />
 
                   <Button
-                    className='bg-blue-500 hover:bg-blue-600'
-                    type='submit'
+                    className="bg-blue-500 hover:bg-blue-600"
+                    type="submit"
                   >
                     Submit
                   </Button>
@@ -1476,7 +1517,7 @@ export default function Page() {
             )}
           </TabsContent>
 
-          <TabsContent className='flex flex-col gap-3' value='rencana'>
+          <TabsContent className="flex flex-col gap-3" value="rencana">
             {currentTemplate ? (
               <RencanaPembelajaranTab
                 templatePenilaian={currentTemplate}
@@ -1484,15 +1525,15 @@ export default function Page() {
                 setRefresh={setRefresh}
               />
             ) : (
-              <Card className='border-dashed'>
-                <CardContent className='flex flex-col items-center justify-center py-12 px-6 text-center'>
-                  <div className='rounded-full bg-muted p-4 mb-4'>
-                    <FileText className='h-8 w-8 text-muted-foreground' />
+              <Card className="border-dashed">
+                <CardContent className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                  <div className="rounded-full bg-muted p-4 mb-4">
+                    <FileText className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className='text-lg font-semibold text-foreground mb-2'>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     Belum ada template penilaian yang aktif
                   </h3>
-                  <p className='text-sm text-muted-foreground mb-6 max-w-sm'>
+                  <p className="text-sm text-muted-foreground mb-6 max-w-sm">
                     Saat ini belum ada template penilaian yang aktif. Silakan
                     buat atau aktifkan template terlebih dahulu.
                   </p>
@@ -1501,10 +1542,10 @@ export default function Page() {
             )}
           </TabsContent>
 
-          <TabsContent value='asesment'>
-            <Card className='w-[1000px] mx-auto'>
-              <CardHeader className='flex flex-row justify-between items-center'>
-                <div className='flex flex-col'>
+          <TabsContent value="asesment">
+            <Card className="w-[1000px] mx-auto">
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div className="flex flex-col">
                   <CardTitle>Rencana Asesment dan Evaluasi</CardTitle>
                   <CardDescription>Mata Kuliah {mk.deskripsi}</CardDescription>
                 </div>
@@ -1514,19 +1555,19 @@ export default function Page() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className='w-[8%] text-center'>No</TableHead>
-                      <TableHead className='w-[16%]'>
+                      <TableHead className="w-[8%] text-center">No</TableHead>
+                      <TableHead className="w-[16%]">
                         Rencana Evaluasi
                       </TableHead>
                       {currentTemplate?.penilaianCPMK.map((CPMK) => (
                         <TableHead
                           key={CPMK.CPMK.kode}
-                          className='w-[8%] text-center'
+                          className="w-[8%] text-center"
                         >
                           {`${CPMK.CPMK.kode}`}
                         </TableHead>
                       ))}
-                      <TableHead className='w-[8%]  text-center'>
+                      <TableHead className="w-[8%]  text-center">
                         Total Bobot
                       </TableHead>
                     </TableRow>
@@ -1537,20 +1578,20 @@ export default function Page() {
             </Card>
           </TabsContent>
 
-          <TabsContent className='flex flex-col gap-3' value='rps'>
-            <Card className='mx-auto w-[100%]'>
-              <CardHeader className='flex flex-row justify-between items-center'>
-                <div className='flex flex-col'>
+          <TabsContent className="flex flex-col gap-3" value="rps">
+            <Card className="mx-auto w-[100%]">
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div className="flex flex-col">
                   <CardTitle>Rencana Pembelajaran Semester</CardTitle>
                   <CardDescription>Mata Kuliah {mk.kode}</CardDescription>
                 </div>
 
-                <div className='flex gap-3'>
+                <div className="flex gap-3">
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant='outline'>Revisi RPS</Button>
+                      <Button variant="outline">Revisi RPS</Button>
                     </DialogTrigger>
-                    <DialogContent className='max-w-[600px] max-h-[800px] overflow-auto'>
+                    <DialogContent className="max-w-[600px] max-h-[800px] overflow-auto">
                       <DialogHeader>
                         <DialogTitle>
                           Revisi Rencana Pembelajaran Semester
@@ -1562,17 +1603,17 @@ export default function Page() {
                       <Form {...rpsForm}>
                         <form
                           onSubmit={rpsForm.handleSubmit(revisiRPS)}
-                          className='space-y-8'
+                          className="space-y-8"
                         >
                           <FormField
                             control={rpsForm.control}
-                            name='deskripsi'
+                            name="deskripsi"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Deskripsi MK</FormLabel>
                                 <FormControl>
                                   <Textarea
-                                    placeholder='Deskripsi...'
+                                    placeholder="Deskripsi..."
                                     {...field}
                                   />
                                 </FormControl>
@@ -1583,7 +1624,7 @@ export default function Page() {
 
                           <FormField
                             control={rpsForm.control}
-                            name='materiPembelajaran'
+                            name="materiPembelajaran"
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
@@ -1591,7 +1632,7 @@ export default function Page() {
                                 </FormLabel>
                                 <FormControl>
                                   <Textarea
-                                    placeholder='Materi...'
+                                    placeholder="Materi..."
                                     {...field}
                                   />
                                 </FormControl>
@@ -1601,12 +1642,12 @@ export default function Page() {
                           />
 
                           <div>
-                            <div className='flex justify-between items-center mb-3'>
+                            <div className="flex justify-between items-center mb-3">
                               <FormLabel>Pustaka Utama</FormLabel>
                               <Button
-                                type='button'
+                                type="button"
                                 variant={"outline"}
-                                className='h-50'
+                                className="h-50"
                                 onClick={() => appendPustakaUtama({ name: "" })}
                               >
                                 Tambah
@@ -1614,14 +1655,14 @@ export default function Page() {
                             </div>
 
                             {pustakaUtamaFields.map((item, index) => (
-                              <FormItem key={item.id} className='mb-3'>
+                              <FormItem key={item.id} className="mb-3">
                                 <FormControl>
                                   <FormField
                                     name={`pustakaUtama.${index}.name` as const} // Type assertion to ensure correct type
                                     control={rpsForm.control}
                                     render={({ field }) => (
                                       <Input
-                                        placeholder='Pustaka Utama...'
+                                        placeholder="Pustaka Utama..."
                                         {...field}
                                       />
                                     )}
@@ -1629,9 +1670,9 @@ export default function Page() {
                                 </FormControl>
                                 {index === pustakaUtamaFields.length - 1 && (
                                   <Button
-                                    type='button'
+                                    type="button"
                                     onClick={() => removePustakaUtama(index)}
-                                    className='mt-2'
+                                    className="mt-2"
                                   >
                                     Hapus
                                   </Button>
@@ -1642,12 +1683,12 @@ export default function Page() {
                           </div>
 
                           <div>
-                            <div className='flex justify-between items-center mb-3'>
+                            <div className="flex justify-between items-center mb-3">
                               <FormLabel>Pustaka Pendukung</FormLabel>
                               <Button
-                                type='button'
+                                type="button"
                                 variant={"outline"}
-                                className='h-50'
+                                className="h-50"
                                 onClick={() =>
                                   appendPustakaPendukung({ name: "" })
                                 }
@@ -1657,7 +1698,7 @@ export default function Page() {
                             </div>
 
                             {pustakaPendukungFields.map((item, index) => (
-                              <FormItem key={item.id} className='mb-3'>
+                              <FormItem key={item.id} className="mb-3">
                                 <FormControl>
                                   <FormField
                                     name={
@@ -1666,7 +1707,7 @@ export default function Page() {
                                     control={rpsForm.control}
                                     render={({ field }) => (
                                       <Input
-                                        placeholder='Pustaka Pendukung...'
+                                        placeholder="Pustaka Pendukung..."
                                         {...field}
                                       />
                                     )}
@@ -1675,11 +1716,11 @@ export default function Page() {
                                 {index ===
                                   pustakaPendukungFields.length - 1 && (
                                   <Button
-                                    type='button'
+                                    type="button"
                                     onClick={() =>
                                       removePustakaPendukung(index)
                                     }
-                                    className='mt-2'
+                                    className="mt-2"
                                   >
                                     Hapus
                                   </Button>
@@ -1690,13 +1731,13 @@ export default function Page() {
                           </div>
 
                           <FormField
-                            name='hardware'
+                            name="hardware"
                             control={rpsForm.control}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Hardware</FormLabel>
                                 <FormControl>
-                                  <Input placeholder='Hardware...' {...field} />
+                                  <Input placeholder="Hardware..." {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1704,13 +1745,13 @@ export default function Page() {
                           />
 
                           <FormField
-                            name='software'
+                            name="software"
                             control={rpsForm.control}
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Software</FormLabel>
                                 <FormControl>
-                                  <Input placeholder='Software...' {...field} />
+                                  <Input placeholder="Software..." {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1720,8 +1761,8 @@ export default function Page() {
                           <DialogFooter>
                             <DialogClose asChild>
                               <Button
-                                className='bg-blue-500 hover:bg-blue-600'
-                                type='submit'
+                                className="bg-blue-500 hover:bg-blue-600"
+                                type="submit"
                               >
                                 Submit
                               </Button>
@@ -1736,76 +1777,119 @@ export default function Page() {
                 </div>
               </CardHeader>
 
-              <CardContent id='RPS'>
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={2} className='text-center'>
+              <CardContent id="RPS">
+                <table className="w-full border-collapse border border-gray-300">
+                  <tbody>
+                    <tr>
+                      <td
+                        colSpan={2}
+                        className="text-center border border-gray-300 p-4"
+                      >
                         <div
-                          id='header'
-                          className='flex w-full items-center justify-between'
+                          id="header"
+                          className="flex w-full items-center justify-between"
                         >
                           <img
                             src={`${process.env.NEXT_PUBLIC_BASE_URL}/Logo1.png`}
-                            alt='LOGO UNIVERSITAS'
-                            width='100'
-                            height='100'
+                            alt="LOGO UNIVERSITAS"
+                            width="100"
+                            height="100"
                           />
 
                           <div>
-                            <h2>RENCANA PEMBELAJARAN SEMESTER</h2>
-                            <h3>PROGRAM STUDI S1 TEKNIK INFORMATIKA</h3>
-                            <h4>FAKULTAS TEKNOLOGI INDUSTRI</h4>
+                            <h2 className="font-bold text-lg">
+                              RENCANA PEMBELAJARAN SEMESTER
+                            </h2>
+                            <h3 className="font-semibold">
+                              PROGRAM STUDI S1 TEKNIK INFORMATIKA
+                            </h3>
+                            <h4 className="font-medium">
+                              FAKULTAS TEKNOLOGI INDUSTRI
+                            </h4>
                             <h5>INSTITUT TEKNOLOGI SUMATERA</h5>
                           </div>
 
                           <div />
                         </div>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Identitas Mata Kuliah</TableHead>
-                      <TableCell>
-                        <Table>
-                          <TableBody>
-                            <TableRow className='bg-[#CCCCCC]'>
-                              <TableHead>NAMA MK</TableHead>
-                              <TableHead>KODE MK</TableHead>
-                              <TableHead>RUMPUN MATA KULIAH</TableHead>
-                              <TableHead>BOBOT (SKS)</TableHead>
-                              <TableHead>SEMESTER</TableHead>
-                              <TableHead>Tgl Penyusunan</TableHead>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>{mk.deskripsi}</TableCell>
-                              <TableCell>{mk.kode}</TableCell>
-                              <TableCell>{mk.KK.nama}</TableCell>
-                              <TableCell>{mk.sks}</TableCell>
-                              <TableCell>{mk.semester}</TableCell>
-                              <TableCell>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Identitas Mata Kuliah
+                      </th>
+                      <td className="border border-gray-300 p-3">
+                        <table className="w-full border-collapse border border-gray-300">
+                          <tbody>
+                            <tr className="bg-gray-300">
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                NAMA MK
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                KODE MK
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                RUMPUN MATA KULIAH
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                BOBOT (SKS)
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                SEMESTER
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                Tgl Penyusunan
+                              </th>
+                            </tr>
+                            <tr>
+                              <td className="border border-gray-300 p-2">
+                                {mk.deskripsi}
+                              </td>
+                              <td className="border border-gray-300 p-2">
+                                {mk.kode}
+                              </td>
+                              <td className="border border-gray-300 p-2">
+                                {mk.KK.nama}
+                              </td>
+                              <td className="border border-gray-300 p-2">
+                                {mk.sks}
+                              </td>
+                              <td className="border border-gray-300 p-2">
+                                {mk.semester}
+                              </td>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps && mk.rps.revisi ? mk.rps.revisi : "-"}
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Otoritas Pengembang RPS</TableHead>
-                      <TableCell>
-                        <Table>
-                          <TableBody>
-                            <TableRow className='w-[100%] bg-[#CCCCCC]'>
-                              <TableHead>Pengembang RPS</TableHead>
-                              <TableHead>GKMP</TableHead>
-                              <TableHead>Ketua Kelompok Keahlian</TableHead>
-                              <TableHead>Ka PRODI</TableHead>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Otoritas Pengembang RPS
+                      </th>
+                      <td className="border border-gray-300 p-3">
+                        <table className="w-full border-collapse border border-gray-300">
+                          <tbody>
+                            <tr className="w-full bg-gray-300">
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                Pengembang RPS
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                GKMP
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                Ketua Kelompok Keahlian
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                Ka PRODI
+                              </th>
+                            </tr>
+                            <tr>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps?.signaturePengembang ? (
                                   <div
-                                    className='w-fit'
+                                    className="w-fit"
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signaturePengembang,
                                     }}
@@ -1813,11 +1897,11 @@ export default function Page() {
                                 ) : (
                                   "-"
                                 )}
-                              </TableCell>
-                              <TableCell>
+                              </td>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps?.signatureGKMP ? (
                                   <div
-                                    className='w-fit'
+                                    className="w-fit"
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signatureGKMP,
                                     }}
@@ -1825,19 +1909,20 @@ export default function Page() {
                                 ) : !accountData?.signature ? (
                                   <p>Anda belum memiliki signature</p>
                                 ) : accountData.role === "GKMP" ? (
-                                  <Button
+                                  <button
+                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                     onClick={() => handleAddSignature("GKMP")}
                                   >
                                     Tambah Signature
-                                  </Button>
+                                  </button>
                                 ) : (
                                   "-"
                                 )}
-                              </TableCell>
-                              <TableCell>
+                              </td>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps?.signatureKetuaKK ? (
                                   <div
-                                    className='w-fit'
+                                    className="w-fit"
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signatureKetuaKK,
                                     }}
@@ -1845,19 +1930,20 @@ export default function Page() {
                                 ) : !accountData?.signature ? (
                                   <p>Anda belum memiliki signature</p>
                                 ) : accountData.nama === mk.KK.ketua?.nama ? (
-                                  <Button
+                                  <button
+                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                     onClick={() => handleAddSignature("KK")}
                                   >
                                     Tambah Signature
-                                  </Button>
+                                  </button>
                                 ) : (
                                   "-"
                                 )}
-                              </TableCell>
-                              <TableCell>
+                              </td>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps?.signatureKaprodi ? (
                                   <div
-                                    className='w-fit'
+                                    className="w-fit"
                                     dangerouslySetInnerHTML={{
                                       __html: mk.rps.signatureKaprodi,
                                     }}
@@ -1865,163 +1951,209 @@ export default function Page() {
                                 ) : !accountData?.signature ? (
                                   <p>Anda belum memiliki signature</p>
                                 ) : accountData.role === "Kaprodi" ? (
-                                  <Button
+                                  <button
+                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                                     onClick={() =>
                                       handleAddSignature("Kaprodi")
                                     }
                                   >
                                     Tambah Signature
-                                  </Button>
+                                  </button>
                                 ) : (
                                   "-"
                                 )}
-                              </TableCell>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps && mk.rps.pengembang
                                   ? mk.rps.pengembang.nama
                                   : "-"}
-                              </TableCell>
-                              <TableCell>{mk.prodi.GKMP?.nama}</TableCell>
-                              <TableCell>
+                              </td>
+                              <td className="border border-gray-300 p-2">
+                                {mk.prodi.GKMP?.nama}
+                              </td>
+                              <td className="border border-gray-300 p-2">
                                 {mk.KK.ketua ? mk.KK.ketua.nama : "-"}
-                              </TableCell>
-                              <TableCell>{mk.prodi.kaprodi?.nama}</TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Capaian Pembelajaran</TableHead>
-                      <TableCell>
-                        <Table>
-                          <TableBody>
-                            <TableRow className='bg-[#CCCCCC]'>
-                              <TableHead colSpan={3}>
+                              </td>
+                              <td className="border border-gray-300 p-2">
+                                {mk.prodi.kaprodi?.nama}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Capaian Pembelajaran
+                      </th>
+                      <td className="border border-gray-300 p-3">
+                        <table className="w-full border-collapse border border-gray-300">
+                          <tbody>
+                            <tr className="bg-gray-300">
+                              <th
+                                colSpan={3}
+                                className="border border-gray-300 p-2 font-semibold"
+                              >
                                 Capaian Pembelajaran Lulusan (CPL)
-                              </TableHead>
-                            </TableRow>
-                            {listCPL.map((cpl: CPL) => (
-                              <TableRow key={cpl.kode}>
-                                <TableCell className='w-[15%]'>
+                              </th>
+                            </tr>
+                            {listCPL.map((cpl) => (
+                              <tr key={cpl.kode}>
+                                <td className="w-[15%] border border-gray-300 p-2">
                                   {cpl.kode}
-                                </TableCell>
-                                <TableCell colSpan={2}>
+                                </td>
+                                <td
+                                  colSpan={2}
+                                  className="border border-gray-300 p-2"
+                                >
                                   {cpl.deskripsi}
-                                </TableCell>
-                              </TableRow>
+                                </td>
+                              </tr>
                             ))}
 
-                            <TableRow className='bg-[#CCCCCC]'>
-                              <TableHead colSpan={2}>
+                            <tr className="bg-gray-300">
+                              <th
+                                colSpan={2}
+                                className="border border-gray-300 p-2 font-semibold"
+                              >
                                 Capaian Pembelajaran Mata Kuliah (CPMK)
-                              </TableHead>
-                              <TableHead>CPL yang di dukung</TableHead>
-                            </TableRow>
-                            {mk.CPMK.map((cpmk: CPMK) => (
-                              <TableRow key={cpmk.kode}>
-                                <TableCell className='w-[15%]'>
+                              </th>
+                              <th className="border border-gray-300 p-2 font-semibold">
+                                CPL yang di dukung
+                              </th>
+                            </tr>
+                            {mk.CPMK.map((cpmk) => (
+                              <tr key={cpmk.kode}>
+                                <td className="w-[15%] border border-gray-300 p-2">
                                   {cpmk.kode}
-                                </TableCell>
-                                <TableCell>{cpmk.deskripsi}</TableCell>
-                                <TableCell className='w-[20%]'>
+                                </td>
+                                <td className="border border-gray-300 p-2">
+                                  {cpmk.deskripsi}
+                                </td>
+                                <td className="w-[20%] border border-gray-300 p-2">
                                   {cpmk.CPL.kode}
-                                </TableCell>
-                              </TableRow>
+                                </td>
+                              </tr>
                             ))}
-                          </TableBody>
-                        </Table>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Penilaian</TableHead>
-                      <TableCell>{mk ? renderDataPenilaian() : null}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Deskripsi Singkat MK</TableHead>
-                      <TableCell>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Penilaian
+                      </th>
+                      <td className="border border-gray-300 p-3">
+                        {mk ? renderDataPenilaian() : null}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Deskripsi Singkat MK
+                      </th>
+                      <td className="border border-gray-300 p-3">
                         {mk.rps && mk.rps.deskripsi ? mk.rps.deskripsi : "-"}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Materi Pembelajaran / Pokok Bahasan</TableHead>
-                      <TableCell>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Materi Pembelajaran / Pokok Bahasan
+                      </th>
+                      <td className="border border-gray-300 p-3">
                         {mk.rps && mk.rps.materiPembelajaran
                           ? mk.rps.materiPembelajaran
                           : "-"}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Pustaka</TableHead>
-                      <TableCell>
-                        <Table>
-                          <TableBody>
-                            <TableRow className='bg-[#CCCCCC]'>
-                              <TableHead>Utama:</TableHead>
-                            </TableRow>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Pustaka
+                      </th>
+                      <td className="border border-gray-300 p-3">
+                        <table className="w-full border-collapse border border-gray-300">
+                          <tbody>
+                            <tr className="bg-gray-300">
+                              <th className="border border-gray-300 p-2 font-semibold text-left">
+                                Utama:
+                              </th>
+                            </tr>
                             {mk.rps && mk.rps.pustakaUtama.length > 0 ? (
                               mk.rps.pustakaUtama.map((pustaka, index) => (
-                                <TableRow key={index}>
-                                  <TableCell>{pustaka}</TableCell>
-                                </TableRow>
+                                <tr key={index}>
+                                  <td className="border border-gray-300 p-2">
+                                    {pustaka}
+                                  </td>
+                                </tr>
                               ))
                             ) : (
-                              <TableRow>
-                                <TableCell>-</TableCell>
-                              </TableRow>
+                              <tr>
+                                <td className="border border-gray-300 p-2">
+                                  -
+                                </td>
+                              </tr>
                             )}
-                            <TableRow className='bg-[#CCCCCC]'>
-                              <TableHead>Pendukung:</TableHead>
-                            </TableRow>
+                            <tr className="bg-gray-300">
+                              <th className="border border-gray-300 p-2 font-semibold text-left">
+                                Pendukung:
+                              </th>
+                            </tr>
                             {mk.rps && mk.rps.pustakaPendukung.length > 0 ? (
                               mk.rps.pustakaPendukung.map((pustaka, index) => (
-                                <TableRow key={index}>
-                                  <TableCell>{pustaka}</TableCell>
-                                </TableRow>
+                                <tr key={index}>
+                                  <td className="border border-gray-300 p-2">
+                                    {pustaka}
+                                  </td>
+                                </tr>
                               ))
                             ) : (
-                              <TableRow>
-                                <TableCell>-</TableCell>
-                              </TableRow>
+                              <tr>
+                                <td className="border border-gray-300 p-2">
+                                  -
+                                </td>
+                              </tr>
                             )}
-                          </TableBody>
-                        </Table>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Media Pembelajaran</TableHead>
-                      <TableCell>
-                        <Table>
-                          <TableBody>
-                            <TableRow className='bg-[#CCCCCC]'>
-                              <TableHead className='w-[70%]'>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Media Pembelajaran
+                      </th>
+                      <td className="border border-gray-300 p-3">
+                        <table className="w-full border-collapse border border-gray-300">
+                          <tbody>
+                            <tr className="bg-gray-300">
+                              <th className="w-[70%] border border-gray-300 p-2 font-semibold">
                                 Software
-                              </TableHead>
-                              <TableHead className='w-[30%]'>
+                              </th>
+                              <th className="w-[30%] border border-gray-300 p-2 font-semibold">
                                 Hardware
-                              </TableHead>
-                            </TableRow>
-                            <TableRow>
-                              <TableCell>
+                              </th>
+                            </tr>
+                            <tr>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps && mk.rps.software
                                   ? mk.rps.software
                                   : "-"}
-                              </TableCell>
-                              <TableCell>
+                              </td>
+                              <td className="border border-gray-300 p-2">
                                 {mk.rps && mk.rps.hardware
                                   ? mk.rps.hardware
                                   : "-"}
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Team Teaching</TableHead>
-                      <TableCell>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Team Teaching
+                      </th>
+                      <td className="border border-gray-300 p-3">
                         <p>
                           {teamTeaching.length > 0
                             ? teamTeaching.map((dosen, index) => (
@@ -2032,11 +2164,13 @@ export default function Page() {
                               ))
                             : "-"}
                         </p>
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableHead>Matakuliah Syarat</TableHead>
-                      <TableCell>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="border border-gray-300 p-3 bg-gray-100 text-left font-semibold">
+                        Matakuliah Syarat
+                      </th>
+                      <td className="border border-gray-300 p-3">
                         <p>
                           {mk.prerequisitesMK.length === 0
                             ? "-"
@@ -2044,37 +2178,56 @@ export default function Page() {
                                 .map((prereq) => prereq.kode)
                                 .join(", ")}
                         </p>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                <Table className='mt-6'>
-                  <TableBody>
-                    <TableRow className='bg-[#CCCCCC] w-max-full'>
-                      <TableHead rowSpan={2}>Minggu ke-</TableHead>
-                      <TableHead rowSpan={2}>CPMK</TableHead>
-                      <TableHead rowSpan={2}>
+                <table className="mt-6 w-full border-collapse border border-gray-300">
+                  <tbody>
+                    <tr className="bg-gray-300 w-max-full">
+                      <th className="border border-gray-300 p-2 font-semibold">
+                        Minggu ke-
+                      </th>
+                      <th className="border border-gray-300 p-2 font-semibold">
+                        CPMK
+                      </th>
+                      <th className="border border-gray-300 p-2 font-semibold">
                         Bahan Kajian (Materi Pembelajaran)
-                      </TableHead>
-                      <TableHead rowSpan={2} className='w-[20%]'>
+                      </th>
+                      <th className="w-[20%] border border-gray-300 p-2 font-semibold">
                         Bentuk dan Metode Pembelajaran (Media & Sumber Belajar)
-                      </TableHead>
-                      <TableHead rowSpan={2} className='w-[15%]'>
+                      </th>
+                      <th className="w-[15%] border border-gray-300 p-2 font-semibold">
                         Estimasi Waktu
-                      </TableHead>
-                      <TableHead rowSpan={2}>
+                      </th>
+                      <th className="border border-gray-300 p-2 font-semibold">
                         Pengalaman Belajar Mahasiswa
-                      </TableHead>
-                      <TableHead colSpan={3} className='w-full text-center'>
+                      </th>
+                      <th
+                        colSpan={3}
+                        className="w-full text-center border border-gray-300 p-2 font-semibold"
+                      >
                         Penilaian
-                      </TableHead>
-                    </TableRow>
-                    <TableRow className='bg-[#CCCCCC]'>
-                      <TableHead className=''>Kriteria dan Bentuk</TableHead>
-                      <TableHead className=''>Indikator</TableHead>
-                      <TableHead className=''>Bobot (%)</TableHead>
-                    </TableRow>
+                      </th>
+                    </tr>
+                    <tr className="bg-gray-300">
+                      <th className="border border-gray-300 p-2 font-semibold"></th>
+                      <th className="border border-gray-300 p-2 font-semibold"></th>
+                      <th className="border border-gray-300 p-2 font-semibold"></th>
+                      <th className="border border-gray-300 p-2 font-semibold"></th>
+                      <th className="border border-gray-300 p-2 font-semibold"></th>
+                      <th className="border border-gray-300 p-2 font-semibold"></th>
+                      <th className="border border-gray-300 p-2 font-semibold">
+                        Kriteria dan Bentuk
+                      </th>
+                      <th className="border border-gray-300 p-2 font-semibold">
+                        Indikator
+                      </th>
+                      <th className="border border-gray-300 p-2 font-semibold">
+                        Bobot (%)
+                      </th>
+                    </tr>
 
                     {allWeeks.map((weekNum) => {
                       const rp = (rencanaByWeek ?? {})[weekNum];
@@ -2082,138 +2235,162 @@ export default function Page() {
                       // Special handling for weeks 8 and 16
                       if (weekNum === 8) {
                         return (
-                          <TableRow
-                            className='bg-[#CCCCCC]'
-                            key={`week-${weekNum}`}
-                          >
-                            <TableCell>{weekNum}</TableCell>
-                            <TableCell
+                          <tr className="bg-gray-300" key={`week-${weekNum}`}>
+                            <td className="border border-gray-300 p-2">
+                              {weekNum}
+                            </td>
+                            <td
                               colSpan={8}
-                              className='text-center font-medium bg'
+                              className="text-center font-medium border border-gray-300 p-2"
                             >
                               Ujian Tengah Semester (UTS)
-                            </TableCell>
-                          </TableRow>
+                            </td>
+                          </tr>
                         );
                       }
 
                       if (weekNum === 16) {
                         return (
-                          <TableRow
-                            className='bg-[#CCCCCC]'
-                            key={`week-${weekNum}`}
-                          >
-                            <TableCell>{weekNum}</TableCell>
-                            <TableCell
+                          <tr className="bg-gray-300" key={`week-${weekNum}`}>
+                            <td className="border border-gray-300 p-2">
+                              {weekNum}
+                            </td>
+                            <td
                               colSpan={8}
-                              className='text-center font-medium'
+                              className="text-center font-medium border border-gray-300 p-2"
                             >
                               Ujian Akhir Semester (UAS)
-                            </TableCell>
-                          </TableRow>
+                            </td>
+                          </tr>
                         );
                       }
 
                       // For weeks with data
                       if (rp) {
                         return (
-                          <>
-                            <TableRow key={`week-${weekNum}`}>
-                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                          <React.Fragment key={`week-${weekNum}`}>
+                            <tr>
+                              <td
+                                rowSpan={rp.penilaianRP.length || 1}
+                                className="border border-gray-300 p-2"
+                              >
                                 {weekNum}
-                              </TableCell>
-                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                              </td>
+                              <td
+                                rowSpan={rp.penilaianRP.length || 1}
+                                className="border border-gray-300 p-2"
+                              >
                                 {rp.penilaianCPMKId
                                   ? rp.penilaianCPMK.CPMK.kode
                                   : "-"}
-                              </TableCell>
-                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                              </td>
+                              <td
+                                rowSpan={rp.penilaianRP.length || 1}
+                                className="border border-gray-300 p-2"
+                              >
                                 {rp.bahanKajian || "-"}
-                              </TableCell>
-                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
-                                <div className='space-y-1'>
+                              </td>
+                              <td
+                                rowSpan={rp.penilaianRP.length || 1}
+                                className="border border-gray-300 p-2"
+                              >
+                                <div className="space-y-1">
                                   <p>
-                                    <span className='font-medium'>Bentuk:</span>{" "}
+                                    <span className="font-medium">Bentuk:</span>{" "}
                                     {rp.bentuk || "-"}
                                   </p>
                                   <p>
-                                    <span className='font-medium'>Metode:</span>{" "}
+                                    <span className="font-medium">Metode:</span>{" "}
                                     {rp.metode || "-"}
                                   </p>
                                   <p>
-                                    <span className='font-medium'>Sumber:</span>{" "}
+                                    <span className="font-medium">Sumber:</span>{" "}
                                     {rp.sumber || "-"}
                                   </p>
                                 </div>
-                              </TableCell>
-                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                              </td>
+                              <td
+                                rowSpan={rp.penilaianRP.length || 1}
+                                className="border border-gray-300 p-2"
+                              >
                                 {rp.waktu || "-"}
-                              </TableCell>
-                              <TableCell rowSpan={rp.penilaianRP.length || 1}>
+                              </td>
+                              <td
+                                rowSpan={rp.penilaianRP.length || 1}
+                                className="border border-gray-300 p-2"
+                              >
                                 {rp.pengalaman || "-"}
-                              </TableCell>
+                              </td>
 
                               {rp.penilaianRP.length > 0 ? (
                                 <>
-                                  <TableCell>
+                                  <td className="border border-gray-300 p-2">
                                     {rp.penilaianRP[0]?.kriteria || "-"}
-                                  </TableCell>
-                                  <TableCell>
+                                  </td>
+                                  <td className="border border-gray-300 p-2">
                                     {rp.penilaianRP[0]?.indikator || "-"}
-                                  </TableCell>
-                                  <TableCell>
+                                  </td>
+                                  <td className="border border-gray-300 p-2">
                                     {rp.penilaianRP[0]?.bobot || "-"}
-                                  </TableCell>
+                                  </td>
                                 </>
                               ) : (
                                 <>
-                                  <TableCell>-</TableCell>
-                                  <TableCell>-</TableCell>
-                                  <TableCell>-</TableCell>
+                                  <td className="border border-gray-300 p-2">
+                                    -
+                                  </td>
+                                  <td className="border border-gray-300 p-2">
+                                    -
+                                  </td>
+                                  <td className="border border-gray-300 p-2">
+                                    -
+                                  </td>
                                 </>
                               )}
-                            </TableRow>
+                            </tr>
 
                             {/* Render additional penilaian rows if there are more than one */}
                             {rp.penilaianRP.slice(1).map((penilaian, idx) => (
-                              <TableRow
-                                key={`week-${weekNum}-penilaian-${idx + 1}`}
-                              >
-                                <TableCell>
+                              <tr key={`week-${weekNum}-penilaian-${idx + 1}`}>
+                                <td className="border border-gray-300 p-2">
                                   {penilaian.kriteria || "-"}
-                                </TableCell>
-                                <TableCell>
+                                </td>
+                                <td className="border border-gray-300 p-2">
                                   {penilaian.indikator || "-"}
-                                </TableCell>
-                                <TableCell>{penilaian.bobot || "-"}</TableCell>
-                              </TableRow>
+                                </td>
+                                <td className="border border-gray-300 p-2">
+                                  {penilaian.bobot || "-"}
+                                </td>
+                              </tr>
                             ))}
-                          </>
+                          </React.Fragment>
                         );
                       }
 
                       // For weeks without data
                       return (
-                        <TableRow key={`week-${weekNum}`}>
-                          <TableCell>{weekNum}</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                          <TableCell>-</TableCell>
-                        </TableRow>
+                        <tr key={`week-${weekNum}`}>
+                          <td className="border border-gray-300 p-2">
+                            {weekNum}
+                          </td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                          <td className="border border-gray-300 p-2">-</td>
+                        </tr>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value='templatePenilaian'>
+          <TabsContent value="templatePenilaian">
             <TemplatePenilaianContent
               templates={mk?.templatePenilaianCPMK}
               mkId={mk?.kode}
@@ -2221,10 +2398,10 @@ export default function Page() {
             />
           </TabsContent>
 
-          <TabsContent value='relasi'>
-            <Card className='w-[1000px] mx-auto'>
-              <CardHeader className='flex flex-row justify-between items-center'>
-                <div className='flex flex-col'>
+          <TabsContent value="relasi">
+            <Card className="w-[1000px] mx-auto">
+              <CardHeader className="flex flex-row justify-between items-center">
+                <div className="flex flex-col">
                   <CardTitle>Sambungkan CPMK/BK untuk MK {mk.kode}</CardTitle>
                   <CardDescription>
                     Capaian Pembelajaran Mata Kuliah / Bahan Kajian
@@ -2237,27 +2414,27 @@ export default function Page() {
                   value={selectedRelasi}
                   onValueChange={(e) => setSelectedRelasi(e)}
                 >
-                  <SelectTrigger className='w-[250px] mb-5'>
-                    <SelectValue placeholder='Pilih CPMK/BK' />
+                  <SelectTrigger className="w-[250px] mb-5">
+                    <SelectValue placeholder="Pilih CPMK/BK" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='CPMK'>CPMK</SelectItem>
-                    <SelectItem value='BK'>BK</SelectItem>
+                    <SelectItem value="CPMK">CPMK</SelectItem>
+                    <SelectItem value="BK">BK</SelectItem>
                   </SelectContent>
                 </Select>
                 {selectedRelasi === "CPMK" ? (
                   <>
-                    <div className='flex flex-row items-center mb-5'>
+                    <div className="flex flex-row items-center mb-5">
                       <input
-                        type='text'
-                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        type="text"
+                        className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
                         value={searchCPMK}
-                        placeholder='Cari...'
+                        placeholder="Cari..."
                         onChange={(e) => setSearchCPMK(e.target.value)}
                       />
                     </div>
                     {/* LIST OF MK */}
-                    <div className='flex overflow-x-auto space-x-4 p-2'>
+                    <div className="flex overflow-x-auto space-x-4 p-2">
                       {filteredCPMK && filteredCPMK.length > 0 ? (
                         filteredCPMK?.map((cpmk, index) => {
                           return (
@@ -2270,14 +2447,14 @@ export default function Page() {
                           );
                         })
                       ) : (
-                        <div className='text-sm'>CPMK Tidak Ditemukan</div>
+                        <div className="text-sm">CPMK Tidak Ditemukan</div>
                       )}
                     </div>
                     {/* SAVE */}
                     <button
                       onClick={updateCPMK}
-                      type='button'
-                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                      type="button"
+                      className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       disabled={kunciSistem?.data}
                     >
                       Simpan
@@ -2285,17 +2462,17 @@ export default function Page() {
                   </>
                 ) : selectedRelasi === "BK" ? (
                   <>
-                    <div className='flex flex-row items-center mb-5'>
+                    <div className="flex flex-row items-center mb-5">
                       <input
-                        type='text'
-                        className='p-2 border-[1px] rounded-md border-gray-400 outline-none'
+                        type="text"
+                        className="p-2 border-[1px] rounded-md border-gray-400 outline-none"
                         value={searchBK}
-                        placeholder='Cari...'
+                        placeholder="Cari..."
                         onChange={(e) => setSearchBK(e.target.value)}
                       />
                     </div>
                     {/* LIST OF BK */}
-                    <div className='flex overflow-x-auto space-x-4 p-2'>
+                    <div className="flex overflow-x-auto space-x-4 p-2">
                       {filteredBK && filteredBK.length > 0 ? (
                         filteredBK?.map((bk, index) => {
                           return (
@@ -2308,14 +2485,14 @@ export default function Page() {
                           );
                         })
                       ) : (
-                        <div className='text-sm'>BK Tidak Ditemukan</div>
+                        <div className="text-sm">BK Tidak Ditemukan</div>
                       )}
                     </div>
                     {/* SAVE */}
                     <button
                       onClick={updateBK}
-                      type='button'
-                      className='w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
+                      type="button"
+                      className="w-full p-2 rounded-md bg-blue-500 text-white mt-5 ease-in-out duration-200 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                       disabled={kunciSistem?.data}
                     >
                       Simpan
