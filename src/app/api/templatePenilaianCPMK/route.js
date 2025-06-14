@@ -49,10 +49,8 @@ export async function GET(req) {
     const templates = await prisma.templatePenilaianCPMK.findMany({
       where,
       include: {
-        penilaianCPMK: true,
-        MK: {
-          select: { kode: true },
-        },
+        penilaianCPMK: { include: { CPL: true, CPMK: true } },
+        MK: true,
       },
       take: limit,
       skip: (currentPage - 1) * limit,
