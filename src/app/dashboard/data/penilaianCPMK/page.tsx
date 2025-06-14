@@ -52,7 +52,7 @@ const DataPenilaianCPMK = () => {
     setIsLoading(true);
     try {
       const response = await axiosConfig.get(
-        `api/templatePenilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}&search=${searchQuery}`
+        `api/templatePenilaianCPMK?prodi=${accountData?.prodiId}&page=${currentPage}&MK=${filterMK}&search=${searchQuery}&limit=9999`
       );
       if (response.data.status === 200) {
         setTemplates(response.data.data);
