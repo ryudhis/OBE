@@ -60,7 +60,7 @@ export async function POST(req) {
 
   try {
     const data = await req.json();
-    const { prodiId, ...restData } = data; // Extract prodiId from data
+    const { prodiId, ketua, ...restData } = data; // Extract prodiId from data
 
     // Validate prodiId and other necessary fields
     if (!prodiId) {
@@ -74,6 +74,11 @@ export async function POST(req) {
     const KK = await prisma.kelompokKeahlian.create({
       data: {
         ...restData,
+        ketua: {
+          connect: {
+            id: ketua, 
+          },
+        },
         prodi: {
           connect: {
             kode: prodiId,
