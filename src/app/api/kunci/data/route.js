@@ -16,7 +16,7 @@ export async function PATCH(req) {
 
     const kunci = await prisma.kunci.update({
       data: {
-        data: !before.data,
+        data: !before.data, 
       },
       where: {
         id: 1,

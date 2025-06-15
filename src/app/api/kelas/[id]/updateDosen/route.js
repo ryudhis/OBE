@@ -18,7 +18,7 @@ export async function PATCH(req, { params }) {
     }
 
     const data = await req.json();
-    const { dosen: incomingDosenIds } = data; // Assumes data has a `dosen` array with IDs to connect/disconnect
+    const { dosen: incomingDosenIds } = data; 
 
     // Fetch current kelas data including dosen connections
     const kelas = await prisma.kelas.findUnique({

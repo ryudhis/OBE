@@ -11,10 +11,10 @@ export async function GET(req) {
   }
 
   const { searchParams } = new URL(req.url);
-  const prodi = searchParams.get("prodi") || ""; // Access prodi query parameter
-  const page = parseInt(searchParams.get("page")) || 1; // Default to page 1
-  const limit = parseInt(searchParams.get("limit")) || 10; // Default to 10 items per page
-  const search = searchParams.get("search") || ""; // Default to empty string
+  const prodi = searchParams.get("prodi") || ""; 
+  const page = parseInt(searchParams.get("page")) || 1; 
+  const limit = parseInt(searchParams.get("limit")) || 10;
+  const search = searchParams.get("search") || ""; 
 
   console.log(search);
 

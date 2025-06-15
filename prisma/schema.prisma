@@ -3,18 +3,19 @@ generator client {
 }
 
 datasource db {
-  provider = "cockroachdb"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model kunci {
-  id    Int     @id @unique @default(sequence())
+  id    Int     @id @unique @default(autoincrement())
   data  Boolean
   nilai Boolean
 }
 
 model tahunAjaran {
-  id              Int               @id @unique @default(sequence())
+  id              Int               @id @unique @default(autoincrement())
   tahun           String
   semester        String
   kelas           kelas[]
@@ -47,7 +48,7 @@ model prodi {
 }
 
 model kelompokKeahlian {
-  id      Int      @id @unique @default(sequence())
+  id      Int      @id @unique @default(autoincrement())
   nama    String
   ketua   account? @relation(name: "KK-ketua", fields: [ketuaId], references: [id])
   ketuaId Int?     @unique
@@ -59,7 +60,7 @@ model kelompokKeahlian {
 }
 
 model account {
-  id         Int               @id @unique @default(sequence())
+  id         Int               @id @unique @default(autoincrement())
   nama       String
   email      String            @unique
   role       String
@@ -77,7 +78,7 @@ model account {
 }
 
 model PL {
-  id        Int     @id @unique @default(sequence())
+  id        Int     @id @unique @default(autoincrement())
   kode      String
   deskripsi String
   CPL       CPL[]   @relation("cpl_pl")
@@ -89,7 +90,7 @@ model PL {
 }
 
 model CPL {
-  id                Int                 @id @unique @default(sequence())
+  id                Int                 @id @unique @default(autoincrement())
   kode              String
   deskripsi         String
   keterangan        String
@@ -106,10 +107,11 @@ model CPL {
 
   @@unique([kode, prodiId])
   @@index([prodiId])
+  @@index([kode])
 }
 
 model performaCPL {
-  id            Int         @id @unique @default(sequence())
+  id            Int         @id @unique @default(autoincrement())
   performa      Float
   CPL           CPL         @relation(fields: [CPLId], references: [id], onDelete: Cascade)
   CPLId         Int
@@ -122,7 +124,7 @@ model performaCPL {
 }
 
 model BK {
-  id        Int    @id @unique @default(sequence())
+  id        Int    @id @unique @default(autoincrement())
   kode      String
   deskripsi String
   min       Int
@@ -168,7 +170,7 @@ model MK {
 }
 
 model templatePenilaianCPMK {
-  id                  Int                   @id @unique @default(sequence())
+  id                  Int                   @id @unique @default(autoincrement())
   template            String
   active              Boolean
   MK                  MK                    @relation(fields: [MKId], references: [kode], onDelete: Cascade)
@@ -181,7 +183,7 @@ model templatePenilaianCPMK {
 }
 
 model rps {
-  id                  Int      @id @unique @default(sequence())
+  id                  Int      @id @unique @default(autoincrement())
   MK                  MK       @relation(name: "mk-rps", fields: [MKId], references: [kode], onDelete: Cascade)
   MKId                String   @unique
   pengembang          account? @relation(fields: [pengembangId], references: [id], onDelete: Cascade)
@@ -202,7 +204,7 @@ model rps {
 }
 
 model lulusMK_CPMK {
-  id            Int         @id @unique @default(sequence())
+  id            Int         @id @unique @default(autoincrement())
   MK            MK          @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId          String
   tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
@@ -218,7 +220,7 @@ model lulusMK_CPMK {
 }
 
 model lulusMK {
-  id              Int         @id @unique @default(sequence())
+  id              Int         @id @unique @default(autoincrement())
   MK              MK          @relation(fields: [MKId], references: [kode], onDelete: Cascade)
   MKId            String
   tahunAjaran     tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
@@ -232,7 +234,7 @@ model lulusMK {
 }
 
 model rencanaPembelajaran {
-  id          Int    @id @unique @default(sequence())
+  id          Int    @id @unique @default(autoincrement())
   minggu      Int
   bahanKajian String
   bentuk      String
@@ -253,7 +255,7 @@ model rencanaPembelajaran {
 }
 
 model penilaianRP {
-  id        Int    @id @unique @default(sequence())
+  id        Int    @id @unique @default(autoincrement())
   kriteria  String
   indikator String
   bobot     Float
@@ -265,7 +267,7 @@ model penilaianRP {
 }
 
 model kelas {
-  id                 Int     @id @unique @default(sequence())
+  id                 Int     @id @unique @default(autoincrement())
   nama               String
   jumlahLulus        Int
   mahasiswaLulus     Json?
@@ -295,7 +297,7 @@ model kelas {
 }
 
 model evaluasiCPMKKelas {
-  id       Int    @id @unique @default(sequence())
+  id       Int    @id @unique @default(autoincrement())
   kelas    kelas  @relation(fields: [kelasId], references: [id], onDelete: Cascade)
   kelasId  Int
   CPMK     CPMK   @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
@@ -308,7 +310,7 @@ model evaluasiCPMKKelas {
 }
 
 model evaluasiCPLKelas {
-  id       Int    @id @unique @default(sequence())
+  id       Int    @id @unique @default(autoincrement())
   kelas    kelas  @relation(fields: [kelasId], references: [id], onDelete: Cascade)
   kelasId  Int
   CPL      CPL    @relation(fields: [CPLId], references: [id], onDelete: Cascade)
@@ -321,7 +323,7 @@ model evaluasiCPLKelas {
 }
 
 model lulusKelas_CPMK {
-  id            Int         @id @unique @default(sequence())
+  id            Int         @id @unique @default(autoincrement())
   kelas         kelas       @relation(fields: [kelasId], references: [id], onDelete: Cascade)
   kelasId       Int
   CPMK          CPMK        @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
@@ -337,7 +339,7 @@ model lulusKelas_CPMK {
 }
 
 model CPMK {
-  id                Int                 @id @unique @default(sequence())
+  id                Int                 @id @unique @default(autoincrement())
   kode              String
   deskripsi         String
   CPL               CPL                 @relation(fields: [CPLKode], references: [id], onDelete: Cascade)
@@ -359,7 +361,7 @@ model CPMK {
 }
 
 model lulusCPMK {
-  id            Int         @id @unique @default(sequence())
+  id            Int         @id @unique @default(autoincrement())
   CPMK          CPMK        @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
   CPMKId        Int
   tahunAjaran   tahunAjaran @relation(fields: [tahunAjaranId], references: [id], onDelete: Cascade)
@@ -372,7 +374,7 @@ model lulusCPMK {
 }
 
 model penilaianCPMK {
-  id                      Int                   @id @unique @default(sequence())
+  id                      Int                   @id @unique @default(autoincrement())
   kode                    String
   CPL                     CPL                   @relation(fields: [CPLkode], references: [id], onDelete: Cascade)
   CPLkode                 Int
@@ -414,7 +416,7 @@ model mahasiswa {
 }
 
 model mahasiswa_MK {
-  id           Int       @id @unique @default(sequence())
+  id           Int       @id @unique @default(autoincrement())
   mahasiswa    mahasiswa @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim String
   MK           MK        @relation(fields: [MKId], references: [kode], onDelete: Cascade)
@@ -427,7 +429,7 @@ model mahasiswa_MK {
 }
 
 model mahasiswa_MK_CPMK {
-  id           Int       @id @unique @default(sequence())
+  id           Int       @id @unique @default(autoincrement())
   mahasiswa    mahasiswa @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim String
   MK           MK        @relation(fields: [MKId], references: [kode], onDelete: Cascade)
@@ -443,7 +445,7 @@ model mahasiswa_MK_CPMK {
 }
 
 model mahasiswa_CPMK {
-  id           Int       @id @unique @default(sequence())
+  id           Int       @id @unique @default(autoincrement())
   mahasiswa    mahasiswa @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim String
   CPMK         CPMK      @relation(fields: [CPMKId], references: [id], onDelete: Cascade)
@@ -456,7 +458,7 @@ model mahasiswa_CPMK {
 }
 
 model performaMahasiswa {
-  id           Int       @id @unique @default(sequence())
+  id           Int       @id @unique @default(autoincrement())
   mahasiswa    mahasiswa @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)
   mahasiswaNim String
   CPL          CPL       @relation(fields: [CPLId], references: [id], onDelete: Cascade)
@@ -469,7 +471,7 @@ model performaMahasiswa {
 }
 
 model inputNilai {
-  id              Int           @unique @default(sequence())
+  id              Int           @unique @default(autoincrement())
   penilaianCPMK   penilaianCPMK @relation(fields: [penilaianCPMKId], references: [id], onDelete: Cascade)
   penilaianCPMKId Int
   mahasiswa       mahasiswa     @relation(fields: [mahasiswaNim], references: [nim], onDelete: Cascade)

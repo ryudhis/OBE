@@ -210,7 +210,7 @@ const RenderDataRP = ({ templatePenilaian, setRefresh }: RenderDataRPProps) => {
     return { success: true };
   };
 
-  // Dummy function to delete a Rencana Pembelajaran
+  // delete a Rencana Pembelajaran
   const delRencana = async (id: number) => {
     const result = await Swal.fire({
       title: "Tunggu !..",

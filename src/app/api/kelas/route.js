@@ -49,8 +49,8 @@ export async function POST(req) {
 
   try {
     const data = await req.json();
-    const jumlahKelas = Math.max(1, Math.min(data.jumlahKelas, 4)); // Limit between 1 and 4
-    const namaBase = "R"; // Base name for kelas
+    const jumlahKelas = Math.max(1, Math.min(data.jumlahKelas, 4)); 
+    const namaBase = "R"; 
 
     const templateId = await prisma.templatePenilaianCPMK.findFirst({
       where: {

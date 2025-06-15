@@ -5,7 +5,8 @@ async function main() {
   try {
     await prisma.kunci.create({
       data: {
-        kunci: false,
+        nilai: false,
+        data: false,
       },
     });
 
