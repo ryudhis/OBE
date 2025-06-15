@@ -235,107 +235,113 @@ export default function Page() {
       const response = await axiosConfig.get(`api/mk/${kode}`);
 
       if (response.data.status !== 400) {
-      } else {
-        alert(response.data.message);
-      }
-      if (response.data.data.prodiId !== accountData?.prodiId) {
-        router.push("/dashboard");
-        toast({
-          title: `Kamu Tidak Memiliki Akses Ke Halaman Detail MK Prodi ${response.data.data.prodiId}`,
-          variant: "destructive",
-        });
-      } else {
-        setMK(response.data.data);
+        if (response.data.data.prodiId !== accountData?.prodiId) {
+          router.push("/dashboard");
+          toast({
+            title: `Kamu Tidak Memiliki Akses Ke Halaman Detail MK Prodi ${response.data.data.prodiId}`,
+            variant: "destructive",
+          });
+        } else {
+          setMK(response.data.data);
 
-        const activeTemplate = response.data.data.templatePenilaianCPMK.find(
-          (template: TemplatePenilaianCPMK) => template.active === true
-        );
+          const activeTemplate = response.data.data.templatePenilaianCPMK.find(
+            (template: TemplatePenilaianCPMK) => template.active === true
+          );
 
-        if (activeTemplate) {
-          setCurrentTemplate(activeTemplate);
-          setRencanaByWeek(
-            activeTemplate.rencanaPembelajaran.reduce(
-              (
-                acc: Record<number, RencanaPembelajaran>,
-                rp: RencanaPembelajaran
-              ) => {
-                acc[rp.minggu] = rp;
-                return acc;
-              },
-              {} as Record<number, RencanaPembelajaran>
+          if (activeTemplate) {
+            setCurrentTemplate(activeTemplate);
+            setRencanaByWeek(
+              activeTemplate.rencanaPembelajaran.reduce(
+                (
+                  acc: Record<number, RencanaPembelajaran>,
+                  rp: RencanaPembelajaran
+                ) => {
+                  acc[rp.minggu] = rp;
+                  return acc;
+                },
+                {} as Record<number, RencanaPembelajaran>
+              )
+            );
+          }
+
+          const uniqueCPLMap = new Map();
+
+          response.data.data.CPMK.forEach((cpmk: CPMK) => {
+            const cpl = cpmk.CPL;
+            if (!uniqueCPLMap.has(cpl.kode)) {
+              uniqueCPLMap.set(cpl.kode, cpl);
+            }
+          });
+
+          setListCPL(Array.from(uniqueCPLMap.values()));
+
+          console.log(
+            Array.from(
+              new Set(response.data.data.CPMK.map((cpmk: CPMK) => cpmk.CPL))
             )
           );
-        }
 
-        const uniqueCPLMap = new Map();
-
-        response.data.data.CPMK.forEach((cpmk: CPMK) => {
-          const cpl = cpmk.CPL;
-          if (!uniqueCPLMap.has(cpl.kode)) {
-            uniqueCPLMap.set(cpl.kode, cpl);
-          }
-        });
-
-        setListCPL(Array.from(uniqueCPLMap.values()));
-
-        console.log(
-          Array.from(
-            new Set(response.data.data.CPMK.map((cpmk: CPMK) => cpmk.CPL))
-          )
-        );
-
-        const prevSelectedCPMK = response.data.data.CPMK.map(
-          (item: CPMK) => item.kode
-        );
-
-        const prevSelectedBK = response.data.data.BK.map(
-          (item: BK) => item.kode
-        );
-
-        const prevPrerequisite = response.data.data.prerequisitesMK.map(
-          (item: MK) => item.kode
-        );
-
-        setSelectedCPMK(prevSelectedCPMK);
-        setPrevSelectedCPMK(prevSelectedCPMK);
-
-        setSelectedBK(prevSelectedBK);
-        setPrevSelectedBK(prevSelectedBK);
-
-        setSelectedPrerequisite(prevPrerequisite);
-        setPrevPrerequisite(prevPrerequisite);
-
-        //form edit data mk
-        form.setValue("deskripsi", response.data.data.deskripsi);
-        form.setValue("deskripsiInggris", response.data.data.deskripsiInggris);
-        form.setValue("sks", response.data.data.sks);
-        form.setValue("semester", response.data.data.semester);
-        form.setValue(
-          "batasLulusMahasiswa",
-          String(response.data.data.batasLulusMahasiswa)
-        );
-        form.setValue("batasLulusMK", String(response.data.data.batasLulusMK));
-
-        //form revisi rps
-        if (response.data.data.rps) {
-          rpsForm.setValue("deskripsi", response.data.data.rps.deskripsi);
-          rpsForm.setValue(
-            "materiPembelajaran",
-            response.data.data.rps.materiPembelajaran
+          const prevSelectedCPMK = response.data.data.CPMK.map(
+            (item: CPMK) => item.kode
           );
-          rpsForm.setValue("hardware", response.data.data.rps.hardware);
-          rpsForm.setValue("software", response.data.data.rps.software);
 
-          rpsForm.setValue("pustakaUtama", []);
-          response.data.data.rps.pustakaUtama.map((item: string) => {
-            appendPustakaUtama({ name: item });
-          });
+          const prevSelectedBK = response.data.data.BK.map(
+            (item: BK) => item.kode
+          );
 
-          rpsForm.setValue("pustakaPendukung", []);
-          response.data.data.rps.pustakaPendukung.map((item: string) => {
-            appendPustakaPendukung({ name: item });
-          });
+          const prevPrerequisite = response.data.data.prerequisitesMK.map(
+            (item: MK) => item.kode
+          );
+
+          setSelectedCPMK(prevSelectedCPMK);
+          setPrevSelectedCPMK(prevSelectedCPMK);
+
+          setSelectedBK(prevSelectedBK);
+          setPrevSelectedBK(prevSelectedBK);
+
+          setSelectedPrerequisite(prevPrerequisite);
+          setPrevPrerequisite(prevPrerequisite);
+
+          //form edit data mk
+          form.setValue("deskripsi", response.data.data.deskripsi);
+          form.setValue(
+            "deskripsiInggris",
+            response.data.data.deskripsiInggris
+          );
+          form.setValue("sks", response.data.data.sks);
+          form.setValue("semester", response.data.data.semester);
+          form.setValue(
+            "batasLulusMahasiswa",
+            String(response.data.data.batasLulusMahasiswa)
+          );
+          form.setValue(
+            "batasLulusMK",
+            String(response.data.data.batasLulusMK)
+          );
+
+          //form revisi rps
+          if (response.data.data.rps) {
+            rpsForm.setValue("deskripsi", response.data.data.rps.deskripsi);
+            rpsForm.setValue(
+              "materiPembelajaran",
+              response.data.data.rps.materiPembelajaran
+            );
+            rpsForm.setValue("hardware", response.data.data.rps.hardware);
+            rpsForm.setValue("software", response.data.data.rps.software);
+
+            rpsForm.setValue("pustakaUtama", []);
+            response.data.data.rps.pustakaUtama.map((item: string) => {
+              appendPustakaUtama({ name: item });
+            });
+
+            rpsForm.setValue("pustakaPendukung", []);
+            response.data.data.rps.pustakaPendukung.map((item: string) => {
+              appendPustakaPendukung({ name: item });
+            });
+          }
         }
+      } else {
+        alert(response.data.message);
       }
     } catch (error: any) {
       throw error;

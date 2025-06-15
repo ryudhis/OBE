@@ -34,19 +34,18 @@ export default function Page() {
   const getMahasiswa = async () => {
     try {
       const response = await axiosConfig.get(`api/mahasiswa/${id}`);
-
       if (response.data.status !== 400) {
+        if (response.data.data.prodiId !== accountData?.prodiId) {
+          router.push("/dashboard");
+          toast({
+            title: `Anda tidak memiliki akses untuk page detail Mahasiswa prodi ${response.data.data.prodiId}`,
+            variant: "destructive",
+          });
+        } else {
+          setMahasiswa(response.data.data);
+        }
       } else {
         alert(response.data.message);
-      }
-      if (response.data.data.prodiId !== accountData?.prodiId) {
-        router.push("/dashboard");
-        toast({
-          title: `Anda tidak memiliki akses untuk page detail PL prodi ${response.data.data.prodiId}`,
-          variant: "destructive",
-        });
-      } else {
-        setMahasiswa(response.data.data);
       }
     } catch (error: any) {
       throw error;
