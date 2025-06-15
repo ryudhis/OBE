@@ -25,14 +25,18 @@ export async function PATCH(req, { params }) {
       );
     }
 
+    console.log("Current Template:", currentTemplate);
+
     // Find the currently active template for the same MK (if any)
     const existingActive = await prisma.templatePenilaianCPMK.findFirst({
       where: {
-        mataKuliahId: currentTemplate.mataKuliahId,
+        MKId: currentTemplate.MKId,
         active: true,
         NOT: { id },
       },
     });
+
+    console.log("Existing Active Template:", existingActive);
 
     // Deactivate the currently active template if it's different
     if (existingActive) {
